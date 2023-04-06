@@ -9,6 +9,8 @@ export default class extends BaseSchema {
 
       table.string('name')
       table.string('version')
+
+      table.timestamp('created_at', { useTz: true })
     })
   }
 

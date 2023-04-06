@@ -6,11 +6,14 @@ import Env from '@ioc:Adonis/Core/Env'
 import axios from 'axios'
 
 export default class AiImage extends BaseModel {
-  @column({ isPrimary: true })
+  @column({ isPrimary: true, serializeAs: null })
   public id: number
 
   @column()
   public uuid: string
+
+  @column({ serializeAs: null })
+  public modelId: BigInt
 
   @column({
     // Enable saving BigInts on data...

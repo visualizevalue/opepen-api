@@ -4,7 +4,7 @@ import AiImage from 'App/Models/AiImage'
 import { GeneratorInterface } from './GeneratorInterface'
 import Replicate from './../Replicate'
 
-type StableDiffusionEdgeDetectionInput = {
+type Input = {
   prompt: string,
   base_image?: string,
   input_image?: Buffer,
@@ -12,42 +12,42 @@ type StableDiffusionEdgeDetectionInput = {
   detail?: number,
 }
 
-type ControlnetHedInput = {
-  input_image: string,
+type StableDiffusionInput = {
+  image: string,
   prompt: string,
   seed: number,
-  image_resolution?: '256'|'512'|'768',
-  ddim_steps?: number, // default 20
-  scale?: number, // default 9
-  eta?: number, // default 0
-  a_prompt?: string,
-  n_prompt?: string,
-  detect_resolution?: number, // default 512
+  num_outputs: number,
+  prompt_strength: number,
+  negative_prompt?: string,
+  image_dimensions?: '512x512'|'768x768',
+  num_inference_steps?: number, // default 50
+  guidance_scale?: number, // default 7.5
+  scheduler?: 'DDIM'|'K_EULER'|'DPMSolverMultistep'|'K_EULER_ANCESTRAL'|'PNDM'|'KLMS', // default DPMSolverMultistep
 }
 
-type ControlnetHedOutput = string[]
+type StableDiffusionnnOutput = string[]
 
 /**
  * Generate images using a stable diffusion edge detection technique.
  */
-export default class StableDiffusionEdgeDetection implements GeneratorInterface {
+export default class StableDiffusion implements GeneratorInterface {
   // The local model ID
-  modelId = 2
+  modelId = 1
 
   // The global model ID
-  model = 'jagilley/controlnet-hed'
+  model = 'stability-ai/stable-diffusion-img2img'
 
   // The model version
-  version = 'cde353130c86f37d0af4060cd757ab3009cac68eb58df216768f907f0d0a0653'
+  version = '15a3689ee13b0d2616e98820eca31d4c3abcd36672df6afce5cb6feb1d66087d'
 
   // The bag of input variables for the job
-  input: StableDiffusionEdgeDetectionInput
+  input: Input
 
   /**
    * Construct the edge detection generator.
    * @param input The input parameters for generating the image.
    */
-  constructor(input: StableDiffusionEdgeDetectionInput) {
+  constructor(input: Input) {
     input.seed = input.seed || getRandomSafeBigInt()
     input.detail = input.detail || this.getDetail(input.seed)
 
@@ -63,16 +63,29 @@ export default class StableDiffusionEdgeDetection implements GeneratorInterface 
    * Generates an AI image using the stable diffusion edge detection technique.
    */
   async generate(): Promise<AiImage> {
-    const input: ControlnetHedInput = {
-      input_image: `data:image/png;base64,${
-        (this.input.input_image || await Drive.get(`inputs/${this.input.base_image}.png`)).toString('base64')
+    const input: StableDiffusionInput = {
+      image: `data:image/png;base64,${
+        (
+          await Drive.get(this.input.input_image
+            ? `images/${this.input.input_image}.png`
+            : `inputs/${this.input.base_image}.png`
+          )
+        ).toString('base64')
       }`,
       prompt: this.input.prompt,
+      prompt_strength: 0.5,
+      negative_prompt: 'blurry, deformed',
       seed: Number(this.input.seed) || 0,
-      scale: this.input.detail,
+      num_outputs: 1,
+      num_inference_steps: 25,
+      guidance_scale: this.getGuidance(),
+      scheduler: 'DPMSolverMultistep',
     }
 
-    const output: ControlnetHedOutput = (await Replicate.run(this.modelKey, { input })) as ControlnetHedOutput
+    console.log(input)
+
+    const output: StableDiffusionnnOutput = (await Replicate.run(this.modelKey, { input })) as StableDiffusionnnOutput
+    console.log('output', output)
 
     return await AiImage.fromURI(output[output.length - 1], {
       data: this.input,
@@ -92,7 +105,25 @@ export default class StableDiffusionEdgeDetection implements GeneratorInterface 
    * @param seed The seed value used for generating the image.
    */
   private getDetail(seed: bigint): number {
+    return Number(seed % 100n)
+  }
+
+  /**
+   * Calculates the guidance scale based on the input detail value.
+   */
+  private getGuidance(): number {
+    const detail: number = this.input.detail || 0
+
+    return detail < 10 ? 6
+         : detail < 90 ? 9
+         : 12
+  }
+
+  private getPromptStrength(seed: bigint): number {
     const input = seed % 100n
+
+    // 0.66
+    //
 
     return input < 2  ? 0.2
          : input < 10 ? 2
