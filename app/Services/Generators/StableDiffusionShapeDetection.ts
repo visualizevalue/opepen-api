@@ -1,15 +1,14 @@
-import Drive from '@ioc:Adonis/Core/Drive'
 import { getRandomSafeBigInt } from 'App/Helpers/bigints'
 import AiImage from 'App/Models/AiImage'
+import Replicate from 'App/Services/Replicate'
 import { GeneratorInterface } from './GeneratorInterface'
-import Replicate from './../Replicate'
 
 type StableDiffusionShapeDetectionInput = {
   prompt: string,
-  base_image?: string,
-  input_image?: Buffer,
   seed?: bigint,
   detail?: number,
+  input_image?: Buffer,
+  base_image?: Buffer
 }
 
 type ControlnetDpth2ImgInput = {
@@ -51,11 +50,6 @@ export default class StableDiffusionShapeDetection implements GeneratorInterface
     input.seed = input.seed || getRandomSafeBigInt()
     input.detail = input.detail || this.getDetail(input.seed)
 
-    // Set the default base image if none is provided
-    if (! input.input_image) {
-      input.base_image = input.base_image || 'opepen-base'
-    }
-
     this.input = input
   }
 
@@ -65,7 +59,7 @@ export default class StableDiffusionShapeDetection implements GeneratorInterface
   async generate(): Promise<AiImage> {
     const input: ControlnetDpth2ImgInput = {
       image: `data:image/png;base64,${
-        (this.input.input_image || await Drive.get(`inputs/${this.input.base_image}.png`)).toString('base64')
+        (this.input.input_image || this.input.base_image || Buffer.from('')).toString('base64')
       }`,
       prompt: this.input.prompt,
       seed: Number(this.input.seed) || 0,
@@ -76,7 +70,10 @@ export default class StableDiffusionShapeDetection implements GeneratorInterface
     const output: ControlnetDpth2ImgOutput = (await Replicate.run(this.modelKey, { input })) as ControlnetDpth2ImgOutput
 
     return await AiImage.fromURI(output[output.length - 1], {
-      data: this.input,
+      data: {
+        ...input,
+        image: undefined,
+      },
       modelId: this.modelId,
     })
   }
