@@ -82,10 +82,7 @@ export default class StableDiffusion implements GeneratorInterface {
       scheduler: 'DPMSolverMultistep',
     }
 
-    console.log(input)
-
     const output: StableDiffusionnnOutput = (await Replicate.run(this.modelKey, { input })) as StableDiffusionnnOutput
-    console.log('output', output)
 
     return await AiImage.fromURI(output[output.length - 1], {
       data: this.input,

@@ -25,3 +25,4 @@ Route.get('/', async () => {
 })
 
 Route.post('/dream', 'DreamController')
+Route.post('/svg-test', 'SVG2PNGController')
