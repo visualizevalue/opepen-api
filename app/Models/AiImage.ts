@@ -4,6 +4,7 @@ import { BaseModel, beforeCreate, column, computed } from '@ioc:Adonis/Lucid/Orm
 import Drive from '@ioc:Adonis/Core/Drive'
 import Env from '@ioc:Adonis/Core/Env'
 import axios from 'axios'
+import { prepareBigIntJson } from 'App/Helpers/bigints'
 
 export default class AiImage extends BaseModel {
   @column({ isPrimary: true, serializeAs: null })
@@ -13,16 +14,10 @@ export default class AiImage extends BaseModel {
   public uuid: string
 
   @column({ serializeAs: null })
-  public modelId: BigInt
+  public modelId: number
 
   @column({
-    // Enable saving BigInts on data...
-    prepare: (data: object) =>
-      JSON.parse(JSON.stringify(data, (_, value) =>
-        typeof value === 'bigint'
-            ? value.toString()
-            : value
-      ))
+    prepare: prepareBigIntJson,
   })
   public data: object
 

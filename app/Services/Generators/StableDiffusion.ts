@@ -115,17 +115,4 @@ export default class StableDiffusion implements GeneratorInterface {
          : detail < 90 ? 9
          : 12
   }
-
-  private getPromptStrength(seed: bigint): number {
-    const input = seed % 100n
-
-    // 0.66
-    //
-
-    return input < 2  ? 0.2
-         : input < 10 ? 2
-         : input < 50 ? 5
-         : input < 80 ? 12
-         : 19
-  }
 }

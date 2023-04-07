@@ -16,3 +16,11 @@ export function getRandomSafeBigInt(): bigint {
 export function maxBigInt(a: bigint, b: bigint): bigint {
   return a > b ? a : b;
 }
+
+export function prepareBigIntJson(data: object): object {
+  return JSON.parse(JSON.stringify(data, (_, value) =>
+    typeof value === 'bigint'
+        ? value.toString()
+        : value
+  ))
+}

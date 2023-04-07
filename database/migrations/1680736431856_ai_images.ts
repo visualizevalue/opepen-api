@@ -8,8 +8,8 @@ export default class extends BaseSchema {
       table.increments('id')
       table.uuid('uuid').unique()
 
-      table.bigInteger('model_id').index('ai_images_model_id')
-      table.foreign('model_id').references('ai_models.id')
+      table.bigInteger('journey_step_id').references('id').inTable('journey_steps')
+      table.bigInteger('model_id').references('id').inTable('ai_models')
 
       table.jsonb('data')
 

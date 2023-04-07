@@ -33,5 +33,6 @@ export default Env.rules({
   S3_BUCKET: Env.schema.string(),
   S3_REGION: Env.schema.string(),
   S3_ENDPOINT: Env.schema.string.optional(),
+  RPC_PROVIDER: Env.schema.string(),
   REPLICATE_API_TOKEN: Env.schema.string(),
 })
