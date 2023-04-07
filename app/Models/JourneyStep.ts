@@ -1,13 +1,28 @@
 import { DateTime } from 'luxon'
-import { BaseModel, BelongsTo, belongsTo, column } from '@ioc:Adonis/Lucid/Orm'
+import { v4 as uuid } from 'uuid'
+import { BaseModel, beforeCreate, BelongsTo, belongsTo, column, HasMany, hasMany } from '@ioc:Adonis/Lucid/Orm'
 import { prepareBigIntJson } from 'App/Helpers/bigints'
 import Journey from './Journey'
+import AiImage from './AiImage'
+import { OpepenOptions } from 'App/Services/OpepenSVG/OpepenGenerator'
+
+type StepConfig = {
+  opepen?: OpepenOptions
+}
 
 export default class JourneyStep extends BaseModel {
-  @column({ isPrimary: true })
+  @column({ isPrimary: true, serializeAs: null })
   public id: bigint
 
   @column()
+  public uuid: string
+
+  @beforeCreate()
+  public static async createUUID (model: Journey) {
+    model.uuid = uuid()
+  }
+
+  @column({ serializeAs: null })
   public journeyId: bigint
 
   @column()
@@ -16,14 +31,14 @@ export default class JourneyStep extends BaseModel {
   @column({
     prepare: prepareBigIntJson,
   })
-  public config: object
+  public config: StepConfig
 
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime
 
-  @column.dateTime({ autoCreate: true, autoUpdate: true })
-  public updatedAt: DateTime
-
   @belongsTo(() => Journey)
   public journey: BelongsTo<typeof Journey>
+
+  @hasMany(() => AiImage)
+  public images: HasMany<typeof AiImage>
 }

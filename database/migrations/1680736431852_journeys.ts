@@ -6,6 +6,7 @@ export default class extends BaseSchema {
   public async up () {
     this.schema.createTable(this.tableName, (table) => {
       table.bigIncrements('id')
+      table.uuid('uuid').unique()
 
       table.string('title')
       table.string('owner').references('address').inTable('accounts')

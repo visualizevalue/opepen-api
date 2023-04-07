@@ -3,10 +3,10 @@ import StableDiffusionShapeDetection from 'App/Services/Generators/StableDiffusi
 import { generateOpepenPNG } from 'App/Services/OpepenSVG/OpepenGenerator'
 
 export default class DreamController {
+  // TODO: Authenticate
   public async handle({ request }: HttpContextContract) {
     const input = {
       base_image: await generateOpepenPNG(request.input('opepen')),
-      // input_image: request.input('input_image'),
       prompt: request.input('prompt'),
     }
 

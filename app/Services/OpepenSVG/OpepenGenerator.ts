@@ -1,6 +1,6 @@
 import sharp from "sharp"
 
-type Options = {
+export type OpepenOptions = {
   bg?: string,
   fill?: string,
   stroke?: {
@@ -23,7 +23,7 @@ type Options = {
   },
 }
 
-const generateOpepenSVG = (options: Options) => {
+const generateOpepenSVG = (options: OpepenOptions) => {
   const strokeWidth = options.stroke?.width || 1
 
   return `

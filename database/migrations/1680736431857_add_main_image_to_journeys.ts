@@ -5,7 +5,7 @@ export default class extends BaseSchema {
 
   public async up () {
     this.schema.alterTable(this.tableName, (table) => {
-      table.bigInteger('main_image_id').references('id').inTable('ai_images').index('journeys_ai_image_id')
+      table.bigInteger('main_image_id').references('id').inTable('ai_images').index('journeys_main_image_id')
     })
   }
 

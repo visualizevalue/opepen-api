@@ -20,9 +20,20 @@
 
 import Route from '@ioc:Adonis/Core/Route'
 
-Route.get('/', async () => {
-  return { hello: 'opepenai' }
-})
+// Welcome
+Route.get('/', () => ({ hello: 'opepenai' }))
 
+// Journeys
+Route.get('/accounts/:id/journeys',   'JourneysController.forAccount')
+Route.get('/journeys/:id',            'JourneysController.show')
+Route.post('/journeys',               'JourneysController.store')
+Route.put('/journeys/:id',            'JourneysController.update')
+
+// Steps
+Route.get('/journeys/:id/steps',      'JourneyStepsController.forJourney')
+Route.post('/journeys/:id/steps',     'JourneyStepsController.store')
+Route.post('/steps/:id/dream',        'JourneyStepsController.dream')
+
+// Misc
 Route.post('/dream', 'DreamController')
 Route.post('/svg-test', 'SVG2PNGController')

@@ -3,7 +3,7 @@ import AiImage from 'App/Models/AiImage'
 import Replicate from 'App/Services/Replicate'
 import { GeneratorInterface } from './GeneratorInterface'
 
-type StableDiffusionShapeDetectionInput = {
+export type StableDiffusionShapeDetectionInput = {
   prompt: string,
   seed?: bigint,
   detail?: number,
