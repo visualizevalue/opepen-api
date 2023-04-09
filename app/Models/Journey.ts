@@ -46,4 +46,12 @@ export default class Journey extends BaseModel {
 
   @hasMany(() => JourneyStep)
   public steps: HasMany<typeof JourneyStep>
+
+  @hasOne(() => JourneyStep, {
+    onQuery: query => {
+      query.orderBy('createdAt', 'desc')
+      query.first()
+    }
+  })
+  public lastStep: HasOne<typeof JourneyStep>
 }

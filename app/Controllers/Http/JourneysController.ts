@@ -30,7 +30,9 @@ export default class JourneysController extends BaseController {
   public async show({ params }: HttpContextContract) {
     const journey = await Journey.findByOrFail('uuid', params.id)
 
-    await journey.load('mainImage')
+    if (journey.mainImageId) await journey.load('mainImage')
+
+    await journey.load('lastStep')
 
     return journey
   }
@@ -50,6 +52,9 @@ export default class JourneysController extends BaseController {
       prompt: request.input('prompt'),
       config: request.input('config'),
     })
+
+    // Load the initial step
+    await journey.load('lastStep')
 
     return journey
   }
