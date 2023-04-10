@@ -1,4 +1,7 @@
-import sharp from "sharp"
+import sharp from 'sharp'
+import { randomBetween } from 'App/Helpers/random'
+
+type ShapeForm = 'rounded'|'square'
 
 export type OpepenOptions = {
   bg?: string,
@@ -14,16 +17,54 @@ export type OpepenOptions = {
   leftEye?: number,
   rightEye?: number,
   mouth?: {
-    form?: string,
+    form?: ShapeForm,
     variation?: number,
   },
   torso?: {
-    form?: string,
+    form?: ShapeForm,
     variation?: number,
   },
 }
 
-const generateOpepenSVG = (options: OpepenOptions) => {
+export const generateOpepenConfig = (options: OpepenOptions): OpepenOptions => {
+  const bg = options.bg || (Math.random() > 0.5 ? '#fff' : '#ddd')
+
+  const fillRandomizer = Math.random()
+  const fill = options.fill || (
+    fillRandomizer < 0.3 ? 'transparent'
+      : fillRandomizer > 0.7 ? 'black'
+      : '#696969'
+  )
+
+  const stroke = options.stroke || {
+    width: Math.random() > 0.5 && fill !== 'transparent' ? 0 : randomBetween(1, 20),
+    color: 'black'
+  }
+
+  const leftEye = options.leftEye || randomBetween(1, 5)
+  const rightEye = options.rightEye || randomBetween(1, 5)
+  const mouth = options.mouth || {
+    form: Math.random() > 0.5 ? 'square' : 'rounded',
+    variation: randomBetween(1, 5),
+  }
+  const torso = options.torso || {
+    form: Math.random() > 0.5 ? 'square' : 'rounded',
+    variation: randomBetween(0, 4),
+  }
+
+  return {
+    ...options,
+    bg,
+    stroke,
+    fill,
+    leftEye,
+    rightEye,
+    mouth,
+    torso
+  }
+}
+
+export const generateOpepenSVG = (options: OpepenOptions) => {
   const strokeWidth = options.stroke?.width || 1
 
   return `
@@ -178,6 +219,10 @@ const generateOpepenSVG = (options: OpepenOptions) => {
             <use href="#4x1" />
             <use y="64" href="#4x1" />
           </g>
+          <g id="mouth-square-5">
+            <use href="#4x1" />
+            <use y="64" href="#4x1" />
+          </g>
 
 
           <!-- TORSO -->
@@ -309,10 +354,8 @@ const generateOpepenSVG = (options: OpepenOptions) => {
     </svg>`
 }
 
-export const generateOpepenPNG = (options: Options) => {
+export const generateOpepenPNG = (options: OpepenOptions) => {
   return sharp(Buffer.from(generateOpepenSVG(options)))
     .toFormat('png')
     .toBuffer()
 }
-
-export default generateOpepenSVG

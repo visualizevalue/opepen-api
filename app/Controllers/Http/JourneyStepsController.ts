@@ -2,7 +2,7 @@ import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import Journey from 'App/Models/Journey'
 import JourneyStep from 'App/Models/JourneyStep'
 import StableDiffusionShapeDetection, { StableDiffusionShapeDetectionInput } from 'App/Services/Generators/StableDiffusionShapeDetection'
-import { generateOpepenPNG } from 'App/Services/OpepenSVG/OpepenGenerator'
+import { generateOpepenConfig, generateOpepenPNG } from 'App/Services/OpepenSVG/OpepenGenerator'
 import BaseController from './BaseController'
 
 export default class JourneyStepsController extends BaseController {
@@ -40,13 +40,16 @@ export default class JourneyStepsController extends BaseController {
   public async dream({ params }: HttpContextContract) {
     const step = await JourneyStep.findByOrFail('uuid', params.id)
 
+    const baseConfig = await generateOpepenConfig(step.config.opepen || {})
+
     const input: StableDiffusionShapeDetectionInput = {
       prompt: step.prompt,
-      base_image: await generateOpepenPNG(step.config.opepen),
+      base_image: await generateOpepenPNG(baseConfig),
     }
 
     const image = await (new StableDiffusionShapeDetection(input)).generate()
     image.journeyStepId = step.id
+    image.data.opepen = baseConfig
 
     return await image.save()
   }

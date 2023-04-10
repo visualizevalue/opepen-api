@@ -6,6 +6,7 @@ import Env from '@ioc:Adonis/Core/Env'
 import axios from 'axios'
 import { prepareBigIntJson } from 'App/Helpers/bigints'
 import JourneyStep from './JourneyStep'
+import { Keyable } from 'App/Helpers/types'
 
 export default class AiImage extends BaseModel {
   @column({ isPrimary: true, serializeAs: null })
@@ -28,7 +29,7 @@ export default class AiImage extends BaseModel {
   @column({
     prepare: prepareBigIntJson,
   })
-  public data: object
+  public data: Keyable
 
   @column.dateTime({ autoCreate: true, serializeAs: null })
   public createdAt: DateTime
