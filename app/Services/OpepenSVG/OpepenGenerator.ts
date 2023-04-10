@@ -37,7 +37,9 @@ export const generateOpepenConfig = (options: OpepenOptions): OpepenOptions => {
   )
 
   const stroke = options.stroke || {
-    width: Math.random() > 0.5 && fill !== 'transparent' ? 0 : randomBetween(1, 20),
+    width: Math.random() > 0.5 || fill === 'transparent'
+      ? Math.random() > 0.5 ? randomBetween(1, 3) : randomBetween(1, 20)
+      : 0,
     color: 'black'
   }
 
