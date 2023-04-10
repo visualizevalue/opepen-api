@@ -14,6 +14,10 @@ const DEFAULT_MODELS = [
     name: 'jagilley/controlnet-depth2img',
     version: '922c7bb67b87ec32cbc2fd11b1d5f94f0ba4f5519c4dbd02856376444127cc60',
   },
+  {
+    name: 'jagilley/controlnet-canny',
+    version: 'aff48af9c68d162388d230a2ab003f68d2638d88307bdaf1c2f1ac95079c9613',
+  },
 ]
 
 export default class extends BaseSchema {
