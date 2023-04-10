@@ -65,7 +65,7 @@ export const generateOpepenConfig = (options: OpepenOptions): OpepenOptions => {
 }
 
 export const generateOpepenSVG = (options: OpepenOptions) => {
-  const strokeWidth = options.stroke?.width || 1
+  const strokeWidth = typeof options.stroke?.width === 'number' ? options.stroke?.width : 1
 
   return `
     <svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
@@ -82,7 +82,7 @@ export const generateOpepenSVG = (options: OpepenOptions) => {
       <g
         fill="${options.fill || `#111`}"
         stroke="${options.stroke?.color || `#111`}"
-        stroke-width="${strokeWidth || 1}"
+        stroke-width="${strokeWidth}"
         ${options.blur ? `filter="url(#blur)"` : ``}
         transform="translate(0, -${strokeWidth/2})"
       >
