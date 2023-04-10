@@ -42,15 +42,18 @@ export default class StableDiffusionShapeDetection implements GeneratorInterface
   // The bag of input variables for the job
   input: StableDiffusionShapeDetectionInput
 
+  image?: AiImage
+
   /**
    * Construct the edge detection generator.
    * @param input The input parameters for generating the image.
    */
-  constructor(input: StableDiffusionShapeDetectionInput) {
+  constructor(input: StableDiffusionShapeDetectionInput, image?: AiImage) {
     input.seed = input.seed || getRandomSafeBigInt()
     input.detail = input.detail || this.getDetail(input.seed)
 
     this.input = input
+    this.image = image
   }
 
   /**
@@ -69,11 +72,15 @@ export default class StableDiffusionShapeDetection implements GeneratorInterface
 
     const output: ControlnetDpth2ImgOutput = (await Replicate.run(this.modelKey, { input })) as ControlnetDpth2ImgOutput
 
-    return await AiImage.fromURI(output[output.length - 1], {
-      data: {
-        ...input,
-        image: undefined,
-      },
+    const imageData = { ...input, image: undefined }
+    const url = output[output.length - 1]
+    if (this.image) {
+      this.image.data = { ...this.image.data, ...imageData }
+      return this.image.fillImageFromURI(url)
+    }
+
+    return AiImage.fromURI(url, {
+      data: imageData,
       modelId: this.modelId,
     })
   }

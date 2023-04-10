@@ -45,24 +45,30 @@ export default class AiImage extends BaseModel {
   @belongsTo(() => JourneyStep)
   public journeyStep: BelongsTo<typeof JourneyStep>
 
-  static async fromURI (url: string, data: object = {}): Promise<AiImage> {
-    const image = await AiImage.create(data)
-
+  async fillImageFromURI (url: string): Promise<AiImage> {
     try {
       const response = await axios({ url, responseType: 'stream' })
       const stream = response.data
       const contentLength = response.headers['content-length'] as number
       await Drive.putStream(
-        `images/${image.uuid}.png`,
+        `images/${this.uuid}.png`,
         stream,
         { contentType: 'image/png', contentLength: contentLength }
       )
 
-      image.generatedAt = DateTime.now()
-      await image.save()
+      this.generatedAt = DateTime.now()
+      await this.save()
     } catch (e) {
       // ...
     }
+
+    return this
+  }
+
+  static async fromURI (url: string, data: object = {}): Promise<AiImage> {
+    const image = await AiImage.create(data)
+
+    await image.fillImageFromURI(url)
 
     return image
   }

@@ -15,7 +15,8 @@ export default class JourneyStepsController extends BaseController {
       filter = {},
     } = request.qs()
 
-    const query = journey.related('steps').query().preload('images')
+    const query = journey.related('steps').query()
+      .preload('images', query => query.orderBy('created_at'))
 
     this.applyFilters(query, filter)
 

@@ -34,6 +34,9 @@ Route.get('/journeys/:id/steps',      'JourneyStepsController.forJourney')
 Route.post('/journeys/:id/steps',     'JourneyStepsController.store')
 Route.post('/steps/:id/dream',        'JourneyStepsController.dream')
 
+// Images
+Route.post('/ai-images/:id/reseed',   'AiImagesController.reseed')
+
 // Misc
 Route.post('/dream', 'DreamController')
 Route.post('/svg-test', 'SVG2PNGController')
