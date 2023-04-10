@@ -6,6 +6,7 @@
  */
 
 import proxyAddr from 'proxy-addr'
+import 'cross-fetch/polyfill'
 import Env from '@ioc:Adonis/Core/Env'
 import type { ServerConfig } from '@ioc:Adonis/Core/Server'
 import type { LoggerConfig } from '@ioc:Adonis/Core/Logger'
