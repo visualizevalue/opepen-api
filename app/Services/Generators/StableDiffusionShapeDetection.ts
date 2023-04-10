@@ -68,6 +68,8 @@ export default class StableDiffusionShapeDetection implements GeneratorInterface
       seed: Number(this.input.seed) || 0,
       eta: 0.9,
       scale: this.input.detail,
+      a_prompt: '',
+      n_prompt: '',
     }
 
     const output: ControlnetDpth2ImgOutput = (await Replicate.run(this.modelKey, { input })) as ControlnetDpth2ImgOutput
