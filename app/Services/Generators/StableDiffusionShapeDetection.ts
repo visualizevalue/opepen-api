@@ -65,6 +65,7 @@ export default class StableDiffusionShapeDetection implements GeneratorInterface
         (this.input.input_image || this.input.base_image || Buffer.from('')).toString('base64')
       }`,
       prompt: this.input.prompt,
+      image_resolution: '768',
       seed: Number(this.input.seed) || 0,
       eta: 0.9,
       scale: this.input.detail,

@@ -66,6 +66,7 @@ export default class StableDiffusionCannyEdgeDetection implements GeneratorInter
       image: `data:image/png;base64,${
         (this.input.input_image || this.input.base_image || Buffer.from('')).toString('base64')
       }`,
+      image_resolution: '768',
       prompt: this.input.prompt,
       seed: Number(this.input.seed) || 0,
       eta: 0.5,
