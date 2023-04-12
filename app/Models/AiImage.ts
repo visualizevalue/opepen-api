@@ -3,10 +3,15 @@ import { v4 as uuid } from 'uuid'
 import { BaseModel, beforeCreate, BelongsTo, belongsTo, column, computed } from '@ioc:Adonis/Lucid/Orm'
 import Drive from '@ioc:Adonis/Core/Drive'
 import Env from '@ioc:Adonis/Core/Env'
-import axios from 'axios'
 import { prepareBigIntJson } from 'App/Helpers/bigints'
 import JourneyStep from './JourneyStep'
 import { Keyable } from 'App/Helpers/types'
+import { toDriveFromURI } from 'App/Helpers/drive'
+import EnhancedSRGANUpscaler from 'App/Services/Upscalers/EnhancedSRGANUpscaler'
+
+type ImageVersions = {
+  lg?: boolean
+}
 
 export default class AiImage extends BaseModel {
   @column({ isPrimary: true, serializeAs: null })
@@ -31,6 +36,11 @@ export default class AiImage extends BaseModel {
   })
   public data: Keyable
 
+  @column({
+    consume: value => value || {},
+  })
+  public versions: ImageVersions
+
   @column.dateTime({ autoCreate: true, serializeAs: null })
   public createdAt: DateTime
 
@@ -46,23 +56,20 @@ export default class AiImage extends BaseModel {
   public journeyStep: BelongsTo<typeof JourneyStep>
 
   async fillImageFromURI (url: string): Promise<AiImage> {
-    try {
-      const response = await axios({ url, responseType: 'stream' })
-      const stream = response.data
-      const contentLength = response.headers['content-length'] as number
-      await Drive.putStream(
-        `images/${this.uuid}.png`,
-        stream,
-        { contentType: 'image/png', contentLength: contentLength }
-      )
-
-      this.generatedAt = DateTime.now()
-      await this.save()
-    } catch (e) {
-      // ...
-    }
+    await toDriveFromURI(url, this.uuid)
+    this.generatedAt = DateTime.now()
+    await this.save()
 
     return this
+  }
+
+  async upscale (): Promise<void> {
+    const data = await Drive.get(`images/${this.uuid}.png`)
+    await EnhancedSRGANUpscaler.run(data, `${this.uuid}@lg`)
+
+    this.versions.lg = true
+
+    await this.save()
   }
 
   static async fromURI (url: string, data: object = {}): Promise<AiImage> {

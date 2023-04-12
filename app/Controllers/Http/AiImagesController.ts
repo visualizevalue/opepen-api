@@ -22,4 +22,13 @@ export default class AiImagesController extends BaseController {
 
     return await (new Generator(input, image)).generate()
   }
+
+  // TODO: Authenticate
+  public async upscale({ params }: HttpContextContract) {
+    const image = await AiImage.findByOrFail('uuid', params.id)
+
+    await image.upscale()
+
+    return image
+  }
 }
