@@ -1,3 +1,4 @@
+import sharp from 'sharp'
 import { DateTime } from 'luxon'
 import { v4 as uuid } from 'uuid'
 import { BaseModel, beforeCreate, BelongsTo, belongsTo, column, computed } from '@ioc:Adonis/Lucid/Orm'
@@ -10,7 +11,8 @@ import { toDriveFromURI } from 'App/Helpers/drive'
 import EnhancedSRGANUpscaler from 'App/Services/Upscalers/EnhancedSRGANUpscaler'
 
 type ImageVersions = {
-  lg?: boolean
+  lg?: boolean, // 1024
+  xl?: boolean, // 2048
 }
 
 export default class AiImage extends BaseModel {
@@ -65,10 +67,21 @@ export default class AiImage extends BaseModel {
 
   async upscale (): Promise<void> {
     const data = await Drive.get(`images/${this.uuid}.png`)
-    await EnhancedSRGANUpscaler.run(data, `${this.uuid}@lg`)
+    const key = `${this.uuid}@2048`
+    await EnhancedSRGANUpscaler.run(data, key)
 
+    // Scale down to 2x
+    const upscaled = await Drive.get(`images/${key}.png`)
+    const downscaled = await sharp(upscaled).resize({ width: 1024 }).toBuffer()
+    await Drive.put(
+      `images/${this.uuid}@lg.png`,
+      downscaled,
+      { contentType: 'image/png' }
+    )
+
+    // Update image
     this.versions.lg = true
-
+    this.versions.xl = true
     await this.save()
   }
 
