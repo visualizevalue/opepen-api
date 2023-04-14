@@ -28,7 +28,7 @@ export default class AiImage extends BaseModel {
   }
 
   @column({ serializeAs: null })
-  public journeyStepId: bigint
+  public journeyStepId: bigint|null
 
   @column({ serializeAs: null })
   public modelId: number

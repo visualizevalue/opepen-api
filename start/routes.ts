@@ -38,6 +38,7 @@ Route.post('/steps/:id/dream',        'JourneyStepsController.dream')
 Route.get('/ai-images/:id',           'AiImagesController.show')
 Route.post('/ai-images/:id/reseed',   'AiImagesController.reseed')
 Route.post('/ai-images/:id/upscale',  'AiImagesController.upscale')
+Route.delete('/ai-images/:id',        'AiImagesController.delete')
 
 // Misc
 Route.post('/dream', 'DreamController')
