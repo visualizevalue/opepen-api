@@ -35,6 +35,7 @@ Route.post('/journeys/:id/steps',     'JourneyStepsController.store')
 Route.post('/steps/:id/dream',        'JourneyStepsController.dream')
 
 // Images
+Route.get('/ai-images/:id',           'AiImagesController.show')
 Route.post('/ai-images/:id/reseed',   'AiImagesController.reseed')
 Route.post('/ai-images/:id/upscale',  'AiImagesController.upscale')
 

@@ -6,6 +6,13 @@ import { generateOpepenPNG } from 'App/Services/OpepenSVG/OpepenGenerator'
 import BaseController from './BaseController'
 
 export default class AiImagesController extends BaseController {
+  public async show ({ params }: HttpContextContract) {
+    return AiImage.query()
+      .preload('journeyStep', query => query.preload('journey'))
+      .where('uuid', params.id)
+      .firstOrFail()
+  }
+
   // TODO: Authenticate
   public async reseed({ params }: HttpContextContract) {
     const image = await AiImage.findByOrFail('uuid', params.id)
