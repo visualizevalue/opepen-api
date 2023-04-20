@@ -21,25 +21,28 @@
 import Route from '@ioc:Adonis/Core/Route'
 
 // Welcome
-Route.get('/', () => ({ hello: 'opepenai' }))
+Route.get('/', () => ({ hello: 'opepen' }))
 
-// Journeys
-Route.get('/accounts/:id/journeys',   'JourneysController.forAccount')
-Route.get('/journeys/:id',            'JourneysController.show')
-Route.post('/journeys',               'JourneysController.store')
-Route.put('/journeys/:id',            'JourneysController.update')
+// AI Opepens
+Route.group(() => {
+  // Journeys
+  Route.get('/accounts/:id/journeys',   'JourneysController.forAccount')
+  Route.get('/journeys/:id',            'JourneysController.show')
+  Route.post('/journeys',               'JourneysController.store')
+  Route.put('/journeys/:id',            'JourneysController.update')
 
-// Steps
-Route.get('/journeys/:id/steps',      'JourneyStepsController.forJourney')
-Route.post('/journeys/:id/steps',     'JourneyStepsController.store')
-Route.post('/steps/:id/dream',        'JourneyStepsController.dream')
+  // Steps
+  Route.get('/journeys/:id/steps',      'JourneyStepsController.forJourney')
+  Route.post('/journeys/:id/steps',     'JourneyStepsController.store')
+  Route.post('/steps/:id/dream',        'JourneyStepsController.dream')
 
-// Images
-Route.get('/ai-images/:id',           'AiImagesController.show')
-Route.post('/ai-images/:id/reseed',   'AiImagesController.reseed')
-Route.post('/ai-images/:id/upscale',  'AiImagesController.upscale')
-Route.delete('/ai-images/:id',        'AiImagesController.delete')
+  // Images
+  Route.get('/ai-images/:id',           'AiImagesController.show')
+  Route.post('/ai-images/:id/reseed',   'AiImagesController.reseed')
+  Route.post('/ai-images/:id/upscale',  'AiImagesController.upscale')
+  Route.delete('/ai-images/:id',        'AiImagesController.delete')
 
-// Misc
-Route.post('/dream', 'DreamController')
-Route.post('/svg-test', 'SVG2PNGController')
+  // Misc
+  Route.post('/dream', 'DreamController')
+  Route.post('/svg-test', 'SVG2PNGController')
+}).prefix('/v1/ai')
