@@ -54,6 +54,9 @@ export const generateOpepenConfig = (options: OpepenOptions): OpepenOptions => {
     variation: randomBetween(0, 4),
   }
 
+  const blur = typeof options.blur === 'boolean' ? options.blur : Math.random() > 0.5
+  const noise = typeof options.noise === 'boolean' ? options.noise : Math.random() > 0.8
+
   return {
     ...options,
     bg,
@@ -62,7 +65,9 @@ export const generateOpepenConfig = (options: OpepenOptions): OpepenOptions => {
     leftEye,
     rightEye,
     mouth,
-    torso
+    torso,
+    noise,
+    blur,
   }
 }
 
@@ -343,13 +348,13 @@ export const generateOpepenSVG = (options: OpepenOptions) => {
 
           <!-- EFFECTS -->
           <filter id="blur">
-            <feGaussianBlur in="SourceGraphic" stdDeviation="3" />
+            <feGaussianBlur in="SourceGraphic" stdDeviation="2.75" />
           </filter>
 
           <filter id="noise" x="-20%" y="-20%" width="140%" height="140%" filterUnits="objectBoundingBox" primitiveUnits="userSpaceOnUse" color-interpolation-filters="linearRGB">
-            <feTurbulence type="turbulence" baseFrequency="0.2" numOctaves="3" seed="80" stitchTiles="stitch" result="turbulence"></feTurbulence>
-            <feSpecularLighting surfaceScale="15" specularConstant="30" specularExponent="20" lighting-color="#FAFAFA" in="turbulence" result="specularLighting">
-              <feDistantLight elevation="80"></feDistantLight>
+            <feTurbulence type="turbulence" baseFrequency="0.2" numOctaves="4" seed="80" stitchTiles="stitch" result="turbulence"></feTurbulence>
+            <feSpecularLighting surfaceScale="5" specularConstant="10" specularExponent="20" lighting-color="#FAFAFA" in="turbulence" result="specularLighting">
+              <feDistantLight elevation="100"></feDistantLight>
             </feSpecularLighting>
           </filter>
       </defs>
