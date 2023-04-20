@@ -70,63 +70,10 @@ export default class Account extends BaseModel {
   public async updateENS () {
     try {
       this.ens = await provider.lookupAddress(this.address) || ''
-
-      if (! this.ens) return
-
-      const resolver = await provider.getResolver(this.ens)
-      if (! resolver) return
-      let contentHash: string|null = null
-      try {
-        contentHash = await resolver.getContentHash()
-      } catch (e) {
-        Logger.warn(`Couldn't resolve content hash ` + e.message)
-      }
-      const [
-        avatar,
-        description,
-        email,
-        header,
-        keywords,
-        notice,
-        url,
-        github,
-        twitter,
-        discord,
-        ensDelegate,
-      ] = await Promise.all([
-        resolver.getText('avatar'),
-        resolver.getText('description'),
-        resolver.getText('email'),
-        resolver.getText('header'),
-        resolver.getText('keywords'),
-        resolver.getText('notice'),
-        resolver.getText('url'),
-        // com
-        resolver.getText('com.github'),
-        resolver.getText('com.twitter'),
-        resolver.getText('com.discord'),
-        resolver.getText('eth.ens.delegate'),
-      ])
-      this.data = {
-        contentHash,
-        avatar,
-        description,
-        email,
-        header,
-        keywords,
-        notice,
-        url,
-        // com
-        github,
-        twitter,
-        discord,
-        ensDelegate,
-      }
+      Logger.info(`ENS for ${this.ens} updated`)
     } catch (e) {
       Logger.error(e)
     }
-
-    Logger.info(`ENS for ${this.ens} updated`)
   }
 
   static byId (id) {
