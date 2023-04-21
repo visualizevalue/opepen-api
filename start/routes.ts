@@ -46,3 +46,8 @@ Route.group(() => {
   Route.post('/dream', 'DreamController')
   Route.post('/svg-test', 'SVG2PNGController')
 }).prefix('/v1/ai')
+
+// Reveals
+Route.group(() => {
+  Route.get('/:reveal/:account',           'RevealsController.forAccount')
+}).prefix('/v1/reveals')

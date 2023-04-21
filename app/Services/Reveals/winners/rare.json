@@ -1,0 +1,74 @@
+{
+  "winners": {
+    "0xe11da9560b51f8918295edc5ab9c0a90e9ada20b": {
+      "tickets": 86,
+      "opepen_tickets": 16,
+      "tokens": [
+        {
+          "set": 1,
+          "token": 1874
+        },
+        {
+          "set": 1,
+          "token": 8075
+        },
+        {
+          "set": 4,
+          "token": 9753
+        },
+        {
+          "set": 4,
+          "token": 9375
+        },
+        {
+          "set": 4,
+          "token": 13622
+        },
+        {
+          "set": 4,
+          "token": 10845
+        },
+        {
+          "set": 4,
+          "token": 8914
+        },
+        {
+          "set": 5,
+          "token": 9954
+        },
+        {
+          "set": 5,
+          "token": 4547
+        },
+        {
+          "set": 5,
+          "token": 15987
+        },
+        {
+          "set": 5,
+          "token": 14589
+        },
+        {
+          "set": 5,
+          "token": 14597
+        },
+        {
+          "set": 5,
+          "token": 12715
+        },
+        {
+          "set": 5,
+          "token": 12383
+        },
+        {
+          "set": 10,
+          "token": 7658
+        },
+        {
+          "set": 10,
+          "token": 13796
+        }
+      ]
+    }
+  }
+}
