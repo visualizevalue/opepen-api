@@ -54,7 +54,7 @@ export const generateOpepenConfig = (options: OpepenOptions): OpepenOptions => {
     variation: randomBetween(0, 4),
   }
 
-  const blur = typeof options.blur === 'boolean' ? options.blur : Math.random() > 0.5
+  const blur = typeof options.blur === 'boolean' ? options.blur : Math.random() > 0.6
   const noise = typeof options.noise === 'boolean' ? options.noise : Math.random() > 0.8
 
   return {
@@ -348,7 +348,7 @@ export const generateOpepenSVG = (options: OpepenOptions) => {
 
           <!-- EFFECTS -->
           <filter id="blur">
-            <feGaussianBlur in="SourceGraphic" stdDeviation="2.75" />
+            <feGaussianBlur in="SourceGraphic" stdDeviation="2.25" />
           </filter>
 
           <filter id="noise" x="-20%" y="-20%" width="140%" height="140%" filterUnits="objectBoundingBox" primitiveUnits="userSpaceOnUse" color-interpolation-filters="linearRGB">
