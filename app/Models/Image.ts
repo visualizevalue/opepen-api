@@ -34,6 +34,9 @@ export default class Image extends BaseModel {
   @column.dateTime({ autoCreate: true, serializeAs: null })
   public createdAt: DateTime
 
+  @column.dateTime({ serializeAs: null })
+  public featuredAt: DateTime
+
   @computed()
   public get cdn (): string {
     return Env.get('CDN_URL')
