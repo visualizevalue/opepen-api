@@ -23,7 +23,7 @@ import Route from '@ioc:Adonis/Core/Route'
 // Welcome
 Route.get('/', () => ({ hello: 'opepen' }))
 
-// AI Opepens
+// AI
 Route.group(() => {
   // Journeys
   Route.get('/accounts/:id/journeys',   'JourneysController.forAccount')
@@ -36,7 +36,7 @@ Route.group(() => {
   Route.post('/journeys/:id/steps',     'JourneyStepsController.store')
   Route.post('/steps/:id/dream',        'JourneyStepsController.dream')
 
-  // Images
+  // AI Images
   Route.get('/ai-images/:id',           'AiImagesController.show')
   Route.post('/ai-images/:id/reseed',   'AiImagesController.reseed')
   Route.post('/ai-images/:id/upscale',  'AiImagesController.upscale')
@@ -46,6 +46,12 @@ Route.group(() => {
   Route.post('/dream', 'DreamController')
   Route.post('/svg-test', 'SVG2PNGController')
 }).prefix('/v1/ai')
+
+// Opepen
+Route.group(() => {
+  // Images
+  Route.get('/images/:id',              'ImagesController.show')
+}).prefix('/v1/opepen')
 
 // Reveals
 Route.group(() => {

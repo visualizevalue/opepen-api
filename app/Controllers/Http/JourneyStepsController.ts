@@ -17,7 +17,10 @@ export default class JourneyStepsController extends BaseController {
     } = request.qs()
 
     const query = journey.related('steps').query()
-      .preload('images', query => query.orderBy('created_at'))
+      .preload('aiImages', query => {
+        query.preload('image')
+        query.orderBy('created_at')
+      })
 
     this.applyFilters(query, filter)
 
@@ -53,10 +56,14 @@ export default class JourneyStepsController extends BaseController {
       ? StableDiffusionCannyEdgeDetection
       : StableDiffusionShapeDetection
 
-    const image = await (new Generator(input)).generate()
-    image.journeyStepId = step.id
-    image.data.opepen = baseConfig
+    const aiImage = await (new Generator(input)).generate()
+    aiImage.journeyStepId = step.id
+    aiImage.data.opepen = baseConfig
+    await aiImage.save()
 
-    return await image.save()
+    // Sideload image
+    await aiImage.load('image')
+
+    return aiImage
   }
 }

@@ -42,18 +42,18 @@ export default class StableDiffusionShapeDetection implements GeneratorInterface
   // The bag of input variables for the job
   input: StableDiffusionShapeDetectionInput
 
-  image?: AiImage
+  aiImage?: AiImage
 
   /**
    * Construct the edge detection generator.
    * @param input The input parameters for generating the image.
    */
-  constructor(input: StableDiffusionShapeDetectionInput, image?: AiImage) {
+  constructor(input: StableDiffusionShapeDetectionInput, aiImage?: AiImage) {
     input.seed = input.seed || getRandomSafeBigInt()
     input.detail = input.detail || this.getDetail(input.seed)
 
     this.input = input
-    this.image = image
+    this.aiImage = aiImage
   }
 
   /**
@@ -77,9 +77,11 @@ export default class StableDiffusionShapeDetection implements GeneratorInterface
 
     const imageData = { ...input, image: undefined }
     const url = output[output.length - 1]
-    if (this.image) {
-      this.image.data = { ...this.image.data, ...imageData }
-      return this.image.fillImageFromURI(url)
+    if (this.aiImage) {
+      this.aiImage.data = { ...this.aiImage.data, ...imageData }
+      await this.aiImage.load('image')
+      await this.aiImage.image.fillImageFromURI(url)
+      return this.aiImage
     }
 
     return AiImage.fromURI(url, {

@@ -9,6 +9,7 @@ export default class AiImagesController extends BaseController {
   public async show ({ params }: HttpContextContract) {
     return AiImage.query()
       .preload('journeyStep', query => query.preload('journey'))
+      .preload('image')
       .whereNotNull('journeyStepId')
       .where('uuid', params.id)
       .firstOrFail()
@@ -33,11 +34,12 @@ export default class AiImagesController extends BaseController {
 
   // TODO: Authenticate
   public async upscale({ params }: HttpContextContract) {
-    const image = await AiImage.findByOrFail('uuid', params.id)
+    const aiImage = await AiImage.findByOrFail('uuid', params.id)
 
-    await image.upscale()
+    await aiImage.load('image')
+    await aiImage.image.upscale()
 
-    return image
+    return aiImage
   }
 
   public async delete({ params }: HttpContextContract) {

@@ -39,6 +39,8 @@ export default class JourneyStep extends BaseModel {
   @belongsTo(() => Journey)
   public journey: BelongsTo<typeof Journey>
 
-  @hasMany(() => AiImage)
-  public images: HasMany<typeof AiImage>
+  @hasMany(() => AiImage, {
+    serializeAs: 'ai_images'
+  })
+  public aiImages: HasMany<typeof AiImage>
 }
