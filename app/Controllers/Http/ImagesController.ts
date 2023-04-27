@@ -12,4 +12,17 @@ export default class ImagesController extends BaseController {
       .where('uuid', params.id)
       .firstOrFail()
   }
+
+  public async featured ({ request }: HttpContextContract) {
+    const {
+      page = 1,
+      limit = 24,
+    } = request.qs()
+
+    const query = Image.query()
+      .whereNotNull('featuredAt')
+      .orderBy('featuredAt', 'desc')
+
+    return query.paginate(page, limit)
+  }
 }

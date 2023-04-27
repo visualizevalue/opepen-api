@@ -50,6 +50,7 @@ Route.group(() => {
 // Opepen
 Route.group(() => {
   // Images
+  Route.get('/images/featured',         'ImagesController.featured')
   Route.get('/images/:id',              'ImagesController.show')
 }).prefix('/v1/opepen')
 
