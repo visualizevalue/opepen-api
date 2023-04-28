@@ -1,5 +1,24 @@
 {
   "commands": {
+    "import:images": {
+      "settings": {
+        "loadApp": true,
+        "stayAlive": false
+      },
+      "commandPath": "./commands/ImportImages",
+      "commandName": "import:images",
+      "description": "Import images from URIs",
+      "args": [
+        {
+          "type": "string",
+          "propertyName": "uri",
+          "name": "uri",
+          "required": true
+        }
+      ],
+      "aliases": [],
+      "flags": []
+    },
     "dump:rcfile": {
       "settings": {},
       "commandPath": "@adonisjs/core/build/commands/DumpRc",

@@ -69,7 +69,10 @@ export default class Image extends BaseModel {
     const metadata = await imageProcessor.metadata()
 
     if (! metadata.width) return
-    if (metadata.width === 512) return this.upscale()
+    if (metadata.width === 512) {
+      this.versions.sm = true
+      return this.upscale()
+    }
 
     if (metadata.width > 2048) {
       const v2048 = await imageProcessor.resize({ width: 1024 }).png().toBuffer()
@@ -112,7 +115,7 @@ export default class Image extends BaseModel {
     await this.save()
   }
 
-  static async fromURI (url: string, data: object = {}): Promise<Image> {
+  static async fromURI (url: string, data: object = { versions: {} }): Promise<Image> {
     const image = await Image.create(data)
 
     await image.fillImageFromURI(url)
