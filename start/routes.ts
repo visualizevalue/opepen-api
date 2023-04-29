@@ -52,6 +52,9 @@ Route.group(() => {
   // Images
   Route.get('/images/featured',         'ImagesController.featured')
   Route.get('/images/:id',              'ImagesController.show')
+
+  // Token Updates
+  Route.get('/updates',                 'TokenUpdatesController.ping')
 }).prefix('/v1/opepen')
 
 // Reveals
