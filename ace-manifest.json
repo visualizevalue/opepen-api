@@ -19,6 +19,30 @@
       "aliases": [],
       "flags": []
     },
+    "import:opepens": {
+      "settings": {
+        "loadApp": true,
+        "stayAlive": false
+      },
+      "commandPath": "./commands/ImportOpepens",
+      "commandName": "import:opepens",
+      "description": "Force update opepen tokens and ownership",
+      "args": [],
+      "aliases": [],
+      "flags": []
+    },
+    "opepen:sync": {
+      "settings": {
+        "loadApp": true,
+        "stayAlive": false
+      },
+      "commandPath": "./commands/SyncOpepen",
+      "commandName": "opepen:sync",
+      "description": "Sync the blockchain state of current opepen ownership",
+      "args": [],
+      "aliases": [],
+      "flags": []
+    },
     "dump:rcfile": {
       "settings": {},
       "commandPath": "@adonisjs/core/build/commands/DumpRc",

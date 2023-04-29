@@ -1,6 +1,7 @@
 import { DateTime } from 'luxon'
 import Logger from '@ioc:Adonis/Core/Logger'
-import { afterSave, BaseModel, beforeSave, column, HasMany, hasMany } from '@ioc:Adonis/Lucid/Orm'
+import { afterSave, BaseModel, beforeSave, column, computed, HasMany, hasMany } from '@ioc:Adonis/Lucid/Orm'
+import Address from 'App/Helpers/Address'
 import provider from 'App/Services/RPCProvider'
 import Journey from './Journey'
 
@@ -19,6 +20,13 @@ export default class Account extends BaseModel {
 
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   public updatedAt: DateTime
+
+  @computed()
+  public get display () {
+    if (this.ens) return this.ens
+
+    return Address.short(this.address)
+  }
 
   @hasMany(() => Journey, {
     foreignKey: 'owner',
@@ -70,7 +78,8 @@ export default class Account extends BaseModel {
   public async updateENS () {
     try {
       this.ens = await provider.lookupAddress(this.address) || ''
-      Logger.info(`ENS for ${this.ens} updated`)
+
+      if (this.ens) Logger.info(`ENS for ${this.ens} updated`)
     } catch (e) {
       Logger.error(e)
     }
