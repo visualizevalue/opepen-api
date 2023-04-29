@@ -1,11 +1,12 @@
-import { BaseCommand, args } from '@adonisjs/core/build/standalone'
+import { BaseCommand, args, flags } from '@adonisjs/core/build/standalone'
 import Image from 'App/Models/Image'
+import { DateTime } from 'luxon'
 
 export default class ImportImages extends BaseCommand {
   /**
    * Command name is used to run the command
    */
-  public static commandName = 'import:images'
+  public static commandName = 'import:image'
 
   /**
    * Command description is displayed in the "help" output
@@ -14,6 +15,9 @@ export default class ImportImages extends BaseCommand {
 
   @args.string()
   public uri: string
+
+  @flags.boolean()
+  public featured: boolean
 
   public static settings = {
     loadApp: true,
@@ -24,5 +28,11 @@ export default class ImportImages extends BaseCommand {
     const image = await Image.fromURI(this.uri)
 
     await image.generateScaledVersions()
+
+    if (this.featured) {
+      image.featuredAt = DateTime.now()
+
+      await image.save()
+    }
   }
 }

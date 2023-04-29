@@ -1,12 +1,12 @@
 {
   "commands": {
-    "import:images": {
+    "import:image": {
       "settings": {
         "loadApp": true,
         "stayAlive": false
       },
-      "commandPath": "./commands/ImportImages",
-      "commandName": "import:images",
+      "commandPath": "./commands/ImportImage",
+      "commandName": "import:image",
       "description": "Import images from URIs",
       "args": [
         {
@@ -17,7 +17,13 @@
         }
       ],
       "aliases": [],
-      "flags": []
+      "flags": [
+        {
+          "name": "featured",
+          "propertyName": "featured",
+          "type": "boolean"
+        }
+      ]
     },
     "import:opepens": {
       "settings": {
