@@ -1,4 +1,4 @@
-import { BaseCommand } from '@adonisjs/core/build/standalone'
+import { BaseCommand, flags } from '@adonisjs/core/build/standalone'
 import Opepen from 'App/Models/Opepen'
 import axios from 'axios'
 
@@ -18,10 +18,19 @@ export default class OpepenMetadataImport extends BaseCommand {
     stayAlive: false,
   }
 
+  @flags.number()
+  public from: number = 1
+
+  @flags.number()
+  public to: number = 16_000
+
   public async run() {
     this.logger.info('Import Opepen Metadata')
 
-    const opepens = await Opepen.all()
+    const opepens = await Opepen.query()
+      .where('tokenId', '>=', this.from)
+      .where('tokenId', '<=', this.to)
+      .orderBy('tokenId')
 
     for (const opepen of opepens) {
       const { data: metadata } = await axios.get(`https://metadata.opepen.art/${opepen.tokenId}/metadata.json`)
