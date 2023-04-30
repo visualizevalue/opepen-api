@@ -63,6 +63,8 @@ Route.group(() => {
   Route.get('/:id',                     'AccountsController.show')
   Route.put('/:id',                     'AccountsController.update')
   Route.get('/:id/opepen',              'OpepenController.forAccount')
+
+  Route.get('/:account/sets/:id',       'SetsController.setSubscriptionForAccount')
 }).prefix('/v1/accounts')
 
 // Reveals

@@ -46,4 +46,11 @@ export default class SetsController extends BaseController {
 
     return subscription
   }
+
+  public async setSubscriptionForAccount ({ params }: HttpContextContract) {
+    return Subscription.query()
+      .where('address', params.account.toLowerCase())
+      .where('setId', params.id)
+      .firstOrFail()
+  }
 }
