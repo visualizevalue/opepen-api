@@ -43,8 +43,8 @@ Route.group(() => {
   Route.delete('/ai-images/:id',        'AiImagesController.delete')
 
   // Misc
-  Route.post('/dream', 'DreamController')
-  Route.post('/svg-test', 'SVG2PNGController')
+  Route.post('/dream',                  'DreamController')
+  Route.post('/svg-test',               'SVG2PNGController')
 }).prefix('/v1/ai')
 
 // Opepen
@@ -55,16 +55,17 @@ Route.group(() => {
 
   // Sets
   Route.get('/sets/:id',                'SetsController.show')
+  Route.post('/sets/:id/subscribe',     'SetsController.subscribe')
 }).prefix('/v1/opepen')
 
 // Accounts
 Route.group(() => {
-  Route.get('/:id',             'AccountsController.show')
-  Route.put('/:id',             'AccountsController.update')
-  Route.get('/:id/opepen',      'OpepenController.forAccount')
+  Route.get('/:id',                     'AccountsController.show')
+  Route.put('/:id',                     'AccountsController.update')
+  Route.get('/:id/opepen',              'OpepenController.forAccount')
 }).prefix('/v1/accounts')
 
 // Reveals
 Route.group(() => {
-  Route.get('/:reveal/:account',           'RevealsController.forAccount')
+  Route.get('/:reveal/:account',        'RevealsController.forAccount')
 }).prefix('/v1/reveals')

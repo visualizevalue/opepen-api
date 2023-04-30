@@ -1,17 +1,16 @@
 import { DateTime } from 'luxon'
 import { BaseModel, BelongsTo, belongsTo, column } from '@ioc:Adonis/Lucid/Orm'
 import Account from './Account'
-import Set from './Set'
-import Opepen from './Opepen'
+import SetModel from './Set'
 
 export default class Subscription extends BaseModel {
   public static table = 'set_subscriptions'
 
-  @column()
-  public setId: number
+  @column({ isPrimary: true })
+  public id: bigint
 
   @column()
-  public opepenId: bigint
+  public setId: number
 
   @column()
   public address: string
@@ -19,14 +18,19 @@ export default class Subscription extends BaseModel {
   @column()
   public message: string
 
+  @column()
+  public signature: string
+
+  @column({
+    prepare: value => JSON.stringify(value),
+  })
+  public opepenIds: number[]
+
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime
 
-  @belongsTo(() => Set)
-  public set: BelongsTo<typeof Set>
-
-  @belongsTo(() => Opepen)
-  public opepen: BelongsTo<typeof Opepen>
+  @belongsTo(() => SetModel)
+  public set: BelongsTo<typeof SetModel>
 
   @belongsTo(() => Account, {
     foreignKey: 'address',
