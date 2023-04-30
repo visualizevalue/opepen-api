@@ -52,7 +52,17 @@ Route.group(() => {
   // Images
   Route.get('/images/featured',         'ImagesController.featured')
   Route.get('/images/:id',              'ImagesController.show')
+
+  // Sets
+  Route.get('/sets/:id',                'SetsController.show')
 }).prefix('/v1/opepen')
+
+// Accounts
+Route.group(() => {
+  Route.get('/:id',             'AccountsController.show')
+  Route.put('/:id',             'AccountsController.update')
+  Route.get('/:id/opepen',      'OpepenController.forAccount')
+}).prefix('/v1/accounts')
 
 // Reveals
 Route.group(() => {

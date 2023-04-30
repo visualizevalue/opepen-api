@@ -30,18 +30,18 @@ export default class Set extends BaseModel {
   @column()
   public edition40Name: string
 
-  @column()
-  public edition1ImageId: bigint
-  @column()
-  public edition4ImageId: bigint
-  @column()
-  public edition5ImageId: bigint
-  @column()
-  public edition10ImageId: bigint
-  @column()
-  public edition20ImageId: bigint
-  @column()
-  public edition40ImageId: bigint
+  @column({ serializeAs: null })
+  public edition_1ImageId: bigint
+  @column({ serializeAs: null })
+  public edition_4ImageId: bigint
+  @column({ serializeAs: null })
+  public edition_5ImageId: bigint
+  @column({ serializeAs: null })
+  public edition_10ImageId: bigint
+  @column({ serializeAs: null })
+  public edition_20ImageId: bigint
+  @column({ serializeAs: null })
+  public edition_40ImageId: bigint
 
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime
@@ -49,16 +49,16 @@ export default class Set extends BaseModel {
   @column.dateTime()
   public revealsAt: DateTime
 
-  @belongsTo(() => Image, { foreignKey: 'edition1ImageId' })
+  @belongsTo(() => Image, { foreignKey: 'edition_1ImageId' })
   public edition1Image: BelongsTo<typeof Image>
-  @belongsTo(() => Image, { foreignKey: 'edition4ImageId' })
+  @belongsTo(() => Image, { foreignKey: 'edition_4ImageId' })
   public edition4Image: BelongsTo<typeof Image>
-  @belongsTo(() => Image, { foreignKey: 'edition5ImageId' })
+  @belongsTo(() => Image, { foreignKey: 'edition_5ImageId' })
   public edition5Image: BelongsTo<typeof Image>
-  @belongsTo(() => Image, { foreignKey: 'edition10ImageId' })
+  @belongsTo(() => Image, { foreignKey: 'edition_10ImageId' })
   public edition10Image: BelongsTo<typeof Image>
-  @belongsTo(() => Image, { foreignKey: 'edition20ImageId' })
+  @belongsTo(() => Image, { foreignKey: 'edition_20ImageId' })
   public edition20Image: BelongsTo<typeof Image>
-  @belongsTo(() => Image, { foreignKey: 'edition40ImageId' })
+  @belongsTo(() => Image, { foreignKey: 'edition_40ImageId' })
   public edition40Image: BelongsTo<typeof Image>
 }
