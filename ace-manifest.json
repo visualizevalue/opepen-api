@@ -47,7 +47,18 @@
       "description": "",
       "args": [],
       "aliases": [],
-      "flags": []
+      "flags": [
+        {
+          "name": "from",
+          "propertyName": "from",
+          "type": "number"
+        },
+        {
+          "name": "to",
+          "propertyName": "to",
+          "type": "number"
+        }
+      ]
     },
     "opepen:sync": {
       "settings": {
