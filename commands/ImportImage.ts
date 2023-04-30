@@ -34,5 +34,7 @@ export default class ImportImages extends BaseCommand {
 
       await image.save()
     }
+
+    this.logger.info(`Image #${image.id} from ${this.uri} created`)
   }
 }
