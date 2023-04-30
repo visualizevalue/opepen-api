@@ -37,6 +37,18 @@
       "aliases": [],
       "flags": []
     },
+    "opepen:import_metadata": {
+      "settings": {
+        "loadApp": true,
+        "stayAlive": false
+      },
+      "commandPath": "./commands/OpepenMetadataImport",
+      "commandName": "opepen:import_metadata",
+      "description": "",
+      "args": [],
+      "aliases": [],
+      "flags": []
+    },
     "opepen:sync": {
       "settings": {
         "loadApp": true,
