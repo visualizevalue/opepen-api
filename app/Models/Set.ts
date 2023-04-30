@@ -19,18 +19,18 @@ export default class SetModel extends BaseModel {
   @column()
   public minSubscriptionPercentage: number
 
-  @column()
-  public edition1Name: string
-  @column()
-  public edition4Name: string
-  @column()
-  public edition5Name: string
-  @column()
-  public edition10Name: string
-  @column()
-  public edition20Name: string
-  @column()
-  public edition40Name: string
+  @column({ serializeAs: 'edition1Name' })
+  public edition_1Name: string
+  @column({ serializeAs: 'edition4Name' })
+  public edition_4Name: string
+  @column({ serializeAs: 'edition5Name' })
+  public edition_5Name: string
+  @column({ serializeAs: 'edition10Name' })
+  public edition_10Name: string
+  @column({ serializeAs: 'edition20Name' })
+  public edition_20Name: string
+  @column({ serializeAs: 'edition40Name' })
+  public edition_40Name: string
 
   @column({ serializeAs: null })
   public edition_1ImageId: bigint
