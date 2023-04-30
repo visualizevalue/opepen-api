@@ -55,6 +55,7 @@ Route.group(() => {
 
   // Sets
   Route.get('/sets/:id',                'SetsController.show')
+  Route.get('/sets/:id/subscribers',    'SetsController.listSubscribers')
   Route.post('/sets/:id/subscribe',     'SetsController.subscribe')
 }).prefix('/v1/opepen')
 
@@ -64,7 +65,7 @@ Route.group(() => {
   Route.put('/:id',                     'AccountsController.update')
   Route.get('/:id/opepen',              'OpepenController.forAccount')
 
-  Route.get('/:account/sets/:id',       'SetsController.setSubscriptionForAccount')
+  Route.get('/:account/sets/:id',       'SetsController.subscriptionForAccount')
 }).prefix('/v1/accounts')
 
 // Reveals

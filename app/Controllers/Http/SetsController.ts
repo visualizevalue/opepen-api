@@ -3,6 +3,7 @@ import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import SetModel from 'App/Models/Set'
 import Subscription from 'App/Models/Subscription'
 import BaseController from './BaseController'
+import { DateTime } from 'luxon'
 
 export default class SetsController extends BaseController {
   public async show ({ params }: HttpContextContract) {
@@ -17,6 +18,19 @@ export default class SetsController extends BaseController {
       .firstOrFail()
 
     return set
+  }
+
+  public async listSubscribers ({ params, request }: HttpContextContract) {
+    const {
+      page = 1,
+      limit = 50,
+    } = request.qs()
+
+    return Subscription.query()
+      .where('setId', params.id)
+      .orderBy('createdAt', 'desc')
+      .preload('account')
+      .paginate(page, limit)
   }
 
   public async subscribe ({ params, request }: HttpContextContract) {
@@ -38,6 +52,7 @@ export default class SetsController extends BaseController {
       message,
       signature,
       opepenIds: request.input('opepen'),
+      createdAt: DateTime.now(),
     })
 
     // Update opepen cache
@@ -47,7 +62,7 @@ export default class SetsController extends BaseController {
     return subscription
   }
 
-  public async setSubscriptionForAccount ({ params }: HttpContextContract) {
+  public async subscriptionForAccount ({ params }: HttpContextContract) {
     return Subscription.query()
       .where('address', params.account.toLowerCase())
       .where('setId', params.id)
