@@ -19,6 +19,9 @@ export default class SetModel extends BaseModel {
   @column()
   public minSubscriptionPercentage: number
 
+  @column()
+  public isDynamic: boolean
+
   @column({ serializeAs: 'edition1Name' })
   public edition_1Name: string
   @column({ serializeAs: 'edition4Name' })

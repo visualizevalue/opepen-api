@@ -26,6 +26,9 @@ export default class Image extends BaseModel {
     model.uuid = uuid()
   }
 
+  @column()
+  public type: string
+
   @column({
     consume: value => value || {},
   })
@@ -47,28 +50,25 @@ export default class Image extends BaseModel {
     return `images`
   }
 
-  @computed()
-  public get type (): string {
-    return `png`
-  }
-
   @hasOne(() => AiImage, {
     serializeAs: 'ai_image'
   })
   public aiImage: HasOne<typeof AiImage>
 
   async fillImageFromURI (url: string): Promise<Image> {
-    await toDriveFromURI(url, this.uuid)
+    const file = await toDriveFromURI(url, this.uuid)
+    this.type = file?.fileType || 'png'
+    await this.save()
     return this
   }
 
   async generateScaledVersions (): Promise<void> {
-    const original = await Drive.get(`images/${this.uuid}.png`)
+    const original = await Drive.get(`images/${this.uuid}.${this.type}`)
 
     const imageProcessor = await sharp(original)
     const metadata = await imageProcessor.metadata()
 
-    if (! metadata.width) return
+    if (! metadata.width || this.type !== 'png') return
     if (metadata.width === 512) {
       this.versions.sm = true
       return this.upscale()
@@ -96,7 +96,7 @@ export default class Image extends BaseModel {
   }
 
   async upscale (): Promise<void> {
-    const data = await Drive.get(`images/${this.uuid}.png`)
+    const data = await Drive.get(`images/${this.uuid}.${this.type}`)
     const key = `${this.uuid}@xl`
     await EnhancedSRGANUpscaler.run(data, key)
 

@@ -21,7 +21,8 @@
         {
           "name": "featured",
           "propertyName": "featured",
-          "type": "boolean"
+          "type": "boolean",
+          "alias": "f"
         }
       ]
     },

@@ -6,11 +6,16 @@ export async function toDriveFromURI (url: string, name: string) {
     const response = await axios({ url, responseType: 'stream' })
     const stream = response.data
     const contentLength = response.headers['content-length'] as number
-    await Drive.putStream(
-      `images/${name}.png`,
-      stream,
-      { contentType: 'image/png', contentLength: contentLength }
-    )
+    const contentType = response.headers['content-type']
+    const fileType = contentType.split('/').at(-1)
+    const path = `images/${name}.${fileType}`
+    await Drive.putStream(path, stream, { contentType: contentType, contentLength: contentLength })
+
+    return {
+      path,
+      fileType,
+      contentType,
+    }
   } catch (e) {
     // ...
   }

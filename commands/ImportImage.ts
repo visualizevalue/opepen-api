@@ -16,7 +16,7 @@ export default class ImportImages extends BaseCommand {
   @args.string()
   public uri: string
 
-  @flags.boolean()
+  @flags.boolean({ alias: 'f' })
   public featured: boolean
 
   public static settings = {
