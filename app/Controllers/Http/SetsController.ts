@@ -4,6 +4,7 @@ import SetModel from 'App/Models/Set'
 import Subscription from 'App/Models/Subscription'
 import BaseController from './BaseController'
 import { DateTime } from 'luxon'
+import Account from 'App/Models/Account'
 
 export default class SetsController extends BaseController {
   public async show ({ params }: HttpContextContract) {
@@ -31,6 +32,8 @@ export default class SetsController extends BaseController {
     if (! set.name) throw new Error(`Needs a valid set`)
     if (! message) throw new Error(`Needs a message`)
     if (address !== verifiedAddress.toLowerCase()) throw new Error(`Address needs to be accurate`)
+
+    await Account.updateOrCreate({ address }, {})
 
     const subscription = await Subscription.updateOrCreate({
       setId: set.id,
