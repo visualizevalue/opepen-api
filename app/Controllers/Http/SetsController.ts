@@ -20,19 +20,6 @@ export default class SetsController extends BaseController {
     return set
   }
 
-  public async listSubscribers ({ params, request }: HttpContextContract) {
-    const {
-      page = 1,
-      limit = 50,
-    } = request.qs()
-
-    return Subscription.query()
-      .where('setId', params.id)
-      .orderBy('createdAt', 'desc')
-      .preload('account')
-      .paginate(page, limit)
-  }
-
   public async subscribe ({ params, request }: HttpContextContract) {
     const set = await SetModel.findOrFail(params.id)
 
@@ -52,6 +39,7 @@ export default class SetsController extends BaseController {
       message,
       signature,
       opepenIds: request.input('opepen'),
+      delegatedBy: request.input('delegated_by'),
       createdAt: DateTime.now(),
     })
 
@@ -60,6 +48,19 @@ export default class SetsController extends BaseController {
     await set.save()
 
     return subscription
+  }
+
+  public async listSubscribers ({ params, request }: HttpContextContract) {
+    const {
+      page = 1,
+      limit = 50,
+    } = request.qs()
+
+    return Subscription.query()
+      .where('setId', params.id)
+      .orderBy('createdAt', 'desc')
+      .preload('account')
+      .paginate(page, limit)
   }
 
   public async subscriptionForAccount ({ params }: HttpContextContract) {

@@ -16,6 +16,9 @@ export default class Subscription extends BaseModel {
   public address: string
 
   @column()
+  public delegatedBy: string
+
+  @column()
   public message: string
 
   @column()
