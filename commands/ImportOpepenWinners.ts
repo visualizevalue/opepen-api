@@ -30,6 +30,7 @@ export default class ImportOpepenWinners extends BaseCommand {
     for (const edition in winners) {
       const opepenIds = winners[edition]
 
+      let editionId = 1
       for (const id of opepenIds) {
         const opepen = await Opepen.find(id)
 
@@ -37,7 +38,10 @@ export default class ImportOpepenWinners extends BaseCommand {
 
         opepen.revealedAt = DateTime.now()
         opepen.setId = parseInt(this.set)
+        opepen.setEditionId = editionId
         await opepen.save()
+
+        editionId++
       }
     }
   }

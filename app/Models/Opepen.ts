@@ -19,6 +19,9 @@ export default class Opepen extends TokenModel {
   @column()
   public setId: number
 
+  @column()
+  public setEditionId: number
+
   @belongsTo(() => SetModel)
   public set: BelongsTo<typeof SetModel>
 
