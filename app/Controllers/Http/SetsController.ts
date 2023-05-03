@@ -85,7 +85,10 @@ export default class SetsController extends BaseController {
       for (const tokenId of submission.opepenIds) {
         const opepen = await Opepen.findOrFail(tokenId)
 
-        if (opepen.revealedAt) continue
+        if (opepen.revealedAt) {
+          console.log(`Skipping #${opepen.tokenId} cause it is already revealed`)
+          continue
+        }
 
         const signer = submission.address.toLowerCase()
         const delegators = submission.delegatedBy ? submission.delegatedBy.split(',').map(a => a.toLowerCase()) : []

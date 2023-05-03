@@ -1,7 +1,8 @@
 import Env from '@ioc:Adonis/Core/Env'
-import { beforeSave, column, HasMany, hasMany } from '@ioc:Adonis/Lucid/Orm'
+import { beforeSave, BelongsTo, belongsTo, column, HasMany, hasMany } from '@ioc:Adonis/Lucid/Orm'
 import TokenModel from './TokenModel'
 import Event from './Event'
+import SetModel from './Set'
 import { ContractType } from './types'
 
 type OpepenData = {
@@ -14,6 +15,12 @@ export default class Opepen extends TokenModel {
 
   @column()
   public data: OpepenData
+
+  @column()
+  public setId: number
+
+  @belongsTo(() => SetModel)
+  public set: BelongsTo<typeof SetModel>
 
   @hasMany(() => Event, {
     foreignKey: 'tokenId',

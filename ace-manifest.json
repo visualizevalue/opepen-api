@@ -26,6 +26,25 @@
         }
       ]
     },
+    "opepen:import-winners": {
+      "settings": {
+        "loadApp": true,
+        "stayAlive": false
+      },
+      "commandPath": "./commands/ImportOpepenWinners",
+      "commandName": "opepen:import-winners",
+      "description": "Import the winners of a set for opepen",
+      "args": [
+        {
+          "type": "string",
+          "propertyName": "set",
+          "name": "set",
+          "required": true
+        }
+      ],
+      "aliases": [],
+      "flags": []
+    },
     "import:opepens": {
       "settings": {
         "loadApp": true,
