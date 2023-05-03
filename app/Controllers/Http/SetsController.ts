@@ -1,10 +1,12 @@
 import { ethers } from 'ethers'
+import Drive from '@ioc:Adonis/Core/Drive'
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import SetModel from 'App/Models/Set'
 import Subscription from 'App/Models/Subscription'
 import BaseController from './BaseController'
 import { DateTime } from 'luxon'
 import Account from 'App/Models/Account'
+import Opepen from 'App/Models/Opepen'
 
 export default class SetsController extends BaseController {
   public async show ({ params }: HttpContextContract) {
@@ -72,5 +74,40 @@ export default class SetsController extends BaseController {
       .where('address', params.account.toLowerCase())
       .where('setId', params.id)
       .firstOrFail()
+  }
+
+  public async cleanedSubmissions ({ params }: HttpContextContract) {
+    const submissions = await Subscription.query().where('setId', params.id)
+
+    const opepens: any[] = []
+
+    for (const submission of submissions) {
+      for (const tokenId of submission.opepenIds) {
+        const opepen = await Opepen.findOrFail(tokenId)
+
+        if (opepen.revealedAt) continue
+
+        const signer = submission.address.toLowerCase()
+        const delegators = submission.delegatedBy ? submission.delegatedBy.split(',').map(a => a.toLowerCase()) : []
+        const allowedOwners = [signer, ...delegators]
+
+        if (! allowedOwners.includes(opepen.owner)) {
+          console.log(`Skipping #${opepen.tokenId} cause not held by valid owners anymore.`)
+          continue
+        }
+
+        opepens.push({
+          tokenId,
+          holder: opepen.owner,
+        })
+      }
+    }
+
+    await Drive.put(
+      `sets/${params.id}/${DateTime.now().toUnixInteger()}.json`,
+      JSON.stringify(opepens, null, 4)
+    )
+
+    return opepens
   }
 }

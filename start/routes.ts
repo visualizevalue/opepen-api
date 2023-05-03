@@ -56,6 +56,7 @@ Route.group(() => {
   // Sets
   Route.get('/sets/:id',                'SetsController.show')
   Route.get('/sets/:id/subscribers',    'SetsController.listSubscribers')
+  Route.get('/sets/:id/submissions',    'SetsController.cleanedSubmissions')
   Route.post('/sets/:id/subscribe',     'SetsController.subscribe')
 }).prefix('/v1/opepen')
 
