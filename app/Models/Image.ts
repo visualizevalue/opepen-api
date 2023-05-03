@@ -68,27 +68,27 @@ export default class Image extends BaseModel {
     const imageProcessor = await sharp(original)
     const metadata = await imageProcessor.metadata()
 
-    if (! metadata.width || this.type !== 'png') return
+    if (! metadata.width || !['png', 'jpg', 'jpeg'].includes(this.type)) return
     if (metadata.width === 512) {
       this.versions.sm = true
       return this.upscale()
     }
 
     if (metadata.width > 2048) {
-      const v2048 = await imageProcessor.resize({ width: 1024 }).png().toBuffer()
-      await Drive.put(`images/${this.uuid}@xl.png`, v2048, { contentType: 'image/png' })
+      const v2048 = await imageProcessor.resize({ width: 1024 }).toBuffer()
+      await Drive.put(`images/${this.uuid}@xl.${this.type}`, v2048, { contentType: `image/${this.type}` })
       this.versions.xl = true
     }
 
     if (metadata.width > 1024) {
-      const v1024 = await imageProcessor.resize({ width: 1024 }).png().toBuffer()
-      await Drive.put(`images/${this.uuid}@lg.png`, v1024, { contentType: 'image/png' })
+      const v1024 = await imageProcessor.resize({ width: 1024 }).toBuffer()
+      await Drive.put(`images/${this.uuid}@lg.${this.type}`, v1024, { contentType: `image/${this.type}` })
       this.versions.lg = true
     }
 
     if (metadata.width > 512) {
-      const v512 = await imageProcessor.resize({ width: 512 }).png().toBuffer()
-      await Drive.put(`images/${this.uuid}@sm.png`, v512, { contentType: 'image/png' })
+      const v512 = await imageProcessor.resize({ width: 512 }).toBuffer()
+      await Drive.put(`images/${this.uuid}@sm.${this.type}`, v512, { contentType: `image/${this.type}` })
       this.versions.sm = true
     }
 
@@ -101,12 +101,12 @@ export default class Image extends BaseModel {
     await EnhancedSRGANUpscaler.run(data, key)
 
     // Scale down to 2x
-    const upscaled = await Drive.get(`images/${key}.png`)
+    const upscaled = await Drive.get(`images/${key}.${this.type}`)
     const downscaled = await sharp(upscaled).resize({ width: 1024 }).toBuffer()
     await Drive.put(
-      `images/${this.uuid}@lg.png`,
+      `images/${this.uuid}@lg.${this.type}`,
       downscaled,
-      { contentType: 'image/png' }
+      { contentType: `image/${this.type}` }
     )
 
     // Update image
