@@ -99,6 +99,7 @@ export default class SetsController extends BaseController {
         opepens.push({
           tokenId,
           holder: opepen.owner,
+          edition: opepen.data.edition,
         })
       }
     }
