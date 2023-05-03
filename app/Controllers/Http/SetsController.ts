@@ -29,6 +29,7 @@ export default class SetsController extends BaseController {
     const signature = request.input('signature')
     const verifiedAddress = ethers.utils.verifyMessage(message, signature)
 
+    if (set.revealsAt < DateTime.now()) throw new Error(`Submission past reveal`)
     if (! set.name) throw new Error(`Needs a valid set`)
     if (! message) throw new Error(`Needs a message`)
     if (address !== verifiedAddress.toLowerCase()) throw new Error(`Address needs to be accurate`)
