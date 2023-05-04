@@ -5,7 +5,13 @@ import BaseController from './BaseController'
 export default class AccountsController extends BaseController {
 
   public async show ({ params }) {
-    return Account.byId(decodeURIComponent(params.id.toLowerCase())).firstOrFail()
+    const account = await Account.byId(decodeURIComponent(params.id.toLowerCase())).first()
+
+    if (! account) {
+      return Account.create({ address: params.id })
+    }
+
+    return account
   }
 
   public async update ({ params }) {
