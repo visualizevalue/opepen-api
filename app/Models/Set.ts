@@ -54,6 +54,9 @@ export default class SetModel extends BaseModel {
   @column.dateTime()
   public revealsAt: DateTime
 
+  @column()
+  public revealBlockNumber: string
+
   @column({
     consume: value => {
       if (! value) return { 1: [], 4: [], 5: [], 10: [], 20: [], 40: [] }
