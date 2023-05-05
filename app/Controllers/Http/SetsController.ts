@@ -119,6 +119,7 @@ export default class SetsController extends BaseController {
     return Opepen.query()
       .where('setId', params.id)
       .preload('image')
+      .preload('ownerAccount')
       .orderByRaw(`(data->>'edition')::int`)
       .orderBy('set_edition_id')
   }
