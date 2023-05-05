@@ -114,4 +114,11 @@ export default class SetsController extends BaseController {
 
     return opepens
   }
+
+  public async opepen ({ params }: HttpContextContract) {
+    return Opepen.query()
+      .where('setId', params.id)
+      .orderByRaw(`(data->>'edition')::int`)
+      .orderBy('set_edition_id')
+  }
 }

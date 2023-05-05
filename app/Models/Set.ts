@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon'
-import { BaseModel, BelongsTo, belongsTo, column } from '@ioc:Adonis/Lucid/Orm'
+import { BaseModel, BelongsTo, HasMany, belongsTo, column, hasMany } from '@ioc:Adonis/Lucid/Orm'
 import Image from './Image'
 import Opepen from './Opepen'
 import Subscription from './Subscription'
@@ -78,6 +78,9 @@ export default class SetModel extends BaseModel {
   public edition20Image: BelongsTo<typeof Image>
   @belongsTo(() => Image, { foreignKey: 'edition_40ImageId' })
   public edition40Image: BelongsTo<typeof Image>
+
+  @hasMany(() => Opepen)
+  public opepen: HasMany<typeof Opepen>
 
   public async opepensInSet () {
     const opepens = {
