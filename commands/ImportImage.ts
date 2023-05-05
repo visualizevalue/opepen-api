@@ -2,16 +2,16 @@ import { BaseCommand, args, flags } from '@adonisjs/core/build/standalone'
 import Image from 'App/Models/Image'
 import { DateTime } from 'luxon'
 
-export default class ImportImages extends BaseCommand {
+export default class ImportImage extends BaseCommand {
   /**
    * Command name is used to run the command
    */
-  public static commandName = 'import:image'
+  public static commandName = 'images:import'
 
   /**
    * Command description is displayed in the "help" output
    */
-  public static description = 'Import images from URIs'
+  public static description = 'Import and image from a URI'
 
   @args.string()
   public uri: string

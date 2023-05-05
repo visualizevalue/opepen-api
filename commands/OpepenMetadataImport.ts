@@ -6,7 +6,7 @@ export default class OpepenMetadataImport extends BaseCommand {
   /**
    * Command name is used to run the command
    */
-  public static commandName = 'opepen:import_metadata'
+  public static commandName = 'opepen:import-metadata'
 
   /**
    * Command description is displayed in the "help" output

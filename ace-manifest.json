@@ -1,13 +1,13 @@
 {
   "commands": {
-    "import:image": {
+    "images:import": {
       "settings": {
         "loadApp": true,
         "stayAlive": false
       },
       "commandPath": "./commands/ImportImage",
-      "commandName": "import:image",
-      "description": "Import images from URIs",
+      "commandName": "images:import",
+      "description": "Import and image from a URI",
       "args": [
         {
           "type": "string",
@@ -25,6 +25,25 @@
           "alias": "f"
         }
       ]
+    },
+    "images:import-set-images": {
+      "settings": {
+        "loadApp": true,
+        "stayAlive": false
+      },
+      "commandPath": "./commands/ImportImagesFromMetadataApi",
+      "commandName": "images:import-set-images",
+      "description": "Import images from metadata api (used for dynamic sets)",
+      "args": [
+        {
+          "type": "string",
+          "propertyName": "set",
+          "name": "set",
+          "required": true
+        }
+      ],
+      "aliases": [],
+      "flags": []
     },
     "opepen:import-winners": {
       "settings": {
@@ -45,25 +64,25 @@
       "aliases": [],
       "flags": []
     },
-    "import:opepens": {
+    "opepen:sync-all": {
       "settings": {
         "loadApp": true,
         "stayAlive": false
       },
       "commandPath": "./commands/ImportOpepens",
-      "commandName": "import:opepens",
+      "commandName": "opepen:sync-all",
       "description": "Force update opepen tokens and ownership",
       "args": [],
       "aliases": [],
       "flags": []
     },
-    "opepen:import_metadata": {
+    "opepen:import-metadata": {
       "settings": {
         "loadApp": true,
         "stayAlive": false
       },
       "commandPath": "./commands/OpepenMetadataImport",
-      "commandName": "opepen:import_metadata",
+      "commandName": "opepen:import-metadata",
       "description": "",
       "args": [],
       "aliases": [],
@@ -87,7 +106,7 @@
       },
       "commandPath": "./commands/SyncOpepen",
       "commandName": "opepen:sync",
-      "description": "Sync the blockchain state of current opepen ownership",
+      "description": "Sync the blockchain state of current opepen ownership by parsing blockchain events",
       "args": [],
       "aliases": [],
       "flags": []

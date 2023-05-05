@@ -7,7 +7,7 @@ export default class ImportOpepens extends BaseCommand {
   /**
    * Command name is used to run the command
    */
-  public static commandName = 'import:opepens'
+  public static commandName = 'opepen:sync-all'
 
   /**
    * Command description is displayed in the "help" output

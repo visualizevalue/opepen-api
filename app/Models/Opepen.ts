@@ -3,6 +3,7 @@ import { beforeSave, BelongsTo, belongsTo, column, HasMany, hasMany } from '@ioc
 import TokenModel from './TokenModel'
 import Event from './Event'
 import SetModel from './Set'
+import Image from './Image'
 import { ContractType } from './types'
 
 type OpepenData = {
@@ -22,8 +23,14 @@ export default class Opepen extends TokenModel {
   @column()
   public setEditionId: number
 
+  @column()
+  public imageId: bigint
+
   @belongsTo(() => SetModel)
   public set: BelongsTo<typeof SetModel>
+
+  @belongsTo(() => Image)
+  public image: BelongsTo<typeof Image>
 
   @hasMany(() => Event, {
     foreignKey: 'tokenId',
