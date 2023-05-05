@@ -118,6 +118,7 @@ export default class SetsController extends BaseController {
   public async opepen ({ params }: HttpContextContract) {
     return Opepen.query()
       .where('setId', params.id)
+      .preload('image')
       .orderByRaw(`(data->>'edition')::int`)
       .orderBy('set_edition_id')
   }
