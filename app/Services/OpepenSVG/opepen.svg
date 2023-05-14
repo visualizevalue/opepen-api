@@ -2,9 +2,6 @@
   <!-- Background -->
   <rect width="8" height="8" fill="#000" />
 
-  <!-- Noise -->
-  <rect width="8" height="8" filter="url(#noise)" />
-
   <!--
     Opepen
   -->
