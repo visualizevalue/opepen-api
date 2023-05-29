@@ -10,11 +10,17 @@ import Opepen from 'App/Models/Opepen'
 
 export default class SetsController extends BaseController {
   public async list () {
-    return await SetModel.query()
+    const sets = await SetModel.query()
       .preload('edition1Image')
-      .select(['id', 'name', 'revealsAt', 'edition_1ImageId'])
       .where('revealsAt', '<', DateTime.now().toSQL())
       .orderBy('id')
+
+
+    return sets.map(s => s.serialize({
+      fields: {
+        pick: ['id', 'name', 'reveals_at']
+      }
+    }))
   }
 
   public async show ({ params }: HttpContextContract) {
