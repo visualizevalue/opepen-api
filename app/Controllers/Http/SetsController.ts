@@ -12,7 +12,7 @@ export default class SetsController extends BaseController {
   public async list () {
     const sets = await SetModel.query()
       .preload('edition1Image')
-      .where('revealsAt', '<', DateTime.now().toSQL())
+      .whereNotNull('revealsAt')
       .orderBy('id')
 
 
