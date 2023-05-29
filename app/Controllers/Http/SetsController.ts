@@ -64,8 +64,7 @@ export default class SetsController extends BaseController {
     })
 
     // Update opepen cache
-    set.submittedOpepen = await set.opepensInSet()
-    await set.save()
+    set.updateAndValidateOpepensInSet()
 
     return subscription
   }

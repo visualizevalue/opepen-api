@@ -111,4 +111,9 @@ export default class SetModel extends BaseModel {
       40: Array.from(opepens['40']),
     }
   }
+
+  public async updateAndValidateOpepensInSet () {
+    this.submittedOpepen = await this.opepensInSet()
+    await this.save()
+  }
 }
