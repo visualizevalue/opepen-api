@@ -24,7 +24,7 @@
 
     <!-- Mouth -->
     <g transform="translate(2, 4)">
-      <use href="#mouth-square-4" />
+      <use href="#mouth-rounded-1" />
     </g>
 
     <!-- Torso -->

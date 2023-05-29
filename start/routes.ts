@@ -54,6 +54,7 @@ Route.group(() => {
   Route.get('/images/:id',              'ImagesController.show')
 
   // Sets
+  Route.get('/sets',                    'SetsController.list')
   Route.get('/sets/:id',                'SetsController.show')
   Route.get('/sets/:id/subscribers',    'SetsController.listSubscribers')
   Route.get('/sets/:id/submissions',    'SetsController.cleanedSubmissions')

@@ -9,6 +9,14 @@ import Account from 'App/Models/Account'
 import Opepen from 'App/Models/Opepen'
 
 export default class SetsController extends BaseController {
+  public async list () {
+    return await SetModel.query()
+      .preload('edition1Image')
+      .select(['id', 'name', 'revealsAt', 'edition_1ImageId'])
+      .where('revealsAt', '<', DateTime.now().toSQL())
+      .orderBy('id')
+  }
+
   public async show ({ params }: HttpContextContract) {
     const set = await SetModel.query()
       .preload('edition1Image')
