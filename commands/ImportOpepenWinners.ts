@@ -1,6 +1,7 @@
 import { BaseCommand, args } from '@adonisjs/core/build/standalone'
 import Drive from '@ioc:Adonis/Core/Drive'
 import Opepen from 'App/Models/Opepen'
+import SetModel from 'App/Models/Set'
 import { DateTime } from 'luxon'
 
 export default class ImportOpepenWinners extends BaseCommand {
@@ -26,6 +27,7 @@ export default class ImportOpepenWinners extends BaseCommand {
     this.logger.info('Importing Opepen winners')
 
     const winners = JSON.parse((await Drive.get(`sets/${this.set}/winners.json`)).toString())
+    const set = await SetModel.findOrFail(parseInt(this.set))
 
     for (const edition in winners) {
       const opepenIds = winners[edition]
@@ -37,8 +39,10 @@ export default class ImportOpepenWinners extends BaseCommand {
         if (! opepen) continue
 
         opepen.revealedAt = DateTime.now()
-        opepen.setId = parseInt(this.set)
+        opepen.setId = set.id
         opepen.setEditionId = editionId
+        opepen.imageId = set[`edition_${edition}ImageId`]
+
         await opepen.save()
 
         editionId++
