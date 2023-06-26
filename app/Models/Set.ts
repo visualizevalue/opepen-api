@@ -17,6 +17,9 @@ export default class SetModel extends BaseModel {
   public artist: string
 
   @column()
+  public description: string
+
+  @column()
   public minSubscriptionPercentage: number
 
   @column()
