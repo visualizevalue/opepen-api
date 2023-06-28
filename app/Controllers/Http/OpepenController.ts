@@ -8,7 +8,8 @@ export default class OpepenController extends BaseController {
     return Opepen.query()
       .where('owner', params.id.toLowerCase())
       .preload('image')
-      .orderBy('tokenId')
+      .orderBy('setId')
+      .orderByRaw(`(data->>'edition')::int`)
       .paginate(1, 16_000)
   }
 
