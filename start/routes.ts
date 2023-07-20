@@ -23,6 +23,17 @@ import Route from '@ioc:Adonis/Core/Route'
 // Welcome
 Route.get('/', () => ({ hello: 'opepen' }))
 
+// Auth
+Route.group(() => {
+  Route.get('/nonce',   'AuthController.nonce')
+
+  Route.post('/verify', 'AuthController.verify')
+  Route.get('/me',      'AuthController.me')
+
+  Route.get('/clear',   'AuthController.clear')
+  Route.post('/clear',  'AuthController.clear')
+}).prefix('/v1/auth')
+
 // AI
 Route.group(() => {
   // Journeys
