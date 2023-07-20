@@ -1,13 +1,11 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import { string } from '@ioc:Adonis/Core/Helpers'
 import Journey from 'App/Models/Journey'
-import { ethers } from 'ethers'
 import Account from 'App/Models/Account'
 import BaseController from './BaseController'
 
 export default class JourneysController extends BaseController {
 
-  // TODO: Authenticate
   public async forAccount({ params, request }: HttpContextContract) {
     const account = await Account.byId(decodeURIComponent(params.id).toLowerCase()).firstOrFail()
     const {
@@ -26,7 +24,6 @@ export default class JourneysController extends BaseController {
   }
 
 
-  // TODO: Authenticate
   public async show({ params }: HttpContextContract) {
     const journey = await Journey.findByOrFail('uuid', params.id)
 
@@ -37,9 +34,10 @@ export default class JourneysController extends BaseController {
     return journey
   }
 
-  // TODO: Authenticate, Validate request
-  public async store({ request }: HttpContextContract) {
-    const owner = await Account.firstOrCreate({ address: ethers.constants.AddressZero })
+  public async store({ session, request }: HttpContextContract) {
+    const owner = await Account.firstOrCreate({
+      address: session.get('siwe')?.address?.toLowerCase()
+    })
 
     // Create the journey
     const journey = await Journey.create({
@@ -59,9 +57,14 @@ export default class JourneysController extends BaseController {
     return journey
   }
 
-  // TODO: Authenticate, Validate request
-  public async update({ request, params }: HttpContextContract) {
+  public async update({ request, params, session, response }: HttpContextContract) {
+    const userAddress = session.get('siwe')?.address?.toLowerCase()
+
     const journey = await Journey.findByOrFail('uuid', params.id)
+
+    if (journey.owner !== userAddress) {
+      return response.unauthorized('Not allowed to update journey')
+    }
 
     journey.title = request.input('title', journey.title)
     journey.mainImageId = request.input('main_image_id', journey.mainImageId)
