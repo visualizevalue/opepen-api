@@ -2,6 +2,7 @@ import { DateTime } from 'luxon'
 import { BaseModel, BelongsTo, belongsTo, column } from '@ioc:Adonis/Lucid/Orm'
 import Account from './Account'
 import SetModel from './Set'
+import { MaxReveal } from './types'
 
 export default class Subscription extends BaseModel {
   public static table = 'set_subscriptions'
@@ -28,6 +29,11 @@ export default class Subscription extends BaseModel {
     prepare: value => JSON.stringify(value),
   })
   public opepenIds: number[]
+
+  @column({
+    prepare: value => JSON.stringify(value),
+  })
+  public maxReveals: MaxReveal
 
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime

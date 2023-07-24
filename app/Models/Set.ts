@@ -25,6 +25,9 @@ export default class SetModel extends BaseModel {
   @column()
   public isDynamic: boolean = false
 
+  @column()
+  public revealStrategy: string
+
   @column({ serializeAs: 'edition1Name' })
   public edition_1Name: string
   @column({ serializeAs: 'edition4Name' })
@@ -101,7 +104,6 @@ export default class SetModel extends BaseModel {
         if (! opepen) continue
 
         opepens[opepen.data?.edition].add(opepen.tokenId)
-        console.log(`added ${opepen.tokenId}`)
       }
     }
 

@@ -7,6 +7,7 @@ import BaseController from './BaseController'
 import { DateTime } from 'luxon'
 import Account from 'App/Models/Account'
 import Opepen from 'App/Models/Opepen'
+import { MaxReveal } from 'App/Models/types'
 
 export default class SetsController extends BaseController {
   public async list () {
@@ -59,6 +60,7 @@ export default class SetsController extends BaseController {
       message,
       signature,
       opepenIds: request.input('opepen'),
+      maxReveals: request.input('maxReveals'),
       delegatedBy: request.input('delegated_by'),
       createdAt: DateTime.now(),
     })
@@ -90,9 +92,12 @@ export default class SetsController extends BaseController {
   }
 
   public async cleanedSubmissions ({ params }: HttpContextContract) {
-    const submissions = await Subscription.query().where('setId', params.id)
+    const submissions = await Subscription.query()
+      .where('setId', params.id)
+      .orderBy('createdAt', 'desc')
 
     const opepens: any[] = []
+    const maxReveals: { [key: string]: MaxReveal } = {}
 
     for (const submission of submissions) {
       for (const tokenId of submission.opepenIds) {
@@ -114,18 +119,27 @@ export default class SetsController extends BaseController {
 
         opepens.push({
           tokenId,
+          signer: submission.address,
           holder: opepen.owner,
           edition: opepen.data.edition,
         })
       }
+
+      // Save the set max reveal per edition size
+      maxReveals[submission.address] = submission.maxReveals
+    }
+
+    const data = {
+      opepens,
+      maxReveals,
     }
 
     await Drive.put(
       `sets/${params.id}/${DateTime.now().toUnixInteger()}.json`,
-      JSON.stringify(opepens, null, 4)
+      JSON.stringify(data, null, 4)
     )
 
-    return opepens
+    return data
   }
 
   public async opepen ({ params }: HttpContextContract) {
