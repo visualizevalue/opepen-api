@@ -126,7 +126,24 @@ export default class SetsController extends BaseController {
       }
 
       // Save the set max reveal per edition size
-      maxReveals[submission.address] = submission.maxReveals
+      const hasMaxReveals = submission.maxReveals && (
+        submission.maxReveals['1'] ||
+        submission.maxReveals['4'] ||
+        submission.maxReveals['5'] ||
+        submission.maxReveals['10'] ||
+        submission.maxReveals['20'] ||
+        submission.maxReveals['40']
+      )
+      if (hasMaxReveals) {
+        maxReveals[submission.address] = {
+          '1':  submission.maxReveals['1'] ? submission.maxReveals['1'] : undefined,
+          '4':  submission.maxReveals['4'] ? submission.maxReveals['4'] : undefined,
+          '5':  submission.maxReveals['5'] ? submission.maxReveals['5'] : undefined,
+          '10': submission.maxReveals['10'] ? submission.maxReveals['10'] : undefined,
+          '20': submission.maxReveals['20'] ? submission.maxReveals['20'] : undefined,
+          '40': submission.maxReveals['40'] ? submission.maxReveals['40'] : undefined,
+        }
+      }
     }
 
     const data = {
