@@ -60,7 +60,7 @@ export default class SetsController extends BaseController {
       message,
       signature,
       opepenIds: request.input('opepen'),
-      maxReveals: request.input('maxReveals'),
+      maxReveals: request.input('max_reveals'),
       delegatedBy: request.input('delegated_by'),
       createdAt: DateTime.now(),
     })
