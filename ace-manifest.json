@@ -19,6 +19,25 @@
       "aliases": [],
       "flags": []
     },
+    "set:compute-reveal-holders": {
+      "settings": {
+        "loadApp": true,
+        "stayAlive": false
+      },
+      "commandPath": "./commands/ComputeHoldersAtSetReveal",
+      "commandName": "set:compute-reveal-holders",
+      "description": "Compute the number of unique holders at the time of the drop of a set",
+      "args": [
+        {
+          "type": "string",
+          "propertyName": "set",
+          "name": "set",
+          "required": true
+        }
+      ],
+      "aliases": [],
+      "flags": []
+    },
     "images:import": {
       "settings": {
         "loadApp": true,

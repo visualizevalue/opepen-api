@@ -5,6 +5,7 @@ import Event from './Event'
 import SetModel from './Set'
 import Image from './Image'
 import { ContractType } from './types'
+import Database from '@ioc:Adonis/Lucid/Database'
 
 type OpepenData = {
   edition: 1|4|5|10|20|40,
@@ -46,5 +47,17 @@ export default class Opepen extends TokenModel {
   @beforeSave()
   public static async lowerCaseAddresses(model: TokenModel) {
     return TokenModel.lowerCaseAddresses(model)
+  }
+
+  public static async holdersAtBlock (block: number = 9999999999999999) {
+    const lastTokenOwners = await Database.rawQuery(`SELECT
+          DISTINCT on (token_id) token_id,
+          "to" as holder,
+          block_number
+        FROM events
+        WHERE block_number::NUMERIC < ?
+        ORDER BY token_id, block_number::int desc`, [block])
+
+    return new Set<string>(lastTokenOwners.rows.map(t => t.holder))
   }
 }

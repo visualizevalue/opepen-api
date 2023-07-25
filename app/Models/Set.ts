@@ -34,6 +34,7 @@ export type SubmissionStats = {
     40: number
     total: number
   },
+  totalHolders?: number
 }
 
 export default class SetModel extends BaseModel {
@@ -156,6 +157,7 @@ export default class SetModel extends BaseModel {
   public async updateAndValidateOpepensInSet () {
     await this.cleanSubmissions()
     this.submittedOpepen = await this.opepensInSet()
+    await this.computeTotalHoldersAtReveal()
     await this.save()
   }
 
@@ -205,7 +207,16 @@ export default class SetModel extends BaseModel {
       await submission.save()
     }
 
-    this.submissionStats = { holders, opepens, demand }
+    this.submissionStats = { ...this.submissionStats, holders, opepens, demand }
     await this.save()
+  }
+
+  public async computeTotalHoldersAtReveal () {
+    const owners = await Opepen.holdersAtBlock(parseInt(this.revealBlockNumber) || 9999999999999999)
+
+    this.submissionStats = { ...this.submissionStats, totalHolders: owners.size }
+    await this.save()
+
+    return owners.size
   }
 }
