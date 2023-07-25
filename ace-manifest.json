@@ -1,5 +1,24 @@
 {
   "commands": {
+    "set:clean-submissions": {
+      "settings": {
+        "loadApp": true,
+        "stayAlive": false
+      },
+      "commandPath": "./commands/CleanSetSubmissions",
+      "commandName": "set:clean-submissions",
+      "description": "Force update opepen tokens and ownership",
+      "args": [
+        {
+          "type": "string",
+          "propertyName": "set",
+          "name": "set",
+          "required": true
+        }
+      ],
+      "aliases": [],
+      "flags": []
+    },
     "images:import": {
       "settings": {
         "loadApp": true,

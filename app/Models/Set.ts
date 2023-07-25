@@ -3,6 +3,38 @@ import { BaseModel, BelongsTo, HasMany, belongsTo, column, hasMany } from '@ioc:
 import Image from './Image'
 import Opepen from './Opepen'
 import Subscription from './Subscription'
+import { EditionSize } from './types'
+
+type EditionGroups = { [K in EditionSize]: BigInt[] }
+export type SubmissionStats = {
+  holders: {
+    1: number
+    4: number
+    5: number
+    10: number
+    20: number
+    40: number
+    total: number
+  },
+  opepens: {
+    1: number
+    4: number
+    5: number
+    10: number
+    20: number
+    40: number
+    total: number
+  },
+  demand: {
+    1: number
+    4: number
+    5: number
+    10: number
+    20: number
+    40: number
+    total: number
+  },
+}
 
 export default class SetModel extends BaseModel {
   public static table = 'sets'
@@ -68,9 +100,13 @@ export default class SetModel extends BaseModel {
       if (! value) return { 1: [], 4: [], 5: [], 10: [], 20: [], 40: [] }
 
       return value
-    }
+    },
+    serializeAs: null,
   })
   public submittedOpepen: object
+
+  @column()
+  public submissionStats: SubmissionStats
 
   @belongsTo(() => Image, { foreignKey: 'edition_1ImageId' })
   public edition1Image: BelongsTo<typeof Image>
@@ -118,7 +154,58 @@ export default class SetModel extends BaseModel {
   }
 
   public async updateAndValidateOpepensInSet () {
+    await this.cleanSubmissions()
     this.submittedOpepen = await this.opepensInSet()
+    await this.save()
+  }
+
+  public async cleanSubmissions () {
+    const submissions = await Subscription.query().where('setId', this.id)
+
+    const holders = { 1: 0, 4: 0, 5: 0, 10: 0, 20: 0, 40: 0, total: 0 }
+    const opepens = { 1: 0, 4: 0, 5: 0, 10: 0, 20: 0, 40: 0, total: 0 }
+    const demand = { 1: 0, 4: 0, 5: 0, 10: 0, 20: 0, 40: 0, total: 0 }
+    const max_reveal_users = new Set<string>()
+
+    for (const submission of submissions) {
+      const submittedOpepen = await Opepen.query()
+        .whereIn('token_id', submission.opepenIds)
+
+      const groups = submittedOpepen.reduce((groups, opepen) => {
+        groups[opepen.data.edition].push(opepen.tokenId)
+
+        return groups
+      }, { 1: [], 4: [], 5: [], 10: [], 20: [], 40: [] } as EditionGroups)
+
+      for (const edition in groups) {
+        if (! submission.maxReveals) {
+          submission.maxReveals = {}
+        }
+
+        submission.maxReveals[edition] = typeof submission.maxReveals[edition] === 'number'
+          ? submission.maxReveals[edition]
+          : groups[edition].length
+
+        if (submission.maxReveals[edition] < groups[edition].length) {
+          max_reveal_users.add(submission.address)
+        }
+
+        if (submission.maxReveals[edition] > 0) {
+          holders[edition] ++
+        }
+
+        demand[edition] += submission.maxReveals[edition]
+        demand.total += submission.maxReveals[edition]
+        opepens[edition] += groups[edition].length
+        opepens.total += groups[edition].length
+      }
+
+      holders.total ++
+
+      await submission.save()
+    }
+
+    this.submissionStats = { holders, opepens, demand }
     await this.save()
   }
 }
