@@ -1,5 +1,6 @@
 import { DateTime } from 'luxon'
 import Logger from '@ioc:Adonis/Core/Logger'
+import Env from '@ioc:Adonis/Core/Env'
 import { afterSave, BaseModel, beforeSave, column, computed, HasMany, hasMany } from '@ioc:Adonis/Lucid/Orm'
 import Address from 'App/Helpers/Address'
 import provider from 'App/Services/RPCProvider'
@@ -41,6 +42,10 @@ export default class Account extends BaseModel {
 
   @afterSave()
   public static async saveNames (account: Account) {
+    if (! Env.get('UPDATE_ENS')) {
+      return
+    }
+
     await Promise.all([
       account.updateENS(),
     ])

@@ -64,6 +64,25 @@
       "aliases": [],
       "flags": []
     },
+    "opepen:import-events": {
+      "settings": {
+        "loadApp": true,
+        "stayAlive": false
+      },
+      "commandPath": "./commands/ImportOpepenEvents",
+      "commandName": "opepen:import-events",
+      "description": "Import Events from a CSV",
+      "args": [
+        {
+          "type": "string",
+          "propertyName": "path",
+          "name": "path",
+          "required": true
+        }
+      ],
+      "aliases": [],
+      "flags": []
+    },
     "opepen:import-winners": {
       "settings": {
         "loadApp": true,
