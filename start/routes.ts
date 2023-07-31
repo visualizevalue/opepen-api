@@ -70,6 +70,8 @@ Route.group(() => {
 Route.group(() => {
   // Images
   Route.get('/images/featured',         'ImagesController.featured')
+  // Route.post('/images',                 'ImagesController.store').middleware(['auth'])
+  Route.post('/images',                 'ImagesController.store')
   Route.get('/images/:id',              'ImagesController.show')
 
   // Sets

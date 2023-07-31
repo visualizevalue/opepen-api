@@ -82,7 +82,7 @@ export default class SetSubmission extends BaseModel {
     foreignKey: 'creator',
     localKey: 'address',
   })
-  public ownerAccount: BelongsTo<typeof Account>
+  public creatorAccount: BelongsTo<typeof Account>
 
   public static active = scope((query) => {
     query.whereNull('deletedAt')

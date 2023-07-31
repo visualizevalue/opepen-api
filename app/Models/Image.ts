@@ -1,12 +1,13 @@
 import { DateTime } from 'luxon'
 import { v4 as uuid } from 'uuid'
 import sharp from 'sharp'
-import { BaseModel, HasOne, beforeCreate, column, computed, hasOne } from '@ioc:Adonis/Lucid/Orm'
+import { BaseModel, BelongsTo, HasOne, beforeCreate, belongsTo, column, computed, hasOne } from '@ioc:Adonis/Lucid/Orm'
 import Drive from '@ioc:Adonis/Core/Drive'
 import Env from '@ioc:Adonis/Core/Env'
 import { toDriveFromURI } from 'App/Helpers/drive'
 import EnhancedSRGANUpscaler from 'App/Services/Upscalers/EnhancedSRGANUpscaler'
 import AiImage from './AiImage'
+import Account from './Account'
 
 type ImageVersions = {
   sm?: boolean, // 512
@@ -34,6 +35,9 @@ export default class Image extends BaseModel {
   })
   public versions: ImageVersions
 
+  @column()
+  public creator: string
+
   @column.dateTime({ autoCreate: true, serializeAs: null })
   public createdAt: DateTime
 
@@ -54,6 +58,12 @@ export default class Image extends BaseModel {
     serializeAs: 'ai_image'
   })
   public aiImage: HasOne<typeof AiImage>
+
+  @belongsTo(() => Account, {
+    foreignKey: 'creator',
+    localKey: 'address',
+  })
+  public creatorAccount: BelongsTo<typeof Account>
 
   async fillImageFromURI (url: string): Promise<Image> {
     const file = await toDriveFromURI(url, this.uuid)
