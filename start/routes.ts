@@ -81,6 +81,15 @@ Route.group(() => {
   Route.get('/sets/:id/opepen',         'SetsController.opepen')
 }).prefix('/v1/opepen')
 
+// Set Submissions
+Route.group(() => {
+  Route.get('/',                    'SetSubmissionsController.list').middleware(['admin'])
+  Route.post('/',                   'SetSubmissionsController.create')
+  Route.get('/:id',                 'SetSubmissionsController.show')
+  Route.post('/:id',                'SetSubmissionsController.update')
+  Route.delete('/:id',              'SetSubmissionsController.delete')
+}).prefix('/v1/set-submissions').middleware(['auth'])
+
 // Accounts
 Route.group(() => {
   Route.get('/:id',                     'AccountsController.show')
@@ -88,6 +97,8 @@ Route.group(() => {
   Route.get('/:id/opepen',              'OpepenController.forAccount')
 
   Route.get('/:account/sets/:id',       'SetsController.subscriptionForAccount')
+
+  Route.get('/:account/set-submissions', 'SetSubmissionsController.forAccount').middleware(['auth'])
 }).prefix('/v1/accounts')
 
 // Reveals
