@@ -106,9 +106,15 @@ export default class Image extends BaseModel {
   }
 
   async upscale (): Promise<void> {
-    const data = await Drive.get(`images/${this.uuid}.${this.type}`)
     const key = `${this.uuid}@xl`
-    await EnhancedSRGANUpscaler.run(data, key)
+
+    try {
+      const data = await Drive.get(`images/${this.uuid}.${this.type}`)
+      await EnhancedSRGANUpscaler.run(data, key)
+    } catch (e) {
+      // Failed to upscale
+      return
+    }
 
     // Scale down to 2x
     const upscaled = await Drive.get(`images/${key}.${this.type}`)

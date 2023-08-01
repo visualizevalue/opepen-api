@@ -16,7 +16,7 @@ export default class ImagesController extends BaseController {
     })
 
     if (! file) return response.badRequest('No file provided')
-    if (! file.isValid) return file.errors
+    if (! file.isValid) return response.badRequest(file.errors)
 
     const image = await Image.create({
       creator: user.address,
