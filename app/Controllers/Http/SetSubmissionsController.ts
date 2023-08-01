@@ -16,6 +16,12 @@ export default class SetSubmissionsController extends BaseController {
 
     return SetSubmission.query()
       .withScopes((scopes) => scopes.active())
+      .preload('edition1Image')
+      .preload('edition4Image')
+      .preload('edition5Image')
+      .preload('edition10Image')
+      .preload('edition20Image')
+      .preload('edition40Image')
       .orderBy('createdAt', 'desc')
       .paginate(page, limit)
   }
