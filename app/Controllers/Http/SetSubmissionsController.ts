@@ -16,6 +16,7 @@ export default class SetSubmissionsController extends BaseController {
 
     return SetSubmission.query()
       .withScopes((scopes) => scopes.active())
+      .orderBy('createdAt', 'desc')
       .paginate(page, limit)
   }
 
