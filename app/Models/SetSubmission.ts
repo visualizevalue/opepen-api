@@ -5,8 +5,6 @@ import Image from './Image'
 import Account from './Account'
 
 export default class SetSubmission extends BaseModel {
-  public static table = 'sets'
-
   @column({ isPrimary: true, serializeAs: null })
   public id: number
 

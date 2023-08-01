@@ -32,19 +32,19 @@ export default class SetSubmissionsController extends BaseController {
       image20,
       image40,
     ] = await Promise.all([
-      Image.findBy('uuid', request.input('edition_1_image_id')),
-      Image.findBy('uuid', request.input('edition_4_image_id')),
-      Image.findBy('uuid', request.input('edition_5_image_id')),
-      Image.findBy('uuid', request.input('edition_10_image_id')),
-      Image.findBy('uuid', request.input('edition_20_image_id')),
-      Image.findBy('uuid', request.input('edition_40_image_id')),
+      Image.findBy('uuid', request.input('edition_1_image_id', null)),
+      Image.findBy('uuid', request.input('edition_4_image_id', null)),
+      Image.findBy('uuid', request.input('edition_5_image_id', null)),
+      Image.findBy('uuid', request.input('edition_10_image_id', null)),
+      Image.findBy('uuid', request.input('edition_20_image_id', null)),
+      Image.findBy('uuid', request.input('edition_40_image_id', null)),
     ])
 
     return SetSubmission.create({
       creator: creator.address,
       name: request.input('name'),
       description: request.input('description'),
-      isDynamic: request.input('is_dynamic'),
+      isDynamic: request.input('is_dynamic', false),
       edition_1Name: request.input('edition_1_name'),
       edition_4Name: request.input('edition_4_name'),
       edition_5Name: request.input('edition_5_name'),
@@ -60,7 +60,11 @@ export default class SetSubmissionsController extends BaseController {
     })
   }
 
-  public async show ({ session, params, response }: HttpContextContract) {
+  public async show ({
+    session,
+    params,
+    response
+  }: HttpContextContract) {
     const user = await Account.firstOrCreate({
       address: session.get('siwe')?.address?.toLowerCase()
     })
@@ -68,6 +72,12 @@ export default class SetSubmissionsController extends BaseController {
     const submission = await SetSubmission.query()
       .where('uuid', params.id)
       .withScopes((scopes) => scopes.active())
+      .preload('edition1Image')
+      .preload('edition4Image')
+      .preload('edition5Image')
+      .preload('edition10Image')
+      .preload('edition20Image')
+      .preload('edition40Image')
       .firstOrFail()
 
     if (user.address !== submission.creator && !isAdmin(session)) {
@@ -91,19 +101,19 @@ export default class SetSubmissionsController extends BaseController {
       image20,
       image40,
     ] = await Promise.all([
-      Image.findBy('uuid', request.input('edition_1_image_id')),
-      Image.findBy('uuid', request.input('edition_4_image_id')),
-      Image.findBy('uuid', request.input('edition_5_image_id')),
-      Image.findBy('uuid', request.input('edition_10_image_id')),
-      Image.findBy('uuid', request.input('edition_20_image_id')),
-      Image.findBy('uuid', request.input('edition_40_image_id')),
+      Image.findBy('uuid', request.input('edition_1_image_id', null)),
+      Image.findBy('uuid', request.input('edition_4_image_id', null)),
+      Image.findBy('uuid', request.input('edition_5_image_id', null)),
+      Image.findBy('uuid', request.input('edition_10_image_id', null)),
+      Image.findBy('uuid', request.input('edition_20_image_id', null)),
+      Image.findBy('uuid', request.input('edition_40_image_id', null)),
     ])
 
     return submission
       .merge({
         name: request.input('name'),
         description: request.input('description'),
-        isDynamic: request.input('is_dynamic'),
+        isDynamic: request.input('is_dynamic', false),
         edition_1Name: request.input('edition_1_name'),
         edition_4Name: request.input('edition_4_name'),
         edition_5Name: request.input('edition_5_name'),
@@ -141,10 +151,17 @@ export default class SetSubmissionsController extends BaseController {
       return response.unauthorized('Not authorized')
     }
 
+
     const { page = 1, limit = 100 } = request.qs()
     return SetSubmission.query()
       .where('creator', creator.address)
       .withScopes((scopes) => scopes.active())
+      .preload('edition1Image')
+      .preload('edition4Image')
+      .preload('edition5Image')
+      .preload('edition10Image')
+      .preload('edition20Image')
+      .preload('edition40Image')
       .paginate(page, limit)
   }
 

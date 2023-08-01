@@ -92,7 +92,7 @@ export default class Account extends BaseModel {
 
   static byId (id) {
     return this.query()
-      .where('address', id)
-      .orWhere('ens', id)
+      .where('address', id?.toLowerCase())
+      .orWhere('ens', id?.toLowerCase())
   }
 }
