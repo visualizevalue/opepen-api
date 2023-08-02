@@ -24,6 +24,8 @@ export default class ImagesController extends BaseController {
     })
     const { fileType } = await toDriveFromFileUpload(file, image.uuid)
     image.type = fileType || 'png'
+    await image.save()
+
     await image.generateScaledVersions()
 
     return image
