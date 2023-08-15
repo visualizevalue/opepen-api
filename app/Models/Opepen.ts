@@ -27,7 +27,9 @@ export default class Opepen extends TokenModel {
   @column()
   public imageId: bigint
 
-  @belongsTo(() => SetModel)
+  @belongsTo(() => SetModel, {
+    foreignKey: 'setId',
+  })
   public set: BelongsTo<typeof SetModel>
 
   @belongsTo(() => Image)

@@ -68,6 +68,10 @@ Route.group(() => {
 
 // Opepen
 Route.group(() => {
+  // Opepen
+  Route.get('/',                        'OpepenController.list')
+  Route.get('/:id',                     'OpepenController.show')
+
   // Images
   Route.get('/images/featured',         'ImagesController.featured')
   // Route.post('/images',                 'ImagesController.store').middleware(['auth'])
