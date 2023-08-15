@@ -68,10 +68,6 @@ Route.group(() => {
 
 // Opepen
 Route.group(() => {
-  // Opepen
-  Route.get('/',                        'OpepenController.list')
-  Route.get('/:id',                     'OpepenController.show')
-
   // Images
   Route.get('/images/featured',         'ImagesController.featured')
   // Route.post('/images',                 'ImagesController.store').middleware(['auth'])
@@ -85,6 +81,10 @@ Route.group(() => {
   Route.get('/sets/:id/submissions',    'SetsController.cleanedSubmissions')
   Route.post('/sets/:id/subscribe',     'SetsController.subscribe')
   Route.get('/sets/:id/opepen',         'SetsController.opepen')
+
+  // Opepen
+  Route.get('/',                        'OpepenController.list')
+  Route.get('/:id',                     'OpepenController.show')
 }).prefix('/v1/opepen')
 
 // Set Submissions
