@@ -26,18 +26,31 @@ export default class OpepenController extends BaseController {
     return Opepen.query()
       .where('tokenId', params.id)
       .preload('set')
+      .preload('ownerAccount')
       .preload('image')
       .preload('events')
       .firstOrFail()
   }
 
-  public async forAccount ({ params }: HttpContextContract) {
-    return Opepen.query()
+  public async forAccount ({ params, request }: HttpContextContract) {
+    const {
+      page = 1,
+      limit = 16_000,
+      filter = {},
+      sort = ''
+    } = request.qs()
+
+    const query = Opepen.query()
       .where('owner', params.id.toLowerCase())
       .preload('image')
+
+    this.applyFilters(query, filter)
+    this.applySorts(query, sort)
+
+    return query
       .orderBy('setId')
       .orderByRaw(`(data->>'edition')::int`)
-      .paginate(1, 16_000)
+      .paginate(page, limit)
   }
 
 }
