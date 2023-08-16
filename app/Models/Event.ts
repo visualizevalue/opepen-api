@@ -2,7 +2,6 @@ import { ethers } from 'ethers'
 import { DateTime } from 'luxon'
 import { BaseModel, BelongsTo, belongsTo, column } from '@ioc:Adonis/Lucid/Orm'
 import Account from './Account'
-import Opepen from './Opepen'
 import { ContractType } from './types'
 
 export default class Event extends BaseModel {
