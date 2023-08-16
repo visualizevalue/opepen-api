@@ -11,17 +11,51 @@ export default class SetSubmissionsController extends BaseController {
   public async list ({ request }: HttpContextContract) {
     const {
       page = 1,
-      limit = 40,
+      limit = 10,
+      filter = {},
+      sort = '',
+      status = 'complete',
     } = request.qs()
 
-    return SetSubmission.query()
-      .withScopes((scopes) => scopes.active())
+    const query = SetSubmission.query()
       .preload('edition1Image')
       .preload('edition4Image')
       .preload('edition5Image')
       .preload('edition10Image')
       .preload('edition20Image')
       .preload('edition40Image')
+
+    // Handle status filter
+    switch (status) {
+      case 'all':
+        query.withScopes(scopes => scopes.active())
+        break;
+      case 'complete':
+        query.withScopes(scopes => {
+          scopes.complete()
+          scopes.active()
+        })
+        break;
+      case 'starred':
+        query.whereNotNull('starredAt')
+        query.withScopes(scopes => scopes.active())
+        break;
+      case 'published':
+        query.whereNotNull('publishedAt')
+        query.withScopes(scopes => scopes.active())
+        break;
+      case 'deleted':
+        query.whereNotNull('deletedAt')
+        break;
+      default:
+        query.withScopes(scopes => scopes.active())
+        break;
+    }
+
+    this.applyFilters(query, filter)
+    this.applySorts(query, sort)
+
+    return query
       .orderBy('createdAt', 'desc')
       .paginate(page, limit)
   }
@@ -135,6 +169,15 @@ export default class SetSubmissionsController extends BaseController {
         edition_40ImageId: image40?.id,
       })
       .save()
+  }
+
+  public async star (ctx: HttpContextContract) {
+    const submission = await this.show(ctx)
+    if (! submission) return ctx.response.badRequest()
+
+    submission.starredAt = submission.starredAt ? null : DateTime.now()
+
+    return submission.save()
   }
 
   public async delete (ctx: HttpContextContract) {

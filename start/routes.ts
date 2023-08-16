@@ -95,6 +95,8 @@ Route.group(() => {
   Route.get('/:id',                 'SetSubmissionsController.show')
   Route.post('/:id',                'SetSubmissionsController.update')
   Route.delete('/:id',              'SetSubmissionsController.delete')
+
+  Route.post('/:id/star',           'SetSubmissionsController.star').middleware(['admin'])
 }).prefix('/v1/set-submissions').middleware(['auth'])
 
 // Accounts

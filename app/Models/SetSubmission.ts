@@ -54,6 +54,9 @@ export default class SetSubmission extends BaseModel {
   @column({ serializeAs: null })
   public edition_40ImageId: bigint
 
+  @column()
+  public status: string
+
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime
 
@@ -61,7 +64,13 @@ export default class SetSubmission extends BaseModel {
   public updatedAt: DateTime
 
   @column.dateTime()
-  public deletedAt: DateTime
+  public deletedAt: DateTime|null
+
+  @column.dateTime()
+  public starredAt: DateTime|null
+
+  @column.dateTime()
+  public publishedAt: DateTime|null
 
   @belongsTo(() => Image, { foreignKey: 'edition_1ImageId' })
   public edition1Image: BelongsTo<typeof Image>
@@ -84,6 +93,23 @@ export default class SetSubmission extends BaseModel {
 
   public static active = scope((query) => {
     query.whereNull('deletedAt')
+  })
+
+  public static complete = scope((query) => {
+    query.whereNotNull('name')
+    query.whereNotNull('description')
+    query.whereNotNull('edition_1Name')
+    query.whereNotNull('edition_4Name')
+    query.whereNotNull('edition_5Name')
+    query.whereNotNull('edition_10Name')
+    query.whereNotNull('edition_20Name')
+    query.whereNotNull('edition_40Name')
+    query.whereNotNull('edition_1ImageId')
+    query.whereNotNull('edition_4ImageId')
+    query.whereNotNull('edition_5ImageId')
+    query.whereNotNull('edition_10ImageId')
+    query.whereNotNull('edition_20ImageId')
+    query.whereNotNull('edition_40ImageId')
   })
 
 }
