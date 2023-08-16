@@ -60,12 +60,6 @@ export default class Event extends BaseModel {
   @column.dateTime()
   public timestamp: DateTime
 
-  @belongsTo(() => Opepen, {
-    foreignKey: 'tokenId',
-    localKey: 'tokenId',
-  })
-  public check: BelongsTo<typeof Opepen>
-
   @belongsTo(() => Account, {
     foreignKey: 'from',
     localKey: 'address',

@@ -28,7 +28,6 @@ export default class OpepenController extends BaseController {
       .preload('set')
       .preload('ownerAccount')
       .preload('image')
-      .preload('events')
       .firstOrFail()
   }
 

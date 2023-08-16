@@ -85,6 +85,7 @@ Route.group(() => {
   // Opepen
   Route.get('/',                        'OpepenController.list')
   Route.get('/:id',                     'OpepenController.show')
+  Route.get('/:id/events',              'EventsController.forToken')
 }).prefix('/v1/opepen')
 
 // Set Submissions
