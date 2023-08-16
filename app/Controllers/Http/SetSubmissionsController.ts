@@ -112,7 +112,6 @@ export default class SetSubmissionsController extends BaseController {
 
     const submission = await SetSubmission.query()
       .where('uuid', params.id)
-      .withScopes((scopes) => scopes.active())
       .preload('edition1Image')
       .preload('edition4Image')
       .preload('edition5Image')
