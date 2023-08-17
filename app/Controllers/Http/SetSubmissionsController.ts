@@ -56,6 +56,7 @@ export default class SetSubmissionsController extends BaseController {
     this.applySorts(query, sort)
 
     return query
+      .orderByRaw('starred_at desc NULLS LAST')
       .orderBy('createdAt', 'desc')
       .paginate(page, limit)
   }
