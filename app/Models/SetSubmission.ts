@@ -3,6 +3,7 @@ import { v4 as uuid } from 'uuid'
 import { BaseModel, BelongsTo, beforeCreate, belongsTo, column, scope } from '@ioc:Adonis/Lucid/Orm'
 import Image from './Image'
 import Account from './Account'
+import SetModel from './Set'
 
 export default class SetSubmission extends BaseModel {
   @column({ isPrimary: true, serializeAs: null })
@@ -72,6 +73,9 @@ export default class SetSubmission extends BaseModel {
   @column.dateTime()
   public publishedAt: DateTime|null
 
+  @column()
+  public setId: number
+
   @belongsTo(() => Image, { foreignKey: 'edition_1ImageId' })
   public edition1Image: BelongsTo<typeof Image>
   @belongsTo(() => Image, { foreignKey: 'edition_4ImageId' })
@@ -90,6 +94,9 @@ export default class SetSubmission extends BaseModel {
     localKey: 'address',
   })
   public creatorAccount: BelongsTo<typeof Account>
+
+  @belongsTo(() => SetModel)
+  public set: BelongsTo<typeof SetModel>
 
   public static active = scope((query) => {
     query.whereNull('deletedAt')

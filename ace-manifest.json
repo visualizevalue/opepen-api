@@ -156,6 +156,31 @@
         }
       ]
     },
+    "sets:stage_submission": {
+      "settings": {
+        "loadApp": true,
+        "stayAlive": false
+      },
+      "commandPath": "./commands/StageSetSubmission",
+      "commandName": "sets:stage_submission",
+      "description": "Stage a set submission for opt in",
+      "args": [
+        {
+          "type": "string",
+          "propertyName": "submission",
+          "name": "submission",
+          "required": true
+        },
+        {
+          "type": "string",
+          "propertyName": "set",
+          "name": "set",
+          "required": true
+        }
+      ],
+      "aliases": [],
+      "flags": []
+    },
     "opepen:sync": {
       "settings": {
         "loadApp": true,
