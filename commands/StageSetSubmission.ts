@@ -64,6 +64,6 @@ export default class StageSetSubmission extends BaseCommand {
     await set.save()
 
     submission.setId = set.id
-    await submission.setId
+    await submission.save()
   }
 }
