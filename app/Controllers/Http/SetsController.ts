@@ -121,7 +121,7 @@ export default class SetsController extends BaseController {
           tokenId,
           signer: submission.address,
           holder: opepen.owner,
-          edition: opepen.data.edition,
+          edition: opepen.data.edition.toString(),
         })
       }
 
