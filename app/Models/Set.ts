@@ -196,8 +196,10 @@ export default class SetModel extends BaseModel {
           holders[edition] ++
         }
 
-        demand[edition] += submission.maxReveals[edition]
-        demand.total += submission.maxReveals[edition]
+        const max = Math.min(submission.maxReveals[edition], groups[edition].length)
+
+        demand[edition] += max
+        demand.total += max
         opepens[edition] += groups[edition].length
         opepens.total += groups[edition].length
       }
