@@ -75,11 +75,16 @@ export default class SetsController extends BaseController {
     const {
       page = 1,
       limit = 50,
+      filter = {},
+      sort = ''
     } = request.qs()
 
-    return Subscription.query()
-      .where('setId', params.id)
-      .orderBy('createdAt', 'desc')
+    const query = Subscription.query().where('setId', params.id)
+
+    this.applyFilters(query, filter)
+    this.applySorts(query, sort)
+
+    return query.orderBy('createdAt', 'desc')
       .preload('account')
       .paginate(page, limit)
   }
