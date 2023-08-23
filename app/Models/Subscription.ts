@@ -3,6 +3,7 @@ import { BaseModel, BelongsTo, belongsTo, column } from '@ioc:Adonis/Lucid/Orm'
 import Account from './Account'
 import SetModel from './Set'
 import { MaxReveal } from './types'
+import Database from '@ioc:Adonis/Lucid/Database'
 
 export default class Subscription extends BaseModel {
   public static table = 'set_subscriptions'
@@ -46,4 +47,31 @@ export default class Subscription extends BaseModel {
     localKey: 'address',
   })
   public account: BelongsTo<typeof Account>
+
+  // TODO: Implement in reveal
+  public static async clearRevealedOpepenFromSet (set: number) {
+    const optIns = await Database.rawQuery(`
+      select
+        t1.opt_in_id,
+        array_agg(opepens.token_id) as opepen_ids
+      from opepens
+      inner join (
+        select
+          id as opt_in_id,
+          (jsonb_array_elements("opepen_ids")->>0)::int as token_id
+        from set_subscriptions
+        where set_id = ?
+      ) t1 on (opepens.token_id = t1.token_id)
+      where opepens.set_id is not null
+      group by opt_in_id
+    `, [set])
+
+    for (const { opt_in_id, opepen_ids } of optIns.rows) {
+      const optIn = await Subscription.findOrFail(opt_in_id)
+
+      optIn.opepenIds = optIn.opepenIds.filter(id => ! opepen_ids.includes(id))
+
+      await optIn.save()
+    }
+  }
 }
