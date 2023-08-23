@@ -49,7 +49,7 @@ export default class Subscription extends BaseModel {
   public account: BelongsTo<typeof Account>
 
   // TODO: Implement in reveal
-  public static async clearRevealedOpepenFromSet (set: number) {
+  public static async clearRevealedOpepenFromSet (setId: number) {
     const optIns = await Database.rawQuery(`
       select
         t1.opt_in_id,
@@ -64,7 +64,7 @@ export default class Subscription extends BaseModel {
       ) t1 on (opepens.token_id = t1.token_id)
       where opepens.set_id is not null
       group by opt_in_id
-    `, [set])
+    `, [setId])
 
     for (const { opt_in_id, opepen_ids } of optIns.rows) {
       const optIn = await Subscription.findOrFail(opt_in_id)
@@ -73,5 +73,8 @@ export default class Subscription extends BaseModel {
 
       await optIn.save()
     }
+
+    const set = await SetModel.findOrFail(setId)
+    set.updateAndValidateOpepensInSet()
   }
 }
