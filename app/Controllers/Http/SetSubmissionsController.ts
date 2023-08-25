@@ -35,6 +35,7 @@ export default class SetSubmissionsController extends BaseController {
           scopes.complete()
           scopes.active()
         })
+        query.whereNull('starredAt')
         query.whereNull('publishedAt')
         break;
       case 'starred':
