@@ -183,11 +183,12 @@ export default class SetModel extends BaseModel {
           submission.maxReveals = {}
         }
 
-        submission.maxReveals[edition] = typeof submission.maxReveals[edition] === 'number'
+        submission.maxReveals[edition] = (
+          typeof submission.maxReveals[edition] === 'number' &&
+          groups[edition].length >= submission.maxReveals[edition]
+        )
           ? submission.maxReveals[edition]
-          : edition !== '1'
-            ? groups[edition].length
-            : 1
+          : groups[edition].length
 
         if (submission.maxReveals[edition] > 0) {
           holders[edition] ++
