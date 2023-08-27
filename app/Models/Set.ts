@@ -186,6 +186,7 @@ export default class SetModel extends BaseModel {
 
         const opepenCount = groups[edition].length
         const overallocated = opepenCount >= submission.maxReveals[edition]
+        const isOneOfOneOptIn = edition === '1' && opepenCount
 
         submission.maxReveals[edition] = (
           overallocated &&
@@ -194,7 +195,7 @@ export default class SetModel extends BaseModel {
           ? submission.maxReveals[edition]
           : opepenCount
 
-        if (edition === '1' && opepenCount) {
+        if (isOneOfOneOptIn) {
           submission.maxReveals[edition] = 1
         }
 
@@ -202,7 +203,9 @@ export default class SetModel extends BaseModel {
           holders[edition] ++
         }
 
-        const actual = Math.min(submission.maxReveals[edition], opepenCount)
+        const actual = isOneOfOneOptIn
+          ? opepenCount
+          : Math.min(submission.maxReveals[edition], opepenCount)
 
         demand[edition] += actual
         demand.total += actual
