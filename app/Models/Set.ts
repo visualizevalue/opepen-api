@@ -183,23 +183,28 @@ export default class SetModel extends BaseModel {
           submission.maxReveals = {}
         }
 
+        const opepenCount = groups[edition].length
+        const overallocated = opepenCount >= submission.maxReveals[edition]
+
         submission.maxReveals[edition] = (
           typeof submission.maxReveals[edition] === 'number' &&
-          groups[edition].length >= submission.maxReveals[edition]
+          overallocated
         )
           ? submission.maxReveals[edition]
-          : groups[edition].length
+          : overallocated && edition === '1'
+            ? 1
+            : opepenCount
 
         if (submission.maxReveals[edition] > 0) {
           holders[edition] ++
         }
 
-        const max = Math.min(submission.maxReveals[edition], groups[edition].length)
+        const max = Math.min(submission.maxReveals[edition], opepenCount)
 
         demand[edition] += max
         demand.total += max
-        opepens[edition] += groups[edition].length
-        opepens.total += groups[edition].length
+        opepens[edition] += opepenCount
+        opepens.total += opepenCount
       }
 
       holders.total ++
