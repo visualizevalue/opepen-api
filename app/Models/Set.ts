@@ -186,7 +186,9 @@ export default class SetModel extends BaseModel {
 
         submission.maxReveals[edition] = typeof submission.maxReveals[edition] === 'number'
           ? submission.maxReveals[edition]
-          : groups[edition].length
+          : edition !== '1'
+            ? groups[edition].length
+            : 1
 
         if (submission.maxReveals[edition] < groups[edition].length) {
           max_reveal_users.add(submission.address)
