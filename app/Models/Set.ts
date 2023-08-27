@@ -167,7 +167,6 @@ export default class SetModel extends BaseModel {
     const holders = { 1: 0, 4: 0, 5: 0, 10: 0, 20: 0, 40: 0, total: 0 }
     const opepens = { 1: 0, 4: 0, 5: 0, 10: 0, 20: 0, 40: 0, total: 0 }
     const demand = { 1: 0, 4: 0, 5: 0, 10: 0, 20: 0, 40: 0, total: 0 }
-    const max_reveal_users = new Set<string>()
 
     for (const submission of submissions) {
       const submittedOpepen = await Opepen.query()
@@ -189,10 +188,6 @@ export default class SetModel extends BaseModel {
           : edition !== '1'
             ? groups[edition].length
             : 1
-
-        if (submission.maxReveals[edition] < groups[edition].length) {
-          max_reveal_users.add(submission.address)
-        }
 
         if (submission.maxReveals[edition] > 0) {
           holders[edition] ++
