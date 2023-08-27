@@ -161,6 +161,7 @@ export default class SetModel extends BaseModel {
     await this.save()
   }
 
+  // FIXME: Clean up this ducking mess!
   public async cleanSubmissions () {
     const submissions = await Subscription.query().where('setId', this.id)
 
@@ -187,22 +188,24 @@ export default class SetModel extends BaseModel {
         const overallocated = opepenCount >= submission.maxReveals[edition]
 
         submission.maxReveals[edition] = (
-          typeof submission.maxReveals[edition] === 'number' &&
-          overallocated
+          overallocated &&
+          typeof submission.maxReveals[edition] === 'number'
         )
           ? submission.maxReveals[edition]
-          : overallocated && edition === '1'
-            ? 1
-            : opepenCount
+          : opepenCount
+
+        if (edition === '1' && opepenCount) {
+          submission.maxReveals[edition] = 1
+        }
 
         if (submission.maxReveals[edition] > 0) {
           holders[edition] ++
         }
 
-        const max = Math.min(submission.maxReveals[edition], opepenCount)
+        const actual = Math.min(submission.maxReveals[edition], opepenCount)
 
-        demand[edition] += max
-        demand.total += max
+        demand[edition] += actual
+        demand.total += actual
         opepens[edition] += opepenCount
         opepens.total += opepenCount
       }
