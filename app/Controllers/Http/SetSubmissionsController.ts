@@ -92,6 +92,7 @@ export default class SetSubmissionsController extends BaseController {
     return SetSubmission.create({
       creator: creator.address,
       name: request.input('name'),
+      artist: request.input('artist'),
       description: request.input('description'),
       isDynamic: request.input('is_dynamic', false),
       edition_1Name: request.input('edition_1_name'),
@@ -160,6 +161,7 @@ export default class SetSubmissionsController extends BaseController {
     return submission
       .merge({
         name: request.input('name'),
+        artist: request.input('artist'),
         description: request.input('description'),
         isDynamic: request.input('is_dynamic', false),
         edition_1Name: request.input('edition_1_name'),
