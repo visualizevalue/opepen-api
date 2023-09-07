@@ -119,4 +119,41 @@ export default class SetSubmission extends BaseModel {
     query.whereNotNull('edition_40ImageId')
   })
 
+  public async publish (setId: number, hours?: number) {
+    const set = await SetModel.findOrFail(setId)
+    const submission: SetSubmission = this
+
+    await submission.load('creatorAccount')
+    submission.setId = set.id
+
+    set.name = submission.name
+    set.description = submission.description
+    set.artist = submission.creatorAccount.display
+    set.edition_1Name = submission.edition_1Name
+    set.edition_4Name = submission.edition_4Name
+    set.edition_5Name = submission.edition_5Name
+    set.edition_10Name = submission.edition_10Name
+    set.edition_20Name = submission.edition_20Name
+    set.edition_40Name = submission.edition_40Name
+    set.edition_1ImageId = submission.edition_1ImageId
+    set.edition_4ImageId = submission.edition_4ImageId
+    set.edition_5ImageId = submission.edition_5ImageId
+    set.edition_10ImageId = submission.edition_10ImageId
+    set.edition_20ImageId = submission.edition_20ImageId
+    set.edition_40ImageId = submission.edition_40ImageId
+
+    if (hours) {
+      set.revealsAt = DateTime.now()
+        .plus({ hours: hours + 1 })
+        .set({ minute: 0, second: 0, millisecond: 0 })
+    }
+
+    if (! submission.publishedAt) {
+      submission.publishedAt = DateTime.now()
+    }
+
+    await submission.save()
+    await set.save()
+  }
+
 }
