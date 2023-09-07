@@ -1,7 +1,6 @@
 import { BaseCommand, args } from '@adonisjs/core/build/standalone'
 import SetModel from 'App/Models/Set'
 import SetSubmission from 'App/Models/SetSubmission'
-import { DateTime } from 'luxon'
 
 export default class StageSetSubmission extends BaseCommand {
   /**
