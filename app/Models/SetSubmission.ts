@@ -148,6 +148,7 @@ export default class SetSubmission extends BaseModel {
     set.name = submission.name
     set.description = submission.description
     set.artist = submission.artist || submission.creatorAccount.display
+    set.isDynamic = submission.isDynamic
     set.edition_1Name = submission.edition_1Name
     set.edition_4Name = submission.edition_4Name
     set.edition_5Name = submission.edition_5Name
