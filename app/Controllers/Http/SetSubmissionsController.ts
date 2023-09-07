@@ -34,17 +34,22 @@ export default class SetSubmissionsController extends BaseController {
         query.withScopes(scopes => {
           scopes.complete()
           scopes.active()
+          scopes.unpublished()
+          scopes.unstarred()
         })
-        query.whereNull('starredAt')
-        query.whereNull('publishedAt')
         break;
       case 'starred':
-        query.whereNotNull('starredAt')
-        query.withScopes(scopes => scopes.active())
+        query.withScopes(scopes => {
+          scopes.active()
+          scopes.unpublished()
+          scopes.starred()
+        })
         break;
       case 'published':
-        query.whereNotNull('publishedAt')
-        query.withScopes(scopes => scopes.active())
+        query.withScopes(scopes => {
+          scopes.active()
+          scopes.published()
+        })
         break;
       case 'deleted':
         query.whereNotNull('deletedAt')

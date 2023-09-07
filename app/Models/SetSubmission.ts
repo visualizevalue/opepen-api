@@ -102,6 +102,22 @@ export default class SetSubmission extends BaseModel {
     query.whereNull('deletedAt')
   })
 
+  public static starred = scope((query) => {
+    query.whereNotNull('starredAt')
+  })
+
+  public static unstarred = scope((query) => {
+    query.whereNull('starredAt')
+  })
+
+  public static published = scope((query) => {
+    query.whereNotNull('publishedAt')
+  })
+
+  public static unpublished = scope((query) => {
+    query.whereNull('publishedAt')
+  })
+
   public static complete = scope((query) => {
     query.whereNotNull('name').andWhereNot('name', '')
     query.whereNotNull('description').andWhereNot('description', '')
