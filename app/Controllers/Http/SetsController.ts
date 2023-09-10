@@ -52,7 +52,8 @@ export default class SetsController extends BaseController {
     if (! message) throw new Error(`Needs a message`)
     if (address !== verifiedAddress.toLowerCase()) throw new Error(`Address needs to be accurate`)
 
-    await Account.updateOrCreate({ address }, {})
+    const account = await Account.updateOrCreate({ address }, {})
+    account.updateNames()
 
     const subscription = await Subscription.updateOrCreate({
       setId: set.id,
