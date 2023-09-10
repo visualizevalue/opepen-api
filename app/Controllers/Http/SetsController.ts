@@ -86,6 +86,10 @@ export default class SetsController extends BaseController {
     this.applyFilters(query, filter)
     this.applySorts(query, sort)
 
+    if (filter?.comment === '!null') {
+      query.whereNot('comment', '')
+    }
+
     return query.orderBy('createdAt', 'desc')
       .preload('account')
       .paginate(page, limit)
