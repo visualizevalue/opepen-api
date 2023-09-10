@@ -161,6 +161,43 @@ export default class SetModel extends BaseModel {
     await this.save()
   }
 
+  public async clearOptIns () {
+    this.submissionStats = {
+      "demand": {
+        "1": 0,
+        "4": 0,
+        "5": 0,
+        "10": 0,
+        "20": 0,
+        "40": 0,
+        "total": 0
+      },
+      "holders": {
+        "1": 0,
+        "4": 0,
+        "5": 0,
+        "10": 0,
+        "20": 0,
+        "40": 0,
+        "total": 0
+      },
+      "opepens": {
+        "1": 0,
+        "4": 0,
+        "5": 0,
+        "10": 0,
+        "20": 0,
+        "40": 0,
+        "total": 0
+      }
+    }
+    this.submittedOpepen = []
+
+    await this.save()
+
+    await Subscription.query().where('setId', this.id).update({ setId: null })
+  }
+
   // FIXME: Clean up this ducking mess!
   public async cleanSubmissions () {
     const submissions = await Subscription.query().where('setId', this.id)

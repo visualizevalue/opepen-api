@@ -172,6 +172,11 @@ export default class SetSubmission extends BaseModel {
       submission.publishedAt = DateTime.now()
     }
 
+    // Clear demand...
+    if (! submission.setId && submission.setId !== set.id) {
+      await set.clearOptIns()
+    }
+
     await submission.save()
     await set.save()
   }
