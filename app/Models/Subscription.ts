@@ -26,6 +26,9 @@ export default class Subscription extends BaseModel {
   @column()
   public signature: string
 
+  @column()
+  public comment: string
+
   @column({
     prepare: value => JSON.stringify(value),
   })
