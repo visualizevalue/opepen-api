@@ -16,7 +16,15 @@ export default class BaseController {
         values.forEach((v, i) => {
           const where = i === 0 ? `where` : `orWhere`
 
-          q[where](`${query.model.table}.${key}`, v)
+          const nullQuery = ['!null', 'null'].includes(v)
+
+          const whereQuery = nullQuery
+            ? v.startsWith('!')
+              ? `${where}NotNull`
+              : `${where}Null`
+            : where
+
+          q[whereQuery](`${query.model.table}.${key}`, v)
         })
       })
     })
