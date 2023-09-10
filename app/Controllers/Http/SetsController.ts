@@ -44,7 +44,7 @@ export default class SetsController extends BaseController {
     const address = request.input('address')?.toLowerCase()
     const message = request.input('message')
     const signature = request.input('signature')
-    const comment = request.input('comment')
+    const comment = request.input('comment', null)
     const verifiedAddress = ethers.utils.verifyMessage(message, signature)
 
     if (set.revealsAt < DateTime.now()) throw new Error(`Submission past reveal`)
