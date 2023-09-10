@@ -11,6 +11,8 @@ export default class AccountsController extends BaseController {
       return Account.create({ address: params.id })
     }
 
+    account.updateNames()
+
     return account
   }
 
