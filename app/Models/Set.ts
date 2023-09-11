@@ -4,6 +4,7 @@ import Image from './Image'
 import Opepen from './Opepen'
 import Subscription from './Subscription'
 import { EditionSize } from './types'
+import SetSubmission from './SetSubmission'
 
 type EditionGroups = { [K in EditionSize]: BigInt[] }
 export type SubmissionStats = {
@@ -87,6 +88,9 @@ export default class SetModel extends BaseModel {
   @column({ serializeAs: null })
   public edition_40ImageId: bigint
 
+  @column({ serializeAs: null })
+  public replacedSubmissionId: number
+
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime
 
@@ -121,6 +125,11 @@ export default class SetModel extends BaseModel {
   public edition20Image: BelongsTo<typeof Image>
   @belongsTo(() => Image, { foreignKey: 'edition_40ImageId' })
   public edition40Image: BelongsTo<typeof Image>
+
+  @belongsTo(() => SetSubmission, {
+    foreignKey: 'replacedSubmissionId',
+  })
+  public replacedSubmission: BelongsTo<typeof SetSubmission>
 
   @hasMany(() => Opepen)
   public opepen: HasMany<typeof Opepen>
