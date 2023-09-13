@@ -62,6 +62,9 @@ export default class SetModel extends BaseModel {
   @column()
   public revealStrategy: string
 
+  @column()
+  public roundedPreview: boolean
+
   @column({ serializeAs: 'edition1Name' })
   public edition_1Name: string
   @column({ serializeAs: 'edition4Name' })
