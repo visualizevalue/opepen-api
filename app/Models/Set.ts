@@ -1,9 +1,9 @@
 import { DateTime } from 'luxon'
-import { BaseModel, BelongsTo, HasMany, belongsTo, column, hasMany } from '@ioc:Adonis/Lucid/Orm'
+import { BaseModel, BelongsTo, HasMany, belongsTo, column, computed, hasMany } from '@ioc:Adonis/Lucid/Orm'
 import Image from './Image'
 import Opepen from './Opepen'
 import Subscription from './Subscription'
-import { EditionSize } from './types'
+import { EditionSize, EditionType } from './types'
 import SetSubmission from './SetSubmission'
 
 type EditionGroups = { [K in EditionSize]: BigInt[] }
@@ -57,7 +57,12 @@ export default class SetModel extends BaseModel {
   public minSubscriptionPercentage: number
 
   @column()
-  public isDynamic: boolean = false
+  public editionType: EditionType = 'PRINT'
+
+  @computed({ serializeAs: 'is_dynamic' })
+  public get isDynamic (): boolean {
+    return this.editionType !== 'PRINT'
+  }
 
   @column()
   public revealStrategy: string

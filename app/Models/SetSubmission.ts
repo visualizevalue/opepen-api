@@ -1,9 +1,10 @@
 import { DateTime } from 'luxon'
 import { v4 as uuid } from 'uuid'
-import { BaseModel, BelongsTo, beforeCreate, belongsTo, column, scope } from '@ioc:Adonis/Lucid/Orm'
+import { BaseModel, BelongsTo, beforeCreate, belongsTo, column, computed, scope } from '@ioc:Adonis/Lucid/Orm'
 import Image from './Image'
 import Account from './Account'
 import SetModel from './Set'
+import { EditionType } from './types'
 
 export default class SetSubmission extends BaseModel {
   @column({ isPrimary: true, serializeAs: null })
@@ -30,7 +31,12 @@ export default class SetSubmission extends BaseModel {
   public description: string
 
   @column()
-  public isDynamic: boolean = false
+  public editionType: EditionType = 'PRINT'
+
+  @computed({ serializeAs: 'is_dynamic' })
+  public get isDynamic (): boolean {
+    return this.editionType !== 'PRINT'
+  }
 
   @column({ serializeAs: 'edition1Name' })
   public edition_1Name: string
@@ -148,7 +154,7 @@ export default class SetSubmission extends BaseModel {
     set.name = submission.name
     set.description = submission.description
     set.artist = submission.artist || submission.creatorAccount.display
-    set.isDynamic = submission.isDynamic
+    set.editionType = submission.editionType
     set.edition_1Name = submission.edition_1Name
     set.edition_4Name = submission.edition_4Name
     set.edition_5Name = submission.edition_5Name
