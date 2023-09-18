@@ -74,18 +74,13 @@ export default class Image extends BaseModel {
 
   async generateScaledVersions (): Promise<void> {
     const original = await Drive.get(`images/${this.uuid}.${this.type}`)
-
     const imageProcessor = await sharp(original)
     const metadata = await imageProcessor.metadata()
 
-    if (! metadata.width || !['png', 'jpg', 'jpeg'].includes(this.type)) return
-    if (metadata.width === 512) {
-      this.versions.sm = true
-      return this.upscale()
-    }
+    if (! metadata.width || !['png', 'jpeg'].includes(this.type)) return
 
     if (metadata.width > 2048) {
-      const v2048 = await imageProcessor.resize({ width: 1024 }).toBuffer()
+      const v2048 = await imageProcessor.resize({ width: 2048 }).toBuffer()
       await Drive.put(`images/${this.uuid}@xl.${this.type}`, v2048, { contentType: `image/${this.type}` })
       this.versions.xl = true
     }
@@ -99,8 +94,8 @@ export default class Image extends BaseModel {
     if (metadata.width > 512) {
       const v512 = await imageProcessor.resize({ width: 512 }).toBuffer()
       await Drive.put(`images/${this.uuid}@sm.${this.type}`, v512, { contentType: `image/${this.type}` })
-      this.versions.sm = true
     }
+    this.versions.sm = true
 
     await this.save()
   }

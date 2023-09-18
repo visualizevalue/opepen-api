@@ -33,7 +33,7 @@ export async function toDriveFromFileUpload (file: MultipartFileContract, name: 
   }, 's3')
 
   return {
-    path: `images/${name}.${fileType}`,
+    path: `images/${fileName}`,
     fileType,
     contentType,
   }

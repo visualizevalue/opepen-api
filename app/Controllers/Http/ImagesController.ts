@@ -12,7 +12,10 @@ export default class ImagesController extends BaseController {
 
     const file = request.file('image', {
       size: '4mb',
-      extnames: ['jpg', 'png', 'gif', 'svg'],
+      extnames: [
+        'jpeg', 'jpg', 'png', 'gif', 'svg',
+        'JPEG', 'JPG', 'PNG', 'GIF', 'SVG',
+      ],
     })
 
     if (! file) return response.badRequest('No file provided')
