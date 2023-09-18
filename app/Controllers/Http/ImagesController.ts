@@ -12,14 +12,14 @@ export default class ImagesController extends BaseController {
 
     const file = request.file('image', {
       size: '4mb',
-      extnames: [
-        'jpeg', 'jpg', 'png', 'gif', 'svg',
-        'JPEG', 'JPG', 'PNG', 'GIF', 'SVG',
-      ],
     })
 
     if (! file) return response.badRequest('No file provided')
-    if (! file.isValid) return response.badRequest(file.errors)
+    if (
+      !file.isValid ||
+      !file.subtype ||
+      !['jpeg', 'jpg', 'png', 'gif', 'svg'].includes(file.subtype?.toLowerCase())
+    ) return response.badRequest(file.errors || 'Unsupported file format')
 
     const image = await Image.create({
       creator: user.address,
