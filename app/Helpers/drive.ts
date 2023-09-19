@@ -23,7 +23,9 @@ export async function toDriveFromURI (url: string, name: string) {
 }
 
 export async function toDriveFromFileUpload (file: MultipartFileContract, name: string) {
-  const contentType = `${file.type}/${file.subtype}`
+  const contentType = file.headers && file.headers['content-type']
+    ? file.headers['content-type']
+    : `${file.type}/${file.subtype}${file.subtype === 'svg' ? '+xml' : ''}`
   const fileType = file.subtype
   const fileName = `${name}.${fileType}`
 
