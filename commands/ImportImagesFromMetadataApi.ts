@@ -1,4 +1,5 @@
 import { BaseCommand, args } from '@adonisjs/core/build/standalone'
+import { delay } from 'App/Helpers/time'
 import Image from 'App/Models/Image'
 import Opepen from 'App/Models/Opepen'
 import SetModel from 'App/Models/Set'
@@ -52,6 +53,8 @@ export default class ImportSetImages extends BaseCommand {
       await opepen.save()
 
       this.logger.info(`Opepen #${opepen.tokenId} image imported: Image #${opepen.imageId}`)
+
+      await delay(500)
     }
   }
 
