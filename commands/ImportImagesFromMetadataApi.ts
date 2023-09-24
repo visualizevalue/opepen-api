@@ -1,4 +1,5 @@
 import { BaseCommand, args } from '@adonisjs/core/build/standalone'
+import Env from '@ioc:Adonis/Core/Env'
 import { delay } from 'App/Helpers/time'
 import Image from 'App/Models/Image'
 import Opepen from 'App/Models/Opepen'
@@ -44,8 +45,11 @@ export default class ImportSetImages extends BaseCommand {
       const response = await axios.get(`https://metadata.opepen.art/${opepen.tokenId}/image-uri`)
 
       const { uri } = response.data
+      const gatewayURI = uri.replace('ipfs.io', Env.get('IPFS_GATEWAY'))
 
-      const image = await Image.fromURI(uri)
+      this.logger.info(`Opepen #${opepen.tokenId} image importing from: ${gatewayURI}`)
+      const image = await Image.fromURI(gatewayURI)
+      image.generateScaledVersions()
 
       opepen.imageId = image.id
       await opepen.save()
@@ -53,6 +57,7 @@ export default class ImportSetImages extends BaseCommand {
       this.logger.info(`Opepen #${opepen.tokenId} image imported: Image #${opepen.imageId}`)
 
       await delay(500)
+
     }
   }
 

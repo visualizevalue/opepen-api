@@ -41,4 +41,5 @@ export default Env.rules({
   OPEPEN_ADDRESS: Env.schema.string(),
   OPEPEN_START_BLOCK: Env.schema.number(),
   UPDATE_ENS: Env.schema.boolean(),
+  IPFS_GATEWAY: Env.schema.string(),
 })
