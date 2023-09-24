@@ -47,8 +47,6 @@ export default class ImportSetImages extends BaseCommand {
 
       const image = await Image.fromURI(uri)
 
-      await image.generateScaledVersions()
-
       opepen.imageId = image.id
       await opepen.save()
 
