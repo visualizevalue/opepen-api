@@ -1,6 +1,7 @@
-// import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
+import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import Account from 'App/Models/Account'
 import BaseController from './BaseController'
+import TestEmail from 'App/Mailers/TestEmail'
 
 export default class AccountsController extends BaseController {
 
@@ -22,6 +23,16 @@ export default class AccountsController extends BaseController {
     await account.updateNames()
 
     return account
+  }
+
+  public async testMail ({ params, response }: HttpContextContract) {
+    const account = await Account.byId(decodeURIComponent(params.id.toLowerCase())).firstOrFail()
+
+    if (! account.email) {
+      return response.badRequest(`User doesn't have an email.`)
+    }
+
+    return await new TestEmail(account).sendLater()
   }
 
 }

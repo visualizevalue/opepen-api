@@ -33,7 +33,9 @@
       "@japa/preset-adonis/build/adonis-typings",
       "@adonisjs/drive-s3",
       "@adonisjs/lucid",
-      "@adonisjs/session"
+      "@adonisjs/session",
+      "@adonisjs/mail",
+      "@adonisjs/view"
     ]
   }
 }

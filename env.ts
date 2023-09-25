@@ -42,4 +42,9 @@ export default Env.rules({
   OPEPEN_START_BLOCK: Env.schema.number(),
   UPDATE_ENS: Env.schema.boolean(),
   IPFS_GATEWAY: Env.schema.string(),
+  SMTP_HOST: Env.schema.string({ format: 'host' }),
+  SMTP_PORT: Env.schema.number(),
+  SMTP_USERNAME: Env.schema.string(),
+  SMTP_PASSWORD: Env.schema.string(),
+  CACHE_VIEWS: Env.schema.boolean(),
 })

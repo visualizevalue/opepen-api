@@ -19,6 +19,12 @@ export default class Account extends BaseModel {
   @column()
   public data: object
 
+  @column({ serializeAs: null })
+  public email: string
+
+  @column({ serializeAs: null })
+  public notification_new_set: boolean
+
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   public updatedAt: DateTime
 
