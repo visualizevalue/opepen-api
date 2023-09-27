@@ -99,6 +99,12 @@ Route.group(() => {
   Route.post('/:id/publish',        'SetSubmissionsController.publish').middleware(['admin'])
 }).prefix('/v1/set-submissions').middleware(['auth'])
 
+// Account Settings
+Route.group(() => {
+  Route.get('/',        'AccountSettingsController.show')
+  Route.post('/',       'AccountSettingsController.update')
+}).prefix('/v1/accounts/settings').middleware(['auth'])
+
 // Accounts
 Route.group(() => {
   Route.get('/:id',                     'AccountsController.show')

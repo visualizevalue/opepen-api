@@ -14,6 +14,9 @@ export default class Account extends BaseModel {
   public address: string
 
   @column()
+  public name: string
+
+  @column()
   public ens: string
 
   @column()
@@ -23,13 +26,14 @@ export default class Account extends BaseModel {
   public email: string
 
   @column({ serializeAs: null })
-  public notification_new_set: boolean
+  public notificationNewSet: boolean
 
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   public updatedAt: DateTime
 
   @computed()
   public get display () {
+    if (this.name) return this.name
     if (this.ens) return this.ens
 
     return Address.short(this.address)
