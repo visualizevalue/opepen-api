@@ -11,7 +11,7 @@ export default class AccountSettingsController extends BaseController {
   public async update (config: HttpContextContract) {
     const account = await this.get(config)
 
-    account.name = config.request.input('name', null)
+    account.name = config.request.input('name', '').replace('.eth', '')
     account.email = config.request.input('email', null)
     account.notificationNewSet = config.request.input('notification_new_set', false)
 
