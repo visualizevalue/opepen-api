@@ -1,0 +1,27 @@
+<mjml>
+  <mj-body>
+    <mj-section>
+      <mj-column >
+        <mj-image width="32px" src="https://opepen.art/favicon.png"></mj-image>
+
+        <mj-text font-size="20px" color="#242424" font-family="helvetica">
+          <p>A new Opepen Set submission was completed: "{{ submission.name }}".</p>
+        </mj-text>
+
+        <mj-button
+          background-color="black"
+          border-radius="24px"
+          text-transform="uppercase"
+          href="https://opepen.art/create/sets/admin/{{ submission.uuid }}"
+          font-family="helvetica"
+          font-size="16px"
+        >View Submission</mj-button>
+
+        <mj-text font-size="20px" color="#242424" font-family="helvetica">
+          <p>Best, <br>the VV team</p>
+        </mj-text>
+
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>
