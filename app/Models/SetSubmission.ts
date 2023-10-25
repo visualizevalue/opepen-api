@@ -85,7 +85,10 @@ export default class SetSubmission extends BaseModel {
   @column()
   public setId: number
 
-  @column({ consume: (value) => value ? JSON.parse(value) : {} })
+  @column({
+    consume: (value: string) => value ? JSON.parse(value) : null,
+    prepare: (value: any) => value ? JSON.stringify(value) : null,
+  })
   public artistMessage: ArtistMessage
 
   @column()
