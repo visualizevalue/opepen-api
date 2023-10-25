@@ -180,6 +180,25 @@ export default class SetSubmissionsController extends BaseController {
       .save()
   }
 
+  public async sign (ctx: HttpContextContract) {
+    const { session, request, response } = ctx
+
+    // Fetch our assets
+    const submission = await this.show(ctx)
+    const user = await Account.firstOrCreate({
+      address: session.get('siwe')?.address?.toLowerCase()
+    })
+
+    // Only the creator may sign
+    if (user.address !== submission?.creator) return response.unauthorized('Not authorized')
+
+    // Save the signature
+    submission.artistMessage = request.input('message')
+    submission.artistSignature = request.input('signature')
+
+    return submission.save()
+  }
+
   public async star (ctx: HttpContextContract) {
     const submission = await this.show(ctx)
     if (! submission) return ctx.response.badRequest()

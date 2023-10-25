@@ -121,6 +121,12 @@ export default class SetModel extends BaseModel {
   @column()
   public submissionStats: SubmissionStats
 
+  @column()
+  public artistMessage: string
+
+  @column()
+  public artistSignature: string
+
   @belongsTo(() => Image, { foreignKey: 'edition_1ImageId' })
   public edition1Image: BelongsTo<typeof Image>
   @belongsTo(() => Image, { foreignKey: 'edition_4ImageId' })
