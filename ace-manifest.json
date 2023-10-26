@@ -133,6 +133,31 @@
       "aliases": [],
       "flags": []
     },
+    "set:generate-submission": {
+      "settings": {
+        "loadApp": true,
+        "stayAlive": false
+      },
+      "commandPath": "./commands/MakeSubmissoinForSet",
+      "commandName": "set:generate-submission",
+      "description": "Create a set submission for for an existing set",
+      "args": [
+        {
+          "type": "string",
+          "propertyName": "set",
+          "name": "set",
+          "required": true
+        },
+        {
+          "type": "string",
+          "propertyName": "creator",
+          "name": "creator",
+          "required": true
+        }
+      ],
+      "aliases": [],
+      "flags": []
+    },
     "opepen:import-metadata": {
       "settings": {
         "loadApp": true,
