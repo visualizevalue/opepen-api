@@ -194,7 +194,6 @@ export default class SetSubmissionsController extends BaseController {
 
     // Save the signature
     submission.artistMessage = request.input('message')
-    submission.artistSignature = request.input('signature')
 
     return submission.save()
   }
