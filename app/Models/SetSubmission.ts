@@ -4,7 +4,7 @@ import { BaseModel, BelongsTo, beforeCreate, belongsTo, column, computed, scope 
 import Image from './Image'
 import Account from './Account'
 import SetModel from './Set'
-import { EditionType, ArtistMessage } from './types'
+import { EditionType, ArtistSignature } from './types'
 
 export default class SetSubmission extends BaseModel {
   @column({ isPrimary: true, serializeAs: null })
@@ -89,7 +89,7 @@ export default class SetSubmission extends BaseModel {
     consume: (value: string) => typeof value === 'string' ? JSON.parse(value) : value,
     prepare: (value: any) => typeof value === 'object' ? JSON.stringify(value) : value,
   })
-  public artistMessage: ArtistMessage
+  public artistSignature: ArtistSignature
 
   @belongsTo(() => Image, { foreignKey: 'edition_1ImageId' })
   public edition1Image: BelongsTo<typeof Image>

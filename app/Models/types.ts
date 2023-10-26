@@ -7,7 +7,7 @@ export type Class<T = any> = new (...args: any[]) => T
 
 export type EditionType = 'PRINT'|'NUMBERED_PRINT'|'DYNAMIC'
 
-export type ArtistMessage = {
+export type ArtistSignature = {
   set: number,
   name: string,
   artist: string,

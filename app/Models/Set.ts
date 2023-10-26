@@ -3,7 +3,7 @@ import { BaseModel, BelongsTo, HasMany, belongsTo, column, computed, hasMany } f
 import Image from './Image'
 import Opepen from './Opepen'
 import Subscription from './Subscription'
-import { ArtistMessage, EditionSize, EditionType } from './types'
+import { ArtistSignature, EditionSize, EditionType } from './types'
 import SetSubmission from './SetSubmission'
 
 type EditionGroups = { [K in EditionSize]: BigInt[] }
@@ -125,7 +125,7 @@ export default class SetModel extends BaseModel {
     consume: (value: string) => typeof value === 'string' ? JSON.parse(value) : value,
     prepare: (value: any) => typeof value === 'object' ? JSON.stringify(value) : value,
   })
-  public artistMessage: ArtistMessage
+  public artistSignature: ArtistSignature
 
   @belongsTo(() => Image, { foreignKey: 'edition_1ImageId' })
   public edition1Image: BelongsTo<typeof Image>

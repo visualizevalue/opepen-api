@@ -193,7 +193,7 @@ export default class SetSubmissionsController extends BaseController {
     if (user.address !== submission?.creator) return response.unauthorized('Not authorized')
 
     // Save the signature
-    submission.artistMessage = request.input('message')
+    submission.artistSignature = request.input('signature')
 
     return submission.save()
   }
