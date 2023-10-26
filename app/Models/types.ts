@@ -11,7 +11,6 @@ export type ArtistMessage = {
   set: number,
   name: string,
   artist: string,
-  date: string,
   note?: string,
   tx?: string,
 }
