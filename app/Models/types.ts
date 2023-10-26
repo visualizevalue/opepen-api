@@ -13,4 +13,5 @@ export type ArtistMessage = {
   artist: string,
   date: string,
   note?: string,
+  tx?: string,
 }
