@@ -1,8 +1,6 @@
 import { BaseCommand, args } from '@adonisjs/core/build/standalone'
-import Account from 'App/Models/Account'
 import SetModel from 'App/Models/Set'
 import SetSubmission from 'App/Models/SetSubmission'
-import { DateTime } from 'luxon'
 
 export default class PublishSetArtistData extends BaseCommand {
   /**
