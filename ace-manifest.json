@@ -181,6 +181,25 @@
         }
       ]
     },
+    "set:publish-artist-data": {
+      "settings": {
+        "loadApp": true,
+        "stayAlive": false
+      },
+      "commandPath": "./commands/PublishSetArtistData",
+      "commandName": "set:publish-artist-data",
+      "description": "Create a set submission for for an existing set",
+      "args": [
+        {
+          "type": "string",
+          "propertyName": "submission",
+          "name": "submission",
+          "required": true
+        }
+      ],
+      "aliases": [],
+      "flags": []
+    },
     "sets:stage_submission": {
       "settings": {
         "loadApp": true,
