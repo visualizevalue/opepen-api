@@ -173,6 +173,8 @@ export default class SetSubmission extends BaseModel {
     set.edition_10ImageId = submission.edition_10ImageId
     set.edition_20ImageId = submission.edition_20ImageId
     set.edition_40ImageId = submission.edition_40ImageId
+    set.creator = submission.creator
+    set.artistSignature = submission.artistSignature
 
     if (hours) {
       set.revealsAt = DateTime.now()
