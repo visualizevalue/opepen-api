@@ -5,6 +5,7 @@ import Opepen from './Opepen'
 import Subscription from './Subscription'
 import { ArtistSignature, EditionSize, EditionType } from './types'
 import SetSubmission from './SetSubmission'
+import Account from './Account'
 
 type EditionGroups = { [K in EditionSize]: BigInt[] }
 export type SubmissionStats = {
@@ -49,6 +50,9 @@ export default class SetModel extends BaseModel {
 
   @column()
   public artist: string
+
+  @column()
+  public creator: string
 
   @column()
   public description: string
@@ -126,6 +130,12 @@ export default class SetModel extends BaseModel {
     prepare: (value: any) => typeof value === 'object' ? JSON.stringify(value) : value,
   })
   public artistSignature: ArtistSignature
+
+  @belongsTo(() => Account, {
+    foreignKey: 'creator',
+    localKey: 'address',
+  })
+  public creatorAccount: BelongsTo<typeof Account>
 
   @belongsTo(() => Image, { foreignKey: 'edition_1ImageId' })
   public edition1Image: BelongsTo<typeof Image>
