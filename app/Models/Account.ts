@@ -25,6 +25,9 @@ export default class Account extends BaseModel {
   @column({ serializeAs: null })
   public email: string
 
+  @column.dateTime()
+  public emailVerifiedAt: DateTime|null
+
   @column({ serializeAs: null })
   public notificationNewSet: boolean
 

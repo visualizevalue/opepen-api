@@ -103,9 +103,16 @@ Route.group(() => {
 
 // Account Settings
 Route.group(() => {
-  Route.get('/',        'AccountSettingsController.show')
-  Route.post('/',       'AccountSettingsController.update')
-}).prefix('/v1/accounts/settings').middleware(['auth'])
+  Route.group(() => {
+    Route.get('/',        'AccountSettingsController.show')
+    Route.post('/',       'AccountSettingsController.update')
+  }).middleware(['auth'])
+
+  Route.get('/:account/verify-email', 'AccountSettingsController.verifyEmail')
+    .as('verifyEmail')
+  Route.get('/:account/unsubscribe/:type', 'AccountSettingsController.unsubscribeNotification')
+    .as('unsubscribeNotification')
+}).prefix('/v1/accounts/settings')
 
 // Accounts
 Route.group(() => {
