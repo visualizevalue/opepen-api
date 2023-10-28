@@ -1,0 +1,33 @@
+<mjml>
+  <mj-body>
+    <mj-section>
+      <mj-column >
+        <mj-image width="32px" src="https://opepen.art/favicon.png"></mj-image>
+
+        <mj-text font-size="20px" color="#242424" font-family="helvetica">
+          <p>Dear {{ name }},</p>
+          <p>Opepen Set {{ setId }} "{{ setName }}" was just published.</p>
+        </mj-text>
+
+        <mj-button
+          background-color="black"
+          border-radius="24px"
+          text-transform="uppercase"
+          href="{{ setUrl }}"
+          font-family="helvetica"
+          font-size="16px"
+        >View Set</mj-button>
+
+        <mj-text font-size="20px" color="#242424" font-family="helvetica">
+          <p>Opt-In will be open until {{ optInUntil }}.</p>
+
+          <br><br>
+
+          <p>Best, <br>the VV team</p>
+          <p><small><a href="{{ unsubscribeUrl }}" style="color: #9b9b9b;">Unsubscribe</a></small></p>
+        </mj-text>
+
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>
