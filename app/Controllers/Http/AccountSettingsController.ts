@@ -4,6 +4,7 @@ import { string } from '@ioc:Adonis/Core/Helpers'
 import Account from 'App/Models/Account'
 import BaseController from './BaseController'
 import VerifyEmail from 'App/Mailers/VerifyEmail'
+import Image from 'App/Models/Image'
 
 export default class AccountSettingsController extends BaseController {
 
@@ -14,17 +15,26 @@ export default class AccountSettingsController extends BaseController {
   public async update (config: HttpContextContract) {
     const account = await this.get(config)
 
-    const previousEmail = account.email
+    // PFP
+    const pfpImage = await Image.findBy('uuid', config.request.input('pfp_image_id', null))
+    account.pfpImageId = pfpImage ? pfpImage.id : null
+    await account.load('pfp')
 
+    // Profile Data
     account.name = config.request.input('name', '')?.replace('.eth', '')
-    account.email = config.request.input('email', null)
+
+    // Notifications
     account.notificationNewSet = config.request.input('notification_new_set', false)
 
+    // Email + Email Verification on change
+    const previousEmail = account.email
+    account.email = config.request.input('email', null)
     if (account.email !== previousEmail) {
       account.emailVerifiedAt = null
       await new VerifyEmail(account).sendLater()
     }
 
+    // Save the account
     await account.save()
 
     return this.transform(account)
@@ -55,14 +65,19 @@ export default class AccountSettingsController extends BaseController {
   }
 
   private async get ({ session }: HttpContextContract) {
-    return Account.query().where('address', session.get('siwe')?.address?.toLowerCase()).firstOrFail()
+    return Account.query()
+      .where('address', session.get('siwe')?.address?.toLowerCase())
+      .preload('pfp')
+      .firstOrFail()
   }
 
   private transform (account: Account) {
+    console.log('account pfp', account.pfp)
     return {
       name: account.name,
       email: account.email,
       notification_new_set: account.notificationNewSet,
+      pfp: account.pfp ? account.pfp.toJSON() : null,
     }
   }
 

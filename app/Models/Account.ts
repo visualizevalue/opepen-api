@@ -1,10 +1,11 @@
 import { DateTime } from 'luxon'
 import Logger from '@ioc:Adonis/Core/Logger'
 import Env from '@ioc:Adonis/Core/Env'
-import { afterSave, BaseModel, beforeSave, column, computed, HasMany, hasMany } from '@ioc:Adonis/Lucid/Orm'
+import { afterSave, BaseModel, beforeSave, BelongsTo, belongsTo, column, computed, HasMany, hasMany } from '@ioc:Adonis/Lucid/Orm'
 import Address from 'App/Helpers/Address'
 import provider from 'App/Services/RPCProvider'
 import Journey from './Journey'
+import Image from './Image'
 
 export default class Account extends BaseModel {
   @column({ isPrimary: true })
@@ -31,6 +32,9 @@ export default class Account extends BaseModel {
   @column({ serializeAs: null })
   public notificationNewSet: boolean
 
+  @column()
+  public pfpImageId: bigint|null
+
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   public updatedAt: DateTime
 
@@ -41,6 +45,11 @@ export default class Account extends BaseModel {
 
     return Address.short(this.address)
   }
+
+  @belongsTo(() => Image, {
+    foreignKey: 'pfpImageId',
+  })
+  public pfp: BelongsTo<typeof Image>
 
   @hasMany(() => Journey, {
     foreignKey: 'owner',
@@ -107,5 +116,6 @@ export default class Account extends BaseModel {
     return this.query()
       .where('address', id?.toLowerCase())
       .orWhere('ens', id?.toLowerCase())
+      .preload('pfp')
   }
 }
