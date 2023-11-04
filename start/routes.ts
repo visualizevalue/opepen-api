@@ -120,8 +120,8 @@ Route.group(() => {
   Route.put('/:id',                     'AccountsController.update')
   Route.get('/:id/opepen',              'OpepenController.forAccount')
 
-  Route.post('/:id/mail/test',          'AccountsController.testMail').middleware['admin']
-  Route.post('/:id/mail/new-set/:set',  'AccountsController.setNotification').middleware['admin']
+  Route.post('/:id/mail/test',          'AccountsController.testMail').middleware(['admin'])
+  Route.post('/:id/mail/new-set/:set',  'AccountsController.setNotification').middleware(['admin'])
 
   Route.get('/:account/sets/:id',       'SetsController.subscriptionForAccount')
 
