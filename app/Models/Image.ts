@@ -92,10 +92,8 @@ export default class Image extends BaseModel {
         this.versions.lg = true
       }
 
-      if (metadata.width > 512) {
-        const v512 = await imageProcessor.resize({ width: 512 }).toBuffer()
-        await Drive.put(`images/${this.uuid}@sm.${this.type}`, v512, { contentType: `image/${this.type}` })
-      }
+      const v512 = await imageProcessor.resize({ width: 512 }).toBuffer()
+      await Drive.put(`images/${this.uuid}@sm.${this.type}`, v512, { contentType: `image/${this.type}` })
       this.versions.sm = true
 
       await this.save()
