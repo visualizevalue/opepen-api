@@ -26,7 +26,9 @@ export default class SetsController extends BaseController {
 
   public async show ({ params }: HttpContextContract) {
     const set = await SetModel.query()
-      .preload('creatorAccount')
+      .preload('creatorAccount', query => {
+        query.preload('pfp')
+      })
       .preload('edition1Image')
       .preload('edition4Image')
       .preload('edition5Image')
