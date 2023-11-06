@@ -11,7 +11,6 @@ export default class extends BaseSchema {
       table.text('quote')
       table.text('bio')
       table.jsonb('socials')
-      table.jsonb('portfolio')
     })
 
     this.schema.createTable('portfolio_items', table => {
@@ -33,7 +32,6 @@ export default class extends BaseSchema {
       table.dropColumn('quote')
       table.dropColumn('bio')
       table.dropColumn('socials')
-      table.dropColumn('portfolio')
     })
 
     this.schema.dropTable('portfolio_items')

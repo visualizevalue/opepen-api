@@ -8,7 +8,10 @@ import SetModel from 'App/Models/Set'
 export default class AccountsController extends BaseController {
 
   public async show ({ params }) {
-    const account = await Account.byId(decodeURIComponent(params.id.toLowerCase())).preload('portfolioItems').first()
+    const account = await Account.byId(decodeURIComponent(params.id.toLowerCase()))
+      .preload('coverImage')
+      .preload('portfolioItems')
+      .first()
 
     if (! account) {
       return Account.create({ address: params.id })

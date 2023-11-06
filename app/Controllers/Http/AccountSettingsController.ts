@@ -15,13 +15,24 @@ export default class AccountSettingsController extends BaseController {
   public async update (config: HttpContextContract) {
     const account = await this.get(config)
 
-    // PFP
-    const pfpImage = await Image.findBy('uuid', config.request.input('pfp_image_id', null))
+    // PFP & Cover
+    const [pfpImage, coverImage] = await Promise.all([
+      Image.findBy('uuid', config.request.input('pfp_image_id', null)),
+      Image.findBy('uuid', config.request.input('cover_image_id', null)),
+    ])
     account.pfpImageId = pfpImage ? pfpImage.id : null
-    await account.load('pfp')
+    account.coverImageId = coverImage ? coverImage.id : null
+    await Promise.all([
+      account.load('pfp'),
+      account.load('coverImage'),
+    ])
 
     // Profile Data
     account.name = config.request.input('name', '')?.replace('.eth', '')
+    account.tagline = config.request.input('tagline', '')
+    account.quote = config.request.input('quote', '')
+    account.bio = config.request.input('bio', '')
+    account.socials = config.request.input('socials', [])
 
     // Notifications
     account.notificationNewSet = config.request.input('notification_new_set', false)
@@ -68,16 +79,22 @@ export default class AccountSettingsController extends BaseController {
     return Account.query()
       .where('address', session.get('siwe')?.address?.toLowerCase())
       .preload('pfp')
+      .preload('coverImage')
+      .preload('portfolioItems')
       .firstOrFail()
   }
 
   private transform (account: Account) {
-    console.log('account pfp', account.pfp)
     return {
       name: account.name,
       email: account.email,
       notification_new_set: account.notificationNewSet,
       pfp: account.pfp ? account.pfp.toJSON() : null,
+      portfolioItems: account.portfolioItems || null,
+      tagline: account.tagline,
+      quote: account.quote,
+      bio: account.bio,
+      socials: account.socials,
     }
   }
 
