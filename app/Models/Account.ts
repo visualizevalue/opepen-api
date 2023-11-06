@@ -6,6 +6,8 @@ import Address from 'App/Helpers/Address'
 import provider from 'App/Services/RPCProvider'
 import Journey from './Journey'
 import Image from './Image'
+import { ArtistSocials } from './types'
+import PortfolioItem from './PortfolioItem'
 
 export default class Account extends BaseModel {
   @column({ isPrimary: true })
@@ -35,6 +37,21 @@ export default class Account extends BaseModel {
   @column()
   public pfpImageId: bigint|null
 
+  @column()
+  public coverImageId: bigint|null
+
+  @column()
+  public tagline: string
+
+  @column()
+  public quote: string
+
+  @column()
+  public bio: string
+
+  @column()
+  public socials: ArtistSocials
+
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   public updatedAt: DateTime
 
@@ -50,6 +67,17 @@ export default class Account extends BaseModel {
     foreignKey: 'pfpImageId',
   })
   public pfp: BelongsTo<typeof Image>
+
+  @belongsTo(() => Image, {
+    foreignKey: 'coverImageId',
+  })
+  public coverImage: BelongsTo<typeof Image>
+
+  @hasMany(() => PortfolioItem, {
+    foreignKey: 'address',
+    localKey: 'address',
+  })
+  public portfolioItems: HasMany<typeof PortfolioItem>
 
   @hasMany(() => Journey, {
     foreignKey: 'owner',

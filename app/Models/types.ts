@@ -14,3 +14,5 @@ export type ArtistSignature = {
   note?: string,
   tx?: string,
 }
+
+export type ArtistSocials = string[]
