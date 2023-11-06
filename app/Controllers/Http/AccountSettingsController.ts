@@ -90,6 +90,7 @@ export default class AccountSettingsController extends BaseController {
       email: account.email,
       notification_new_set: account.notificationNewSet,
       pfp: account.pfp ? account.pfp.toJSON() : null,
+      coverImage: account.coverImage ? account.coverImage.toJSON() : null,
       portfolioItems: account.portfolioItems || null,
       tagline: account.tagline,
       quote: account.quote,
