@@ -49,7 +49,10 @@ export default class Account extends BaseModel {
   @column()
   public bio: string
 
-  @column()
+  @column({
+    consume: (value: string) => typeof value === 'string' ? JSON.parse(value) : value,
+    prepare: (value: any) => Array.isArray(value) ? JSON.stringify(value) : value,
+  })
   public socials: ArtistSocials
 
   @column.dateTime({ autoCreate: true, autoUpdate: true })
