@@ -1,13 +1,19 @@
 import { BaseModel, BelongsTo, belongsTo, column } from '@ioc:Adonis/Lucid/Orm'
-import Account from './Account'
 import Image from './Image'
+import { DateTime } from 'luxon'
 
-export default class PortfolioItem extends BaseModel {
+export default class RichContentLink extends BaseModel {
   @column({ isPrimary: true })
   public id: bigint
 
   @column()
-  public address: string
+  public address: string|null
+
+  @column()
+  public setId: number|null
+
+  @column()
+  public setSubmissionId: number|null
 
   @column()
   public title: string
@@ -21,6 +27,12 @@ export default class PortfolioItem extends BaseModel {
   @column()
   public coverImageId: bigint|null
 
+  @column.dateTime({ autoCreate: true })
+  public createdAt: DateTime
+
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  public updatedAt: DateTime
+
   @belongsTo(() => Image, {
     foreignKey: 'logoImageId',
   })
@@ -30,10 +42,4 @@ export default class PortfolioItem extends BaseModel {
     foreignKey: 'coverImageId',
   })
   public cover: BelongsTo<typeof Image>
-
-  @belongsTo(() => Account, {
-    foreignKey: 'address',
-    localKey: 'address',
-  })
-  public account: BelongsTo<typeof Account>
 }

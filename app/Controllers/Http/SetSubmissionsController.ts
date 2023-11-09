@@ -127,6 +127,10 @@ export default class SetSubmissionsController extends BaseController {
       .preload('edition10Image')
       .preload('edition20Image')
       .preload('edition40Image')
+      .preload('richContentLinks', query => {
+        query.preload('logo')
+        query.preload('cover')
+      })
       .firstOrFail()
 
     if (user.address !== submission.creator && !isAdmin(session)) {

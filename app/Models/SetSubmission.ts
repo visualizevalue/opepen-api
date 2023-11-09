@@ -1,10 +1,11 @@
 import { DateTime } from 'luxon'
 import { v4 as uuid } from 'uuid'
-import { BaseModel, BelongsTo, beforeCreate, belongsTo, column, computed, scope } from '@ioc:Adonis/Lucid/Orm'
+import { BaseModel, BelongsTo, HasMany, beforeCreate, belongsTo, column, computed, hasMany, scope } from '@ioc:Adonis/Lucid/Orm'
 import Image from './Image'
 import Account from './Account'
 import SetModel from './Set'
 import { EditionType, ArtistSignature } from './types'
+import RichContentLink from './RichContentLink'
 
 export default class SetSubmission extends BaseModel {
   @column({ isPrimary: true, serializeAs: null })
@@ -112,6 +113,12 @@ export default class SetSubmission extends BaseModel {
 
   @belongsTo(() => SetModel)
   public set: BelongsTo<typeof SetModel>
+
+  @hasMany(() => RichContentLink, {
+    foreignKey: 'setSubmissionId',
+    localKey: 'id',
+  })
+  public richContentLinks: HasMany<typeof RichContentLink>
 
   public static active = scope((query) => {
     query.whereNull('deletedAt')

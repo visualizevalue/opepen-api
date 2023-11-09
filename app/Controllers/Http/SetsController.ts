@@ -43,6 +43,10 @@ export default class SetsController extends BaseController {
         query.preload('edition20Image')
         query.preload('edition40Image')
       })
+      .preload('richContentLinks', query => {
+        query.preload('logo')
+        query.preload('cover')
+      })
       .where('id', params.id)
       .firstOrFail()
 

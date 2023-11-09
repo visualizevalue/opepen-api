@@ -6,6 +6,7 @@ import Subscription from './Subscription'
 import { ArtistSignature, EditionSize, EditionType } from './types'
 import SetSubmission from './SetSubmission'
 import Account from './Account'
+import RichContentLink from './RichContentLink'
 
 type EditionGroups = { [K in EditionSize]: BigInt[] }
 export type SubmissionStats = {
@@ -157,6 +158,12 @@ export default class SetModel extends BaseModel {
 
   @hasMany(() => Opepen)
   public opepen: HasMany<typeof Opepen>
+
+  @hasMany(() => RichContentLink, {
+    foreignKey: 'setId',
+    localKey: 'id',
+  })
+  public richContentLinks: HasMany<typeof RichContentLink>
 
   public async opepensInSet () {
     const opepens = {

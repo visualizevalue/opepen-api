@@ -80,7 +80,7 @@ export default class AccountSettingsController extends BaseController {
       .where('address', session.get('siwe')?.address?.toLowerCase())
       .preload('pfp')
       .preload('coverImage')
-      .preload('portfolioItems')
+      .preload('richContentLinks')
       .firstOrFail()
   }
 
@@ -91,7 +91,7 @@ export default class AccountSettingsController extends BaseController {
       notification_new_set: account.notificationNewSet,
       pfp: account.pfp ? account.pfp.toJSON() : null,
       coverImage: account.coverImage ? account.coverImage.toJSON() : null,
-      portfolioItems: account.portfolioItems || null,
+      richContentLinks: account.richContentLinks || null,
       tagline: account.tagline,
       quote: account.quote,
       bio: account.bio,

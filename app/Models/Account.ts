@@ -7,7 +7,7 @@ import provider from 'App/Services/RPCProvider'
 import Journey from './Journey'
 import Image from './Image'
 import { ArtistSocials } from './types'
-import PortfolioItem from './PortfolioItem'
+import RichContentLink from './RichContentLink'
 
 export default class Account extends BaseModel {
   @column({ isPrimary: true })
@@ -76,11 +76,11 @@ export default class Account extends BaseModel {
   })
   public coverImage: BelongsTo<typeof Image>
 
-  @hasMany(() => PortfolioItem, {
+  @hasMany(() => RichContentLink, {
     foreignKey: 'address',
     localKey: 'address',
   })
-  public portfolioItems: HasMany<typeof PortfolioItem>
+  public richContentLinks: HasMany<typeof RichContentLink>
 
   @hasMany(() => Journey, {
     foreignKey: 'owner',
