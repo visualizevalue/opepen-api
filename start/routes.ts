@@ -132,3 +132,8 @@ Route.group(() => {
 Route.group(() => {
   Route.get('/:reveal/:account',        'RevealsController.forAccount')
 }).prefix('/v1/reveals')
+
+// Rich Content Cards
+Route.group(() => {
+  Route.post('/', 'RichContentLinksController.createOrUpdate').middleware(['auth'])
+}).prefix('/v1/rich-links')

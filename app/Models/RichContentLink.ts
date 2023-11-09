@@ -7,6 +7,9 @@ export default class RichContentLink extends BaseModel {
   public id: bigint
 
   @column()
+  public sortIndex: number|null
+
+  @column()
   public address: string|null
 
   @column()
@@ -14,6 +17,9 @@ export default class RichContentLink extends BaseModel {
 
   @column()
   public setSubmissionId: number|null
+
+  @column()
+  public url: string
 
   @column()
   public title: string

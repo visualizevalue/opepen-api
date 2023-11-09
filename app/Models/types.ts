@@ -16,3 +16,16 @@ export type ArtistSignature = {
 }
 
 export type ArtistSocials = string[]
+
+export type RichLinkData = {
+  id: bigint,
+  address: string,
+  set_id: number,
+  set_submission_id: number,
+  sort_index: number,
+  url: string,
+  title: string,
+  description: string,
+  logo_image_id: bigint,
+  cover_image_id: bigint,
+}
