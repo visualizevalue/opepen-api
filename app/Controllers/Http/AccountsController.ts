@@ -22,6 +22,7 @@ export default class AccountsController extends BaseController {
         query.preload('edition10Image')
         query.preload('edition20Image')
         query.preload('edition40Image')
+        query.orderBy('id')
       })
       .first()
 
