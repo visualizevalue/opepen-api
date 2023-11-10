@@ -8,6 +8,7 @@ import Journey from './Journey'
 import Image from './Image'
 import { ArtistSocials } from './types'
 import RichContentLink from './RichContentLink'
+import SetModel from './Set'
 
 export default class Account extends BaseModel {
   @column({ isPrimary: true })
@@ -87,6 +88,12 @@ export default class Account extends BaseModel {
     localKey: 'address',
   })
   public journeys: HasMany<typeof Journey>
+
+  @hasMany(() => SetModel, {
+    foreignKey: 'creator',
+    localKey: 'address',
+  })
+  public createdSets: HasMany<typeof SetModel>
 
   @beforeSave()
   public static async lowerCaseAddress(account: Account) {

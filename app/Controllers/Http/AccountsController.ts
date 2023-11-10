@@ -10,6 +10,7 @@ export default class AccountsController extends BaseController {
   public async show ({ params }) {
     const account = await Account.byId(decodeURIComponent(params.id.toLowerCase()))
       .preload('coverImage')
+      .preload('createdSets')
       .preload('richContentLinks', query => {
         query.preload('logo')
         query.preload('cover')
