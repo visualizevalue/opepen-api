@@ -2,7 +2,7 @@ import { MessageContract } from '@ioc:Adonis/Addons/Mail'
 import Account from 'App/Models/Account'
 import NotificationEmail from './NotificationEmail'
 import pad from 'App/Helpers/pad'
-import SetModel from 'App/Models/Set'
+import SetModel from 'App/Models/SetModel'
 import { DateTime } from 'luxon'
 
 export default class NotifyNewSetEmail extends NotificationEmail {

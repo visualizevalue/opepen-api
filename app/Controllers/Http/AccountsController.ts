@@ -3,19 +3,19 @@ import Account from 'App/Models/Account'
 import BaseController from './BaseController'
 import TestEmail from 'App/Mailers/TestEmail'
 import NotifyNewSetEmail from 'App/Mailers/NotifyNewSetEmail'
-import SetModel from 'App/Models/Set'
+import SetModel from 'App/Models/SetModel'
 
 export default class AccountsController extends BaseController {
 
   public async show ({ params }) {
     const account = await Account.byId(decodeURIComponent(params.id.toLowerCase()))
       .preload('coverImage')
-      .preload('createdSets')
       .preload('richContentLinks', query => {
         query.preload('logo')
         query.preload('cover')
         query.orderBy('sortIndex')
       })
+      .preload('createdSets')
       .first()
 
     if (! account) {

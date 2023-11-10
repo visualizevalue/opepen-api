@@ -1,5 +1,5 @@
 import { BaseCommand, args } from '@adonisjs/core/build/standalone'
-import SetModel from 'App/Models/Set'
+import SetModel from 'App/Models/SetModel'
 
 export default class CleanSetSubmissions extends BaseCommand {
   /**

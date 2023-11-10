@@ -1,7 +1,7 @@
 import { BaseCommand, args } from '@adonisjs/core/build/standalone'
 import Drive from '@ioc:Adonis/Core/Drive'
 import Opepen from 'App/Models/Opepen'
-import SetModel from 'App/Models/Set'
+import SetModel from 'App/Models/SetModel'
 import { DateTime } from 'luxon'
 
 export default class ImportOpepenWinners extends BaseCommand {

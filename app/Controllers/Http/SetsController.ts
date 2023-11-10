@@ -1,7 +1,7 @@
 import { ethers } from 'ethers'
 import Drive from '@ioc:Adonis/Core/Drive'
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
-import SetModel from 'App/Models/Set'
+import SetModel from 'App/Models/SetModel'
 import Subscription from 'App/Models/Subscription'
 import BaseController from './BaseController'
 import { DateTime } from 'luxon'

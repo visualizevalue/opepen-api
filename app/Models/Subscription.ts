@@ -1,7 +1,7 @@
 import { DateTime } from 'luxon'
 import { BaseModel, BelongsTo, belongsTo, column } from '@ioc:Adonis/Lucid/Orm'
 import Account from './Account'
-import SetModel from './Set'
+import SetModel from './SetModel'
 import { MaxReveal } from './types'
 import Database from '@ioc:Adonis/Lucid/Database'
 

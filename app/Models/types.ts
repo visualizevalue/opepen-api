@@ -29,3 +29,35 @@ export type RichLinkData = {
   logo_image_id: bigint,
   cover_image_id: bigint,
 }
+
+export type EditionGroups = { [K in EditionSize]: BigInt[] }
+export type SubmissionStats = {
+  holders: {
+    1: number
+    4: number
+    5: number
+    10: number
+    20: number
+    40: number
+    total: number
+  },
+  opepens: {
+    1: number
+    4: number
+    5: number
+    10: number
+    20: number
+    40: number
+    total: number
+  },
+  demand: {
+    1: number
+    4: number
+    5: number
+    10: number
+    20: number
+    40: number
+    total: number
+  },
+  totalHolders?: number
+}

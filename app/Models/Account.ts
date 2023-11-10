@@ -4,11 +4,11 @@ import Env from '@ioc:Adonis/Core/Env'
 import { afterSave, BaseModel, beforeSave, BelongsTo, belongsTo, column, computed, HasMany, hasMany } from '@ioc:Adonis/Lucid/Orm'
 import Address from 'App/Helpers/Address'
 import provider from 'App/Services/RPCProvider'
-import Journey from './Journey'
-import Image from './Image'
+import Journey from 'App/Models/Journey'
+import Image from 'App/Models/Image'
+import RichContentLink from 'App/Models/RichContentLink'
+import SetDataModel from 'App/Models/SetDataModel'
 import { ArtistSocials } from './types'
-import RichContentLink from './RichContentLink'
-import SetModel from './Set'
 
 export default class Account extends BaseModel {
   @column({ isPrimary: true })
@@ -89,11 +89,11 @@ export default class Account extends BaseModel {
   })
   public journeys: HasMany<typeof Journey>
 
-  @hasMany(() => SetModel, {
+  @hasMany(() => SetDataModel, {
     foreignKey: 'creator',
     localKey: 'address',
   })
-  public createdSets: HasMany<typeof SetModel>
+  public createdSets: HasMany<typeof SetDataModel>
 
   @beforeSave()
   public static async lowerCaseAddress(account: Account) {

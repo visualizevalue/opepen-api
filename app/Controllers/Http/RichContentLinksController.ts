@@ -5,7 +5,7 @@ import Image from 'App/Models/Image'
 import RichContentLink from 'App/Models/RichContentLink'
 import { RichLinkData } from 'App/Models/types'
 import { isAdmin } from 'App/Middleware/AdminAuth'
-import SetModel from 'App/Models/Set'
+import SetModel from 'App/Models/SetModel'
 import SetSubmission from 'App/Models/SetSubmission'
 
 export default class RichContentLinksController extends BaseController {

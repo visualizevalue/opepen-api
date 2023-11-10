@@ -3,7 +3,7 @@ import Env from '@ioc:Adonis/Core/Env'
 import { delay } from 'App/Helpers/time'
 import Image from 'App/Models/Image'
 import Opepen from 'App/Models/Opepen'
-import SetModel from 'App/Models/Set'
+import SetModel from 'App/Models/SetModel'
 import axios from 'axios'
 
 export default class ImportSetImages extends BaseCommand {

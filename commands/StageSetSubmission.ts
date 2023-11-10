@@ -1,5 +1,5 @@
 import { BaseCommand, args } from '@adonisjs/core/build/standalone'
-import SetModel from 'App/Models/Set'
+import SetModel from 'App/Models/SetModel'
 import SetSubmission from 'App/Models/SetSubmission'
 
 export default class StageSetSubmission extends BaseCommand {

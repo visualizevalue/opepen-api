@@ -3,7 +3,7 @@ import { v4 as uuid } from 'uuid'
 import { BaseModel, BelongsTo, HasMany, beforeCreate, belongsTo, column, computed, hasMany, scope } from '@ioc:Adonis/Lucid/Orm'
 import Image from './Image'
 import Account from './Account'
-import SetModel from './Set'
+import SetModel from './SetModel'
 import { EditionType, ArtistSignature } from './types'
 import RichContentLink from './RichContentLink'
 
