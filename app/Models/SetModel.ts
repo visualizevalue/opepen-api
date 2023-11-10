@@ -1,5 +1,4 @@
 import { BelongsTo, HasMany, belongsTo, column, hasMany } from '@ioc:Adonis/Lucid/Orm'
-import Image from 'App/Models/Image'
 import Opepen from 'App/Models/Opepen'
 import Subscription from 'App/Models/Subscription'
 import SetSubmission from 'App/Models/SetSubmission'
@@ -35,19 +34,6 @@ export default class SetModel extends SetDataModel {
     localKey: 'address',
   })
   public creatorAccount: BelongsTo<typeof Account>
-
-  @belongsTo(() => Image, { foreignKey: 'edition_1ImageId' })
-  public edition1Image: BelongsTo<typeof Image>
-  @belongsTo(() => Image, { foreignKey: 'edition_4ImageId' })
-  public edition4Image: BelongsTo<typeof Image>
-  @belongsTo(() => Image, { foreignKey: 'edition_5ImageId' })
-  public edition5Image: BelongsTo<typeof Image>
-  @belongsTo(() => Image, { foreignKey: 'edition_10ImageId' })
-  public edition10Image: BelongsTo<typeof Image>
-  @belongsTo(() => Image, { foreignKey: 'edition_20ImageId' })
-  public edition20Image: BelongsTo<typeof Image>
-  @belongsTo(() => Image, { foreignKey: 'edition_40ImageId' })
-  public edition40Image: BelongsTo<typeof Image>
 
   @belongsTo(() => SetSubmission, {
     foreignKey: 'replacedSubmissionId',

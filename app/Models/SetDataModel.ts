@@ -1,5 +1,6 @@
 import { DateTime } from 'luxon'
-import { BaseModel, column, computed } from '@ioc:Adonis/Lucid/Orm'
+import { BaseModel, BelongsTo, belongsTo, column, computed } from '@ioc:Adonis/Lucid/Orm'
+import Image from 'App/Models/Image'
 import { EditionType } from './types'
 
 export default class SetDataModel extends BaseModel {
@@ -74,4 +75,17 @@ export default class SetDataModel extends BaseModel {
 
   @column()
   public revealBlockNumber: string
+
+  @belongsTo(() => Image, { foreignKey: 'edition_1ImageId' })
+  public edition1Image: BelongsTo<typeof Image>
+  @belongsTo(() => Image, { foreignKey: 'edition_4ImageId' })
+  public edition4Image: BelongsTo<typeof Image>
+  @belongsTo(() => Image, { foreignKey: 'edition_5ImageId' })
+  public edition5Image: BelongsTo<typeof Image>
+  @belongsTo(() => Image, { foreignKey: 'edition_10ImageId' })
+  public edition10Image: BelongsTo<typeof Image>
+  @belongsTo(() => Image, { foreignKey: 'edition_20ImageId' })
+  public edition20Image: BelongsTo<typeof Image>
+  @belongsTo(() => Image, { foreignKey: 'edition_40ImageId' })
+  public edition40Image: BelongsTo<typeof Image>
 }
