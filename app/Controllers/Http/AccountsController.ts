@@ -13,6 +13,7 @@ export default class AccountsController extends BaseController {
       .preload('richContentLinks', query => {
         query.preload('logo')
         query.preload('cover')
+        query.orderBy('sortIndex')
       })
       .first()
 

@@ -130,6 +130,7 @@ export default class SetSubmissionsController extends BaseController {
       .preload('richContentLinks', query => {
         query.preload('logo')
         query.preload('cover')
+        query.orderBy('sortIndex')
       })
       .firstOrFail()
 

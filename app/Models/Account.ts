@@ -28,7 +28,7 @@ export default class Account extends BaseModel {
   @column({ serializeAs: null })
   public email: string
 
-  @column.dateTime()
+  @column.dateTime({ serializeAs: null })
   public emailVerifiedAt: DateTime|null
 
   @column({ serializeAs: null })

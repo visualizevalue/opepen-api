@@ -18,34 +18,33 @@ export default class RichContentLinksController extends BaseController {
     const links: RichContentLink[] = []
 
     for (const data of linksData) {
-      const linkAccount = await Account.query().where('address', data.address).first()
-      const set = await SetModel.find(data.set_id)
-      const submission = await SetSubmission.find(data.set_submission_id)
+      const address = data.address?.toLowerCase()
+      const linkAccount = await Account.query().where('address', address).first()
+      const set = data.set_id ? await SetModel.find(data.set_id) : null
+      const submission = data.set_submission_id ? await SetSubmission.find(data.set_submission_id) : null
 
       // Validate...
       if (! admin) { // Admins are always allowed...
         if (
-          account.address !== data.address ||
-          (data.id && linkAccount?.address !== data.address) ||
-          (data.set_id && set?.creator !== data.address) ||
-          (data.set_submission_id && submission?.creator !== data.address)
+          account.address !== address ||
+          (data.id && linkAccount?.address !== address) ||
+          (data.set_id && set?.creator !== address) ||
+          (data.set_submission_id && submission?.creator !== address)
         ) continue // Disregard links we're not allowed to update...
       }
 
-      const link = await RichContentLink.firstOrCreate({ id: data.id })
+      const link = data.id
+        ? await RichContentLink.findOrFail(data.id)
+        : new RichContentLink()
 
       const [logoImage, coverImage] = await Promise.all([
-        Image.findBy('uuid', request.input('logo_image_id', null)),
-        Image.findBy('uuid', request.input('cover_image_id', null)),
+        Image.findBy('uuid', data.logo_image_id || null),
+        Image.findBy('uuid', data.cover_image_id || null),
       ])
       link.logoImageId = logoImage ? logoImage.id : null
       link.coverImageId = coverImage ? coverImage.id : null
-      await Promise.all([
-        link.load('logo'),
-        link.load('cover'),
-      ])
 
-      link.address = data.address
+      link.address = address
       link.setId = data.set_id
       link.setSubmissionId = data.set_submission_id
       link.sortIndex = data.sort_index
@@ -54,6 +53,10 @@ export default class RichContentLinksController extends BaseController {
       link.description = data.description
 
       await link.save()
+      await Promise.all([
+        link.load('logo'),
+        link.load('cover'),
+      ])
 
       links.push(link)
     }

@@ -80,7 +80,11 @@ export default class AccountSettingsController extends BaseController {
       .where('address', session.get('siwe')?.address?.toLowerCase())
       .preload('pfp')
       .preload('coverImage')
-      .preload('richContentLinks')
+      .preload('richContentLinks', query => {
+        query.preload('logo')
+        query.preload('cover')
+        query.orderBy('sortIndex')
+      })
       .firstOrFail()
   }
 

@@ -46,6 +46,7 @@ export default class SetsController extends BaseController {
       .preload('richContentLinks', query => {
         query.preload('logo')
         query.preload('cover')
+        query.orderBy('sortIndex')
       })
       .where('id', params.id)
       .firstOrFail()
