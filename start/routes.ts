@@ -136,4 +136,5 @@ Route.group(() => {
 // Rich Content Cards
 Route.group(() => {
   Route.post('/', 'RichContentLinksController.createOrUpdate').middleware(['auth'])
+  Route.delete('/:id', 'RichContentLinksController.destroy').middleware(['auth'])
 }).prefix('/v1/rich-links')

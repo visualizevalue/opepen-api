@@ -64,4 +64,15 @@ export default class RichContentLinksController extends BaseController {
     return links
   }
 
+  public async destroy ({ params, response, session }: HttpContextContract) {
+    const link = await RichContentLink.firstOrFail(params.id)
+    const account = await Account.query().where('address', session.get('siwe')?.address?.toLowerCase()).firstOrFail()
+
+    if (! isAdmin(session) && link.address !== account.address) return response.unauthorized('Not allowed')
+
+    await link.delete()
+
+    return response.ok('Link deleted')
+  }
+
 }
