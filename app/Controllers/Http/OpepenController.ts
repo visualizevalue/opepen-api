@@ -12,7 +12,7 @@ export default class OpepenController extends BaseController {
       sort = ''
     } = request.qs()
 
-    const query = Opepen.query()
+    const query = Opepen.query().preload('image')
 
     this.applyFilters(query, filter)
     this.applySorts(query, sort)
