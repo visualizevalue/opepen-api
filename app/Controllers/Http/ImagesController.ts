@@ -18,7 +18,7 @@ export default class ImagesController extends BaseController {
     if (
       !file.isValid ||
       !file.subtype ||
-      !['jpeg', 'jpg', 'png', 'gif', 'svg'].includes(file.subtype?.toLowerCase())
+      !['jpeg', 'jpg', 'png', 'gif', 'webp', 'svg'].includes(file.subtype?.toLowerCase())
     ) return response.badRequest(file.errors || 'Unsupported file format')
 
     const image = await Image.create({
