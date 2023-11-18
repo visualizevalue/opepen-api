@@ -65,6 +65,9 @@ export default class SetDataModel extends BaseModel {
   public edition_40ImageId: bigint
 
   @column({ serializeAs: null })
+  public dynamicPreviewImageId: bigint
+
+  @column({ serializeAs: null })
   public replacedSubmissionId: number
 
   @column.dateTime({ autoCreate: true })
@@ -88,4 +91,7 @@ export default class SetDataModel extends BaseModel {
   public edition20Image: BelongsTo<typeof Image>
   @belongsTo(() => Image, { foreignKey: 'edition_40ImageId' })
   public edition40Image: BelongsTo<typeof Image>
+
+  @belongsTo(() => Image, { foreignKey: 'dynamicPreviewImageId' })
+  public dynamicPreviewImage: BelongsTo<typeof Image>
 }

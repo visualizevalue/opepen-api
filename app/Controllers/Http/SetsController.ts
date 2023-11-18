@@ -35,6 +35,7 @@ export default class SetsController extends BaseController {
       .preload('edition10Image')
       .preload('edition20Image')
       .preload('edition40Image')
+      .preload('dynamicPreviewImage')
       .preload('replacedSubmission', query => {
         query.preload('edition1Image')
         query.preload('edition4Image')

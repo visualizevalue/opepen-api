@@ -65,6 +65,9 @@ export default class SetSubmission extends BaseModel {
   @column({ serializeAs: null })
   public edition_40ImageId: bigint
 
+  @column({ serializeAs: null })
+  public dynamicPreviewImageId: bigint
+
   @column()
   public status: string
 
@@ -104,6 +107,9 @@ export default class SetSubmission extends BaseModel {
   public edition20Image: BelongsTo<typeof Image>
   @belongsTo(() => Image, { foreignKey: 'edition_40ImageId' })
   public edition40Image: BelongsTo<typeof Image>
+
+  @belongsTo(() => Image, { foreignKey: 'dynamicPreviewImageId' })
+  public dynamicPreviewImage: BelongsTo<typeof Image>
 
   @belongsTo(() => Account, {
     foreignKey: 'creator',
