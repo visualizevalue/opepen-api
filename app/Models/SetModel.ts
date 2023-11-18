@@ -201,8 +201,12 @@ export default class SetModel extends SetDataModel {
       .where('notificationNewSet', true)
 
     for (const user of users) {
-      await new NotifyNewSetEmail(user, this).sendLater()
-      Logger.info(`SetNotification email sent: ${user.email}`)
+      try {
+        await new NotifyNewSetEmail(user, this).sendLater()
+        Logger.info(`SetNotification email scheduled: ${user.email}`)
+      } catch (e) {
+        Logger.warn(`Error scheduling SetNotification email: ${user.email}`)
+      }
     }
   }
 }

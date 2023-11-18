@@ -117,7 +117,10 @@ export default class SetSubmission extends BaseModel {
   })
   public creatorAccount: BelongsTo<typeof Account>
 
-  @belongsTo(() => SetModel)
+  @belongsTo(() => SetModel, {
+    foreignKey: 'setId',
+    localKey: 'id',
+  })
   public set: BelongsTo<typeof SetModel>
 
   @hasMany(() => RichContentLink, {

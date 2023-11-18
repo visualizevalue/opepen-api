@@ -5,6 +5,7 @@ import SetSubmission from 'App/Models/SetSubmission'
 import Image from 'App/Models/Image'
 import { isAdmin } from 'App/Middleware/AdminAuth'
 import { DateTime } from 'luxon'
+import { SetModel } from 'App/Models'
 
 export default class SetSubmissionsController extends BaseController {
 
@@ -225,6 +226,20 @@ export default class SetSubmissionsController extends BaseController {
     await submission.publish(setId, hours)
 
     return submission.save()
+  }
+
+  public async notifyPublication (ctx: HttpContextContract) {
+    const submission = await this.show(ctx)
+    if (! submission) return ctx.response.badRequest()
+
+    if (! submission.setId) return ctx.response.badRequest('No set provided')
+    const set = await SetModel.findOrFail(submission.setId)
+
+    if (!! set.notificationSentAt) return ctx.response.badRequest('Set notifications sent already')
+
+    await set.notifyPublished()
+    set.notificationSentAt = DateTime.now()
+    await set.save()
   }
 
   public async delete (ctx: HttpContextContract) {

@@ -99,6 +99,7 @@ Route.group(() => {
 
   Route.post('/:id/star',           'SetSubmissionsController.star').middleware(['admin'])
   Route.post('/:id/publish',        'SetSubmissionsController.publish').middleware(['admin'])
+  Route.post('/:id/notify',         'SetSubmissionsController.notifyPublication').middleware(['admin'])
 }).prefix('/v1/set-submissions').middleware(['auth'])
 
 // Account Settings

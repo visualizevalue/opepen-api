@@ -73,6 +73,9 @@ export default class SetDataModel extends BaseModel {
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime
 
+  @column()
+  public notificationSentAt: DateTime
+
   @column.dateTime()
   public revealsAt: DateTime
 

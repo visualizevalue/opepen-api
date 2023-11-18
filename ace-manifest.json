@@ -158,25 +158,6 @@
       "aliases": [],
       "flags": []
     },
-    "set:notify-publish": {
-      "settings": {
-        "loadApp": true,
-        "stayAlive": false
-      },
-      "commandPath": "./commands/NotifyNewSet",
-      "commandName": "set:notify-publish",
-      "description": "Notify users that have subscribed to new set notifications",
-      "args": [
-        {
-          "type": "string",
-          "propertyName": "set",
-          "name": "set",
-          "required": true
-        }
-      ],
-      "aliases": [],
-      "flags": []
-    },
     "opepen:import-metadata": {
       "settings": {
         "loadApp": true,
