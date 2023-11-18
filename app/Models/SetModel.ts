@@ -1,4 +1,5 @@
 import { BelongsTo, HasMany, belongsTo, column, hasMany } from '@ioc:Adonis/Lucid/Orm'
+import Logger from '@ioc:Adonis/Core/Logger'
 import Opepen from 'App/Models/Opepen'
 import Subscription from 'App/Models/Subscription'
 import SetSubmission from 'App/Models/SetSubmission'
@@ -6,6 +7,7 @@ import { Account } from 'App/Models'
 import RichContentLink from 'App/Models/RichContentLink'
 import { ArtistSignature, EditionGroups, SubmissionStats } from './types'
 import SetDataModel from './SetDataModel'
+import NotifyNewSetEmail from 'App/Mailers/NotifyNewSetEmail'
 
 export default class SetModel extends SetDataModel {
   public static table = 'sets'
@@ -190,5 +192,17 @@ export default class SetModel extends SetDataModel {
     await this.save()
 
     return owners.size
+  }
+
+  public async notifyPublished () {
+    const users = await Account.query()
+      .whereNotNull('email')
+      .whereNotNull('emailVerifiedAt')
+      .where('notificationNewSet', true)
+
+    for (const user of users) {
+      await new NotifyNewSetEmail(user, this).sendLater()
+      Logger.info(`SetNotification email sent: ${user.email}`)
+    }
   }
 }
