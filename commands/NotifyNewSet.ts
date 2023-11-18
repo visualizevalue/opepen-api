@@ -1,5 +1,4 @@
 import { BaseCommand, args } from '@adonisjs/core/build/standalone'
-import SetModel from 'App/Models/SetModel'
 
 export default class NotifyNewSet extends BaseCommand {
   /**
@@ -21,6 +20,8 @@ export default class NotifyNewSet extends BaseCommand {
   public set: string
 
   public async run() {
+    const { default: SetModel } = await import('App/Models/SetModel')
+
     const set = await SetModel.findOrFail(this.set)
 
     await set.notifyPublished()
