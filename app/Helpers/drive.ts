@@ -4,13 +4,13 @@ import { MultipartFileContract } from '@ioc:Adonis/Core/BodyParser'
 
 export async function toDriveFromURI (url: string, name: string) {
   try {
-    const response = await axios({ url, responseType: 'stream' })
-    const stream = response.data
-    const contentLength = response.headers['content-length'] as number
+    const response = await axios({ url, responseType: 'arraybuffer' })
+    const data = response.data
+    const contentLength = response.headers['content-length'] || Buffer.byteLength(data) as number
     const contentType = response.headers['content-type']
-    const fileType = contentType.split('/').at(-1)
+    const fileType = contentType.split('/').at(-1).split('+').at(0)
     const path = `images/${name}.${fileType}`
-    await Drive.putStream(path, stream, { contentType: contentType, contentLength: contentLength })
+    await Drive.put(path, data, { contentType: contentType, contentLength: contentLength })
 
     return {
       path,
@@ -19,6 +19,7 @@ export async function toDriveFromURI (url: string, name: string) {
     }
   } catch (e) {
     // ...
+    console.log(e)
   }
 }
 
