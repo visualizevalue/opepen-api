@@ -7,8 +7,11 @@ import Image from './Image'
 import { ContractType } from './types'
 import Database from '@ioc:Adonis/Lucid/Database'
 
+type SetConfig = any
+
 type OpepenData = {
   edition: 1|4|5|10|20|40,
+  setConfig?: SetConfig,
 }
 
 export default class Opepen extends TokenModel {

@@ -45,6 +45,7 @@
     "replicate": "^0.9.0",
     "sharp": "^0.32.0",
     "siwe": "^2.1.4",
+    "socket.io": "^4.7.2",
     "source-map-support": "^0.5.21",
     "uuid": "^9.0.0"
   }
