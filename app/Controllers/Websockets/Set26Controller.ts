@@ -10,15 +10,15 @@ const Set26Controller = async (socket: Socket) => {
   // Only allow updates on opepen that are part of set 26
   if (opepen.setId !== 26) return
 
-  socket.emit('opepen:load', { words: opepen.data.setConfig || [] })
+  socket.emit(`opepen:load:${id}`, { words: opepen.data.setConfig || [] })
 
-  socket.on('opepen:update', async (data) => {
+  socket.on(`opepen:update:${id}`, async (data) => {
     const words = data.words.filter(word => WORDS.includes(word))
 
     opepen.data.setConfig = words
     await opepen.save()
 
-    socket.broadcast.emit('opepen:updated', { words })
+    socket.broadcast.emit(`opepen:updated:${id}`, { words })
   })
 }
 
