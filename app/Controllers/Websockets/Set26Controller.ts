@@ -4,7 +4,6 @@ import WORDS from 'App/Helpers/bip-39-wordlist'
 
 const Set26Controller = async (socket: Socket) => {
   const { id } = socket.handshake.query
-  console.log('New connection', socket.handshake.query)
 
   const opepen = await Opepen.findOrFail(id)
 
@@ -19,12 +18,7 @@ const Set26Controller = async (socket: Socket) => {
     opepen.data.setConfig = words
     await opepen.save()
 
-    console.log(`Opepen #${opepen.tokenId} updated`, words)
-
-    const cast = socket.broadcast.emit(`opepen:updated:${id}`, { words })
-    const cast2 = socket.emit(`opepen:updated:${id}`, { words })
-
-    console.log(`Update broadcast`, cast, cast2)
+    socket.broadcast.emit(`opepen:updated:${id}`, { words })
   })
 }
 
