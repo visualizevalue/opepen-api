@@ -22,8 +22,9 @@ const Set26Controller = async (socket: Socket) => {
     console.log(`Opepen #${opepen.tokenId} updated`, words)
 
     const cast = socket.broadcast.emit(`opepen:updated:${id}`, { words })
+    const cast2 = socket.emit(`opepen:updated:${id}`, { words })
 
-    console.log(`Update broadcast`, cast)
+    console.log(`Update broadcast`, cast, cast2)
   })
 }
 
