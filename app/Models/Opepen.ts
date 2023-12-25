@@ -18,7 +18,14 @@ export default class Opepen extends TokenModel {
   public contractName: ContractType = 'OPEPEN'
   public contractAddress: string = Env.get('OPEPEN_ADDRESS')
 
-  @column()
+  @column({
+    serialize: (value: OpepenData) => {
+      return {
+        ...value,
+        setConfig: undefined,
+      }
+    }
+  })
   public data: OpepenData
 
   @column()
