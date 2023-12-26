@@ -3,10 +3,20 @@ import { Socket } from 'socket.io'
 import Opepen from 'App/Models/Opepen'
 import WORDS from 'App/Helpers/bip-39-wordlist'
 
+export const LETTER_COUNTS_PER_EDITION = {
+  1: 4,
+  4: 9,
+  5: 16,
+  10: 25,
+  20: 36,
+  40: 49,
+}
+
 const Set26Controller = async (socket: Socket) => {
   const { id } = socket.handshake.query
 
   const opepen = await Opepen.findOrFail(id)
+  const letterCount: number = LETTER_COUNTS_PER_EDITION[opepen.data.edition]
 
   // Only allow updates on opepen that are part of set 26
   if (opepen.setId !== 26) return
@@ -70,6 +80,11 @@ const Set26Controller = async (socket: Socket) => {
     const config = getSetConfig()
 
     if (! word) return
+
+    // Invalidate word
+    if (word.length > letterCount) {
+      word += '_'
+    }
 
     // Add to history
     config.history.unshift(word)
