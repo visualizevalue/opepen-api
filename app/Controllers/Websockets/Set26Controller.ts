@@ -1,5 +1,6 @@
 import { Wallet } from 'ethers'
 import { Socket } from 'socket.io'
+import Ws from 'App/Services/Ws'
 import Opepen from 'App/Models/Opepen'
 import WORDS from 'App/Helpers/bip-39-wordlist'
 
@@ -21,6 +22,12 @@ const Set26Controller = async (socket: Socket) => {
   // Only allow updates on opepen that are part of set 26
   if (opepen.setId !== 26) return
 
+  const roomId = `opepen-${opepen.tokenId}`
+  await socket.join(roomId)
+
+  // Get the size of the room
+  const getRoomSize = async () => (await Ws.io.of('sets/026').in(roomId).fetchSockets())?.length
+
   // Getter for the set config
   const getSetConfig = () => {
     if (! opepen.data.setConfig) {
@@ -31,6 +38,7 @@ const Set26Controller = async (socket: Socket) => {
           total: 0,
           valid: 0,
           seeds: 0,
+          clients: 0,
         },
       }
     }
@@ -39,17 +47,19 @@ const Set26Controller = async (socket: Socket) => {
   }
 
   // Get the public set config
-  const publicSetConfig = () => {
+  const publicSetConfig = async () => {
     const config = getSetConfig()
 
+    config.counts.clients = await getRoomSize()
+
     return {
-      words: config.words,
+      words: config.words || [],
       counts: config.counts,
     }
   }
 
   const emitUpdate = async () => {
-    const update = publicSetConfig()
+    const update = await publicSetConfig()
 
     // To our client
     socket.emit(`opepen:updated:${id}`, update)
@@ -59,7 +69,7 @@ const Set26Controller = async (socket: Socket) => {
   }
 
   // Initial load
-  socket.emit(`opepen:load:${id}`, publicSetConfig())
+  socket.emit(`opepen:load:${id}`, await publicSetConfig())
 
   // On clear
   socket.on(`opepen:clear:${id}`, async () => {
