@@ -1,4 +1,4 @@
-import { BaseCommand, args } from '@adonisjs/core/build/standalone'
+import { BaseCommand, args, flags } from '@adonisjs/core/build/standalone'
 import Env from '@ioc:Adonis/Core/Env'
 import { delay } from 'App/Helpers/time'
 import Image from 'App/Models/Image'
@@ -25,11 +25,20 @@ export default class ImportSetImages extends BaseCommand {
   @args.string()
   public set: string
 
+  @flags.boolean()
+  public missing: boolean
+
   public async run() {
     this.logger.info(`Importing images from metadata api for set #${this.set}`)
 
     const set = await SetModel.findOrFail(this.set)
-    const opepenInSet = await Opepen.query().where('setId', set.id)
+
+    const query = Opepen.query().where('setId', set.id)
+    if (this.missing) {
+      query.whereNull('imageId')
+    }
+
+    const opepenInSet = await query
 
     if (set.isDynamic) {
       this.logger.info(`Importing dynamic set`)
@@ -57,7 +66,6 @@ export default class ImportSetImages extends BaseCommand {
       this.logger.info(`Opepen #${opepen.tokenId} image imported: Image #${opepen.imageId}`)
 
       await delay(500)
-
     }
   }
 
