@@ -13,6 +13,8 @@ export const LETTER_COUNTS_PER_EDITION = {
   40: 49,
 }
 
+const UPDATE_TIMERS = {}
+
 const Set26Controller = async (socket: Socket) => {
   const { id } = socket.handshake.query
 
@@ -135,6 +137,13 @@ const Set26Controller = async (socket: Socket) => {
 
     // Publish to connected clients
     await emitUpdate()
+
+    // Update Opepen Image
+    const key = opepen.tokenId.toString()
+    if (UPDATE_TIMERS[key]) {
+      clearTimeout(UPDATE_TIMERS[key])
+    }
+    UPDATE_TIMERS[key] = setTimeout(() => opepen.updateImage(), 60_000)
   })
 }
 
