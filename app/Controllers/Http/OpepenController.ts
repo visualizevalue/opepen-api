@@ -31,6 +31,14 @@ export default class OpepenController extends BaseController {
       .firstOrFail()
   }
 
+  public async updateImage (context: HttpContextContract) {
+    const opepen = await this.show(context)
+
+    await opepen.updateImage()
+
+    return opepen
+  }
+
   public async forAccount ({ params, request }: HttpContextContract) {
     const {
       page = 1,

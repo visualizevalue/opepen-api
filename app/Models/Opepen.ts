@@ -1,11 +1,13 @@
 import Env from '@ioc:Adonis/Core/Env'
 import { beforeSave, BelongsTo, belongsTo, column, HasMany, hasMany } from '@ioc:Adonis/Lucid/Orm'
+import Database from '@ioc:Adonis/Lucid/Database'
+import Logger from '@ioc:Adonis/Core/Logger'
 import TokenModel from './TokenModel'
 import Event from './Event'
 import SetModel from './SetModel'
 import Image from './Image'
 import { ContractType } from './types'
-import Database from '@ioc:Adonis/Lucid/Database'
+import axios from 'axios'
 
 type SetConfig = any
 
@@ -71,5 +73,19 @@ export default class Opepen extends TokenModel {
         ORDER BY token_id, block_number::int desc`, [block])
 
     return new Set<string>(lastTokenOwners.rows.map(t => t.holder))
+  }
+
+  public async updateImage () {
+    const response = await axios.get(`https://metadata.opepen.art/${this.tokenId}/image-uri`)
+
+    const { uri } = response.data
+    const gatewayURI = uri.replace('ipfs.io', Env.get('IPFS_GATEWAY'))
+
+    Logger.info(`Opepen #${this.tokenId} image importing from: ${gatewayURI}`)
+    const image = await Image.fromURI(gatewayURI)
+    image.generateScaledVersions()
+
+    this.imageId = image.id
+    await this.save()
   }
 }
