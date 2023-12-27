@@ -97,7 +97,7 @@ const Set26Controller = async (socket: Socket) => {
     }
 
     // Add to history
-    config.history.unshift(word)
+    config.history.unshift({ word, timestamp: Date.now(), })
 
     // Increment total words
     config.counts.total ++
@@ -118,7 +118,7 @@ const Set26Controller = async (socket: Socket) => {
 
     // Increment valid seeds
     if (config.history?.length >= 12) {
-      const mnemonic = config.history.slice(0, 12).join(' ')
+      const mnemonic = config.history.slice(0, 12).map(({ word }) => word).join(' ')
 
       try {
         Wallet.fromMnemonic(mnemonic)
