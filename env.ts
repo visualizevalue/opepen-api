@@ -48,4 +48,6 @@ export default Env.rules({
   SMTP_USERNAME: Env.schema.string(),
   SMTP_PASSWORD: Env.schema.string(),
   CACHE_VIEWS: Env.schema.boolean(),
+  OPENSEA_KEY: Env.schema.string(),
+  OPENSEA_BASE: Env.schema.string(),
 })

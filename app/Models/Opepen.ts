@@ -1,13 +1,14 @@
+import axios from 'axios'
 import Env from '@ioc:Adonis/Core/Env'
 import { beforeSave, BelongsTo, belongsTo, column, HasMany, hasMany } from '@ioc:Adonis/Lucid/Orm'
 import Database from '@ioc:Adonis/Lucid/Database'
 import Logger from '@ioc:Adonis/Core/Logger'
+import OpenSea from 'App/Services/OpenSea'
 import TokenModel from './TokenModel'
 import Event from './Event'
 import SetModel from './SetModel'
 import Image from './Image'
 import { ContractType } from './types'
-import axios from 'axios'
 
 type SetConfig = any
 
@@ -87,5 +88,7 @@ export default class Opepen extends TokenModel {
 
     this.imageId = image.id
     await this.save()
+
+    await OpenSea.updateMetadata(this.tokenId.toString())
   }
 }
