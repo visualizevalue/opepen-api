@@ -18,7 +18,7 @@ const UPDATE_TIMERS = {}
 const Set26Controller = async (socket: Socket) => {
   const { id } = socket.handshake.query
 
-  let opepen = await Opepen.findOrFail(id)
+  const opepen = await Opepen.findOrFail(id)
   const letterCount: number = LETTER_COUNTS_PER_EDITION[opepen.data.edition]
 
   // Only allow updates on opepen that are part of set 26
@@ -32,7 +32,7 @@ const Set26Controller = async (socket: Socket) => {
 
   // Getter for the set config
   const getSetConfig = async () => {
-    opepen = await opepen.refresh()
+    await opepen.refresh()
 
     if (! opepen.data.setConfig) {
       opepen.data.setConfig = {
