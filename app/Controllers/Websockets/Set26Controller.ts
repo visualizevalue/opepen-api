@@ -18,7 +18,7 @@ const UPDATE_TIMERS = {}
 const Set26Controller = async (socket: Socket) => {
   const { id } = socket.handshake.query
 
-  const opepen = await Opepen.findOrFail(id)
+  let opepen = await Opepen.findOrFail(id)
   const letterCount: number = LETTER_COUNTS_PER_EDITION[opepen.data.edition]
 
   // Only allow updates on opepen that are part of set 26
@@ -31,7 +31,9 @@ const Set26Controller = async (socket: Socket) => {
   const getRoomSize = async () => (await Ws.io.of('sets/026').in(roomId).fetchSockets())?.length
 
   // Getter for the set config
-  const getSetConfig = () => {
+  const getSetConfig = async () => {
+    opepen = await opepen.refresh()
+
     if (! opepen.data.setConfig) {
       opepen.data.setConfig = {
         words: [],
@@ -50,7 +52,7 @@ const Set26Controller = async (socket: Socket) => {
 
   // Get the public set config
   const publicSetConfig = async () => {
-    const config = getSetConfig()
+    const config = await getSetConfig()
 
     config.counts.clients = await getRoomSize()
 
@@ -75,7 +77,7 @@ const Set26Controller = async (socket: Socket) => {
 
   // On clear
   socket.on(`opepen:clear:${id}`, async () => {
-    const config = getSetConfig()
+    const config = await getSetConfig()
 
     // Clear our words
     config.words = []
@@ -89,7 +91,7 @@ const Set26Controller = async (socket: Socket) => {
 
   // On new word
   socket.on(`opepen:word:${id}`, async (word) => {
-    const config = getSetConfig()
+    const config = await getSetConfig()
 
     if (! word) return
 
