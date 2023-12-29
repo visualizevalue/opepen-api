@@ -2,6 +2,8 @@ import { BaseCommand } from '@adonisjs/core/build/standalone'
 import Opepen from 'App/Models/Opepen'
 import { Wallet } from 'ethers'
 
+type Seed = { mnemonic: string, timestamp: number, privk: string, pubk: string }
+
 export default class ExportSet26Seeds extends BaseCommand {
   /**
    * Command name is used to run the command
@@ -22,7 +24,7 @@ export default class ExportSet26Seeds extends BaseCommand {
     const opepen = await Opepen.query().where('setId', 26)
 
     let globalSeedCount = 0
-    let globalSeeds: { mnemonic: string, timestamp: number }[] = []
+    let globalSeeds: Seed[] = []
 
     for (const o of opepen) {
       globalSeedCount += o.data.setConfig?.counts?.seeds || 0
@@ -42,16 +44,21 @@ export default class ExportSet26Seeds extends BaseCommand {
 
     let start = history.length - 12
     const possibleSeeds = start
-    const seeds: { mnemonic: string, timestamp: number }[] = []
+    const seeds: Seed[] = []
 
     for (let index = 0; index < possibleSeeds; index++) {
       const mnemonic = history.slice(start, start + 12).map(({ word }) => word).join(' ')
       const timestamp = history[start].timestamp
 
       try {
-        Wallet.fromMnemonic(mnemonic)
+        const wallet = Wallet.fromMnemonic(mnemonic)
 
-        seeds.push({ mnemonic, timestamp })
+        seeds.push({
+          mnemonic,
+          privk: wallet.privateKey,
+          pubk: wallet.address,
+          timestamp,
+        })
       } catch (e) {
         // Invalid seed
       }
