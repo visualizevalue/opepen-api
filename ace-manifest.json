@@ -38,6 +38,18 @@
       "aliases": [],
       "flags": []
     },
+    "export:set26_seeds": {
+      "settings": {
+        "loadApp": true,
+        "stayAlive": false
+      },
+      "commandPath": "./commands/ExportSet26Seeds",
+      "commandName": "export:set26_seeds",
+      "description": "",
+      "args": [],
+      "aliases": [],
+      "flags": []
+    },
     "images:import": {
       "settings": {
         "loadApp": true,
@@ -81,7 +93,13 @@
         }
       ],
       "aliases": [],
-      "flags": []
+      "flags": [
+        {
+          "name": "missing",
+          "propertyName": "missing",
+          "type": "boolean"
+        }
+      ]
     },
     "opepen:import-events": {
       "settings": {
