@@ -2,7 +2,7 @@ import { BaseCommand } from '@adonisjs/core/build/standalone'
 import Opepen from 'App/Models/Opepen'
 import { Wallet } from 'ethers'
 
-type Seed = { mnemonic: string, timestamp: number, privk: string, pubk: string }
+type Seed = { mnemonic: string, timestamp: number, privk: string, pubk: string, opepen?: number }
 
 export default class ExportSet26Seeds extends BaseCommand {
   /**
@@ -30,8 +30,9 @@ export default class ExportSet26Seeds extends BaseCommand {
       globalSeedCount += o.data.setConfig?.counts?.seeds || 0
       const history = o.data.setConfig?.history || []
 
-      globalSeeds = globalSeeds.concat(this.getSeeds(history))
+      const seeds = this.getSeeds(history)
 
+      seeds.forEach(s => globalSeeds.push({ ...s, opepen: Number(o.tokenId) }))
     }
 
     globalSeeds = globalSeeds.sort((a, b) => a.timestamp > b.timestamp ? 1 : -1)
@@ -42,9 +43,10 @@ export default class ExportSet26Seeds extends BaseCommand {
   private getSeeds (history) {
     if (history.length < 12) return []
 
-    let start = history.length - 12
-    const possibleSeeds = start
+    const possibleSeeds = history.length - 12
     const seeds: Seed[] = []
+
+    let start = history.length - 13
 
     for (let index = 0; index < possibleSeeds; index++) {
       const mnemonic = history.slice(start, start + 12).map(({ word }) => word).join(' ')
