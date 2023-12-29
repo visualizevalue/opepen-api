@@ -43,12 +43,11 @@ export default class ExportSet26Seeds extends BaseCommand {
   private getSeeds (history) {
     if (history.length < 12) return []
 
-    const possibleSeeds = history.length - 12
     const seeds: Seed[] = []
 
     let start = history.length - 13
 
-    for (let index = 0; index < possibleSeeds; index++) {
+    while (start >= 0) {
       const mnemonic = history.slice(start, start + 12).map(({ word }) => word).join(' ')
       const timestamp = history[start].timestamp
 
