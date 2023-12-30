@@ -15,6 +15,14 @@ type SetConfig = any
 type OpepenData = {
   edition: 1|4|5|10|20|40,
   setConfig?: SetConfig,
+  order?: {
+    source: string,
+    price: {
+      raw: string,
+      decimal: number,
+      usd: number,
+    }
+  }
 }
 
 export default class Opepen extends TokenModel {

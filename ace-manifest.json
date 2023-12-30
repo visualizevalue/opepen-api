@@ -120,6 +120,18 @@
       "aliases": [],
       "flags": []
     },
+    "import:opepen_listings": {
+      "settings": {
+        "loadApp": true,
+        "stayAlive": false
+      },
+      "commandPath": "./commands/ImportOpepenListings",
+      "commandName": "import:opepen_listings",
+      "description": "",
+      "args": [],
+      "aliases": [],
+      "flags": []
+    },
     "opepen:import-winners": {
       "settings": {
         "loadApp": true,
