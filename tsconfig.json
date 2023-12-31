@@ -9,6 +9,7 @@
     "sets"
   ],
   "compilerOptions": {
+    "skipLibCheck": true,
     "outDir": "build",
     "rootDir": "./",
     "sourceMap": true,

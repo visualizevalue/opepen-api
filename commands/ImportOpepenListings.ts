@@ -1,9 +1,10 @@
 import { BaseCommand } from '@adonisjs/core/build/standalone'
 import reservoir from 'App/Services/Reservoir'
-import { paths } from '@reservoir0x/reservoir-sdk'
 import Opepen from 'App/Models/Opepen'
 
-type OrdersResponse = paths['/orders/asks/v5']['get']['responses']['200']['schema']['orders']
+// FIXME: Fix TS build
+// import { path } from '@reservoir0x/reservoir-sdk'
+// type OrdersResponse = paths['/orders/asks/v5']['get']['responses']['200']['schema']['orders']
 
 export default class ImportOpepenListings extends BaseCommand {
   /**
@@ -63,7 +64,7 @@ export default class ImportOpepenListings extends BaseCommand {
 
   private async fetchOrders () {
     const data = await this.makeRequest()
-    let orders: OrdersResponse = data.orders
+    let orders = data.orders
     let continuation = data.continuation
 
     if (! orders) return []
