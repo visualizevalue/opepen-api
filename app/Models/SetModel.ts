@@ -42,7 +42,10 @@ export default class SetModel extends SetDataModel {
   })
   public replacedSubmission: BelongsTo<typeof SetSubmission>
 
-  @hasMany(() => Opepen)
+  @hasMany(() => Opepen, {
+    foreignKey: 'setId',
+    localKey: 'id',
+  })
   public opepen: HasMany<typeof Opepen>
 
   @hasMany(() => RichContentLink, {

@@ -80,6 +80,7 @@ Route.group(() => {
   Route.get('/sets/:id/submissions',    'SetsController.cleanedSubmissions')
   Route.post('/sets/:id/subscribe',     'SetsController.subscribe')
   Route.get('/sets/:id/opepen',         'SetsController.opepen')
+  Route.get('/sets/:id/stats/listings', 'SetStatsController.listings')
 
   // Opepen
   Route.get('/',                        'OpepenController.list')
