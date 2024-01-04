@@ -25,6 +25,7 @@ export default class ImportOpepenListings extends BaseCommand {
   public async run() {
     // Clear old olders
     const outdated = await Opepen.query().whereNotNull('price')
+    const outdatedTokenIds = outdated.map(o => o.tokenId.toString())
     for (const o of outdated) {
       o.price = null
       delete o.data.order
@@ -36,6 +37,9 @@ export default class ImportOpepenListings extends BaseCommand {
     // Fetch current orders
     const orders = await this.fetchOrders()
     const distinctTokens = new Set(orders.map(o => o.criteria?.data?.token?.tokenId))
+
+    // Keep track of opepen to update
+    const opepenToUpdate: Opepen[] = []
 
     // Save our order data
     for (const order of orders) {
@@ -57,7 +61,13 @@ export default class ImportOpepenListings extends BaseCommand {
       }
 
       await opepen.save()
+
+      // If we're a new listing, we might want to repull images or the like
+      if (! outdatedTokenIds.includes(tokenId)) opepenToUpdate.push(opepen)
     }
+
+    // Maybe update opepen w special rules
+    await this.updateOpepenWithMarketDynamics(opepenToUpdate)
 
     this.logger.info(`Imported ${orders.length} new orders (for ${distinctTokens.size} Opepen)`)
   }
@@ -92,5 +102,27 @@ export default class ImportOpepenListings extends BaseCommand {
     this.logger.info(`Fetched orders (paginated)`)
 
     return listings?.data
+  }
+
+  // Update Opepen that have to react to market dynamics
+  // FIXME: Refactor into its own service
+  private async updateOpepenWithMarketDynamics (opepen: Opepen[]) {
+    // Handle Set 031
+    await this.handleSet31(opepen.filter(o => o.setId === 31))
+
+    // Handle other things... (none for now)
+  }
+
+  private async handleSet31 (opepen: Opepen[]) {
+    const editionsToFetch = new Set()
+
+    for (const token of opepen) {
+      editionsToFetch.add(token.data.edition)
+    }
+
+    for (const edition of editionsToFetch) {
+      this.logger.info(`Importing set images for set 31; edition ${edition}!`)
+      await this.kernel.exec('images:import-set-images', ['31', '--opensea=true', `--edition=${edition}`])
+    }
   }
 }
