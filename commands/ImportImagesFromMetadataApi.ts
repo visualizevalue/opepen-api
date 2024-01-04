@@ -26,6 +26,9 @@ export default class ImportSetImages extends BaseCommand {
   @args.string()
   public set: string
 
+  @flags.string()
+  public edition: string
+
   @flags.boolean()
   public missing: boolean
 
@@ -43,6 +46,9 @@ export default class ImportSetImages extends BaseCommand {
     const query = Opepen.query().where('setId', set.id)
     if (this.missing) {
       query.whereNull('imageId')
+    }
+    if (this.edition) {
+      query.whereRaw(`"data"->>'edition' = ?`, [this.edition])
     }
 
     const opepenInSet = await query
