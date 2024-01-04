@@ -33,7 +33,7 @@ export default class ImportSetImages extends BaseCommand {
   public missing: boolean
 
   @flags.boolean()
-  public interal: boolean = true
+  public internal: boolean = true
 
   @flags.boolean()
   public opensea: boolean = false
@@ -69,7 +69,7 @@ export default class ImportSetImages extends BaseCommand {
       const { uri } = response.data
       const gatewayURI = uri.replace('ipfs.io', Env.get('IPFS_GATEWAY'))
 
-      if (this.interal) {
+      if (this.internal) {
         this.logger.info(`Opepen #${opepen.tokenId} image importing from: ${gatewayURI}`)
         const image = await Image.fromURI(gatewayURI)
         image.generateScaledVersions()
