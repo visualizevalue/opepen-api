@@ -4,6 +4,7 @@ import { delay } from 'App/Helpers/time'
 import Image from 'App/Models/Image'
 import Opepen from 'App/Models/Opepen'
 import SetModel from 'App/Models/SetModel'
+import OpenSea from 'App/Services/OpenSea'
 import axios from 'axios'
 
 export default class ImportSetImages extends BaseCommand {
@@ -27,6 +28,12 @@ export default class ImportSetImages extends BaseCommand {
 
   @flags.boolean()
   public missing: boolean
+
+  @flags.boolean()
+  public interal: boolean = true
+
+  @flags.boolean()
+  public opensea: boolean = false
 
   public async run() {
     this.logger.info(`Importing images from metadata api for set #${this.set}`)
@@ -56,14 +63,20 @@ export default class ImportSetImages extends BaseCommand {
       const { uri } = response.data
       const gatewayURI = uri.replace('ipfs.io', Env.get('IPFS_GATEWAY'))
 
-      this.logger.info(`Opepen #${opepen.tokenId} image importing from: ${gatewayURI}`)
-      const image = await Image.fromURI(gatewayURI)
-      image.generateScaledVersions()
+      if (this.interal) {
+        this.logger.info(`Opepen #${opepen.tokenId} image importing from: ${gatewayURI}`)
+        const image = await Image.fromURI(gatewayURI)
+        image.generateScaledVersions()
 
-      opepen.imageId = image.id
-      await opepen.save()
+        opepen.imageId = image.id
+        await opepen.save()
 
-      this.logger.info(`Opepen #${opepen.tokenId} image imported: Image #${opepen.imageId}`)
+        this.logger.info(`Opepen #${opepen.tokenId} image imported: Image #${opepen.imageId}`)
+      }
+
+      if (this.opensea) {
+        await OpenSea.updateMetadata(opepen.tokenId.toString())
+      }
 
       await delay(500)
     }
