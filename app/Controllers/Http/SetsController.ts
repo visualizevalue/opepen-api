@@ -24,7 +24,7 @@ export default class SetsController extends BaseController {
 
     return sets.map(s => s.serialize({
       fields: {
-        pick: ['id', 'name', 'reveals_at']
+        pick: ['id', 'name', 'description', 'reveals_at']
       }
     }))
   }
