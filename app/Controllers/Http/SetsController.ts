@@ -13,6 +13,11 @@ export default class SetsController extends BaseController {
   public async list () {
     const sets = await SetModel.query()
       .preload('edition1Image')
+      .preload('edition4Image')
+      .preload('edition5Image')
+      .preload('edition10Image')
+      .preload('edition20Image')
+      .preload('edition40Image')
       .whereNotNull('revealsAt')
       .orderBy('id')
 
