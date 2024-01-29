@@ -11,14 +11,14 @@ export default class ImagesController extends BaseController {
     })
 
     const file = request.file('image', {
-      size: '7mb',
+      size: '10mb',
     })
 
     if (! file) return response.badRequest('No file provided')
     if (
       !file.isValid ||
       !file.subtype ||
-      !['jpeg', 'jpg', 'png', 'gif', 'webp', 'svg'].includes(file.subtype?.toLowerCase())
+      !['jpeg', 'jpg', 'png', 'gif', 'webp', 'svg', 'mp4', 'webm'].includes(file.subtype?.toLowerCase())
     ) return response.badRequest(file.errors || 'Unsupported file format')
 
     const image = await Image.create({
