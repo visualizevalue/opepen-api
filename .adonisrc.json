@@ -20,6 +20,10 @@
       "reloadServer": true
     },
     {
+      "pattern": "resources/fonts/**",
+      "reloadServer": false
+    },
+    {
       "pattern": "resources/views/**/*.edge",
       "reloadServer": false
     }
