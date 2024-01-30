@@ -52,7 +52,7 @@ export default class FarcasterFramesController extends BaseController {
 
   private setResponse (id) {
     return this.response({
-      imageUrl: `https://opepen.nyc3.cdn.digitaloceanspaces.com/OG/sets/${pad(id, 3)}.png`,
+      imageUrl: `${Env.get('APP_URL')}/v1/frames/image/sets/${id}`,
       postUrl: `${Env.get('APP_URL')}/v1/frames/sets/${id}`,
       actions: [
         id <= 1 ? '← Overview' : `← Previous`,
