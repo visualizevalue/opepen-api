@@ -141,3 +141,10 @@ Route.group(() => {
   Route.post('/', 'RichContentLinksController.createOrUpdate').middleware(['auth'])
   Route.delete('/:id', 'RichContentLinksController.destroy').middleware(['auth'])
 }).prefix('/v1/rich-links')
+
+// FC Frames
+Route.group(() => {
+  Route.get('/sets',     'FarcasterFramesController.setsEntry')
+  Route.post('/sets',     'FarcasterFramesController.sets')
+  Route.post('/sets/:id', 'FarcasterFramesController.set')
+}).prefix('/v1/frames')
