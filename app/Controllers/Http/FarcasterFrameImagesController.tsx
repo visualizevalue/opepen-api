@@ -62,6 +62,7 @@ export default class FarcasterFrameImagesController extends BaseController {
             display: 'flex',
             flexDirection: 'column',
             margin: 'auto 0 0 0',
+            padding: '0 2rem 0 0',
             justifyContent: 'flex-end',
           }}>
             <p style={{
