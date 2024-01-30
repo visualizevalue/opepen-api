@@ -2,6 +2,7 @@ import fs from 'fs'
 import React from 'react'
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import Application from '@ioc:Adonis/Core/Application'
+import Drive from '@ioc:Adonis/Core/Drive'
 import pad from 'App/Helpers/pad'
 import BaseController from './BaseController'
 import satori from 'satori'
@@ -14,6 +15,19 @@ const PREVIEW_IMG = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAA
 export default class FarcasterFrameImagesController extends BaseController {
 
   public async set ({ params, response }: HttpContextContract) {
+    const key = `og/sets/${params.id}.png`
+
+    const pngBuffer = await Drive.exists(key)
+      ? await Drive.get(key)
+      : await this.makeSetPNG(params.id, key)
+
+    return response
+      .header('Content-Type', 'image/png')
+      .header('Content-Length', Buffer.byteLength(pngBuffer))
+      .send(pngBuffer)
+  }
+
+  private async makeSetPNG (setId, storeKey) {
     const set = await SetModel.query()
       .preload('edition1Image')
       .preload('edition4Image')
@@ -21,7 +35,7 @@ export default class FarcasterFrameImagesController extends BaseController {
       .preload('edition10Image')
       .preload('edition20Image')
       .preload('edition40Image')
-      .where('id', params.id)
+      .where('id', setId)
       .firstOrFail()
 
     const svg = await this.svg(
@@ -140,19 +154,14 @@ export default class FarcasterFrameImagesController extends BaseController {
       </div>
     )
 
-    // return response
-    //   // .header('Content-Type', 'image/svg')
-    //   .send(svg)
-
     // Generate PNG
-    const pngBuffer = await sharp(Buffer.from(svg))
+    const png = await sharp(Buffer.from(svg))
       .toFormat('png')
       .toBuffer()
 
-    return response
-      .header('Content-Type', 'image/png')
-      .header('Content-Length', Buffer.byteLength(pngBuffer))
-      .send(pngBuffer)
+    await Drive.put(storeKey, png)
+
+    return png
   }
 
   private async urlAsBuffer (url: string = 'https://opepenai.nyc3.cdn.digitaloceanspaces.com/images/base.png') {
