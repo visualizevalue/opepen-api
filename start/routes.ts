@@ -147,4 +147,8 @@ Route.group(() => {
   Route.get('/sets',     'FarcasterFramesController.setsEntry')
   Route.post('/sets',     'FarcasterFramesController.sets')
   Route.post('/sets/:id', 'FarcasterFramesController.set')
+
+  Route.group(() => {
+    Route.get('/sets/:id', 'FarcasterFrameImagesController.set')
+  }).prefix('/image')
 }).prefix('/v1/frames')

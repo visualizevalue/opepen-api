@@ -28,6 +28,7 @@
     },
     "resolveJsonModule": true,
     "esModuleInterop": true,
+    "jsx": "react",
     "types": [
       "@adonisjs/core",
       "@adonisjs/repl",

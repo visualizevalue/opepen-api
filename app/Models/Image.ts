@@ -69,6 +69,14 @@ export default class Image extends BaseModel {
     return this.isVideo || ['apng', 'gif'].includes(this.type)
   }
 
+  public get staticType (): string {
+    return this.isAnimated ? 'png' : this.type
+  }
+
+  public get staticURI (): string {
+    return `${this.cdn}/${this.path}/${this.uuid}@sm.${this.staticType}`
+  }
+
   @hasOne(() => AiImage, {
     serializeAs: 'ai_image'
   })
@@ -103,7 +111,7 @@ export default class Image extends BaseModel {
       const metadata = await imageProcessor.metadata()
       const distType = this.isAnimated ? (metadata.format || this.type) : this.type
 
-      if (! metadata.width || !['png', 'jpeg'].includes(distType)) return
+      if (! metadata.width || !['png', 'jpeg', 'webp'].includes(distType)) return
 
       if (metadata.width > 2048) {
         const v2048 = await imageProcessor.resize({ width: 2048 }).toBuffer()
@@ -124,6 +132,7 @@ export default class Image extends BaseModel {
       await this.save()
     } catch (e) {
       // ...
+      console.log(e)
     }
   }
 
@@ -142,6 +151,7 @@ export default class Image extends BaseModel {
 
     } catch (e) {
       // ...
+      console.log(e)
     }
 
     // Upload to CDN
