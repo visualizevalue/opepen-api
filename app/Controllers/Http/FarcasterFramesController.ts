@@ -10,12 +10,12 @@ export default class FarcasterFramesController extends BaseController {
     return this.setOverview()
   }
 
-  public async sets ({ request }: HttpContextContract) {
+  public async sets ({ request, response }: HttpContextContract) {
     const data = request.body().untrustedData
     const buttonIndex = parseInt(data.buttonIndex)
 
     if (buttonIndex == 1) {
-      // return response.redirect('https://opepen.art/sets')
+      return response.redirect('https://opepen.art/sets')
     }
 
     return this.setResponse(1)
@@ -44,7 +44,7 @@ export default class FarcasterFramesController extends BaseController {
       imageUrl: `https://opepen.nyc3.cdn.digitaloceanspaces.com/OG/sets@frame.png`,
       postUrl: `${Env.get('APP_URL')}/v1/frames/sets`,
       actions: [
-        // { text: 'View Website', action: 'redirect' },
+        { text: 'View Website', action: 'redirect' },
         'Browse Sets',
       ],
     })

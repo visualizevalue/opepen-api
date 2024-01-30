@@ -1,6 +1,9 @@
+import { exec as cbExec } from 'child_process'
+import { promisify } from 'util'
 import { DateTime } from 'luxon'
 import { v4 as uuid } from 'uuid'
 import sharp from 'sharp'
+import Application from '@ioc:Adonis/Core/Application'
 import { BaseModel, BelongsTo, HasOne, beforeCreate, belongsTo, column, computed, hasOne } from '@ioc:Adonis/Lucid/Orm'
 import Drive from '@ioc:Adonis/Core/Drive'
 import Env from '@ioc:Adonis/Core/Env'
@@ -8,6 +11,8 @@ import { toDriveFromURI } from 'App/Helpers/drive'
 import EnhancedSRGANUpscaler from 'App/Services/Upscalers/EnhancedSRGANUpscaler'
 import AiImage from './AiImage'
 import Account from './Account'
+
+const exec = promisify(cbExec)
 
 type ImageVersions = {
   sm?: boolean, // 512
@@ -54,6 +59,16 @@ export default class Image extends BaseModel {
     return `images`
   }
 
+  @computed()
+  public get isVideo (): boolean {
+    return ['webm', 'mp4'].includes(this.type)
+  }
+
+  @computed()
+  public get isAnimated (): boolean {
+    return this.isVideo || ['apng', 'gif'].includes(this.type)
+  }
+
   @hasOne(() => AiImage, {
     serializeAs: 'ai_image'
   })
@@ -74,32 +89,69 @@ export default class Image extends BaseModel {
 
   async generateScaledVersions (): Promise<void> {
     try {
-      const original = await Drive.get(`images/${this.uuid}.${this.type}`)
+      let key = `images/${this.uuid}.${this.type}`
+
+      // Generate still
+      if (this.isAnimated) {
+        await this.generateStill()
+
+        key += '.png'
+      }
+
+      const original = await Drive.get(key)
       const imageProcessor = await sharp(original)
       const metadata = await imageProcessor.metadata()
+      const distType = this.isAnimated ? (metadata.format || this.type) : this.type
 
-      if (! metadata.width || !['png', 'jpeg'].includes(this.type)) return
+      if (! metadata.width || !['png', 'jpeg'].includes(distType)) return
 
       if (metadata.width > 2048) {
         const v2048 = await imageProcessor.resize({ width: 2048 }).toBuffer()
-        await Drive.put(`images/${this.uuid}@xl.${this.type}`, v2048, { contentType: `image/${this.type}` })
+        await Drive.put(`images/${this.uuid}@xl.${distType}`, v2048, { contentType: `image/${distType}` })
         this.versions.xl = true
       }
 
       if (metadata.width > 1024) {
         const v1024 = await imageProcessor.resize({ width: 1024 }).toBuffer()
-        await Drive.put(`images/${this.uuid}@lg.${this.type}`, v1024, { contentType: `image/${this.type}` })
+        await Drive.put(`images/${this.uuid}@lg.${distType}`, v1024, { contentType: `image/${distType}` })
         this.versions.lg = true
       }
 
       const v512 = await imageProcessor.resize({ width: 512 }).toBuffer()
-      await Drive.put(`images/${this.uuid}@sm.${this.type}`, v512, { contentType: `image/${this.type}` })
+      await Drive.put(`images/${this.uuid}@sm.${distType}`, v512, { contentType: `image/${distType}` })
       this.versions.sm = true
 
       await this.save()
     } catch (e) {
       // ...
     }
+  }
+
+  async generateStill (): Promise<void> {
+    // Download video
+    const key = `images/${this.uuid}.${this.type}`
+    const pngKey = `${key}.png`
+    const file = await Drive.get(key)
+    await Drive.use('local').put(key, file)
+    const tmp = await Application.tmpPath(`uploads`)
+
+    // Generate video
+    try {
+      const command = `ffmpeg -i ${tmp}/${key} -frames:v 1 ${tmp}/${pngKey} -threads 4 -y`
+      await exec(command)
+
+    } catch (e) {
+      // ...
+    }
+
+    // Upload to CDN
+    await Drive.put(pngKey, await Drive.use('local').get(pngKey))
+
+    // Delete local data
+    await Promise.all([
+      Drive.use('local').delete(key),
+      Drive.use('local').delete(pngKey),
+    ])
   }
 
   async upscale (): Promise<void> {
