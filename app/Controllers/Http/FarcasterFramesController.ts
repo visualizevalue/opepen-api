@@ -26,15 +26,15 @@ export default class FarcasterFramesController extends BaseController {
     const buttonIndex = parseInt(data.buttonIndex)
     const set = parseInt(params.id)
     const previous = buttonIndex === 1
-    const browse = buttonIndex === 2
-    const next = buttonIndex === 3
+    // const browse = buttonIndex === 2
+    const next = buttonIndex === 2
 
     const toOverview = (next && set >= 200) || (previous && set <= 1)
     if (toOverview) return this.setOverview()
 
     const newSetId = next ? set + 1 : set - 1
 
-    if (browse) return response.redirect(`https://opepen.art/sets/${pad(newSetId, 3)}`)
+    // if (browse) return response.redirect(`https://opepen.art/sets/${pad(newSetId, 3)}`)
 
     return this.setResponse(newSetId)
   }
@@ -44,7 +44,7 @@ export default class FarcasterFramesController extends BaseController {
       imageUrl: `https://opepen.nyc3.cdn.digitaloceanspaces.com/OG/sets@frame.png`,
       postUrl: `${Env.get('APP_URL')}/v1/frames/sets`,
       actions: [
-        { text: 'View Website', action: 'redirect' },
+        // { text: 'View Website', action: 'redirect' },
         'Browse Sets',
       ],
     })
@@ -56,7 +56,7 @@ export default class FarcasterFramesController extends BaseController {
       postUrl: `${Env.get('APP_URL')}/v1/frames/sets/${id}`,
       actions: [
         id <= 1 ? '← Overview' : `← Previous`,
-        `Browse Set #${pad(id, 3)}`,
+        // { text: `Browse Set #${pad(id, 3)}`, action: 'redirect' },
         id >= 200 ? '↺ Overview' : `Next →`,
       ]
     })
