@@ -1,7 +1,6 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import Env from '@ioc:Adonis/Core/Env'
 import BaseController from './BaseController'
-import pad from 'App/Helpers/pad'
 
 type Action = string|{text:string, action:'submit'|'redirect'|'txn'}
 
