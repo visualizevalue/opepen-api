@@ -1,8 +1,12 @@
-import BaseController from './BaseController'
+import fs from 'fs'
+import axios from 'axios'
+import satori from 'satori'
+import sharp from 'sharp'
+import Application from '@ioc:Adonis/Core/Application'
 
 type Action = string|{text:string, action:'submit'|'redirect'|'txn'}
 
-export default class FarcasterFramesController extends BaseController {
+export default class FarcasterFramesController {
 
   protected entryTitle: string = 'Opepen'
   protected entryImage: string = 'https://opepen.art/og/rare.png'
@@ -43,6 +47,54 @@ export default class FarcasterFramesController extends BaseController {
         </head>
       </html>
     `
+  }
+
+  protected async svg (svg) {
+    return satori(
+      svg,
+      {
+        width: 955,
+        height: 500,
+        fonts: [
+          {
+            name: 'SpaceGrotesk-Medium',
+            data: fs.readFileSync(Application.resourcesPath(`fonts/SpaceGrotesk-Medium.ttf`)),
+            weight: 500,
+            style: 'normal',
+          },
+          {
+            name: 'SpaceGrotesk-Bold',
+            data: fs.readFileSync(Application.resourcesPath(`fonts/SpaceGrotesk-Bold.ttf`)),
+            weight: 700,
+            style: 'normal',
+          },
+        ],
+      }
+    )
+  }
+
+  protected async png (svg) {
+    return await sharp(Buffer.from(svg))
+      .toFormat('png')
+      .toBuffer()
+  }
+
+  protected async urlAsBuffer (url: string = 'https://opepenai.nyc3.cdn.digitaloceanspaces.com/images/base.png') {
+    try {
+      const response = await axios.get(url,  { responseType: 'arraybuffer' })
+
+      let contentType = response.headers['content-type']
+      let buffer = Buffer.from(response.data, 'utf-8')
+
+      if (! ['image/png', 'image/jpeg'].includes(contentType)) {
+        buffer = await sharp(buffer).toFormat('png').toBuffer()
+        contentType = 'image/png'
+      }
+
+      return `data:${contentType};base64,${buffer.toString('base64')}`
+    } catch (e) {
+      return 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=='
+    }
   }
 
 }

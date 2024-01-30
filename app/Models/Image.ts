@@ -100,6 +100,7 @@ export default class Image extends BaseModel {
 
   async generateScaledVersions (): Promise<void> {
     try {
+      console.log(`GENERATING SCALED VERSION`)
       let key = `images/${this.uuid}.${this.type}`
 
       // Generate still

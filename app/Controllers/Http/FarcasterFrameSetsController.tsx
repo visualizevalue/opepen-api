@@ -1,20 +1,51 @@
-import fs from 'fs'
 import React from 'react'
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
-import Application from '@ioc:Adonis/Core/Application'
+import Env from '@ioc:Adonis/Core/Env'
 import Drive from '@ioc:Adonis/Core/Drive'
 import pad from 'App/Helpers/pad'
-import BaseController from './BaseController'
-import satori from 'satori'
 import { SetModel } from 'App/Models'
-import sharp from 'sharp'
-import axios from 'axios'
 
-const PREVIEW_IMG = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=='
+import FarcasterFramesController from './FarcasterFramesController'
 
-export default class FarcasterFrameImagesController extends BaseController {
+export default class FarcasterFrameSetsController extends FarcasterFramesController {
 
-  public async set ({ params, response }: HttpContextContract) {
+  protected entryTitle: string = 'Opepen Set Frame'
+  protected entryImage: string = 'https://opepen.nyc3.cdn.digitaloceanspaces.com/OG/sets.png'
+
+  public async setsEntry (_: HttpContextContract) {
+    return this.setOverview()
+  }
+
+  public async sets ({ request }: HttpContextContract) {
+    const data = request.body().untrustedData
+    const buttonIndex = parseInt(data.buttonIndex)
+
+    if (buttonIndex == 1) {
+      // return response.redirect('https://opepen.art/sets')
+    }
+
+    return this.setResponse(1)
+  }
+
+  public async set ({ request, params }: HttpContextContract) {
+    const data = request.body().untrustedData
+    const buttonIndex = parseInt(data.buttonIndex)
+    const set = parseInt(params.id)
+    const previous = buttonIndex === 1
+    // const browse = buttonIndex === 2
+    const next = buttonIndex === 2
+
+    const toOverview = (next && set >= 200) || (previous && set <= 1)
+    if (toOverview) return this.setOverview()
+
+    const newSetId = next ? set + 1 : set - 1
+
+    // if (browse) return response.redirect(`https://opepen.art/sets/${pad(newSetId, 3)}`)
+
+    return this.setResponse(newSetId)
+  }
+
+  public async image ({ params, response }: HttpContextContract) {
     const key = `og/sets/${params.id}.png`
 
     const pngBuffer = await Drive.exists(key)
@@ -155,56 +186,33 @@ export default class FarcasterFrameImagesController extends BaseController {
       </div>
     )
 
-    // Generate PNG
-    const png = await sharp(Buffer.from(svg))
-      .toFormat('png')
-      .toBuffer()
+    const png = await this.png(svg)
 
     await Drive.put(storeKey, png)
 
     return png
   }
 
-  private async urlAsBuffer (url: string = 'https://opepenai.nyc3.cdn.digitaloceanspaces.com/images/base.png') {
-    try {
-      const response = await axios.get(url,  { responseType: 'arraybuffer' })
-
-      let contentType = response.headers['content-type']
-      let buffer = Buffer.from(response.data, 'utf-8')
-
-      if (! ['image/png', 'image/jpeg'].includes(contentType)) {
-        buffer = await sharp(buffer).toFormat('png').toBuffer()
-        contentType = 'image/png'
-      }
-
-      return `data:${contentType};base64,${buffer.toString('base64')}`
-    } catch (e) {
-      return PREVIEW_IMG
-    }
+  private setOverview () {
+    return this.response({
+      imageUrl: `https://opepen.nyc3.cdn.digitaloceanspaces.com/OG/sets@frame.png`,
+      postUrl: `${Env.get('APP_URL')}/v1/frames/sets`,
+      actions: [
+        // { text: 'View Website', action: 'redirect' },
+        'Browse Sets',
+      ],
+    })
   }
 
-  private async svg (svg) {
-    return satori(
-      svg,
-      {
-        width: 955,
-        height: 500,
-        fonts: [
-          {
-            name: 'SpaceGrotesk-Medium',
-            data: fs.readFileSync(Application.resourcesPath(`fonts/SpaceGrotesk-Medium.ttf`)),
-            weight: 500,
-            style: 'normal',
-          },
-          {
-            name: 'SpaceGrotesk-Bold',
-            data: fs.readFileSync(Application.resourcesPath(`fonts/SpaceGrotesk-Bold.ttf`)),
-            weight: 700,
-            style: 'normal',
-          },
-        ],
-      }
-    )
+  private setResponse (id) {
+    return this.response({
+      imageUrl: `${Env.get('APP_URL')}/v1/frames/image/sets/${id}`,
+      postUrl: `${Env.get('APP_URL')}/v1/frames/sets/${id}`,
+      actions: [
+        id <= 1 ? '← Overview' : `← Previous`,
+        // { text: `Browse Set #${pad(id, 3)}`, action: 'redirect' },
+        id >= 200 ? '↺ Overview' : `Next →`,
+      ]
+    })
   }
-
 }
