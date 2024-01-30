@@ -21,7 +21,7 @@ export default class FarcasterFramesController extends BaseController {
     return this.setResponse(1)
   }
 
-  public async set ({ request, params, response }: HttpContextContract) {
+  public async set ({ request, params }: HttpContextContract) {
     const data = request.body().untrustedData
     const buttonIndex = parseInt(data.buttonIndex)
     const set = parseInt(params.id)
