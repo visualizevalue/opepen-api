@@ -144,11 +144,15 @@ Route.group(() => {
 
 // FC Frames
 Route.group(() => {
-  Route.get('/sets',     'FarcasterFramesController.setsEntry')
-  Route.post('/sets',     'FarcasterFramesController.sets')
-  Route.post('/sets/:id', 'FarcasterFramesController.set')
+  // Sets
+  Route.get('/sets',             'FarcasterFrameSetsController.setsEntry')
+  Route.post('/sets',            'FarcasterFrameSetsController.sets')
+  Route.post('/sets/:id',        'FarcasterFrameSetsController.set')
+  Route.get('/image/sets/:id',   'FarcasterFrameImagesController.set')
 
-  Route.group(() => {
-    Route.get('/sets/:id', 'FarcasterFrameImagesController.set')
-  }).prefix('/image')
+  // Opepen Voting Game
+  Route.get('/ranks',            'FarcasterFrameOpepenRanksController.entry')
+  Route.post('/ranks/vote',      'FarcasterFrameOpepenRanksController.vote')
+  Route.get('/image/ranks/vote', 'FarcasterFrameImagesController.set')
+
 }).prefix('/v1/frames')
