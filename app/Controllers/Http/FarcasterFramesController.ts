@@ -10,12 +10,12 @@ export default class FarcasterFramesController extends BaseController {
     return this.setOverview()
   }
 
-  public async sets ({ request, response }: HttpContextContract) {
+  public async sets ({ request }: HttpContextContract) {
     const data = request.body().untrustedData
     const buttonIndex = parseInt(data.buttonIndex)
 
     if (buttonIndex == 1) {
-      return response.redirect('https://opepen.art/sets')
+      // return response.redirect('https://opepen.art/sets')
     }
 
     return this.setResponse(1)
