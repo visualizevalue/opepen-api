@@ -4,7 +4,7 @@ import satori from 'satori'
 import sharp from 'sharp'
 import Application from '@ioc:Adonis/Core/Application'
 
-type Action = string|{text:string, action:'submit'|'redirect'|'txn'}
+type Action = string|{text:string, action:'post'|'post_redirect'}
 
 export default class FarcasterFramesController {
 

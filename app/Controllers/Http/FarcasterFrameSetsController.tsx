@@ -16,31 +16,31 @@ export default class FarcasterFrameSetsController extends FarcasterFramesControl
     return this.setOverview()
   }
 
-  public async sets ({ request }: HttpContextContract) {
+  public async sets ({ request, response }: HttpContextContract) {
     const data = request.body().untrustedData
     const buttonIndex = parseInt(data.buttonIndex)
 
     if (buttonIndex == 1) {
-      // return response.redirect('https://opepen.art/sets')
+      return response.redirect('https://opepen.art/sets')
     }
 
     return this.setResponse(1)
   }
 
-  public async set ({ request, params }: HttpContextContract) {
+  public async set ({ request, params, response }: HttpContextContract) {
     const data = request.body().untrustedData
     const buttonIndex = parseInt(data.buttonIndex)
     const set = parseInt(params.id)
     const previous = buttonIndex === 1
-    // const browse = buttonIndex === 2
-    const next = buttonIndex === 2
+    const browse = buttonIndex === 2
+    const next = buttonIndex === 3
 
     const toOverview = (next && set >= 200) || (previous && set <= 1)
     if (toOverview) return this.setOverview()
 
     const newSetId = next ? set + 1 : set - 1
 
-    // if (browse) return response.redirect(`https://opepen.art/sets/${pad(newSetId, 3)}`)
+    if (browse) return response.redirect(`https://opepen.art/sets/${pad(newSetId, 3)}`)
 
     return this.setResponse(newSetId)
   }
@@ -198,7 +198,7 @@ export default class FarcasterFrameSetsController extends FarcasterFramesControl
       imageUrl: `https://opepen.nyc3.cdn.digitaloceanspaces.com/OG/sets@frame.png`,
       postUrl: `${Env.get('APP_URL')}/v1/frames/sets`,
       actions: [
-        // { text: 'View Website', action: 'redirect' },
+        { text: 'View Website', action: 'post_redirect' },
         'Browse Sets',
       ],
     })
@@ -210,7 +210,7 @@ export default class FarcasterFrameSetsController extends FarcasterFramesControl
       postUrl: `${Env.get('APP_URL')}/v1/frames/sets/${id}`,
       actions: [
         id <= 1 ? '← Overview' : `← Previous`,
-        // { text: `Browse Set #${pad(id, 3)}`, action: 'redirect' },
+        { text: `View Set #${pad(id, 3)}`, action: 'post_redirect' },
         id >= 200 ? '↺ Overview' : `Next →`,
       ]
     })
