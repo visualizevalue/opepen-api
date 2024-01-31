@@ -1,6 +1,7 @@
 import React from 'react'
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import Env from '@ioc:Adonis/Core/Env'
+import Logger from '@ioc:Adonis/Core/Logger'
 import Drive from '@ioc:Adonis/Core/Drive'
 import pad from 'App/Helpers/pad'
 import { SetModel } from 'App/Models'
@@ -19,6 +20,8 @@ export default class FarcasterFrameSetsController extends FarcasterFramesControl
   public async sets ({ request, response }: HttpContextContract) {
     const data = request.body().untrustedData
     const buttonIndex = parseInt(data.buttonIndex)
+
+    Logger.debug(data)
 
     if (buttonIndex == 1) {
       return response.redirect('https://opepen.art/sets')
