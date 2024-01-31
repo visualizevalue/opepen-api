@@ -21,7 +21,7 @@ export default class FarcasterFrameSetsController extends FarcasterFramesControl
     const data = request.body().untrustedData
     const buttonIndex = parseInt(data.buttonIndex)
 
-    Logger.debug(data)
+    Logger.info(data)
 
     if (buttonIndex == 1) {
       return response.redirect('https://opepen.art/sets')
@@ -38,13 +38,14 @@ export default class FarcasterFrameSetsController extends FarcasterFramesControl
     const browse = buttonIndex === 2
     const next = buttonIndex === 3
 
+    if (browse) {
+      return response.redirect(`https://opepen.art/sets/${pad(set, 3)}`)
+    }
+
     const toOverview = (next && set >= 200) || (previous && set <= 1)
     if (toOverview) return this.setOverview()
 
     const newSetId = next ? set + 1 : set - 1
-
-    if (browse) return response.redirect(`https://opepen.art/sets/${pad(newSetId, 3)}`)
-
     return this.setResponse(newSetId)
   }
 
