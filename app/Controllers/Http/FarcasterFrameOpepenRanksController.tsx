@@ -5,10 +5,11 @@ import FarcasterFramesController from './FarcasterFramesController'
 import SetSubmission from 'App/Models/SetSubmission'
 import { takeRandom } from 'App/Helpers/arrays'
 import Image from 'App/Models/Image'
+import Farcaster from 'App/Services/Farcaster'
 
 export default class FarcasterFrameOpepenRanksController extends FarcasterFramesController {
 
-  protected entryTitle: string = 'Opepen Ranks'
+  protected entryTitle: string = 'Opepoll – Cast Votes'
   protected entryImage: string = 'https://opepen.nyc3.cdn.digitaloceanspaces.com/OG/ranks@frame.png'
 
   public async entry (_: HttpContextContract) {
@@ -28,8 +29,13 @@ export default class FarcasterFrameOpepenRanksController extends FarcasterFrames
     if (! leftImage || ! rightImage) return this.renderNewVote()
 
     // Fetch user input
-    const data = request.body().untrustedData
-    const buttonIndex = parseInt(data.buttonIndex)
+    const { untrustedData, trustedData } = request.body()
+
+    // Verify user input
+    if (! await Farcaster.verifyMessage({ untrustedData, trustedData })) return this.renderNewVote()
+
+    // Get user input
+    const buttonIndex = parseInt(untrustedData.buttonIndex)
     const winner = buttonIndex == 1 ? leftImage : rightImage
 
     // Update our winner

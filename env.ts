@@ -50,4 +50,5 @@ export default Env.rules({
   CACHE_VIEWS: Env.schema.boolean(),
   OPENSEA_KEY: Env.schema.string(),
   OPENSEA_BASE: Env.schema.string(),
+  FC_HUB_BASE: Env.schema.string(),
 })
