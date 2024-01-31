@@ -21,9 +21,10 @@ export default class FarcasterFrameSetsController extends FarcasterFramesControl
     const data = request.body().untrustedData
     const buttonIndex = parseInt(data.buttonIndex)
 
-    Logger.info(data)
+    // Hotfix for previous frame version
+    const isSkipCastId = data.castId.hash === '0xed3fe8a753a425148b3eb1736629588e272444f9'
 
-    if (buttonIndex == 1) {
+    if (buttonIndex == 1 && !isSkipCastId) {
       return response.redirect('https://opepen.art/sets')
     }
 
