@@ -1,7 +1,6 @@
 import React from 'react'
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import Env from '@ioc:Adonis/Core/Env'
-import Logger from '@ioc:Adonis/Core/Logger'
 import Drive from '@ioc:Adonis/Core/Drive'
 import pad from 'App/Helpers/pad'
 import { SetModel } from 'App/Models'
