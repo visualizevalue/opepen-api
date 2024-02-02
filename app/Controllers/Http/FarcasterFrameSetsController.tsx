@@ -49,10 +49,10 @@ export default class FarcasterFrameSetsController extends FarcasterFramesControl
     return this.setResponse(newSetId)
   }
 
-  public async image ({ params, response }: HttpContextContract) {
+  public async image ({ request, params, response }: HttpContextContract) {
     const key = `og/sets/${params.id}.png`
 
-    const pngBuffer = await Drive.exists(key)
+    const pngBuffer = (request.method() !== 'POST' && await Drive.exists(key))
       ? await Drive.get(key)
       : await this.makeSetPNG(params.id, key)
 
