@@ -1,6 +1,8 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import BaseController from './BaseController'
 import Opepen from 'App/Models/Opepen'
+import { DateTime } from 'luxon'
+import DailyOpepen from 'App/Services/DailyOpepen'
 
 export default class OpepenController extends BaseController {
 
@@ -58,6 +60,15 @@ export default class OpepenController extends BaseController {
       .orderBy('setId')
       .orderByRaw(`(data->>'edition')::int`)
       .paginate(page, limit)
+  }
+
+  public async summary ({ params, response, }: HttpContextContract) {
+    const image = await DailyOpepen.forDay(DateTime.fromISO(params.date))
+
+    return response
+      .header('Content-Type', 'image/png')
+      .header('Content-Length', Buffer.byteLength(image))
+      .send(image)
   }
 
 }
