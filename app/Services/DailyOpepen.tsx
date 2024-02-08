@@ -11,9 +11,9 @@ export class DailyOpepen {
   public async forDay (date: DateTime) {
     const key = `daily-summaries/${date.toFormat(`YYY-MM-DD`)}`
 
-    // if (await Drive.exists(key)) {
-    //   return await Drive.get(key)
-    // }
+    if (await Drive.exists(key)) {
+      return await Drive.get(key)
+    }
 
     const image = await this.makePNG(date)
 
