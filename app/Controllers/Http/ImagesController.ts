@@ -6,8 +6,12 @@ import { toDriveFromFileUpload } from 'App/Helpers/drive'
 
 export default class ImagesController extends BaseController {
   public async store ({ request, session, response }: HttpContextContract) {
+    const address = session.get('siwe')?.address?.toLowerCase()
+
+    if (! address) return response.unauthorized(`Have to be authenticated to upload images.`)
+
     const user = await Account.firstOrCreate({
-      address: session.get('siwe')?.address?.toLowerCase()
+      address,
     })
 
     const file = request.file('image', {
