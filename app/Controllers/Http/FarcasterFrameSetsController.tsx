@@ -2,6 +2,7 @@ import React from 'react'
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import Env from '@ioc:Adonis/Core/Env'
 import Drive from '@ioc:Adonis/Core/Drive'
+import { string } from '@ioc:Adonis/Core/Helpers'
 import pad from 'App/Helpers/pad'
 import { SetModel } from 'App/Models'
 
@@ -50,11 +51,12 @@ export default class FarcasterFrameSetsController extends FarcasterFramesControl
   }
 
   public async image ({ request, params, response }: HttpContextContract) {
-    const key = `og/sets/${params.id}.png`
+    const set = await SetModel.findOrFail(params.id)
+    const key = `og/sets/${set.id}_${set.name ? string.toSlug(set.name) : 'unrevealed'}.png`
 
     const pngBuffer = (request.method() !== 'POST' && await Drive.exists(key))
       ? await Drive.get(key)
-      : await this.makeSetPNG(params.id, key)
+      : await this.makeSetPNG(set, key)
 
     return response
       .header('Content-Type', 'image/png')
@@ -62,16 +64,15 @@ export default class FarcasterFrameSetsController extends FarcasterFramesControl
       .send(pngBuffer)
   }
 
-  private async makeSetPNG (setId, storeKey) {
-    const set = await SetModel.query()
-      .preload('edition1Image')
-      .preload('edition4Image')
-      .preload('edition5Image')
-      .preload('edition10Image')
-      .preload('edition20Image')
-      .preload('edition40Image')
-      .where('id', setId)
-      .firstOrFail()
+  private async makeSetPNG (set: SetModel, storeKey) {
+    await Promise.all([
+      set.load('edition1Image'),
+      set.load('edition4Image'),
+      set.load('edition5Image'),
+      set.load('edition10Image'),
+      set.load('edition20Image'),
+      set.load('edition40Image'),
+    ])
 
     const svg = await this.svg(
       <div

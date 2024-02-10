@@ -153,7 +153,7 @@ Route.group(() => {
   Route.post('/image/sets/:id',   'FarcasterFrameSetsController.image')
 
   // Secondary cache bust
-  Route.get('/image/sets/:id/image.png',   'FarcasterFrameSetsController.image')
+  Route.get('/image/sets/:id/image.png',  'FarcasterFrameSetsController.image')
 
   // Opepen Voting Game
   Route.get('/ranks',            'FarcasterFrameOpepenRanksController.entry')
