@@ -192,7 +192,9 @@ export default class FarcasterFrameSetsController extends FarcasterFramesControl
 
     const png = await this.png(svg)
 
-    await Drive.put(storeKey, png)
+    await Drive.put(storeKey, png, {
+      contentType: 'image/png',
+    })
 
     return png
   }
