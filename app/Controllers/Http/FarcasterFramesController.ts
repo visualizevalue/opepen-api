@@ -4,34 +4,52 @@ import satori from 'satori'
 import sharp from 'sharp'
 import Application from '@ioc:Adonis/Core/Application'
 
-type Action = string|{text:string, action:'post'|'post_redirect'}
+export type Action = string|{ text: string, action: 'post'|'post_redirect'|'link'|'mint', target?: string }
+export type AspectRatio = '1.9:1'|'1:1'
 
 export default class FarcasterFramesController {
 
-  protected entryTitle: string = 'Opepen'
-  protected entryImage: string = 'https://opepen.art/og/rare.png'
+  ASPECT_RATIOS = {
+    SQUARE: {
+      WIDTH: 1000,
+      HEIGHT: 1000,
+    },
+    WIDE: {
+      WIDTH: 955,
+      HEIGHT: 500,
+    },
+  }
+  PADDING = 64
 
   protected response (
     {
+      title,
       imageUrl,
+      imageRatio,
       postUrl,
       actions,
     }: {
+      title?: string,
       imageUrl: string,
+      imageRatio?: AspectRatio,
       postUrl: string,
       actions?: Action[],
     })
   {
+    const txt = title || 'Opepen Frame'
+    const ratio: AspectRatio = imageRatio || '1.9:1'
+
     return `
       <!DOCTYPE html>
       <html>
         <head>
-          <title>${this.entryTitle}</title>
-          <meta property="og:title" content="${this.entryTitle}">
-          <meta property="og:image" content="${this.entryImage}">
+          <title>${txt}</title>
+          <meta property="og:title" content="${txt}">
+          <meta property="og:image" content="${imageUrl}">
 
           <meta property="fc:frame" content="vNext" />
           <meta property="fc:frame:image" content="${imageUrl}" />
+          <meta property="fc:frame:image:aspect_ratio" content="${ratio}" />
           ${
             actions
               ?.map(
@@ -40,6 +58,9 @@ export default class FarcasterFramesController {
                   : `
                     <meta property="fc:frame:button:${i + 1}" content="${a.text}" />
                     <meta property="fc:frame:button:${i + 1}:action" content="${a.action}" />
+                    ${
+                      a.target ? `<meta property="fc:frame:button:${i + 1}:target" content="${a.target}" />` : ``
+                    }
                   `
               ).join('')
           }
@@ -49,12 +70,12 @@ export default class FarcasterFramesController {
     `
   }
 
-  protected async svg (svg) {
+  protected async svg (svg, ratio: 'SQUARE'|'WIDE' = 'WIDE') {
     return satori(
       svg,
       {
-        width: 955,
-        height: 500,
+        width: this.ASPECT_RATIOS[ratio].WIDTH,
+        height: this.ASPECT_RATIOS[ratio].HEIGHT,
         fonts: [
           {
             name: 'SpaceGrotesk-Medium',

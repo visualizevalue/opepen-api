@@ -10,9 +10,6 @@ import FarcasterFramesController from './FarcasterFramesController'
 
 export default class FarcasterFrameSetsController extends FarcasterFramesController {
 
-  protected entryTitle: string = 'Opepen Set Frame'
-  protected entryImage: string = 'https://opepen.nyc3.cdn.digitaloceanspaces.com/OG/sets.png'
-
   public async setsEntry (_: HttpContextContract) {
     return this.setOverview()
   }
@@ -74,6 +71,9 @@ export default class FarcasterFrameSetsController extends FarcasterFramesControl
       set.load('edition40Image'),
     ])
 
+    const imagePadding = 10
+    const imageWidth = (this.ASPECT_RATIOS.WIDE.HEIGHT - imagePadding * 2 - this.PADDING*2) / 3
+
     const svg = await this.svg(
       <div
         style={{
@@ -82,9 +82,9 @@ export default class FarcasterFrameSetsController extends FarcasterFramesControl
           backgroundColor: '#101010',
           color: 'white',
           display: 'flex',
-          justifyContent: 'center',
+          justifyContent: 'space-between',
           fontSize: 24,
-          padding: '2rem',
+          padding: '4rem',
         }}
       >
         <div style={{
@@ -98,7 +98,6 @@ export default class FarcasterFrameSetsController extends FarcasterFramesControl
             display: 'flex',
             flexDirection: 'column',
             margin: 'auto 0 0 0',
-            padding: '0 2rem 0 0',
             justifyContent: 'flex-end',
           }}>
             <p style={{
@@ -118,6 +117,8 @@ export default class FarcasterFrameSetsController extends FarcasterFramesControl
           flexWrap: 'wrap',
           gap: '10px',
           width: '50%',
+          position: 'relative',
+          left: this.ASPECT_RATIOS.WIDE.WIDTH/2 - imageWidth*3 - imagePadding*2 - this.PADDING + 'px',
         }}>
           <img
             style={{
@@ -126,66 +127,66 @@ export default class FarcasterFrameSetsController extends FarcasterFramesControl
               position: 'absolute',
             }}
             src={await this.urlAsBuffer(set.edition1Image?.staticURI)}
-            width={141 * 2 + 10}
-            height={141 * 2 + 10}
+            width={imageWidth * 2 + imagePadding}
+            height={imageWidth * 2 + imagePadding}
           />
           <img
             style={{
               border: '1px solid #363636',
               borderRadius: '4px 16px 16px 16px',
               position: 'absolute',
-              left: 141 * 2 + 10 * 2 + 'px',
+              left: imageWidth * 2 + imagePadding * 2 + 'px',
             }}
             src={await this.urlAsBuffer(set.edition4Image?.staticURI)}
-            width="141"
-            height="141"
+            width={imageWidth}
+            height={imageWidth}
           />
           <img
             style={{
               border: '1px solid #363636',
               borderRadius: '4px 16px 16px 16px',
               position: 'absolute',
-              top: 141 + 10 + 'px',
-              left: 141 * 2 + 10 * 2 + 'px',
+              top: imageWidth + imagePadding + 'px',
+              left: imageWidth * 2 + imagePadding * 2 + 'px',
             }}
             src={await this.urlAsBuffer(set.edition5Image?.staticURI)}
-            width="141"
-            height="141"
+            width={imageWidth}
+            height={imageWidth}
           />
           <img
             style={{
               border: '1px solid #363636',
               borderRadius: '4px 16px 16px 16px',
               position: 'absolute',
-              top: 141 * 2 + 10 * 2 + 'px',
+              top: imageWidth * 2 + imagePadding * 2 + 'px',
             }}
             src={await this.urlAsBuffer(set.edition10Image?.staticURI)}
-            width="141"
-            height="141"
+            width={imageWidth}
+            height={imageWidth}
           />
           <img
             style={{
               border: '1px solid #363636',
               borderRadius: '4px 16px 16px 16px',
               position: 'absolute',
-              top: 141 * 2 + 10 * 2 + 'px',
-              left: 141 + 10 + 'px',
+              top: imageWidth * 2 + imagePadding * 2 + 'px',
+              left: imageWidth + imagePadding + 'px',
             }}
             src={await this.urlAsBuffer(set.edition20Image?.staticURI)}
-            width="141"
-            height="141"
+            width={imageWidth}
+            height={imageWidth}
           />
           <img
             style={{
               border: '1px solid #363636',
               borderRadius: '4px 16px 16px 16px',
               position: 'absolute',
-              top: 141 * 2 + 10 * 2 + 'px',
-              left: 141 * 2 + 10 * 2 + 'px',
+              top: imageWidth * 2 + imagePadding * 2 + 'px',
+              left: imageWidth * 2 + imagePadding * 2 + 'px',
             }}
             src={await this.urlAsBuffer(set.edition40Image?.staticURI)}
-            width="141"
-            height="141"
+            width={imageWidth}
+            height={imageWidth}
           />
         </div>
       </div>

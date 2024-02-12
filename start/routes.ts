@@ -149,8 +149,19 @@ Route.group(() => {
   Route.get('/sets',             'FarcasterFrameSetsController.setsEntry')
   Route.post('/sets',            'FarcasterFrameSetsController.sets')
   Route.post('/sets/:id',        'FarcasterFrameSetsController.set')
-  Route.get('/image/sets/:id',   'FarcasterFrameSetsController.image')
-  Route.post('/image/sets/:id',   'FarcasterFrameSetsController.image')
+  Route.get('/image/sets/:id',   'FarcasterFrameSetsController.image') // deprecate & swap URL
+  Route.post('/image/sets/:id',  'FarcasterFrameSetsController.image')
+
+  // Set
+  Route.get('/sets/:id/detail',                 'FarcasterFrameSetController.set')
+  Route.post('/sets/:id/detail',                'FarcasterFrameSetController.set')
+  Route.post('/sets/:id/detail/:edition',       'FarcasterFrameSetController.edition')
+  Route.get('/sets/:id/detail/image',           'FarcasterFrameSetController.entryImage')
+  Route.post('/sets/:id/detail/image',          'FarcasterFrameSetController.entryImage')
+  Route.get('/sets/:id/detail/:edition/image',  'FarcasterFrameSetController.editionImage')
+  Route.post('/sets/:id/detail/:edition/image', 'FarcasterFrameSetController.editionImage')
+  Route.get('/sets/:id/opt-in/image',           'FarcasterFrameSetController.optInImage')
+  Route.post('/sets/:id/opt-in/image',          'FarcasterFrameSetController.optInImage')
 
   // Opepen Voting Game
   Route.get('/ranks',            'FarcasterFrameOpepenRanksController.entry')

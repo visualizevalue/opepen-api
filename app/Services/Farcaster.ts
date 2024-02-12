@@ -25,6 +25,34 @@ export class Farcaster {
 
     return true
   }
+
+  public async getUser (fid: number) {
+    const url = `${this.base}/v1/verificationsByFid?fid=${fid}`
+    const user: {
+      fid: number,
+      addresses: string[]
+    } = {
+      fid,
+      addresses: [],
+    }
+
+    try {
+      const response = await axios.get(url)
+
+      // TODO: Implement pagination
+      for (const message of response.data.messages) {
+        if (message.data.type !== 'MESSAGE_TYPE_VERIFICATION_ADD_ETH_ADDRESS') return
+
+        user.addresses.push(message.data.verificationAddEthAddressBody.address?.toLowerCase())
+      }
+
+      // TODO: Fetch signer account address(es)
+    } catch (e) {
+      console.error(e)
+    }
+
+    return user
+  }
 }
 
 export default new Farcaster()

@@ -32,7 +32,7 @@ export default class Subscription extends BaseModel {
   @column({
     prepare: value => JSON.stringify(value),
   })
-  public opepenIds: number[]
+  public opepenIds: string[]
 
   @column({
     prepare: value => JSON.stringify(value),

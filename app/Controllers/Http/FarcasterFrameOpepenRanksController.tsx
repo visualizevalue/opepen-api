@@ -9,9 +9,6 @@ import Farcaster from 'App/Services/Farcaster'
 
 export default class FarcasterFrameOpepenRanksController extends FarcasterFramesController {
 
-  protected entryTitle: string = 'Opepoll – Cast Votes'
-  protected entryImage: string = 'https://opepen.nyc3.cdn.digitaloceanspaces.com/OG/ranks@frame.png'
-
   public async entry (_: HttpContextContract) {
     return this.response({
       imageUrl: `https://opepen.nyc3.cdn.digitaloceanspaces.com/OG/ranks@frame.png`,
