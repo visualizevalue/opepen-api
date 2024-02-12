@@ -383,7 +383,7 @@ export default class FarcasterFrameSetController extends FarcasterFramesControll
             fontFamily: 'SpaceGrotesk-Bold',
           }}
           >Set {pad(set.id, 3)} – Edition of { edition }</p>
-          <h1 style={{ fontWeight: 500, margin: '0', lineHeight: '1.1', }}>{set[`edition_${edition}Name`]}</h1>
+          <h1 style={{ fontWeight: 500, margin: '0', lineHeight: '1.1', }}>{set[`edition_${edition}Name`] || 'Unnamed'}</h1>
         </aside>
       </div>,
       'SQUARE'
@@ -404,11 +404,15 @@ export default class FarcasterFrameSetController extends FarcasterFramesControll
   }
 
   private async setOverview (id) {
+    const set = await SetModel.findOrFail(id)
+
     return this.response({
       imageUrl: `${Env.get('APP_URL')}/v1/frames/sets/${id}/detail/image`,
       postUrl: `${Env.get('APP_URL')}/v1/frames/sets/${id}/detail`,
       actions: [
-        'Opt In',
+        set.revealsAt > DateTime.now()
+          ? 'Opt In'
+          : { text: `Set #${pad(id, 3)} on Opepen.art`, action: 'link', target: `https://opepen.art/sets/${set}` },
         'View 1/1 →',
       ],
       imageRatio: '1:1',
@@ -416,11 +420,14 @@ export default class FarcasterFrameSetController extends FarcasterFramesControll
   }
 
   private async editionResponse (id, edition, fid: number) {
+    const set = await SetModel.findOrFail(id)
     const opepen = await this.getOwnedOpepen(fid, edition)
 
     const nextEdition = this.getNextEdition(edition)
     const actions: Action[] = [
-      `${opepen?.length ? `${opepen.length}x ` : ''}Opt In 1/${edition}`,
+      set.revealsAt > DateTime.now()
+          ? `${opepen?.length ? `${opepen.length}x ` : ''}Opt In 1/${edition}`
+          : { text: `Set #${pad(id, 3)} on Opepen.art`, action: 'link', target: `https://opepen.art/sets/${set}` },
       nextEdition === 1 ? `↺ Overview` : `View 1/${nextEdition} →`,
     ]
 
