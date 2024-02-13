@@ -69,6 +69,10 @@ export default class FarcasterFrameSetController extends FarcasterFramesControll
    * Opt in to a set or an editioned image with all applicable unrevealed opepen
    */
   public async optIn({ request, params }: HttpContextContract) {
+    // Check if set still live
+    const set = await SetModel.findOrFail(params.id)
+    if (DateTime.now() > set.revealsAt) return this.setOverview(params.id)
+
     // Fetch user input
     const { untrustedData, trustedData } = request.body()
 
