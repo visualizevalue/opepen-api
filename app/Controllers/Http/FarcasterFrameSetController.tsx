@@ -426,7 +426,7 @@ export default class FarcasterFrameSetController extends FarcasterFramesControll
       actions: [
         set.revealsAt > DateTime.now()
           ? 'Opt In'
-          : { text: `Set #${pad(id, 3)} on Opepen.art`, action: 'link', target: `https://opepen.art/sets/${set}` },
+          : { text: `Set #${pad(id, 3)} on Opepen.art`, action: 'link', target: `https://opepen.art/sets/${set.id}` },
         'View 1/1 →',
       ],
       imageRatio: '1:1',
@@ -441,7 +441,7 @@ export default class FarcasterFrameSetController extends FarcasterFramesControll
     const actions: Action[] = [
       set.revealsAt > DateTime.now()
           ? `${opepen?.length ? `${opepen.length}x ` : ''}Opt In 1/${edition}`
-          : { text: `Set #${pad(id, 3)} on Opepen.art`, action: 'link', target: `https://opepen.art/sets/${set}` },
+          : { text: `Set #${pad(id, 3)} on Opepen.art`, action: 'link', target: `https://opepen.art/sets/${set.id}` },
       nextEdition === 1 ? `↺ Overview` : `View 1/${nextEdition} →`,
     ]
 
