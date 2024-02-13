@@ -93,6 +93,10 @@ export default class ImportSetImages extends BaseCommand {
       opepen.imageId = set[`edition_${opepen.data.edition}ImageId`]
       await opepen.save()
 
+      if (this.opensea) {
+        await OpenSea.updateMetadata(opepen.tokenId.toString())
+      }
+
       this.logger.info(`Opepen #${opepen.tokenId} image imported: Image #${opepen.imageId}`)
     }
   }
