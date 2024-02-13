@@ -152,16 +152,12 @@ Route.group(() => {
   Route.get('/image/sets/:id',   'FarcasterFrameSetsController.image') // deprecate & swap URL
   Route.post('/image/sets/:id',  'FarcasterFrameSetsController.image')
 
-  // Set
-  Route.get('/sets/:id/detail',                 'FarcasterFrameSetController.set')
-  Route.post('/sets/:id/detail',                'FarcasterFrameSetController.set')
-  Route.post('/sets/:id/detail/:edition',       'FarcasterFrameSetController.edition')
-  Route.get('/sets/:id/detail/image',           'FarcasterFrameSetController.entryImage')
-  Route.post('/sets/:id/detail/image',          'FarcasterFrameSetController.entryImage')
-  Route.get('/sets/:id/detail/:edition/image',  'FarcasterFrameSetController.editionImage')
-  Route.post('/sets/:id/detail/:edition/image', 'FarcasterFrameSetController.editionImage')
-  Route.get('/sets/:id/opt-in/image',           'FarcasterFrameSetController.optInImage')
-  Route.post('/sets/:id/opt-in/image',          'FarcasterFrameSetController.optInImage')
+  // Set Detail
+  Route.route('/sets/:id/detail',                ['GET', 'POST'], 'FarcasterFrameSetController.set')
+  Route.route('/sets/:id/detail/image',          ['GET', 'POST'], 'FarcasterFrameSetController.entryImage')
+  Route.post('/sets/:id/detail/:edition',                         'FarcasterFrameSetController.edition')
+  Route.route('/sets/:id/detail/:edition/image', ['GET', 'POST'], 'FarcasterFrameSetController.editionImage')
+  Route.route('/sets/:id/opt-in/image',          ['GET', 'POST'], 'FarcasterFrameSetController.optInImage')
 
   // Opepen Voting Game
   Route.get('/ranks',            'FarcasterFrameOpepenRanksController.entry')

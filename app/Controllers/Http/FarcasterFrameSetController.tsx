@@ -1,22 +1,24 @@
 import React from 'react'
-import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
+import { DateTime } from 'luxon'
 import Env from '@ioc:Adonis/Core/Env'
 import Drive from '@ioc:Adonis/Core/Drive'
 import { string } from '@ioc:Adonis/Core/Helpers'
+import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import pad from 'App/Helpers/pad'
-import { Account, SetModel } from 'App/Models'
-
-import FarcasterFramesController from './FarcasterFramesController'
-import { type Action } from './FarcasterFramesController'
-import Farcaster from 'App/Services/Farcaster'
+import Account from 'App/Models/Account'
 import Opepen from 'App/Models/Opepen'
+import SetModel from 'App/Models/SetModel'
 import Subscription from 'App/Models/Subscription'
-import { DateTime } from 'luxon'
+import Farcaster from 'App/Services/Farcaster'
+import FarcasterFramesController, { type Action } from './FarcasterFramesController'
 
 export default class FarcasterFrameSetController extends FarcasterFramesController {
 
   EDITIONS = [1, 4, 5, 10, 20, 40]
 
+  /**
+   * The entry point to our frame
+   */
   public async set ({ request, params }: HttpContextContract) {
     if (request.method() === 'GET') return this.setOverview(params.id)
 
@@ -25,17 +27,21 @@ export default class FarcasterFrameSetController extends FarcasterFramesControll
 
     // Opt In
     if (buttonIndex == 1) {
-      return await this.optIn(arguments[0])
+      return this.optIn(arguments[0])
     }
 
-    // View Edition
+    // View 1/1 Detail
     if (buttonIndex === 2) {
       return this.editionResponse(params.id, 1, data.fid)
     }
 
+    // Initially, just show the overview
     return this.setOverview(params.id)
   }
 
+  /**
+   * The edition overview for our frame
+   */
   public async edition ({ request, params }: HttpContextContract) {
     const data = request.body().untrustedData
     const buttonIndex = parseInt(data.buttonIndex)
@@ -46,18 +52,22 @@ export default class FarcasterFrameSetController extends FarcasterFramesControll
     }
 
     // Browse next
-    const nextEdition = buttonIndex === 2
-    const toOverview = params.edition == 40
-    if (nextEdition && toOverview) {
-      return this.setOverview(params.id)
-    }
-    if (nextEdition) {
-      return this.editionResponse(params.id, this.getNextEdition(params.edition), data.fid)
-    }
+    const next = buttonIndex === 2
 
+    // Cycle to overview
+    const toOverview = next && params.edition == 40
+    if (toOverview) return this.setOverview(params.id)
+
+    // Go next
+    if (next) return this.editionResponse(params.id, this.getNextEdition(params.edition), data.fid)
+
+    // Default view current edition
     return this.editionResponse(params.id, params.edition, data.fid)
   }
 
+  /**
+   * Opt in to a set or an editioned image with all applicable unrevealed opepen
+   */
   public async optIn({ request, params }: HttpContextContract) {
     // Fetch user input
     const { untrustedData, trustedData } = request.body()
@@ -128,7 +138,7 @@ export default class FarcasterFrameSetController extends FarcasterFramesControll
         }}>
           <h1 style={{ fontWeight: 500, margin: '0', lineHeight: '1.1', }}>{count ? 'Success!' : 'No Opepen found.'}</h1>
           <p>
-            You Opted in {count} Opepen to set {pad(set.id, 3)} ({set.name}){ edition && ` Edition of ${edition}` }.
+            You opted in {count} Opepen to set {pad(set.id, 3)} ({set.name}){ edition && ` Edition of ${edition}` }.
           </p>
           {
             ! count && <p style={{margin: '0'}}>Make sure you have your Ethereum address connected to your Farcaster account.</p>
