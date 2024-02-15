@@ -20,6 +20,10 @@
       "reloadServer": true
     },
     {
+      "pattern": "app/Frames/**",
+      "reloadServer": true
+    },
+    {
       "pattern": "resources/fonts/**",
       "reloadServer": false
     },
