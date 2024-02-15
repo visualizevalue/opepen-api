@@ -164,4 +164,11 @@ Route.group(() => {
   Route.post('/ranks/vote',      'FarcasterFrameOpepenRanksController.vote')
   Route.get('/image/ranks/vote', 'FarcasterFrameOpepenRanksController.image')
 
+  // Opepen merch
+  Route.get('/merch',                                             'FarcasterFrameMerchController.product')
+  Route.route('/merch/confirmation',             ['GET', 'POST'], 'FarcasterFrameMerchController.confirmation')
+  Route.route('/merch/confirmation/image',       ['GET', 'POST'], 'FarcasterFrameMerchController.confirmationImage')
+  Route.route('/merch/:id',                      ['GET', 'POST'], 'FarcasterFrameMerchController.product')
+  Route.route('/merch/:id/variants',             ['GET', 'POST'], 'FarcasterFrameMerchController.variants')
+  Route.route('/merch/:id/image',                ['GET', 'POST'], 'FarcasterFrameMerchController.image')
 }).prefix('/v1/frames')
