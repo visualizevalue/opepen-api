@@ -45,14 +45,6 @@ export default class FarcasterFrameMerchController extends FarcasterFramesContro
       ],
       image: 'https://visualizevalue.com/cdn/shop/files/visualize-value-s-opepen-hoodie-39705710985460.jpg?width=1280',
     },
-    // {
-    //   slug: '005',
-    //   name: 'Opepen Dad Cap',
-    //   price: 29,
-    //   category: 'hats',
-    //   variant: '44022238281972',
-    //   image: 'https://visualizevalue.com/cdn/shop/files/visualize-value-005-39676961849588.jpg?width=1280',
-    // },
   ]
 
   public async product ({ params, request }: HttpContextContract) {
