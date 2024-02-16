@@ -1,6 +1,7 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import { RequestContract } from '@ioc:Adonis/Core/Request'
 import Env from '@ioc:Adonis/Core/Env'
+import Drive from '@ioc:Adonis/Core/Drive'
 import FarcasterFramesController from './FarcasterFramesController'
 import MerchRenderer from 'App/Frames/MerchRenderer'
 
@@ -95,10 +96,19 @@ export default class FarcasterFrameMerchController extends FarcasterFramesContro
     return this.confirmationResponse(this.getCart(request))
   }
 
-  public async image ({ params, response }: HttpContextContract) {
+  public async image ({ request, params, response }: HttpContextContract) {
     const product = this.PRODUCTS[params.id]
+    const key = `frames/merch/${product.slug}-frame.png`
 
-    return this.imageResponse(await MerchRenderer.render(product), response)
+    if (request.method() !== 'POST' && await Drive.exists(key)) {
+      return this.imageResponse(await Drive.get(key), response)
+    }
+
+    const image = await MerchRenderer.render(product)
+
+    await this.saveImage(key, image)
+
+    return this.imageResponse(image, response)
   }
 
   public async confirmationImage ({ request, response }: HttpContextContract) {
