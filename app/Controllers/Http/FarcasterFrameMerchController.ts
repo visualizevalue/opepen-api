@@ -128,7 +128,7 @@ export default class FarcasterFrameMerchController extends FarcasterFramesContro
     const product = this.PRODUCTS[id]
 
     return this.response({
-      imageUrl: `${Env.get('APP_URL')}/v1/frames/merch/${id}/image?v=1}`,
+      imageUrl: `${Env.get('APP_URL')}/v1/frames/merch/${id}/image?v=1`,
       postUrl: `${Env.get('APP_URL')}/v1/frames/merch/${id}?cart=${cart}`,
       actions: [
         product.variants?.length
@@ -144,7 +144,7 @@ export default class FarcasterFrameMerchController extends FarcasterFramesContro
     const product = this.PRODUCTS[id]
 
     return this.response({
-      imageUrl: `${Env.get('APP_URL')}/v1/frames/merch/${id}/image?v=1}`,
+      imageUrl: `${Env.get('APP_URL')}/v1/frames/merch/${id}/image?v=1`,
       postUrl: `${Env.get('APP_URL')}/v1/frames/merch/${id}/variants?cart=${cart}`,
       actions: product.variants?.slice(0, 4).map(v => v.name),
     })
@@ -152,7 +152,7 @@ export default class FarcasterFrameMerchController extends FarcasterFramesContro
 
   private confirmationResponse (cart) {
     return this.response({
-      imageUrl: `${Env.get('APP_URL')}/v1/frames/merch/confirmation/image?cart=${cart}&v=1}`,
+      imageUrl: `${Env.get('APP_URL')}/v1/frames/merch/confirmation/image?cart=${cart}&v=1`,
       postUrl: `${Env.get('APP_URL')}/v1/frames/merch/confirmation?cart=${cart}`,
       actions: [
         {
