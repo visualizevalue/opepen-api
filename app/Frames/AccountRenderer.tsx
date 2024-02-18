@@ -26,7 +26,7 @@ export default class AccountRenderer extends Renderer {
           height="96px"
           src={await this.urlAsBuffer(account.pfp.staticURI)}
           style={{
-            borderRadius: '48px',
+            borderRadius: '8px 48px 48px 48px',
             border: '2px solid #363636',
           }}
         />
