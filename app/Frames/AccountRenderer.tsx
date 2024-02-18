@@ -1,5 +1,5 @@
-import Account from 'App/Models/Account'
 import React from 'react'
+import Account from 'App/Models/Account'
 import Renderer from './Renderer'
 
 export default class AccountRenderer extends Renderer {
@@ -24,7 +24,7 @@ export default class AccountRenderer extends Renderer {
         <img
           width="96px"
           height="96px"
-          src={await this.urlAsBuffer(account.pfp.staticURI)}
+          src={await this.urlAsBuffer(account.pfp?.staticURI || 'https://opepenai.nyc3.digitaloceanspaces.com/images/764c9320-05a9-4329-87a5-117277d21df9@sm.png')}
           style={{
             borderRadius: '8px 48px 48px 48px',
             border: '2px solid #363636',
