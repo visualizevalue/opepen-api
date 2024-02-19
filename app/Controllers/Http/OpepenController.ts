@@ -3,6 +3,7 @@ import BaseController from './BaseController'
 import Opepen from 'App/Models/Opepen'
 import { DateTime } from 'luxon'
 import DailyOpepen from 'App/Services/DailyOpepen'
+import { Account } from 'App/Models'
 
 export default class OpepenController extends BaseController {
 
@@ -49,8 +50,10 @@ export default class OpepenController extends BaseController {
       sort = ''
     } = request.qs()
 
+    const account = await Account.byId(params.id).firstOrFail()
+
     const query = Opepen.query()
-      .where('owner', params.id.toLowerCase())
+      .where('owner', account.address)
       .preload('image')
 
     this.applyFilters(query, filter)
