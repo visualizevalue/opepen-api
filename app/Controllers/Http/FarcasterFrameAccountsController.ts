@@ -1,9 +1,87 @@
+import axios from 'axios'
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
+import Env from '@ioc:Adonis/Core/Env'
 import Account from 'App/Models/Account'
-import FarcasterFramesController from './FarcasterFramesController'
+import FarcasterFramesController, { type Action } from './FarcasterFramesController'
 import AccountRenderer from 'App/Frames/AccountRenderer'
 
 export default class FarcasterFrameAccountsController extends FarcasterFramesController {
+
+  public async account ({ request, params }: HttpContextContract) {
+    if (request.method() === 'GET') return this.accountOverview(params.id)
+
+    const qs = request.qs()
+    const index = parseInt(qs.index || -1)
+
+    const data = request.body().untrustedData
+    const buttonIndex = parseInt(data.buttonIndex)
+
+    let nextIndex = buttonIndex === 1
+      ? index - 1
+      : index + 1;
+
+    if (nextIndex === -1) return this.accountOverview(params.id)
+
+    return this.accountOpepenResponse(params.id, nextIndex)
+  }
+
+  private async accountOverview (id: string) {
+    const account = await Account.byId(id).preload('opepen').firstOrFail()
+
+    const actions: Action[] = [
+        { text: `View on on Opepen.art`, action: 'link', target: `https://opepen.art/holders/${id}` },
+    ]
+
+    if (account.opepen?.length) {
+      actions.push('Browse Opepen →')
+    }
+
+    return this.response({
+      imageUrl: `${Env.get('APP_URL')}/v1/frames/accounts/${id}/image`,
+      postUrl: `${Env.get('APP_URL')}/v1/frames/accounts/${id}`,
+      actions,
+    })
+  }
+
+  private async accountOpepenResponse (accountId: string, opepenIndex: number) {
+    const account = await Account.byId(accountId)
+      .preload('opepen', query => {
+        query.preload('image')
+        query.orderBy('setId')
+        query.orderByRaw(`(data->>'edition')::int`)
+      })
+      .firstOrFail()
+
+    // Cycle back to overview
+    if (opepenIndex < 0 || opepenIndex >= account.opepen?.length) {
+      return this.accountOverview(accountId)
+    }
+
+    const isFirst = opepenIndex === 0
+    const isLast = opepenIndex + 1 >= account.opepen?.length
+
+    const actions: Action[] = [
+      isFirst ? '↺ Overview' : '← Previous',
+      isLast  ? '↺ Overview' : 'Next →',
+    ]
+
+    const opepen = account.opepen[opepenIndex]
+    let imageUrl = opepen.image?.staticURI
+
+    if (! imageUrl) {
+      const GET_URI = `https://metadata.opepen.art/${opepen.tokenId}/image-uri`
+      const { data: { uri }} = await axios.get(GET_URI)
+
+      imageUrl = uri
+    }
+
+    return this.response({
+      imageUrl,
+      postUrl: `${Env.get('APP_URL')}/v1/frames/accounts/${accountId}?index=${opepenIndex}`,
+      imageRatio: '1:1',
+      actions,
+    })
+  }
 
   /**
    * The main image for a profile
@@ -12,12 +90,14 @@ export default class FarcasterFrameAccountsController extends FarcasterFramesCon
     const account = await Account.byId(params.id)
       .preload('pfp')
       .preload('coverImage')
+      .preload('opepen', query => query.preload('image'))
       .firstOrFail()
 
-    return this.imageResponse(
-      await AccountRenderer.render(account),
-      response
-    )
+    const image = account.opepen?.length >= 2
+      ? await AccountRenderer.renderWithOwnedOpepen(account)
+      : await AccountRenderer.render(account)
+
+    return this.imageResponse(image, response)
   }
 
 }

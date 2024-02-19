@@ -9,6 +9,7 @@ import Image from 'App/Models/Image'
 import RichContentLink from 'App/Models/RichContentLink'
 import SetDataModel from 'App/Models/SetDataModel'
 import { ArtistSocials } from './types'
+import Opepen from './Opepen'
 
 export default class Account extends BaseModel {
   @column({ isPrimary: true })
@@ -94,6 +95,12 @@ export default class Account extends BaseModel {
     localKey: 'address',
   })
   public createdSets: HasMany<typeof SetDataModel>
+
+  @hasMany(() => Opepen, {
+    foreignKey: 'owner',
+    localKey: 'address',
+  })
+  public opepen: HasMany<typeof Opepen>
 
   @beforeSave()
   public static async lowerCaseAddress(account: Account) {

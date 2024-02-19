@@ -146,7 +146,8 @@ Route.group(() => {
 // FC Frames
 Route.group(() => {
   // Account profiles
-  Route.get('/accounts/:id/image',       'FarcasterFrameAccountsController.image')
+  Route.route('/accounts/:id',          ['GET', 'POST'], 'FarcasterFrameAccountsController.account')
+  Route.get('/accounts/:id/image',                       'FarcasterFrameAccountsController.image')
 
   // Sets
   Route.get('/sets',             'FarcasterFrameSetsController.setsEntry')
