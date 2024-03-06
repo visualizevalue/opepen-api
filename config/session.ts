@@ -73,7 +73,7 @@ export default sessionConfig({
   | Example: `2 days`, `2.5 hrs`, `1y`, `5s` and so on.
   |
   */
-  age: '1d',
+  age: '7d',
 
   /*
   |--------------------------------------------------------------------------
