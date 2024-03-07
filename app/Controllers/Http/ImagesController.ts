@@ -8,7 +8,7 @@ import InvalidInput from 'App/Exceptions/InvalidInput'
 import BadRequest from 'App/Exceptions/BadRequest'
 
 export default class ImagesController extends BaseController {
-  public async store ({ request, session, response }: HttpContextContract) {
+  public async store ({ request, session }: HttpContextContract) {
     const address = session.get('siwe')?.address?.toLowerCase()
 
     if (! address) throw new NotAuthenticated()
