@@ -8,8 +8,8 @@ import Journey from 'App/Models/Journey'
 import Image from 'App/Models/Image'
 import RichContentLink from 'App/Models/RichContentLink'
 import SetDataModel from 'App/Models/SetDataModel'
+import Opepen from 'App/Models/Opepen'
 import { ArtistSocials } from './types'
-import Opepen from './Opepen'
 
 export default class Account extends BaseModel {
   @column({ isPrimary: true })

@@ -1,0 +1,103 @@
+import BaseSchema from '@ioc:Adonis/Lucid/Schema'
+
+export default class extends BaseSchema {
+  protected tableName = 'dynamic_set_images'
+
+  public async up () {
+    this.schema.createTable(this.tableName, (table) => {
+      table.increments('id')
+
+      table.timestamp('updated_at', { useTz: true })
+
+      table.bigInteger('image_1_1_id').references('id').inTable('images')
+
+      table.bigInteger('image_4_1_id').references('id').inTable('images')
+      table.bigInteger('image_4_2_id').references('id').inTable('images')
+      table.bigInteger('image_4_3_id').references('id').inTable('images')
+      table.bigInteger('image_4_4_id').references('id').inTable('images')
+
+      table.bigInteger('image_5_1_id').references('id').inTable('images')
+      table.bigInteger('image_5_2_id').references('id').inTable('images')
+      table.bigInteger('image_5_3_id').references('id').inTable('images')
+      table.bigInteger('image_5_4_id').references('id').inTable('images')
+      table.bigInteger('image_5_5_id').references('id').inTable('images')
+
+      table.bigInteger('image_10_1_id').references('id').inTable('images')
+      table.bigInteger('image_10_2_id').references('id').inTable('images')
+      table.bigInteger('image_10_3_id').references('id').inTable('images')
+      table.bigInteger('image_10_4_id').references('id').inTable('images')
+      table.bigInteger('image_10_5_id').references('id').inTable('images')
+      table.bigInteger('image_10_6_id').references('id').inTable('images')
+      table.bigInteger('image_10_7_id').references('id').inTable('images')
+      table.bigInteger('image_10_8_id').references('id').inTable('images')
+      table.bigInteger('image_10_9_id').references('id').inTable('images')
+      table.bigInteger('image_10_10_id').references('id').inTable('images')
+
+      table.bigInteger('image_20_1_id').references('id').inTable('images')
+      table.bigInteger('image_20_2_id').references('id').inTable('images')
+      table.bigInteger('image_20_3_id').references('id').inTable('images')
+      table.bigInteger('image_20_4_id').references('id').inTable('images')
+      table.bigInteger('image_20_5_id').references('id').inTable('images')
+      table.bigInteger('image_20_6_id').references('id').inTable('images')
+      table.bigInteger('image_20_7_id').references('id').inTable('images')
+      table.bigInteger('image_20_8_id').references('id').inTable('images')
+      table.bigInteger('image_20_9_id').references('id').inTable('images')
+      table.bigInteger('image_20_10_id').references('id').inTable('images')
+      table.bigInteger('image_20_11_id').references('id').inTable('images')
+      table.bigInteger('image_20_12_id').references('id').inTable('images')
+      table.bigInteger('image_20_13_id').references('id').inTable('images')
+      table.bigInteger('image_20_14_id').references('id').inTable('images')
+      table.bigInteger('image_20_15_id').references('id').inTable('images')
+      table.bigInteger('image_20_16_id').references('id').inTable('images')
+      table.bigInteger('image_20_17_id').references('id').inTable('images')
+      table.bigInteger('image_20_18_id').references('id').inTable('images')
+      table.bigInteger('image_20_19_id').references('id').inTable('images')
+      table.bigInteger('image_20_20_id').references('id').inTable('images')
+
+      table.bigInteger('image_40_1_id').references('id').inTable('images')
+      table.bigInteger('image_40_2_id').references('id').inTable('images')
+      table.bigInteger('image_40_3_id').references('id').inTable('images')
+      table.bigInteger('image_40_4_id').references('id').inTable('images')
+      table.bigInteger('image_40_5_id').references('id').inTable('images')
+      table.bigInteger('image_40_6_id').references('id').inTable('images')
+      table.bigInteger('image_40_7_id').references('id').inTable('images')
+      table.bigInteger('image_40_8_id').references('id').inTable('images')
+      table.bigInteger('image_40_9_id').references('id').inTable('images')
+      table.bigInteger('image_40_10_id').references('id').inTable('images')
+      table.bigInteger('image_40_11_id').references('id').inTable('images')
+      table.bigInteger('image_40_12_id').references('id').inTable('images')
+      table.bigInteger('image_40_13_id').references('id').inTable('images')
+      table.bigInteger('image_40_14_id').references('id').inTable('images')
+      table.bigInteger('image_40_15_id').references('id').inTable('images')
+      table.bigInteger('image_40_16_id').references('id').inTable('images')
+      table.bigInteger('image_40_17_id').references('id').inTable('images')
+      table.bigInteger('image_40_18_id').references('id').inTable('images')
+      table.bigInteger('image_40_19_id').references('id').inTable('images')
+      table.bigInteger('image_40_20_id').references('id').inTable('images')
+      table.bigInteger('image_40_21_id').references('id').inTable('images')
+      table.bigInteger('image_40_22_id').references('id').inTable('images')
+      table.bigInteger('image_40_23_id').references('id').inTable('images')
+      table.bigInteger('image_40_24_id').references('id').inTable('images')
+      table.bigInteger('image_40_25_id').references('id').inTable('images')
+      table.bigInteger('image_40_26_id').references('id').inTable('images')
+      table.bigInteger('image_40_27_id').references('id').inTable('images')
+      table.bigInteger('image_40_28_id').references('id').inTable('images')
+      table.bigInteger('image_40_29_id').references('id').inTable('images')
+      table.bigInteger('image_40_30_id').references('id').inTable('images')
+      table.bigInteger('image_40_31_id').references('id').inTable('images')
+      table.bigInteger('image_40_32_id').references('id').inTable('images')
+      table.bigInteger('image_40_33_id').references('id').inTable('images')
+      table.bigInteger('image_40_34_id').references('id').inTable('images')
+      table.bigInteger('image_40_35_id').references('id').inTable('images')
+      table.bigInteger('image_40_36_id').references('id').inTable('images')
+      table.bigInteger('image_40_37_id').references('id').inTable('images')
+      table.bigInteger('image_40_38_id').references('id').inTable('images')
+      table.bigInteger('image_40_39_id').references('id').inTable('images')
+      table.bigInteger('image_40_40_id').references('id').inTable('images')
+    })
+  }
+
+  public async down () {
+    this.schema.dropTable(this.tableName)
+  }
+}

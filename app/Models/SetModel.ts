@@ -5,7 +5,7 @@ import Subscription from 'App/Models/Subscription'
 import SetSubmission from 'App/Models/SetSubmission'
 import { Account } from 'App/Models'
 import RichContentLink from 'App/Models/RichContentLink'
-import { ArtistSignature, EditionGroups, SubmissionStats } from './types'
+import { EditionGroups, SubmissionStats } from './types'
 import SetDataModel from './SetDataModel'
 import NotifyNewSetEmail from 'App/Mailers/NotifyNewSetEmail'
 
@@ -25,12 +25,7 @@ export default class SetModel extends SetDataModel {
   @column()
   public submissionStats: SubmissionStats
 
-  @column({
-    consume: (value: string) => typeof value === 'string' ? JSON.parse(value) : value,
-    prepare: (value: any) => typeof value === 'object' ? JSON.stringify(value) : value,
-  })
-  public artistSignature: ArtistSignature
-
+  // Note: In here and not the `SetBaseModel` bc of an import loop via Accounts.
   @belongsTo(() => Account, {
     foreignKey: 'creator',
     localKey: 'address',
