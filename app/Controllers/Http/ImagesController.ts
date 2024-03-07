@@ -3,12 +3,15 @@ import Image from 'App/Models/Image'
 import BaseController from './BaseController'
 import Account from 'App/Models/Account'
 import { toDriveFromFileUpload } from 'App/Helpers/drive'
+import NotAuthenticated from 'App/Exceptions/NotAuthenticated'
+import InvalidInput from 'App/Exceptions/InvalidInput'
+import BadRequest from 'App/Exceptions/BadRequest'
 
 export default class ImagesController extends BaseController {
   public async store ({ request, session, response }: HttpContextContract) {
     const address = session.get('siwe')?.address?.toLowerCase()
 
-    if (! address) return response.unauthorized(`Have to be authenticated to upload images.`)
+    if (! address) throw new NotAuthenticated()
 
     const user = await Account.firstOrCreate({
       address,
@@ -18,12 +21,12 @@ export default class ImagesController extends BaseController {
       size: '10mb',
     })
 
-    if (! file) return response.badRequest('No file provided')
+    if (! file) throw new BadRequest(`No file provided`)
     if (
       !file.isValid ||
       !file.subtype ||
       !['jpeg', 'jpg', 'png', 'gif', 'webp', 'svg', 'mp4', 'webm'].includes(file.subtype?.toLowerCase())
-    ) return response.badRequest(file.errors || 'Unsupported file format')
+    ) throw new InvalidInput(`Unspupported file format`)
 
     const image = await Image.create({
       creator: user.address,
