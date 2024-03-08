@@ -2,7 +2,7 @@ import { DateTime } from 'luxon'
 import { BaseModel, BelongsTo, belongsTo, column, computed } from '@ioc:Adonis/Lucid/Orm'
 import DynamicSetImages from 'App/Models/DynamicSetImages'
 import Image from 'App/Models/Image'
-import { ArtistSignature, EditionType } from './types'
+import { ArtistSignature, EditionType, SubmissionStats } from './types'
 
 export default class SetBaseModel extends BaseModel {
   @column({ isPrimary: true })
@@ -30,6 +30,9 @@ export default class SetBaseModel extends BaseModel {
 
   @column()
   public roundedPreview: boolean
+
+  @column()
+  public minSubscriptionPercentage: number
 
   @column({ serializeAs: 'edition1Name' })
   public edition_1Name: string
@@ -66,11 +69,30 @@ export default class SetBaseModel extends BaseModel {
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime
 
+  @column()
+  public revealStrategy: string
+
   @column.dateTime()
   public revealsAt: DateTime
 
   @column()
   public revealBlockNumber: string
+
+  @column({
+    consume: value => {
+      if (! value) return { 1: [], 4: [], 5: [], 10: [], 20: [], 40: [] }
+
+      return value
+    },
+    serializeAs: null,
+  })
+  public submittedOpepen: object
+
+  @column()
+  public submissionStats: SubmissionStats
+
+  @column()
+  public notificationSentAt: DateTime
 
   @belongsTo(() => Image, { foreignKey: 'edition_1ImageId' })
   public edition1Image: BelongsTo<typeof Image>

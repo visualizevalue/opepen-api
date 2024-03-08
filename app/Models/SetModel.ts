@@ -1,29 +1,16 @@
-import { BelongsTo, HasMany, belongsTo, column, hasMany } from '@ioc:Adonis/Lucid/Orm'
+import { BelongsTo, HasMany, belongsTo, hasMany } from '@ioc:Adonis/Lucid/Orm'
 import Logger from '@ioc:Adonis/Core/Logger'
 import Opepen from 'App/Models/Opepen'
 import Subscription from 'App/Models/Subscription'
 import SetSubmission from 'App/Models/SetSubmission'
 import { Account } from 'App/Models'
 import RichContentLink from 'App/Models/RichContentLink'
-import { EditionGroups, SubmissionStats } from './types'
+import { EditionGroups } from './types'
 import SetDataModel from './SetDataModel'
 import NotifyNewSetEmail from 'App/Mailers/NotifyNewSetEmail'
 
 export default class SetModel extends SetDataModel {
   public static table = 'sets'
-
-  @column({
-    consume: value => {
-      if (! value) return { 1: [], 4: [], 5: [], 10: [], 20: [], 40: [] }
-
-      return value
-    },
-    serializeAs: null,
-  })
-  public submittedOpepen: object
-
-  @column()
-  public submissionStats: SubmissionStats
 
   // Note: In here and not the `SetBaseModel` bc of an import loop via Accounts.
   @belongsTo(() => Account, {
