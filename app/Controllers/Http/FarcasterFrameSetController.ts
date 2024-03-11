@@ -89,7 +89,7 @@ export default class FarcasterFrameSetController extends FarcasterFramesControll
 
     // Opt In
     const subscription = await Subscription.firstOrCreate({
-      setId: params.id,
+      submissionId: set.submissionId,
       address: opepen[0].owner,
     })
 
