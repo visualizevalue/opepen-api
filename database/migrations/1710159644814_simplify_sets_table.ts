@@ -37,10 +37,23 @@ export default class extends BaseSchema {
       table.dropColumn('notification_sent_at')
       table.dropColumn('dynamic_set_images_id')
     })
+
+    this.defer(async (db) => {
+      const submissions = await db.from('set_submissions').whereNotNull('set_id')
+
+      for (const submission of submissions) {
+        const set = await db.from('sets').where('id', submission.set_id).first()
+        if (! set) continue
+
+        await db.from('sets').where('id', set.id).update({ submission_id: submission.id })
+      }
+    })
   }
 
   public async down () {
     this.schema.alterTable(this.tableName, (table) => {
+      table.dropColumn('submission_id')
+
       table.string('name')
       table.string('artist')
       table.integer('min_subscription_percentage')

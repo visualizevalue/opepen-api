@@ -3,7 +3,7 @@ import Opepen from 'App/Models/Opepen'
 import SetSubmission from 'App/Models/SetSubmission'
 
 export default class SetModel extends BaseModel {
-  public static table = 'opepen_sets'
+  public static table = 'sets'
 
   @column({ isPrimary: true })
   public id: number
