@@ -13,14 +13,16 @@ export default class NotifyNewSetEmail extends NotificationEmail {
   public async prepare(message: MessageContract) {
     const paddedSetId = pad(this.set.id)
 
+    await this.set.load('submission')
+
     return super.prepareEmail(message, {
       subject: 'New Opepen Set',
       name: 'new_set',
       templateData: {
         setId: paddedSetId,
-        setName: this.set.name,
+        setName: this.set.submission.name,
         setUrl: `https://opepen.art/sets/${paddedSetId}`,
-        optInUntil: this.set.revealsAt.toUTC().toLocaleString(DateTime.DATETIME_FULL)
+        optInUntil: this.set.submission.revealsAt.toUTC().toLocaleString(DateTime.DATETIME_FULL)
       },
     })
   }

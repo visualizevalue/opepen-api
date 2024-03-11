@@ -73,7 +73,9 @@ export default class FarcasterFrameSetController extends FarcasterFramesControll
   public async optIn({ request, params }: HttpContextContract) {
     // Check if set still live
     const set = await SetModel.findOrFail(params.id)
-    if (DateTime.now() > set.revealsAt) return this.setOverviewResponse(params.id)
+    await set.load('submission')
+    // TODO: Rework re new opt in flow
+    if (DateTime.now() > set.submission.revealsAt) return this.setOverviewResponse(params.id)
 
     // Fetch user input
     const { untrustedData, trustedData } = request.body()
@@ -120,7 +122,8 @@ export default class FarcasterFrameSetController extends FarcasterFramesControll
 
   public async editionImage ({ request, params, response }: HttpContextContract) {
     const set = await SetModel.findOrFail(params.id)
-    const key = `frames/sets/${set.id}_${set.name ? string.toSlug(set.name) : 'unrevealed'}_${params.edition}.png`
+    await set.load('submission')
+    const key = `frames/sets/${set.id}_${set.submission.name ? string.toSlug(set.submission.name) : 'unrevealed'}_${params.edition}.png`
 
     if (request.method() !== 'POST' && await Drive.exists(key)) {
       return this.imageResponse(await Drive.get(key), response)
@@ -135,13 +138,14 @@ export default class FarcasterFrameSetController extends FarcasterFramesControll
 
   public async entryImage ({ request, params, response }: HttpContextContract) {
     const set = await SetModel.findOrFail(params.id)
-    const key = `frames/sets/${set.id}_${set.name ? string.toSlug(set.name) : 'unrevealed'}_overview.png`
+    await set.load('submission')
+    const key = `frames/sets/${set.id}_${set.submission.name ? string.toSlug(set.submission.name) : 'unrevealed'}_overview.png`
 
     if (request.method() !== 'POST' && await Drive.exists(key)) {
       return this.imageResponse(await Drive.get(key), response)
     }
 
-    const png = await SetDetailRenderer.render(set)
+    const png = await SetDetailRenderer.render(set.submission)
 
     await this.saveImage(key, png)
 
@@ -175,12 +179,13 @@ export default class FarcasterFrameSetController extends FarcasterFramesControll
 
   private async setOverviewResponse (id) {
     const set = await SetModel.findOrFail(id)
+    await set.load('submission')
 
     return this.response({
       imageUrl: `${Env.get('APP_URL')}/v1/frames/sets/${id}/detail/image`,
       postUrl: `${Env.get('APP_URL')}/v1/frames/sets/${id}/detail`,
       actions: [
-        set.revealsAt > DateTime.now()
+        set.submission.revealsAt > DateTime.now()
           ? 'Opt In'
           : { text: `Set #${pad(id, 3)} on Opepen.art`, action: 'link', target: `https://opepen.art/sets/${set.id}` },
         'View 1/1 →',
@@ -191,11 +196,12 @@ export default class FarcasterFrameSetController extends FarcasterFramesControll
 
   private async editionResponse (id, edition, fid: number) {
     const set = await SetModel.findOrFail(id)
+    await set.load('submission')
     const opepen = await this.getOwnedOpepen(fid, edition)
 
     const nextEdition = this.getNextEdition(edition)
     const actions: Action[] = [
-      set.revealsAt > DateTime.now()
+      set.submission.revealsAt > DateTime.now()
           ? `${opepen?.length ? `${opepen.length}x ` : ''}Opt In 1/${edition}`
           : { text: `Set #${pad(id, 3)} on Opepen.art`, action: 'link', target: `https://opepen.art/sets/${set.id}` },
       nextEdition === 1 ? `↺ Overview` : `View 1/${nextEdition} →`,

@@ -20,7 +20,7 @@ export default class RichContentLinksController extends BaseController {
     for (const data of linksData) {
       const address = data.address?.toLowerCase()
       const linkAccount = await Account.query().where('address', address).first()
-      const set = data.set_id ? await SetModel.find(data.set_id) : null
+      const set = data.set_id ? await SetModel.query().preload('submission').where('id', data.set_id).first() : null
       const submission = data.set_submission_id ? await SetSubmission.find(data.set_submission_id) : null
 
       // Validate...
@@ -28,7 +28,7 @@ export default class RichContentLinksController extends BaseController {
         if (
           account.address !== address ||
           (data.id && linkAccount?.address !== address) ||
-          (data.set_id && set?.creator !== address) ||
+          (data.set_id && set?.submission.creator !== address) ||
           (data.set_submission_id && submission?.creator !== address)
         ) continue // Disregard links we're not allowed to update...
       }

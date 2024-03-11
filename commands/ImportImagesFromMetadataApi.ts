@@ -41,7 +41,7 @@ export default class ImportSetImages extends BaseCommand {
   public async run() {
     this.logger.info(`Importing images from metadata api for set #${this.set}`)
 
-    const set = await SetModel.findOrFail(this.set)
+    const set = await SetModel.query().where('id', this.set).preload('submission').firstOrFail()
 
     const query = Opepen.query().where('setId', set.id)
     if (this.missing) {
@@ -53,7 +53,7 @@ export default class ImportSetImages extends BaseCommand {
 
     const opepenInSet = await query
 
-    if (set.isDynamic) {
+    if (set.submission.isDynamic) {
       this.logger.info(`Importing dynamic set`)
       await this.importDynamicSet(opepenInSet)
     } else {

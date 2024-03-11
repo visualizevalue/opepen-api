@@ -6,8 +6,8 @@ import Address from 'App/Helpers/Address'
 import provider from 'App/Services/RPCProvider'
 import Journey from 'App/Models/Journey'
 import Image from 'App/Models/Image'
+import SetSubmission from 'App/Models/SetSubmission'
 import RichContentLink from 'App/Models/RichContentLink'
-import SetDataModel from 'App/Models/SetDataModel'
 import Opepen from 'App/Models/Opepen'
 import { ArtistSocials } from './types'
 
@@ -90,11 +90,20 @@ export default class Account extends BaseModel {
   })
   public journeys: HasMany<typeof Journey>
 
-  @hasMany(() => SetDataModel, {
+  @hasMany(() => SetSubmission, {
     foreignKey: 'creator',
     localKey: 'address',
+    onQuery: query => {
+      query.preload('edition1Image')
+      query.preload('edition4Image')
+      query.preload('edition5Image')
+      query.preload('edition10Image')
+      query.preload('edition20Image')
+      query.preload('edition40Image')
+      query.orderBy('id')
+    }
   })
-  public createdSets: HasMany<typeof SetDataModel>
+  public createdSets: HasMany<typeof SetSubmission>
 
   @hasMany(() => Opepen, {
     foreignKey: 'owner',

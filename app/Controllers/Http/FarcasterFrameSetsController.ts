@@ -48,14 +48,14 @@ export default class FarcasterFrameSetsController extends FarcasterFramesControl
   }
 
   public async image ({ request, params, response }: HttpContextContract) {
-    const set = await SetModel.findOrFail(params.id)
-    const key = `og/sets/${set.id}_${set.name ? string.toSlug(set.name) : 'unrevealed'}.png`
+    const set = await SetModel.query().where('id', params.id).preload('submission').firstOrFail()
+    const key = `og/sets/${set.id}_${set.submission.name ? string.toSlug(set.submission.name) : 'unrevealed'}.png`
 
     if (request.method() !== 'POST' && await Drive.exists(key)) {
       return this.imageResponse(await Drive.get(key), response)
     }
 
-    const image = await SetOverviewRenderer.render(set)
+    const image = await SetOverviewRenderer.render(set.submission)
 
     await this.saveImage(key, image)
 

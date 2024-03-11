@@ -11,8 +11,8 @@ export default class SetEditionRenderer extends Renderer {
       set: SetModel,
       edition: 1|4|5|10|20|40,
     }) {
-    await set.load(`edition${edition}Image`)
-    const image = set[`edition${edition}Image`]
+    await set.load('submission')
+    const image = set.submission[`edition${edition}Image`]
 
     const paddingY = 32
     const paddingX = paddingY*3

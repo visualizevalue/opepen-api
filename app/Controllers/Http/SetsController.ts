@@ -1,102 +1,78 @@
-import { ethers } from 'ethers'
+// import { ethers } from 'ethers'
 import Drive from '@ioc:Adonis/Core/Drive'
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import SetModel from 'App/Models/SetModel'
 import Subscription from 'App/Models/Subscription'
 import BaseController from './BaseController'
 import { DateTime } from 'luxon'
-import Account from 'App/Models/Account'
+// import Account from 'App/Models/Account'
 import Opepen from 'App/Models/Opepen'
 import { MaxReveal } from 'App/Models/types'
 
 export default class SetsController extends BaseController {
   public async list () {
     const sets = await SetModel.query()
-      .preload('edition1Image')
-      .preload('edition4Image')
-      .preload('edition5Image')
-      .preload('edition10Image')
-      .preload('edition20Image')
-      .preload('edition40Image')
-      .whereNotNull('revealsAt')
+      .preload('submission')
+      .whereNotNull('submissionId')
       .orderBy('id')
 
 
     return sets.map(s => s.serialize({
       fields: {
-        pick: ['id', 'name', 'description', 'reveals_at']
+        pick: ['id', 'name', 'description']
       }
     }))
   }
 
   public async show ({ params }: HttpContextContract) {
     const set = await SetModel.query()
-      .preload('creatorAccount', query => {
-        query.preload('pfp')
-      })
-      .preload('edition1Image')
-      .preload('edition4Image')
-      .preload('edition5Image')
-      .preload('edition10Image')
-      .preload('edition20Image')
-      .preload('edition40Image')
-      .preload('dynamicPreviewImage')
-      .preload('replacedSubmission', query => {
-        query.preload('edition1Image')
-        query.preload('edition4Image')
-        query.preload('edition5Image')
-        query.preload('edition10Image')
-        query.preload('edition20Image')
-        query.preload('edition40Image')
-      })
-      .preload('richContentLinks', query => {
-        query.preload('logo')
-        query.preload('cover')
-        query.orderBy('sortIndex')
-      })
+      .preload('submission')
+      .preload('replacedSubmission')
       .where('id', params.id)
       .firstOrFail()
 
     return set
   }
 
-  public async subscribe ({ params, request }: HttpContextContract) {
-    const set = await SetModel.findOrFail(params.id)
+  public async subscribe (_: HttpContextContract) {
+    // TODO: Reimplement
+    // const set = await SetModel.findOrFail(params.id)
 
-    const address = request.input('address')?.toLowerCase()
-    const message = request.input('message')
-    const signature = request.input('signature')
-    const comment = request.input('comment', null)
-    const verifiedAddress = ethers.utils.verifyMessage(message, signature)
+    // const address = request.input('address')?.toLowerCase()
+    // const message = request.input('message')
+    // const signature = request.input('signature')
+    // const comment = request.input('comment', null)
+    // const verifiedAddress = ethers.utils.verifyMessage(message, signature)
 
-    if (set.revealsAt < DateTime.now()) throw new Error(`Submission past reveal`)
-    if (! set.name) throw new Error(`Needs a valid set`)
-    if (! message) throw new Error(`Needs a message`)
-    if (address !== verifiedAddress.toLowerCase()) throw new Error(`Address needs to be accurate`)
+    // if (set.revealsAt < DateTime.now()) throw new Error(`Submission past reveal`)
+    // if (! set.name) throw new Error(`Needs a valid set`)
+    // if (! message) throw new Error(`Needs a message`)
+    // if (address !== verifiedAddress.toLowerCase()) throw new Error(`Address needs to be accurate`)
 
-    const account = await Account.updateOrCreate({ address }, {})
-    account.updateNames()
+    // const account = await Account.updateOrCreate({ address }, {})
+    // account.updateNames()
 
-    const subscription = await Subscription.updateOrCreate({
-      setId: set.id,
-      address,
-    }, {
-      message,
-      signature,
-      comment,
-      opepenIds: request.input('opepen'),
-      maxReveals: request.input('max_reveals'),
-      delegatedBy: request.input('delegated_by'),
-      createdAt: DateTime.now(),
-    })
+    // const subscription = await Subscription.updateOrCreate({
+    //   setId: set.id,
+    //   address,
+    // }, {
+    //   message,
+    //   signature,
+    //   comment,
+    //   opepenIds: request.input('opepen'),
+    //   maxReveals: request.input('max_reveals'),
+    //   delegatedBy: request.input('delegated_by'),
+    //   createdAt: DateTime.now(),
+    // })
 
-    // Update opepen cache
-    set.updateAndValidateOpepensInSet()
+    // // Update opepen cache
+    // set.updateAndValidateOpepensInSet()
 
-    return subscription
+    // return subscription
   }
 
   public async listSubscribers ({ params, request }: HttpContextContract) {
+    // TODO: Reimplement
     const {
       page = 1,
       limit = 50,
@@ -114,11 +90,12 @@ export default class SetsController extends BaseController {
     }
 
     return query.orderBy('createdAt', 'desc')
-      .preload('account')
+      // .preload('account')
       .paginate(page, limit)
   }
 
   public async subscriptionForAccount ({ params }: HttpContextContract) {
+    // TODO: Reimplement
     return Subscription.query()
       .where('address', params.account.toLowerCase())
       .where('setId', params.id)
@@ -126,6 +103,7 @@ export default class SetsController extends BaseController {
   }
 
   public async cleanedSubmissions ({ params }: HttpContextContract) {
+    // TODO: Reimplement
     const submissions = await Subscription.query()
       .where('setId', params.id)
       .orderBy('createdAt', 'desc')

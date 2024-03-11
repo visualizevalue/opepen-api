@@ -1,11 +1,10 @@
+import { DateTime } from 'luxon'
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import BaseController from './BaseController'
 import Account from 'App/Models/Account'
-import SetSubmission from 'App/Models/SetSubmission'
 import Image from 'App/Models/Image'
+import SetSubmission from 'App/Models/SetSubmission'
 import { isAdmin } from 'App/Middleware/AdminAuth'
-import { DateTime } from 'luxon'
-import { SetModel } from 'App/Models'
 
 export default class SetSubmissionsController extends BaseController {
 
@@ -129,11 +128,12 @@ export default class SetSubmissionsController extends BaseController {
       .preload('edition20Image')
       .preload('edition40Image')
       .preload('dynamicPreviewImages')
-      .preload('richContentLinks', query => {
-        query.preload('logo')
-        query.preload('cover')
-        query.orderBy('sortIndex')
-      })
+      // TODO: Implement rich content links
+      // .preload('richContentLinks', query => {
+      //   query.preload('logo')
+      //   query.preload('cover')
+      //   query.orderBy('sortIndex')
+      // })
       .firstOrFail()
 
     if (user.address !== submission.creator && !isAdmin(session)) {
@@ -234,13 +234,13 @@ export default class SetSubmissionsController extends BaseController {
     if (! submission) return ctx.response.badRequest()
 
     if (! submission.setId) return ctx.response.badRequest('No set provided')
-    const set = await SetModel.findOrFail(submission.setId)
+    if (!! submission.notificationSentAt) return ctx.response.badRequest('Set notifications sent already')
 
-    if (!! set.notificationSentAt) return ctx.response.badRequest('Set notifications sent already')
+    // const set = await SetModel.findOrFail(submission.setId)
+    // // await set.notifyPublished()
 
-    await set.notifyPublished()
-    set.notificationSentAt = DateTime.now()
-    await set.save()
+    submission.notificationSentAt = DateTime.now()
+    await submission.save()
   }
 
   public async delete (ctx: HttpContextContract) {

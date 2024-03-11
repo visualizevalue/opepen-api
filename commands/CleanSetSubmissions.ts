@@ -22,7 +22,7 @@ export default class CleanSetSubmissions extends BaseCommand {
 
   public async run() {
     if (this.set == 'all') {
-      const sets = await SetModel.query().orderBy('id')
+      const sets = await SetModel.query().preload('submission').orderBy('id')
 
       for (const set of sets) {
         await this.compute(set)
@@ -33,8 +33,8 @@ export default class CleanSetSubmissions extends BaseCommand {
   }
 
   private async compute (set: SetModel) {
-    await set.cleanSubmissions()
+    await set.submission.cleanSubmissions()
 
-    console.log(`Set #${set.id} counts:`, set.submissionStats)
+    console.log(`Set #${set.id} counts:`, set.submission.submissionStats)
   }
 }

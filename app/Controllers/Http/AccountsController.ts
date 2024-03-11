@@ -15,15 +15,7 @@ export default class AccountsController extends BaseController {
         query.preload('cover')
         query.orderBy('sortIndex')
       })
-      .preload('createdSets', query => {
-        query.preload('edition1Image')
-        query.preload('edition4Image')
-        query.preload('edition5Image')
-        query.preload('edition10Image')
-        query.preload('edition20Image')
-        query.preload('edition40Image')
-        query.orderBy('id')
-      })
+      .preload('createdSets')
       .first()
 
     if (! account) {

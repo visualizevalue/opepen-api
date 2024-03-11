@@ -1,6 +1,5 @@
 import { BaseCommand, args } from '@adonisjs/core/build/standalone'
-import Account from 'App/Models/Account'
-import SetModel from 'App/Models/SetModel'
+import Database from '@ioc:Adonis/Lucid/Database'
 import SetSubmission from 'App/Models/SetSubmission'
 import { DateTime } from 'luxon'
 
@@ -23,24 +22,39 @@ export default class MakeSubmissoinForSet extends BaseCommand {
   @args.string()
   public set: string
 
-  @args.string()
-  public creator: string
-
   public async run() {
-    const existingSubmission = await SetSubmission.findBy('set_id', this.set)
-    const set = await SetModel.findOrFail(this.set)
-    const creator = await Account.firstOrCreate({ address: this.creator.toLowerCase() })
+    console.log(this.set)
+    const existingSubmission = await SetSubmission.query().where('set_id', this.set).orderBy('created_at', 'desc').first()
+    const set = await Database.query().from('sets').where('id', this.set).first()
 
-    if (
-      existingSubmission &&
-      set.name === existingSubmission.name
-    ) {
-      this.logger.warning(`Set ${set.id} is already published ("${existingSubmission.uuid}")`)
+    if (existingSubmission) {
+      existingSubmission.creator = set.creator
+      existingSubmission.artist = set.artist
+      existingSubmission.name = set.name
+      existingSubmission.description = set.description
+      existingSubmission.editionType = set.editionType
+      existingSubmission.edition_1Name = set.edition_1Name
+      existingSubmission.edition_4Name = set.edition_4Name
+      existingSubmission.edition_5Name = set.edition_5Name
+      existingSubmission.edition_10Name = set.edition_10Name
+      existingSubmission.edition_20Name = set.edition_20Name
+      existingSubmission.edition_40Name = set.edition_40Name
+      existingSubmission.edition_1ImageId = set.edition_1ImageId
+      existingSubmission.edition_4ImageId = set.edition_4ImageId
+      existingSubmission.edition_5ImageId = set.edition_5ImageId
+      existingSubmission.edition_10ImageId = set.edition_10ImageId
+      existingSubmission.edition_20ImageId = set.edition_20ImageId
+      existingSubmission.edition_40ImageId = set.edition_40ImageId
+      existingSubmission.starredAt = set.revealsAt
+      existingSubmission.publishedAt = set.revealsAt
+
+      await existingSubmission.save()
+
       return
     }
 
     const submission = await SetSubmission.create({
-      creator: creator.address,
+      creator: set.creator,
       artist: set.artist,
       name: set.name,
       description: set.description,
@@ -61,6 +75,7 @@ export default class MakeSubmissoinForSet extends BaseCommand {
       publishedAt: set.revealsAt,
       setId: set.id,
     })
+
     this.logger.info(`Created new submission: ${submission.uuid}`)
   }
 }

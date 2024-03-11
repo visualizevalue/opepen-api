@@ -1,17 +1,17 @@
 import React from 'react'
 import pad from 'App/Helpers/pad'
 import Renderer from './Renderer'
-import SetModel from 'App/Models/SetModel'
+import SetSubmission from 'App/Models/SetSubmission'
 
 export default class SetDetailRenderer extends Renderer {
-  public static async render (set: SetModel) {
+  public static async render (submission: SetSubmission) {
     await Promise.all([
-      set.load('edition1Image'),
-      set.load('edition4Image'),
-      set.load('edition5Image'),
-      set.load('edition10Image'),
-      set.load('edition20Image'),
-      set.load('edition40Image'),
+      submission.load('edition1Image'),
+      submission.load('edition4Image'),
+      submission.load('edition5Image'),
+      submission.load('edition10Image'),
+      submission.load('edition20Image'),
+      submission.load('edition40Image'),
     ])
 
     const paddingY = 32
@@ -44,7 +44,7 @@ export default class SetDetailRenderer extends Renderer {
               borderRadius: '4px 16px 16px 16px',
               position: 'absolute',
             }}
-            src={await this.urlAsBuffer(set.edition1Image?.staticURI)}
+            src={await this.urlAsBuffer(submission.edition1Image?.staticURI)}
             width={imageWidth * 2 + imagePadding}
             height={imageWidth * 2 + imagePadding}
           />
@@ -55,7 +55,7 @@ export default class SetDetailRenderer extends Renderer {
               position: 'absolute',
               left: imageWidth * 2 + imagePadding * 2 + 'px',
             }}
-            src={await this.urlAsBuffer(set.edition4Image?.staticURI)}
+            src={await this.urlAsBuffer(submission.edition4Image?.staticURI)}
             width={imageWidth}
             height={imageWidth}
           />
@@ -67,7 +67,7 @@ export default class SetDetailRenderer extends Renderer {
               top: imageWidth + imagePadding + 'px',
               left: imageWidth * 2 + imagePadding * 2 + 'px',
             }}
-            src={await this.urlAsBuffer(set.edition5Image?.staticURI)}
+            src={await this.urlAsBuffer(submission.edition5Image?.staticURI)}
             width={imageWidth}
             height={imageWidth}
           />
@@ -78,7 +78,7 @@ export default class SetDetailRenderer extends Renderer {
               position: 'absolute',
               top: imageWidth * 2 + imagePadding * 2 + 'px',
             }}
-            src={await this.urlAsBuffer(set.edition10Image?.staticURI)}
+            src={await this.urlAsBuffer(submission.edition10Image?.staticURI)}
             width={imageWidth}
             height={imageWidth}
           />
@@ -90,7 +90,7 @@ export default class SetDetailRenderer extends Renderer {
               top: imageWidth * 2 + imagePadding * 2 + 'px',
               left: imageWidth + imagePadding + 'px',
             }}
-            src={await this.urlAsBuffer(set.edition20Image?.staticURI)}
+            src={await this.urlAsBuffer(submission.edition20Image?.staticURI)}
             width={imageWidth}
             height={imageWidth}
           />
@@ -102,7 +102,7 @@ export default class SetDetailRenderer extends Renderer {
               top: imageWidth * 2 + imagePadding * 2 + 'px',
               left: imageWidth * 2 + imagePadding * 2 + 'px',
             }}
-            src={await this.urlAsBuffer(set.edition40Image?.staticURI)}
+            src={await this.urlAsBuffer(submission.edition40Image?.staticURI)}
             width={imageWidth}
             height={imageWidth}
           />
@@ -120,15 +120,17 @@ export default class SetDetailRenderer extends Renderer {
           justifyContent: 'flex-end',
           backgroundImage: 'linear-gradient(to top, rgba(0,0,0,0.69) 0%, rgba(0,0,0,0) 100%)',
         }}>
-          <p style={{
-            textTransform: 'uppercase',
-            display: 'block',
-            color: '#696969',
-            margin: '0 0 0.25em',
-            fontFamily: 'SpaceGrotesk-Bold',
-          }}
-          >Set {pad(set.id, 3)}</p>
-          <h1 style={{ fontWeight: 500, margin: '0', lineHeight: '1.1', }}>{set.name || 'Unrevealed'}</h1>
+          {
+            submission.setId && <p style={{
+              textTransform: 'uppercase',
+              display: 'block',
+              color: '#696969',
+              margin: '0 0 0.25em',
+              fontFamily: 'SpaceGrotesk-Bold',
+            }}
+            >Set {pad(submission.setId, 3)}</p>
+          }
+          <h1 style={{ fontWeight: 500, margin: '0', lineHeight: '1.1', }}>{submission.name || 'Unrevealed'}</h1>
         </aside>
       </div>,
       'SQUARE'

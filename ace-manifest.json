@@ -19,25 +19,6 @@
       "aliases": [],
       "flags": []
     },
-    "set:compute-reveal-holders": {
-      "settings": {
-        "loadApp": true,
-        "stayAlive": false
-      },
-      "commandPath": "./commands/ComputeHoldersAtSetReveal",
-      "commandName": "set:compute-reveal-holders",
-      "description": "Compute the number of unique holders at the time of the drop of a set",
-      "args": [
-        {
-          "type": "string",
-          "propertyName": "set",
-          "name": "set",
-          "required": true
-        }
-      ],
-      "aliases": [],
-      "flags": []
-    },
     "export:set26_seeds": {
       "settings": {
         "loadApp": true,
@@ -95,8 +76,23 @@
       "aliases": [],
       "flags": [
         {
+          "name": "edition",
+          "propertyName": "edition",
+          "type": "string"
+        },
+        {
           "name": "missing",
           "propertyName": "missing",
+          "type": "boolean"
+        },
+        {
+          "name": "internal",
+          "propertyName": "internal",
+          "type": "boolean"
+        },
+        {
+          "name": "opensea",
+          "propertyName": "opensea",
           "type": "boolean"
         }
       ]
@@ -177,12 +173,6 @@
           "propertyName": "set",
           "name": "set",
           "required": true
-        },
-        {
-          "type": "string",
-          "propertyName": "creator",
-          "name": "creator",
-          "required": true
         }
       ],
       "aliases": [],
@@ -210,50 +200,6 @@
           "type": "number"
         }
       ]
-    },
-    "set:publish-artist-data": {
-      "settings": {
-        "loadApp": true,
-        "stayAlive": false
-      },
-      "commandPath": "./commands/PublishSetArtistData",
-      "commandName": "set:publish-artist-data",
-      "description": "Create a set submission for for an existing set",
-      "args": [
-        {
-          "type": "string",
-          "propertyName": "submission",
-          "name": "submission",
-          "required": true
-        }
-      ],
-      "aliases": [],
-      "flags": []
-    },
-    "sets:stage_submission": {
-      "settings": {
-        "loadApp": true,
-        "stayAlive": false
-      },
-      "commandPath": "./commands/StageSetSubmission",
-      "commandName": "sets:stage_submission",
-      "description": "Stage a set submission for opt in",
-      "args": [
-        {
-          "type": "string",
-          "propertyName": "submission",
-          "name": "submission",
-          "required": true
-        },
-        {
-          "type": "string",
-          "propertyName": "set",
-          "name": "set",
-          "required": true
-        }
-      ],
-      "aliases": [],
-      "flags": []
     },
     "opepen:sync": {
       "settings": {
