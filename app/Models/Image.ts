@@ -4,12 +4,10 @@ import { DateTime } from 'luxon'
 import { v4 as uuid } from 'uuid'
 import sharp from 'sharp'
 import Application from '@ioc:Adonis/Core/Application'
-import { BaseModel, BelongsTo, HasOne, beforeCreate, belongsTo, column, computed, hasOne } from '@ioc:Adonis/Lucid/Orm'
+import { BaseModel, BelongsTo, beforeCreate, belongsTo, column, computed } from '@ioc:Adonis/Lucid/Orm'
 import Drive from '@ioc:Adonis/Core/Drive'
 import Env from '@ioc:Adonis/Core/Env'
 import { toDriveFromURI } from 'App/Helpers/drive'
-import EnhancedSRGANUpscaler from 'App/Services/Upscalers/EnhancedSRGANUpscaler'
-import AiImage from './AiImage'
 import Account from './Account'
 
 const exec = promisify(cbExec)
@@ -79,11 +77,6 @@ export default class Image extends BaseModel {
   public get staticURI (): string {
     return `${this.cdn}/${this.path}/${this.uuid}@sm.${this.staticType}`
   }
-
-  @hasOne(() => AiImage, {
-    serializeAs: 'ai_image'
-  })
-  public aiImage: HasOne<typeof AiImage>
 
   @belongsTo(() => Account, {
     foreignKey: 'creator',
@@ -166,32 +159,6 @@ export default class Image extends BaseModel {
       Drive.use('local').delete(key),
       Drive.use('local').delete(pngKey),
     ])
-  }
-
-  async upscale (): Promise<void> {
-    const key = `${this.uuid}@xl`
-
-    try {
-      const data = await Drive.get(`images/${this.uuid}.${this.type}`)
-      await EnhancedSRGANUpscaler.run(data, key)
-    } catch (e) {
-      // Failed to upscale
-      return
-    }
-
-    // Scale down to 2x
-    const upscaled = await Drive.get(`images/${key}.${this.type}`)
-    const downscaled = await sharp(upscaled).resize({ width: 1024 }).toBuffer()
-    await Drive.put(
-      `images/${this.uuid}@lg.${this.type}`,
-      downscaled,
-      { contentType: `image/${this.type}` }
-    )
-
-    // Update image
-    this.versions.lg = true
-    this.versions.xl = true
-    await this.save()
   }
 
   static async fromURI (url: string, data: object = { versions: {} }): Promise<Image> {

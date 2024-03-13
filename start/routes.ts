@@ -34,62 +34,6 @@ Route.group(() => {
   Route.post('/clear',  'AuthController.clear')
 }).prefix('/v1/auth')
 
-// AI
-Route.group(() => {
-  // Journeys
-  Route.get('/accounts/:id/journeys',   'JourneysController.forAccount')
-  Route.get('/journeys/:id',            'JourneysController.show')
-
-  // Steps
-  Route.get('/journeys/:id/steps',      'JourneyStepsController.forJourney')
-
-  // AI Images
-  Route.get('/ai-images/:id',           'AiImagesController.show')
-
-  Route.group(() => {
-    // Journeys
-    Route.post('/journeys',               'JourneysController.store')
-    Route.put('/journeys/:id',            'JourneysController.update')
-
-    // Steps
-    Route.post('/journeys/:id/steps',     'JourneyStepsController.store')
-    Route.post('/steps/:id/dream',        'JourneyStepsController.dream')
-
-    // AI Images
-    Route.post('/ai-images/:id/reseed',   'AiImagesController.reseed')
-    Route.post('/ai-images/:id/upscale',  'AiImagesController.upscale')
-    Route.delete('/ai-images/:id',        'AiImagesController.delete')
-
-    // Misc
-    Route.post('/dream',                  'DreamController')
-    Route.post('/svg-test',               'SVG2PNGController')
-  }).middleware(['auth'])
-}).prefix('/v1/ai')
-
-// Opepen
-Route.group(() => {
-  // Images
-  Route.get('/images/featured',         'ImagesController.featured')
-  Route.post('/images',                 'ImagesController.store')
-  Route.get('/images/:id',              'ImagesController.show')
-
-  // Sets
-  Route.get('/sets',                    'SetsController.list')
-  Route.get('/sets/:id',                'SetsController.show')
-  Route.get('/sets/:id/subscribers',    'SetsController.listSubscribers')
-  Route.get('/sets/:id/submissions',    'SetsController.cleanedSubmissions')
-  Route.post('/sets/:id/subscribe',     'SetsController.subscribe')
-  Route.get('/sets/:id/opepen',         'SetsController.opepen')
-  Route.get('/sets/:id/stats/listings', 'SetStatsController.listings')
-
-  // Opepen
-  Route.get('/',                        'OpepenController.list')
-  Route.get('/:id',                     'OpepenController.show')
-  Route.post('/:id/image',              'OpepenController.updateImage')
-  Route.get('/:id/events',              'EventsController.forToken')
-  Route.get('/summary/:date',           'OpepenController.summary')
-}).prefix('/v1/opepen')
-
 // Set Submissions
 Route.group(() => {
   Route.get('/',                    'SetSubmissionsController.list').middleware(['admin'])
@@ -105,19 +49,6 @@ Route.group(() => {
   Route.post('/:id/notify',         'SetSubmissionsController.notifyPublication').middleware(['admin'])
 }).prefix('/v1/set-submissions').middleware(['auth'])
 
-// Account Settings
-Route.group(() => {
-  Route.group(() => {
-    Route.get('/',        'AccountSettingsController.show')
-    Route.post('/',       'AccountSettingsController.update')
-  }).middleware(['auth'])
-
-  Route.get('/:account/verify-email', 'AccountSettingsController.verifyEmail')
-    .as('verifyEmail')
-  Route.get('/:account/unsubscribe/:type', 'AccountSettingsController.unsubscribeNotification')
-    .as('unsubscribeNotification')
-}).prefix('/v1/accounts/settings')
-
 // Accounts
 Route.group(() => {
   Route.get('/:id',                     'AccountsController.show')
@@ -130,12 +61,20 @@ Route.group(() => {
   Route.get('/:account/sets/:id',       'SetsController.subscriptionForAccount')
 
   Route.get('/:account/set-submissions', 'SetSubmissionsController.forAccount').middleware(['auth'])
-}).prefix('/v1/accounts')
 
-// Reveals
-Route.group(() => {
-  Route.get('/:reveal/:account',        'RevealsController.forAccount')
-}).prefix('/v1/reveals')
+  // Account Settings
+  Route.group(() => {
+    Route.group(() => {
+      Route.get('/',        'AccountSettingsController.show')
+      Route.post('/',       'AccountSettingsController.update')
+    }).middleware(['auth'])
+
+    Route.get('/:account/verify-email', 'AccountSettingsController.verifyEmail')
+      .as('verifyEmail')
+    Route.get('/:account/unsubscribe/:type', 'AccountSettingsController.unsubscribeNotification')
+      .as('unsubscribeNotification')
+  }).prefix('/settings')
+}).prefix('/v1/accounts')
 
 // Rich Content Cards
 Route.group(() => {

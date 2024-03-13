@@ -43,10 +43,6 @@ export default class ImagesController extends BaseController {
 
   public async show ({ params }: HttpContextContract) {
     return Image.query()
-      .preload('aiImage', query => {
-        query.whereNotNull('journeyStepId')
-        query.preload('journeyStep', query => query.preload('journey'))
-      })
       .where('uuid', params.id)
       .firstOrFail()
   }

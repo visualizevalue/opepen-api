@@ -4,7 +4,6 @@ import Env from '@ioc:Adonis/Core/Env'
 import { afterSave, BaseModel, beforeSave, BelongsTo, belongsTo, column, computed, HasMany, hasMany } from '@ioc:Adonis/Lucid/Orm'
 import Address from 'App/Helpers/Address'
 import provider from 'App/Services/RPCProvider'
-import Journey from 'App/Models/Journey'
 import Image from 'App/Models/Image'
 import SetSubmission from 'App/Models/SetSubmission'
 import RichContentLink from 'App/Models/RichContentLink'
@@ -83,12 +82,6 @@ export default class Account extends BaseModel {
     localKey: 'address',
   })
   public richContentLinks: HasMany<typeof RichContentLink>
-
-  @hasMany(() => Journey, {
-    foreignKey: 'owner',
-    localKey: 'address',
-  })
-  public journeys: HasMany<typeof Journey>
 
   @hasMany(() => SetSubmission, {
     foreignKey: 'creator',
