@@ -23,6 +23,19 @@ import Route from '@ioc:Adonis/Core/Route'
 // Welcome
 Route.get('/', () => ({ hello: 'opepen' }))
 
+// General metadata
+Route.get('/opepen.json', 'OpepenMetadataController.contractMetadata')
+Route.get('/base.png', 'OpepenMetadataController.baseImage')
+
+// Token specific metadata
+Route.get('/:id/metadata.json', 'OpepenMetadataController.metadata')
+Route.get('/:id/image-uri', 'OpepenMetadataController.imageURI')
+Route.get('/:id/image', 'OpepenMetadataController.image')
+Route.get('/:id/render', 'OpepenMetadataController.render')
+
+// TODO: Deprecate
+Route.get('/:id/image.png', 'OpepenMetadataController.image')
+
 // Auth
 Route.group(() => {
   Route.get('/nonce',   'AuthController.nonce')
