@@ -95,8 +95,23 @@
       "aliases": [],
       "flags": [
         {
+          "name": "edition",
+          "propertyName": "edition",
+          "type": "string"
+        },
+        {
           "name": "missing",
           "propertyName": "missing",
+          "type": "boolean"
+        },
+        {
+          "name": "internal",
+          "propertyName": "internal",
+          "type": "boolean"
+        },
+        {
+          "name": "opensea",
+          "propertyName": "opensea",
           "type": "boolean"
         }
       ]

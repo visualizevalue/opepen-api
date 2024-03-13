@@ -6,7 +6,7 @@ import Logger from '@ioc:Adonis/Core/Logger'
 import OpenSea from 'App/Services/OpenSea'
 import TokenModel from './TokenModel'
 import Event from './Event'
-import SetModel from './SetModel'
+import SetDataModel from './SetDataModel'
 import Image from './Image'
 import { ContractType } from './types'
 
@@ -48,10 +48,10 @@ export default class Opepen extends TokenModel {
   @column()
   public imageId: bigint
 
-  @belongsTo(() => SetModel, {
+  @belongsTo(() => SetDataModel, {
     foreignKey: 'setId',
   })
-  public set: BelongsTo<typeof SetModel>
+  public set: BelongsTo<typeof SetDataModel>
 
   @belongsTo(() => Image)
   public image: BelongsTo<typeof Image>
