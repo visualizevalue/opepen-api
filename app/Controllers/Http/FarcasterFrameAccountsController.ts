@@ -4,6 +4,7 @@ import Env from '@ioc:Adonis/Core/Env'
 import Account from 'App/Models/Account'
 import FarcasterFramesController, { type Action } from './FarcasterFramesController'
 import AccountRenderer from 'App/Frames/AccountRenderer'
+import Opepen from 'App/Models/Opepen'
 
 export default class FarcasterFrameAccountsController extends FarcasterFramesController {
 
@@ -26,13 +27,14 @@ export default class FarcasterFrameAccountsController extends FarcasterFramesCon
   }
 
   private async accountOverview (id: string) {
-    const account = await Account.byId(id).preload('opepen').firstOrFail()
+    const account = await Account.byId(id).firstOrFail()
+    const opepen = await Opepen.query().where('owner', account.address)
 
     const actions: Action[] = [
         { text: `View on on Opepen.art`, action: 'link', target: `https://opepen.art/holders/${id}` },
     ]
 
-    if (account.opepen?.length) {
+    if (opepen?.length) {
       actions.push('Browse Opepen →')
     }
 
@@ -44,28 +46,27 @@ export default class FarcasterFrameAccountsController extends FarcasterFramesCon
   }
 
   private async accountOpepenResponse (accountId: string, opepenIndex: number) {
-    const account = await Account.byId(accountId)
-      .preload('opepen', query => {
-        query.preload('image')
-        query.orderBy('setId')
-        query.orderByRaw(`(data->>'edition')::int`)
-      })
-      .firstOrFail()
+    const account = await Account.byId(accountId).firstOrFail()
+    const opepens = await Opepen.query()
+      .where('owner', account.address)
+      .preload('image')
+      .orderBy('setId')
+      .orderByRaw(`(data->>'edition')::int`)
 
     // Cycle back to overview
-    if (opepenIndex < 0 || opepenIndex >= account.opepen?.length) {
+    if (opepenIndex < 0 || opepenIndex >= opepens?.length) {
       return this.accountOverview(accountId)
     }
 
     const isFirst = opepenIndex === 0
-    const isLast = opepenIndex + 1 >= account.opepen?.length
+    const isLast = opepenIndex + 1 >= opepens?.length
 
     const actions: Action[] = [
       isFirst ? '↺ Overview' : '← Previous',
       isLast  ? '↺ Overview' : 'Next →',
     ]
 
-    const opepen = account.opepen[opepenIndex]
+    const opepen = opepens[opepenIndex]
     let imageUrl = opepen.image?.staticURI
 
     if (! imageUrl) {
@@ -90,10 +91,10 @@ export default class FarcasterFrameAccountsController extends FarcasterFramesCon
     const account = await Account.byId(params.id)
       .preload('pfp')
       .preload('coverImage')
-      .preload('opepen', query => query.preload('image'))
       .firstOrFail()
+    const opepen = await Opepen.query().where('owner', account.address).preload('image')
 
-    const image = account.opepen?.length >= 2
+    const image = opepen?.length >= 2
       ? await AccountRenderer.renderWithOwnedOpepen(account)
       : await AccountRenderer.render(account)
 

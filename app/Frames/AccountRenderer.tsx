@@ -1,6 +1,7 @@
 import React from 'react'
 import Account from 'App/Models/Account'
 import Renderer from './Renderer'
+import Opepen from 'App/Models/Opepen'
 
 const DEFAULT_PFP: string = 'https://opepenai.nyc3.digitaloceanspaces.com/images/764c9320-05a9-4329-87a5-117277d21df9@sm.png'
 
@@ -51,8 +52,10 @@ export default class AccountRenderer extends Renderer {
   }
 
   public static async renderWithOwnedOpepen (account: Account) {
-    const perSide = Math.min(4, Math.floor(Math.sqrt(account.opepen.length)))
-    const opepenOnDisplay = account.opepen
+    const opepen = await Opepen.query().where('owner', account.address)
+
+    const perSide = Math.min(4, Math.floor(Math.sqrt(opepen.length)))
+    const opepenOnDisplay = opepen
         .sort((a, b) => a.data.edition > b.data.edition ? 1 : -1)
         .sort((a, b) => a.setId === null
           ? 1
