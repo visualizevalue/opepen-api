@@ -139,9 +139,15 @@ Route.group(() => {
 
 // Rich Content Cards
 Route.group(() => {
-  Route.post('/', 'RichContentLinksController.createOrUpdate').middleware(['auth'])
-  Route.delete('/:id', 'RichContentLinksController.destroy').middleware(['auth'])
-}).prefix('/v1/rich-links')
+  Route.post('/',      'RichContentLinksController.createOrUpdate')
+  Route.delete('/:id', 'RichContentLinksController.destroy')
+}).prefix('/v1/rich-links').middleware(['auth'])
+
+// Auctions
+Route.group(() => {
+  Route.get('/',       'AuctionsController.list')
+  Route.get('/:id',    'AuctionsController.show')
+}).prefix('/v1/auctions')
 
 // FC Frames
 Route.group(() => {
