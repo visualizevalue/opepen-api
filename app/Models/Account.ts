@@ -98,12 +98,6 @@ export default class Account extends BaseModel {
   })
   public createdSets: HasMany<typeof SetSubmission>
 
-  @hasMany(() => Opepen, {
-    foreignKey: 'owner',
-    localKey: 'address',
-  })
-  public opepen: HasMany<typeof Opepen>
-
   @beforeSave()
   public static async lowerCaseAddress(account: Account) {
     account.address = account.address.toLowerCase()

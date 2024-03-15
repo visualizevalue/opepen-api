@@ -51,4 +51,5 @@ export default Env.rules({
   OPENSEA_KEY: Env.schema.string(),
   OPENSEA_BASE: Env.schema.string(),
   FC_HUB_BASE: Env.schema.string(),
+  SIGNATURE_API_BASE: Env.schema.string(),
 })

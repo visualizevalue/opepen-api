@@ -1,5 +1,4 @@
 import { BaseCommand, args, flags } from '@adonisjs/core/build/standalone'
-import Image from 'App/Models/Image'
 import { DateTime } from 'luxon'
 
 export default class ImportImage extends BaseCommand {
@@ -25,6 +24,8 @@ export default class ImportImage extends BaseCommand {
   }
 
   public async run() {
+    const { default: Image } = await import('App/Models/Image')
+
     const image = await Image.fromURI(this.uri)
 
     await image.generateScaledVersions()

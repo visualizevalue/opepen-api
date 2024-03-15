@@ -56,7 +56,12 @@ export default class OpepenController extends BaseController {
       .where('owner', account.address)
       .preload('image')
 
+    if (filter.edition) {
+      query.whereJsonSuperset('data', { edition: parseInt(filter.edition) })
+      delete filter.edition
+    }
     this.applyFilters(query, filter)
+
     this.applySorts(query, sort)
 
     return query
