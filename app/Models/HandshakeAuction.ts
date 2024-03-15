@@ -6,6 +6,9 @@ export default class HandshakeAuction extends BaseModel {
   public id: number
 
   @column()
+  public slug: string
+
+  @column()
   public title: string
 
   @column()
