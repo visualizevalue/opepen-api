@@ -9,6 +9,7 @@ import Event from './Event'
 import SetModel from './SetModel'
 import Image from './Image'
 import { ContractType } from './types'
+import { TokenMetadata } from 'App/Services/Metadata/MetadataTypes'
 
 type SetConfig = any
 
@@ -38,6 +39,9 @@ export default class Opepen extends TokenModel {
     }
   })
   public data: OpepenData
+
+  @column({ serializeAs: null })
+  public metadata: TokenMetadata
 
   @column()
   public setId: number
