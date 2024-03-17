@@ -61,3 +61,15 @@ export type SubmissionStats = {
   },
   totalHolders?: number
 }
+
+
+export type OauthData = {
+  accessToken: string|undefined
+  refreshToken: string|undefined
+  expiresAt: string|undefined
+  twitterUser: {
+    id: string
+    name: string
+    username: string
+  }|undefined
+}

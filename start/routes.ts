@@ -47,6 +47,36 @@ Route.group(() => {
   Route.post('/clear',  'AuthController.clear')
 }).prefix('/v1/auth')
 
+// Social Auth
+Route.group(() => {
+  Route.get('/connect/twitter',   'TwitterAuthController.getUrl')
+  Route.get('/twitter',           'TwitterAuthController.callback')
+}).prefix('/oauth').middleware(['auth'])
+
+// Opepen
+Route.group(() => {
+  // Images
+  Route.get('/images/featured',         'ImagesController.featured')
+  Route.post('/images',                 'ImagesController.store')
+  Route.get('/images/:id',              'ImagesController.show')
+
+  // Sets
+  Route.get('/sets',                    'SetsController.list')
+  Route.get('/sets/:id',                'SetsController.show')
+  Route.get('/sets/:id/subscribers',    'SetsController.listSubscribers')
+  Route.get('/sets/:id/submissions',    'SetsController.cleanedSubmissions')
+  Route.post('/sets/:id/subscribe',     'SetsController.subscribe')
+  Route.get('/sets/:id/opepen',         'SetsController.opepen')
+  Route.get('/sets/:id/stats/listings', 'SetStatsController.listings')
+
+  // Opepen
+  Route.get('/',                        'OpepenController.list')
+  Route.get('/:id',                     'OpepenController.show')
+  Route.post('/:id/image',              'OpepenController.updateImage')
+  Route.get('/:id/events',              'EventsController.forToken')
+  Route.get('/summary/:date',           'OpepenController.summary')
+}).prefix('/v1/opepen')
+
 // Set Submissions
 Route.group(() => {
   Route.get('/',                    'SetSubmissionsController.list').middleware(['admin'])
@@ -64,17 +94,6 @@ Route.group(() => {
 
 // Accounts
 Route.group(() => {
-  Route.get('/:id',                     'AccountsController.show')
-  Route.put('/:id',                     'AccountsController.update')
-  Route.get('/:id/opepen',              'OpepenController.forAccount')
-
-  Route.post('/:id/mail/test',          'AccountsController.testMail').middleware(['admin'])
-  Route.post('/:id/mail/new-set/:set',  'AccountsController.setNotification').middleware(['admin'])
-
-  Route.get('/:account/sets/:id',       'SetsController.subscriptionForAccount')
-
-  Route.get('/:account/set-submissions', 'SetSubmissionsController.forAccount').middleware(['auth'])
-
   // Account Settings
   Route.group(() => {
     Route.group(() => {
@@ -87,6 +106,17 @@ Route.group(() => {
     Route.get('/:account/unsubscribe/:type', 'AccountSettingsController.unsubscribeNotification')
       .as('unsubscribeNotification')
   }).prefix('/settings')
+
+  Route.get('/:id',                     'AccountsController.show')
+  Route.put('/:id',                     'AccountsController.update')
+  Route.get('/:id/opepen',              'OpepenController.forAccount')
+
+  Route.post('/:id/mail/test',          'AccountsController.testMail').middleware(['admin'])
+  Route.post('/:id/mail/new-set/:set',  'AccountsController.setNotification').middleware(['admin'])
+
+  Route.get('/:account/sets/:id',       'SetsController.subscriptionForAccount')
+
+  Route.get('/:account/set-submissions', 'SetSubmissionsController.forAccount').middleware(['auth'])
 }).prefix('/v1/accounts')
 
 // Rich Content Cards

@@ -52,4 +52,9 @@ export default Env.rules({
   OPENSEA_BASE: Env.schema.string(),
   FC_HUB_BASE: Env.schema.string(),
   SIGNATURE_API_BASE: Env.schema.string(),
+  TWITTER_API_KEY: Env.schema.string(),
+  TWITTER_API_SECRET: Env.schema.string(),
+  TWITTER_BEARER: Env.schema.string(),
+  TWITTER_CLIENT_ID: Env.schema.string(),
+  TWITTER_CLIENT_SECRET: Env.schema.string(),
 })

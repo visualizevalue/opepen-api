@@ -7,8 +7,7 @@ import provider from 'App/Services/RPCProvider'
 import Image from 'App/Models/Image'
 import SetSubmission from 'App/Models/SetSubmission'
 import RichContentLink from 'App/Models/RichContentLink'
-import Opepen from 'App/Models/Opepen'
-import { ArtistSocials } from './types'
+import { ArtistSocials, OauthData } from './types'
 
 export default class Account extends BaseModel {
   @column({ isPrimary: true })
@@ -25,6 +24,9 @@ export default class Account extends BaseModel {
 
   @column()
   public data: object
+
+  @column({ serializeAs: null })
+  public oauth: OauthData
 
   @column({ serializeAs: null })
   public email: string
@@ -58,6 +60,11 @@ export default class Account extends BaseModel {
 
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   public updatedAt: DateTime
+
+  @computed()
+  public get twitterHandle () {
+    return this.oauth.twitterUser?.username
+  }
 
   @computed()
   public get display () {
