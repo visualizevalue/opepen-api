@@ -185,7 +185,7 @@
       },
       "commandPath": "./commands/OpepenMetadataImport",
       "commandName": "opepen:import-metadata",
-      "description": "",
+      "description": "Import the metadata from the metadata api",
       "args": [],
       "aliases": [],
       "flags": [
@@ -198,6 +198,11 @@
           "name": "to",
           "propertyName": "to",
           "type": "number"
+        },
+        {
+          "name": "revealed",
+          "propertyName": "revealed",
+          "type": "boolean"
         }
       ]
     },

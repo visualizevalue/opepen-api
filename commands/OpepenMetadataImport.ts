@@ -11,7 +11,7 @@ export default class OpepenMetadataImport extends BaseCommand {
   /**
    * Command description is displayed in the "help" output
    */
-  public static description = ''
+  public static description = 'Import the metadata from the metadata api'
 
   public static settings = {
     loadApp: true,
@@ -24,21 +24,32 @@ export default class OpepenMetadataImport extends BaseCommand {
   @flags.number()
   public to: number = 16_000
 
+  @flags.boolean()
+  public revealed: boolean = true
+
   public async run() {
     this.logger.info('Import Opepen Metadata')
 
-    const opepens = await Opepen.query()
+    const query = Opepen.query()
       .where('tokenId', '>=', this.from)
       .where('tokenId', '<=', this.to)
-      .orderBy('tokenId')
+
+    if (this.revealed) {
+      query.whereNotNull('revealedAt')
+    }
+
+    const opepens = await query.orderBy('tokenId')
 
     for (const opepen of opepens) {
       const { data: metadata } = await axios.get(`https://metadata.opepen.art/${opepen.tokenId}/metadata.json`)
 
-      opepen.data = {
-        ...opepen.data,
-        edition: metadata.attributes.find(a => a.trait_type === 'Edition Size').value,
-      }
+      delete metadata.name
+      delete metadata.description
+
+      metadata.attributes = metadata.attributes
+        .filter(({ trait_type }) => ['Artist', 'Release', 'Set', 'Opepen', 'Edition Size'].includes(trait_type))
+
+      opepen.metadata = metadata
       await opepen.save()
 
       this.logger.info(`Opepen ${opepen.tokenId} metadata saved`)
