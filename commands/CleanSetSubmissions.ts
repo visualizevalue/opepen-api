@@ -33,7 +33,7 @@ export default class CleanSetSubmissions extends BaseCommand {
   }
 
   private async compute (set: SetModel) {
-    await set.submission.cleanSubmissions()
+    await set.submission.cleanSubmissionsAndStats()
 
     console.log(`Set #${set.id} counts:`, set.submission.submissionStats)
   }

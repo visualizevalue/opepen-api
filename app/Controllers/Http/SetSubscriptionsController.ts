@@ -5,6 +5,7 @@ import Account from 'App/Models/Account'
 import SetSubmission from 'App/Models/SetSubmission'
 import Subscription from 'App/Models/Subscription'
 import BaseController from './BaseController'
+import SubscriptionHistory from 'App/Models/SubscriptionHistory'
 
 export default class SetSubscriptionsController extends BaseController {
   public async subscribe ({ params, request }: HttpContextContract) {
@@ -16,7 +17,7 @@ export default class SetSubscriptionsController extends BaseController {
     const comment = request.input('comment', null)
     const verifiedAddress = ethers.utils.verifyMessage(message, signature)
 
-    if (submission.revealsAt < DateTime.now()) throw new Error(`Submission past reveal`)
+    if (submission.revealBlockNumber) throw new Error(`Submission past timeout`)
     if (! submission.publishedAt) throw new Error(`Needs a valid submission`) // TODO: Maybe not use published, but approved or sth like that
     if (! message) throw new Error(`Needs a message`)
     if (address !== verifiedAddress.toLowerCase()) throw new Error(`Address needs to be accurate`)
@@ -36,6 +37,9 @@ export default class SetSubscriptionsController extends BaseController {
       delegatedBy: request.input('delegated_by'),
       createdAt: DateTime.now(),
     })
+
+    // Save history
+    await SubscriptionHistory.saveFor(subscription)
 
     // Update opepen cache
     submission.updateAndValidateOpepensInSet()

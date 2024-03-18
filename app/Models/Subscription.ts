@@ -1,12 +1,9 @@
 import { DateTime } from 'luxon'
 import { BaseModel, BelongsTo, belongsTo, column } from '@ioc:Adonis/Lucid/Orm'
-// import Account from 'App/Models/Account'
-// import SetSubmission from 'App/Models/SetSubmission'
-import { MaxReveal } from './types'
-import SetSubmission from './SetSubmission'
-import Account from './Account'
 import Database from '@ioc:Adonis/Lucid/Database'
-// import Database from '@ioc:Adonis/Lucid/Database'
+import Account from 'App/Models/Account'
+import SetSubmission from 'App/Models/SetSubmission'
+import { MaxReveal } from './types'
 
 export default class Subscription extends BaseModel {
   public static table = 'set_subscriptions'
@@ -54,33 +51,19 @@ export default class Subscription extends BaseModel {
   })
   public account: BelongsTo<typeof Account>
 
-  // TODO: Implement in reveal
-  public static async clearRevealedOpepenFromSet (setId: number) {
-    const optIns = await Database.rawQuery(`
-      select
-        t1.opt_in_id,
-        array_agg(opepens.token_id) as opepen_ids
-      from opepens
-      inner join (
-        select
-          id as opt_in_id,
-          (jsonb_array_elements("opepen_ids")->>0)::int as token_id
-        from set_subscriptions
-        where set_id = ?
-      ) t1 on (opepens.token_id = t1.token_id)
-      where opepens.set_id is not null
-      group by opt_in_id
-    `, [setId])
+  public static async clearRevealingOpepenFromOtherSubmissions (submissionId: number) {
+    const optedOpepen = await Database.rawQuery(`
+      SELECT jsonb_array_elements_text("opepen_ids")
+      FROM set_subscriptions
+      WHERE submission_id = ${submissionId}
+    `)
+    const optedOpepenStr = optedOpepen.join(',')
 
-    for (const { opt_in_id, opepen_ids } of optIns.rows) {
-      const optIn = await Subscription.findOrFail(opt_in_id)
-
-      optIn.opepenIds = optIn.opepenIds.filter(id => ! opepen_ids.includes(id))
-
-      await optIn.save()
-    }
-
-    const set = await SetSubmission.findOrFail(setId)
-    set.updateAndValidateOpepensInSet()
+    await Database.rawQuery(`
+      UPDATE set_subscriptions
+      SET opepen_ids = opepen_ids - '{${optedOpepenStr}}'::text[]
+      WHERE opepen_ids ?| '{${optedOpepenStr}}'::text[]
+      AND submission_id != ${submissionId}
+    `)
   }
 }

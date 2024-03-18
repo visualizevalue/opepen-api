@@ -256,22 +256,22 @@ export default class SetSubmission extends BaseModel {
   })
 
   public async startRevealTimer () {
-    if (this.revealsAt) throw new Error(`Timer already running`)
+    if (this.revealsAt) return
+
+    await Subscription.clearRevealingOpepenFromOtherSubmissions(this.id)
 
     this.revealsAt = DateTime.now().plus({ seconds: this.remainingRevealTime })
     this.remainingRevealTime = 0
-
     await this.save()
   }
 
   public async pauseRevealTimer () {
-    if (! this.revealsAt) throw new Error(`Timer not running`)
-
     const now = DateTime.now()
 
-    if (this.revealsAt < now) throw new Error(`Nothing to pause, should reveal`)
+    if (! this.revealsAt) return
+    if (this.revealsAt < now) return
 
-    this.remainingRevealTime = this.revealsAt.diff(DateTime.now()).as('seconds')
+    this.remainingRevealTime = this.revealsAt.diff(now).as('seconds')
     this.revealsAt = null
 
     await this.save()
@@ -347,10 +347,8 @@ export default class SetSubmission extends BaseModel {
   }
 
   public async updateAndValidateOpepensInSet () {
-    await this.cleanSubmissions()
-    this.submittedOpepen = await this.opepensInSet()
-    await this.computeTotalHoldersAtReveal()
-    await this.save()
+    await this.cleanSubmissionsAndStats()
+    await this.maybeStartTimer()
   }
 
   public async clearOptIns () {
@@ -391,7 +389,7 @@ export default class SetSubmission extends BaseModel {
   }
 
   // FIXME: Clean up this ducking mess!
-  public async cleanSubmissions () {
+  public async cleanSubmissionsAndStats () {
     const submissions = await Subscription.query().where('setId', this.id)
 
     const holders = { 1: 0, 4: 0, 5: 0, 10: 0, 20: 0, 40: 0, total: 0 }
@@ -447,16 +445,28 @@ export default class SetSubmission extends BaseModel {
       await submission.save()
     }
 
-    this.submissionStats = { ...this.submissionStats, holders, opepens, demand }
+    const owners = await Opepen.holdersAtBlock(parseInt(this.revealBlockNumber) || 9999999999999999)
+
+    this.submissionStats = {
+      ...this.submissionStats,
+      totalHolders: owners.size,
+      holders,
+      opepens,
+      demand,
+    }
+    this.submittedOpepen = await this.opepensInSet()
     await this.save()
   }
 
-  public async computeTotalHoldersAtReveal () {
-    const owners = await Opepen.holdersAtBlock(parseInt(this.revealBlockNumber) || 9999999999999999)
+  public async maybeStartTimer () {
+    const demand = this.submissionStats.demand
 
-    this.submissionStats = { ...this.submissionStats, totalHolders: owners.size }
-    await this.save()
+    const editions = [1, 4, 5, 10, 20, 40]
 
-    return owners.size
+    for (const edition of editions) {
+      if (demand[edition] < edition) return
+    }
+
+    await this.startRevealTimer()
   }
 }
