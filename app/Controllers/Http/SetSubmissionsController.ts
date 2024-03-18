@@ -127,7 +127,7 @@ export default class SetSubmissionsController extends BaseController {
       .preload('edition10Image')
       .preload('edition20Image')
       .preload('edition40Image')
-      .preload('dynamicPreviewImages')
+      .preload('dynamicSetImages')
       // TODO: Implement rich content links
       // .preload('richContentLinks', query => {
       //   query.preload('logo')

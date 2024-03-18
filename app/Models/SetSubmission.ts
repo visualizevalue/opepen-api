@@ -195,7 +195,7 @@ export default class SetSubmission extends BaseModel {
            .preload('image40_36').preload('image40_37').preload('image40_38').preload('image40_39').preload('image40_40')
     }
   })
-  public dynamicPreviewImages: BelongsTo<typeof DynamicSetImages>
+  public dynamicSetImages: BelongsTo<typeof DynamicSetImages>
 
   @belongsTo(() => SetModel, {
     foreignKey: 'setId',
@@ -255,6 +255,10 @@ export default class SetSubmission extends BaseModel {
     query.whereNotNull('edition_40ImageId')
   })
 
+  public optInOpen () {
+    return this.revealsAt && this.revealsAt > DateTime.now()
+  }
+
   public async startRevealTimer () {
     if (this.revealsAt) return
 
@@ -304,16 +308,9 @@ export default class SetSubmission extends BaseModel {
     if (set.id !== set.submissionId) throw new Error(`Not allowed to re-reveal to a set`)
 
     try {
-      await (new Reveal()).compute(submission)
-
-      set.submissionId = submission.id
-      submission.setId = set.id
-      submission.publishedAt = DateTime.now()
-
-      await set.save()
-      await submission.save()
+      await (new Reveal()).compute(submission, set)
     } catch (e) {
-      Logger.info(`Something`)
+      Logger.info(`Something bad happened during reveal of set ${set.id} and submission ${submission.uuid}`, e)
     }
   }
 

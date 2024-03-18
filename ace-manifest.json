@@ -19,6 +19,18 @@
       "aliases": [],
       "flags": []
     },
+    "reveal:execute": {
+      "settings": {
+        "loadApp": true,
+        "stayAlive": false
+      },
+      "commandPath": "./commands/ExecuteReveal",
+      "commandName": "reveal:execute",
+      "description": "Execute pending reveals",
+      "args": [],
+      "aliases": [],
+      "flags": []
+    },
     "export:set26_seeds": {
       "settings": {
         "loadApp": true,
@@ -205,6 +217,18 @@
           "type": "boolean"
         }
       ]
+    },
+    "reveal:schedule": {
+      "settings": {
+        "loadApp": true,
+        "stayAlive": false
+      },
+      "commandPath": "./commands/ScheduleReveal",
+      "commandName": "reveal:schedule",
+      "description": "Set the reveal block for all submissions that should reveal",
+      "args": [],
+      "aliases": [],
+      "flags": []
     },
     "opepen:sync": {
       "settings": {

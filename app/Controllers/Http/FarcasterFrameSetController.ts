@@ -72,10 +72,10 @@ export default class FarcasterFrameSetController extends FarcasterFramesControll
    */
   public async optIn({ request, params }: HttpContextContract) {
     // Check if set still live
+    // TODO: Rework since we don't know the set yet...
     const set = await SetModel.findOrFail(params.id)
     await set.load('submission')
-    // TODO: Rework re new opt in flow
-    if (DateTime.now() > set.submission.revealsAt) return this.setOverviewResponse(params.id)
+    if (set.submission.optInOpen()) return this.setOverviewResponse(params.id)
 
     // Fetch user input
     const { untrustedData, trustedData } = request.body()
@@ -185,7 +185,7 @@ export default class FarcasterFrameSetController extends FarcasterFramesControll
       imageUrl: `${Env.get('APP_URL')}/v1/frames/sets/${id}/detail/image`,
       postUrl: `${Env.get('APP_URL')}/v1/frames/sets/${id}/detail`,
       actions: [
-        set.submission.revealsAt > DateTime.now()
+        set.submission.optInOpen()
           ? 'Opt In'
           : { text: `Set #${pad(id, 3)} on Opepen.art`, action: 'link', target: `https://opepen.art/sets/${set.id}` },
         'View 1/1 →',
@@ -201,7 +201,7 @@ export default class FarcasterFrameSetController extends FarcasterFramesControll
 
     const nextEdition = this.getNextEdition(edition)
     const actions: Action[] = [
-      set.submission.revealsAt > DateTime.now()
+      set.submission.optInOpen()
           ? `${opepen?.length ? `${opepen.length}x ` : ''}Opt In 1/${edition}`
           : { text: `Set #${pad(id, 3)} on Opepen.art`, action: 'link', target: `https://opepen.art/sets/${set.id}` },
       nextEdition === 1 ? `↺ Overview` : `View 1/${nextEdition} →`,

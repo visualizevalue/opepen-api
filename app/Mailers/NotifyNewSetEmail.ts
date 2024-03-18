@@ -22,7 +22,7 @@ export default class NotifyNewSetEmail extends NotificationEmail {
         setId: paddedSetId,
         setName: this.set.submission.name,
         setUrl: `https://opepen.art/sets/${paddedSetId}`,
-        optInUntil: this.set.submission.revealsAt.toUTC().toLocaleString(DateTime.DATETIME_FULL)
+        optInUntil: this.set.submission.revealsAt?.toUTC().toLocaleString(DateTime.DATETIME_FULL) || ''
       },
     })
   }

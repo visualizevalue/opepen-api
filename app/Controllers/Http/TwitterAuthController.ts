@@ -8,10 +8,12 @@ export default class TwitterAuthController {
 
   callbackURI: string = Env.get('APP_URL') + '/oauth/twitter'
 
-  public async getUrl ({ session }: HttpContextContract) {
-    const client = new TwitterApi({ clientId: Env.get('TWITTER_CLIENT_ID'), appSecret: Env.get('TWITTER_CLIENT_SECRET') })
+  private get client () {
+    return new TwitterApi({ clientId: Env.get('TWITTER_CLIENT_ID'), clientSecret: Env.get('TWITTER_CLIENT_SECRET') })
+  }
 
-    const { url, codeVerifier, state } = client.generateOAuth2AuthLink(this.callbackURI, {
+  public async getUrl ({ session }: HttpContextContract) {
+    const { url, codeVerifier, state } = this.client.generateOAuth2AuthLink(this.callbackURI, {
       scope: ['tweet.read', 'tweet.write', 'users.read', 'offline.access']
     })
 
@@ -36,15 +38,13 @@ export default class TwitterAuthController {
       return response.status(400).send('Stored tokens didnt match!')
     }
 
-    const client = new TwitterApi({ clientId: Env.get('TWITTER_CLIENT_ID'), clientSecret: Env.get('TWITTER_CLIENT_SECRET') })
-
     try {
       const {
         client: userClient,
         accessToken,
         refreshToken,
         expiresIn,
-      } = await client.loginWithOAuth2({ code, codeVerifier, redirectUri: this.callbackURI })
+      } = await this.client.loginWithOAuth2({ code, codeVerifier, redirectUri: this.callbackURI })
 
       const account = await Account.query()
         .where('address', session.get('siwe')?.address?.toLowerCase())

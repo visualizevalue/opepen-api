@@ -2,16 +2,30 @@ import fs from 'fs'
 import path from 'path'
 import Logger from '@ioc:Adonis/Core/Logger'
 import { execute } from 'App/Helpers/execute'
+import { MaxReveal } from 'App/Models/types'
+import Image from 'App/Models/Image'
 import Opepen from 'App/Models/Opepen'
+import SetModel from 'App/Models/SetModel'
 import SetSubmission from 'App/Models/SetSubmission'
 import Subscription from 'App/Models/Subscription'
-import { MaxReveal } from 'App/Models/types'
 import CID from 'App/Services/CID'
 import provider from 'App/Services/RPCProvider'
+import { DateTime } from 'luxon'
+import pad from 'App/Helpers/pad'
+
+const EDITION_VOCAB = {
+  "1": "One",
+  "4": "Four",
+  "5": "Five",
+  "10": "Ten",
+  "20": "Twenty",
+  "40": "Forty",
+}
 
 export default class Reveal {
   public async compute (
     submission: SetSubmission,
+    set: SetModel,
   ) {
     await this.prepareData(submission)
 
@@ -19,7 +33,7 @@ export default class Reveal {
 
     await execute(`python3 randomize.py --seed "${block.hash}" --set ${submission.uuid}`)
 
-    await this.handleResults(submission)
+    await this.handleResults(submission, set)
   }
 
   private async prepareData (submission: SetSubmission) {
@@ -91,14 +105,85 @@ export default class Reveal {
     fs.writeFileSync(this.inputPath(submission.id), dataBlob)
   }
 
-  private async handleResults (submission: SetSubmission) {
+  private async handleResults (submission: SetSubmission, set: SetModel) {
     const output = fs.readFileSync(this.outputPath(submission.id)).toString()
     submission.revealSubmissionsOutput = JSON.parse(output)
 
     const cid = await CID.getJsonCID(submission.revealSubmissionsOutput)
     submission.revealSubmissionsOutputCid = cid.toString()
 
+    set.submissionId = submission.id
+    submission.setId = set.id
+    submission.publishedAt = DateTime.now()
+
+    await set.save()
     await submission.save()
+
+    await this.saveOpepenMetadata(submission, set)
+
+    // TODO: Notify about Reveal
+  }
+
+  private async saveOpepenMetadata (submission: SetSubmission, set: SetModel) {
+    // Load images
+    await submission.load(loader => {
+      loader.load('edition1Image')
+            .load('edition4Image')
+            .load('edition5Image')
+            .load('edition10Image')
+            .load('edition20Image')
+            .load('edition40Image')
+    })
+    if (submission.isDynamic) {
+      await submission.load('dynamicSetImages')
+    }
+
+    const editions = Object.keys(submission.revealSubmissionsOutput)
+    for (const edition of editions) {
+      let index = 1
+      for (const tokenId of submission.revealSubmissionsOutput[edition]) {
+        await this.generateMetadataFor(tokenId, index, submission, set)
+        index ++
+      }
+    }
+  }
+
+  private async generateMetadataFor (tokenId: number, index: number, submission: SetSubmission, set: SetModel) {
+    const opepen = await Opepen.findOrFail(tokenId)
+    const edition = opepen.data.edition
+
+    const image: Image = submission.isDynamic
+      ? submission.dynamicSetImages[`image${edition}_${index}`]
+      : submission[`edition${edition}Image`]
+
+    opepen.metadata = {
+      image: image.isVideo ? image.staticURI : image.originalURI,
+      animation_url: image.isVideo ? image.originalURI : undefined,
+      attributes: [
+        {
+          trait_type: `Artist`,
+          value: submission.artist
+        },
+        {
+          trait_type: `Release`,
+          value: pad(set.id, 3)
+        },
+        {
+          trait_type: `Set`,
+          value: submission.name
+        },
+        {
+          trait_type: `Opepen`,
+          value: submission[`edition_${edition}Name`]
+        },
+        {
+          trait_type: `Edition Size`,
+          value: EDITION_VOCAB[edition]
+        }
+      ]
+    }
+
+    await opepen.save()
   }
 
   private inputPath (submissionId: number) {

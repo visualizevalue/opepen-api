@@ -71,8 +71,16 @@ export default class Image extends BaseModel {
     return this.isAnimated ? 'png' : this.type
   }
 
+  public get originalURI (): string {
+    return `${this.cdn}/${this.path}/${this.uuid}.${this.type}`
+  }
+
   public get staticURI (): string {
     return `${this.cdn}/${this.path}/${this.uuid}@sm.${this.staticType}`
+  }
+
+  public uri (size: keyof ImageVersions = 'sm'): string {
+    return `${this.cdn}/${this.path}/${this.uuid}@${size}.${this.staticType}`
   }
 
   @belongsTo(() => Account, {
