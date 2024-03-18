@@ -62,9 +62,6 @@ Route.group(() => {
   // Sets
   Route.get('/sets',                    'SetsController.list')
   Route.get('/sets/:id',                'SetsController.show')
-  Route.get('/sets/:id/subscribers',    'SetsController.listSubscribers')
-  Route.get('/sets/:id/submissions',    'SetsController.cleanedSubmissions')
-  Route.post('/sets/:id/subscribe',     'SetsController.subscribe')
   Route.get('/sets/:id/opepen',         'SetsController.opepen')
   Route.get('/sets/:id/stats/listings', 'SetStatsController.listings')
 
@@ -87,8 +84,10 @@ Route.group(() => {
   Route.post('/:id/sign',           'SetSubmissionsController.sign')
 
   Route.post('/:id/star',           'SetSubmissionsController.star').middleware(['admin'])
-  Route.post('/:id/publish',        'SetSubmissionsController.publish').middleware(['admin'])
   Route.post('/:id/notify',         'SetSubmissionsController.notifyPublication').middleware(['admin'])
+
+  Route.post('/:id/subscribe',      'SetSubscriptionsController.subscribe')
+  Route.get('/:id/subscribers',     'SetSubscriptionsController.listSubscribers')
 }).prefix('/v1/set-submissions').middleware(['auth'])
 
 // Accounts
@@ -113,9 +112,8 @@ Route.group(() => {
   Route.post('/:id/mail/test',          'AccountsController.testMail').middleware(['admin'])
   Route.post('/:id/mail/new-set/:set',  'AccountsController.setNotification').middleware(['admin'])
 
-  Route.get('/:account/sets/:id',       'SetsController.subscriptionForAccount')
-
   Route.get('/:account/set-submissions', 'SetSubmissionsController.forAccount').middleware(['auth'])
+  Route.get('/:account/set-submissions/:id/subscription', 'SetSubscriptionsController.forAccount')
 }).prefix('/v1/accounts')
 
 // Rich Content Cards

@@ -214,21 +214,6 @@ export default class SetSubmissionsController extends BaseController {
     return submission.save()
   }
 
-  public async publish (ctx: HttpContextContract) {
-    const submission = await this.show(ctx)
-    if (! submission) return ctx.response.badRequest()
-
-    const { request } = ctx
-    const setId: number = request.input('set_id')
-    const hours: number = request.input('hours', 72)
-
-    if (! setId) ctx.response.badRequest('No set provided')
-
-    await submission.publish(setId, hours)
-
-    return submission.save()
-  }
-
   public async notifyPublication (ctx: HttpContextContract) {
     const submission = await this.show(ctx)
     if (! submission) return ctx.response.badRequest()

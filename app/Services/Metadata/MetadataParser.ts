@@ -15,7 +15,7 @@ export default class MetadataParser {
    * @returns {Promise} A promise that resolves to the contract metadata
    */
   public async contract (): Promise<ContractMetadata> {
-    const setting = await Setting.findByOrFail('key', 'metadata:contract')
+    const setting = await Setting.get('METADATA_CONTRACT')
 
     return setting.data
   }
@@ -28,7 +28,7 @@ export default class MetadataParser {
   public async base (): Promise<TokenMetadata> {
     if (this.baseData) return this.baseData
 
-    const setting = await Setting.findByOrFail('key', 'metadata:base')
+    const setting = await Setting.get('METADATA_BASE')
 
     return setting.data as TokenMetadata
   }
@@ -45,7 +45,7 @@ export default class MetadataParser {
 
     const definition = isRevealed
       ? opepen.metadata
-      : (await Setting.findByOrFail('key', 'metadata:editions')).data[opepen.data.edition]
+      : (await Setting.get('METADATA_EDITIONS')).data[opepen.data.edition]
 
     return {
       name:       `${await this.getAttribute('name',          definition)} ${id}`,

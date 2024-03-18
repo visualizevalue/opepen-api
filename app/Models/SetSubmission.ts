@@ -1,15 +1,16 @@
 import { DateTime } from 'luxon'
 import { v4 as uuid } from 'uuid'
 import { BaseModel, BelongsTo, beforeCreate, belongsTo, column, computed, scope } from '@ioc:Adonis/Lucid/Orm'
+import Logger from '@ioc:Adonis/Core/Logger'
 import Account from 'App/Models/Account'
-// import RichContentLink from 'App/Models/RichContentLink'
 import SetModel from 'App/Models/SetModel'
 import { ArtistSignature, EditionGroups, EditionType, SubmissionStats } from './types'
 import Image from './Image'
 import DynamicSetImages from './DynamicSetImages'
 import Subscription from './Subscription'
 import Opepen from './Opepen'
-import InvalidInput from 'App/Exceptions/InvalidInput'
+import provider from 'App/Services/RPCProvider'
+import Reveal from 'App/Services/Metadata/Reveal/Reveal'
 
 export default class SetSubmission extends BaseModel {
   @column({ isPrimary: true })
@@ -106,7 +107,10 @@ export default class SetSubmission extends BaseModel {
   public revealStrategy: string
 
   @column.dateTime()
-  public revealsAt: DateTime
+  public revealsAt: DateTime|null
+
+  @column()
+  public remainingRevealTime: number
 
   @column()
   public revealBlockNumber: string
@@ -121,8 +125,23 @@ export default class SetSubmission extends BaseModel {
   })
   public submittedOpepen: object
 
+  @column({ serializeAs: null })
+  public revealSubmissionsInput: string
+
+  @column()
+  public revealSubmissionsInputCid: string
+
+  @column({ serializeAs: null })
+  public revealSubmissionsOutput: { [key: string]: any }
+
+  @column()
+  public revealSubmissionsOutputCid: string
+
   @column()
   public submissionStats: SubmissionStats
+
+  @column()
+  public preferredSetId: number
 
   @column()
   public notificationSentAt: DateTime
@@ -193,7 +212,6 @@ export default class SetSubmission extends BaseModel {
   })
   public creatorAccount: BelongsTo<typeof Account>
 
-  // // TODO: Extract to basemodel and adjust foreignkey?
   // @hasMany(() => RichContentLink, {
   //   foreignKey: 'setSubmissionId',
   //   localKey: 'id',
@@ -237,24 +255,66 @@ export default class SetSubmission extends BaseModel {
     query.whereNotNull('edition_40ImageId')
   })
 
-  public async publish (setId: number, hours?: number) {
-    if (this.publishedAt) throw new InvalidInput(`Not allowed to republish sets`)
+  public async startRevealTimer () {
+    if (this.revealsAt) throw new Error(`Timer already running`)
 
-    const set = await SetModel.findOrFail(setId)
+    this.revealsAt = DateTime.now().plus({ seconds: this.remainingRevealTime })
+    this.remainingRevealTime = 0
+
+    await this.save()
+  }
+
+  public async pauseRevealTimer () {
+    if (! this.revealsAt) throw new Error(`Timer not running`)
+
+    const now = DateTime.now()
+
+    if (this.revealsAt < now) throw new Error(`Nothing to pause, should reveal`)
+
+    this.remainingRevealTime = this.revealsAt.diff(DateTime.now()).as('seconds')
+    this.revealsAt = null
+
+    await this.save()
+  }
+
+  public async scheduleReveal () {
+    if (this.revealBlockNumber) throw new Error(`Reveal block already set`)
+
+    const currentBlock = await provider.getBlockNumber()
+
+    this.revealBlockNumber = (currentBlock + 50).toString()
+
+    await this.save()
+  }
+
+  public async reveal (setId: number|null = this.preferredSetId) {
     const submission: SetSubmission = this
+    const set = setId
+      ? await SetModel.findOrFail(setId)
+      : await SetModel.query().whereNull('submissionId').orderBy('id').firstOrFail()
 
-    set.submissionId = submission.id
-    submission.setId = set.id
-    submission.publishedAt = DateTime.now()
+    const currentBlock = await provider.getBlockNumber()
+    const revealBlock = Number(this.revealBlockNumber)
 
-    if (hours) {
-      submission.revealsAt = DateTime.now()
-      .plus({ hours: hours + 1 })
-      .set({ minute: 0, second: 0, millisecond: 0 })
+    if (! submission.revealsAt) throw new Error(`Unscheduled reveal`)
+    if (
+      currentBlock > revealBlock ||
+      submission.revealsAt > DateTime.now()
+    ) throw new Error(`Not time to reveal yet`)
+    if (set.id !== set.submissionId) throw new Error(`Not allowed to re-reveal to a set`)
+
+    try {
+      await (new Reveal()).compute(submission)
+
+      set.submissionId = submission.id
+      submission.setId = set.id
+      submission.publishedAt = DateTime.now()
+
+      await set.save()
+      await submission.save()
+    } catch (e) {
+      Logger.info(`Something`)
     }
-
-    await set.save()
-    await submission.save()
   }
 
   public async opepensInSet () {
@@ -327,7 +387,7 @@ export default class SetSubmission extends BaseModel {
 
     await this.save()
 
-    await Subscription.query().where('setId', this.id).update({ setId: null })
+    await Subscription.query().where('submissionId', this.id).update({ submissionId: null })
   }
 
   // FIXME: Clean up this ducking mess!

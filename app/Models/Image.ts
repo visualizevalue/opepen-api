@@ -1,5 +1,3 @@
-import { exec as cbExec } from 'child_process'
-import { promisify } from 'util'
 import { DateTime } from 'luxon'
 import { v4 as uuid } from 'uuid'
 import sharp from 'sharp'
@@ -8,9 +6,8 @@ import { BaseModel, BelongsTo, beforeCreate, belongsTo, column, computed } from 
 import Drive from '@ioc:Adonis/Core/Drive'
 import Env from '@ioc:Adonis/Core/Env'
 import { toDriveFromURI } from 'App/Helpers/drive'
+import { execute } from 'App/Helpers/execute'
 import Account from './Account'
-
-const exec = promisify(cbExec)
 
 type ImageVersions = {
   sm?: boolean, // 512
@@ -143,9 +140,7 @@ export default class Image extends BaseModel {
 
     // Generate video
     try {
-      const command = `ffmpeg -i ${tmp}/${key} -frames:v 1 ${tmp}/${pngKey} -threads 4 -y`
-      await exec(command)
-
+      await execute(`ffmpeg -i ${tmp}/${key} -frames:v 1 ${tmp}/${pngKey} -threads 4 -y`)
     } catch (e) {
       // ...
       console.log(e)
