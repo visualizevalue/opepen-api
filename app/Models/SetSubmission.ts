@@ -11,6 +11,17 @@ import Subscription from './Subscription'
 import Opepen from './Opepen'
 import provider from 'App/Services/RPCProvider'
 import Reveal from 'App/Services/Metadata/Reveal/Reveal'
+import NotifyNewCuratedSubmissionEmail from 'App/Mailers/NotifyNewCuratedSubmissionEmail'
+import NotifyNewSubmissionEmail from 'App/Mailers/NotifyNewSubmissionEmail'
+import NotifySubmissionRevealPausedEmail from 'App/Mailers/NotifySubmissionRevealPausedEmail'
+import NotifySubmissionRevealStartedEmail from 'App/Mailers/NotifySubmissionRevealStartedEmail'
+
+const NOTIFICATIONS = {
+  NewSubmission: NotifyNewSubmissionEmail,
+  NewCuratedSubmission: NotifyNewCuratedSubmissionEmail,
+  RevealStarted: NotifySubmissionRevealStartedEmail,
+  RevealPaused: NotifySubmissionRevealPausedEmail,
+}
 
 export default class SetSubmission extends BaseModel {
   @column({ isPrimary: true })
@@ -266,7 +277,10 @@ export default class SetSubmission extends BaseModel {
 
     this.revealsAt = DateTime.now().plus({ seconds: this.remainingRevealTime })
     this.remainingRevealTime = 0
+
     await this.save()
+
+    await this.notify('RevealStarted')
   }
 
   public async pauseRevealTimer () {
@@ -279,6 +293,8 @@ export default class SetSubmission extends BaseModel {
     this.revealsAt = null
 
     await this.save()
+
+    await this.notify('RevealPaused')
   }
 
   public async scheduleReveal () {
@@ -345,7 +361,7 @@ export default class SetSubmission extends BaseModel {
 
   public async updateAndValidateOpepensInSet () {
     await this.cleanSubmissionsAndStats()
-    await this.maybeStartTimer()
+    await this.maybeStartOrStopTimer()
   }
 
   public async clearOptIns () {
@@ -455,15 +471,38 @@ export default class SetSubmission extends BaseModel {
     await this.save()
   }
 
-  public async maybeStartTimer () {
+  public async maybeStartOrStopTimer () {
     const demand = this.submissionStats.demand
 
     const editions = [1, 4, 5, 10, 20, 40]
 
+    let demandMet = true
+
     for (const edition of editions) {
-      if (demand[edition] < edition) return
+      if (demand[edition] < edition) {
+        demandMet = false
+      }
     }
 
-    await this.startRevealTimer()
+    if (demandMet) {
+      await this.startRevealTimer()
+    } else {
+      await this.pauseRevealTimer()
+    }
+  }
+
+  public async notify (scopeKey: keyof typeof NOTIFICATIONS) {
+    const users = await Account.query().withScopes(scopes => scopes.receivesEmail(scopeKey))
+
+    const Mailer = NOTIFICATIONS[scopeKey]
+
+    for (const user of users) {
+      try {
+        await new Mailer(user, this).sendLater()
+        Logger.info(`${scopeKey} email scheduled: ${user.email}`)
+      } catch (e) {
+        Logger.warn(`Error scheduling ${scopeKey} email: ${user.email}`)
+      }
+    }
   }
 }

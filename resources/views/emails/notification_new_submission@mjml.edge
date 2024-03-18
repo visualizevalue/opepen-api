@@ -6,7 +6,7 @@
 
         <mj-text font-size="20px" color="#242424" font-family="helvetica">
           <p>Dear {{ name }},</p>
-          <p>Opepen Set {{ setId }} "{{ setName }}" is live!</p>
+          <p>{{ type }} submission "{{ setName }}" by {{ artist }} is live!</p>
         </mj-text>
 
         <mj-button
@@ -19,10 +19,6 @@
         >View Set</mj-button>
 
         <mj-text font-size="20px" color="#242424" font-family="helvetica">
-          <p>The set was published at Ethereum block {{ blockNumber }}.</p>
-
-          <br><br>
-
           <p>Best, <br>the VV team</p>
           <p><small><a href="{{ unsubscribeUrl }}" style="color: #9b9b9b;">Unsubscribe</a></small></p>
         </mj-text>

@@ -1,13 +1,15 @@
 import { DateTime } from 'luxon'
 import Logger from '@ioc:Adonis/Core/Logger'
 import Env from '@ioc:Adonis/Core/Env'
-import { afterSave, BaseModel, beforeSave, BelongsTo, belongsTo, column, computed, HasMany, hasMany } from '@ioc:Adonis/Lucid/Orm'
+import { afterSave, BaseModel, beforeSave, BelongsTo, belongsTo, column, computed, HasMany, hasMany, ModelQueryBuilderContract, scope } from '@ioc:Adonis/Lucid/Orm'
 import Address from 'App/Helpers/Address'
 import provider from 'App/Services/RPCProvider'
 import Image from 'App/Models/Image'
 import SetSubmission from 'App/Models/SetSubmission'
 import RichContentLink from 'App/Models/RichContentLink'
 import { ArtistSocials, OauthData } from './types'
+
+type Builder = ModelQueryBuilderContract<typeof Account>
 
 export default class Account extends BaseModel {
   @column({ isPrimary: true })
@@ -36,6 +38,18 @@ export default class Account extends BaseModel {
 
   @column({ serializeAs: null })
   public notificationNewSet: boolean
+
+  @column({ serializeAs: null })
+  public notificationNewSubmission: boolean
+
+  @column({ serializeAs: null })
+  public notificationNewCuratedSubmission: boolean
+
+  @column({ serializeAs: null })
+  public notificationRevealStarted: boolean
+
+  @column({ serializeAs: null })
+  public notificationRevealPaused: boolean
 
   @column()
   public pfpImageId: bigint|null
@@ -104,6 +118,18 @@ export default class Account extends BaseModel {
     }
   })
   public createdSets: HasMany<typeof SetSubmission>
+
+  public static receivesEmails = scope((query: Builder) => {
+    query.whereNotNull('email').whereNotNull('emailVerifiedAt')
+  })
+
+  public static receivesEmail = scope((
+    query: Builder,
+    key: 'NewSet'|'NewSubmission'|'NewCuratedSubmission'|'RevealStarted'|'RevealPaused'
+  ) => {
+    query.withScopes(scopes => scopes.receivesEmails())
+         .where(`notification${key}`, true)
+  })
 
   @beforeSave()
   public static async lowerCaseAddress(account: Account) {

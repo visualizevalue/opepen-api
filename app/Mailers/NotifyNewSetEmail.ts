@@ -1,9 +1,8 @@
 import { MessageContract } from '@ioc:Adonis/Addons/Mail'
-import Account from 'App/Models/Account'
-import NotificationEmail from './NotificationEmail'
 import pad from 'App/Helpers/pad'
+import Account from 'App/Models/Account'
 import SetModel from 'App/Models/SetModel'
-import { DateTime } from 'luxon'
+import NotificationEmail from './NotificationEmail'
 
 export default class NotifyNewSetEmail extends NotificationEmail {
   constructor (protected account: Account, private set: SetModel) {
@@ -22,7 +21,7 @@ export default class NotifyNewSetEmail extends NotificationEmail {
         setId: paddedSetId,
         setName: this.set.submission.name,
         setUrl: `https://opepen.art/sets/${paddedSetId}`,
-        optInUntil: this.set.submission.revealsAt?.toUTC().toLocaleString(DateTime.DATETIME_FULL) || ''
+        blockNumber: this.set.submission.revealBlockNumber,
       },
     })
   }

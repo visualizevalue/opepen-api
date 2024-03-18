@@ -110,7 +110,6 @@ Route.group(() => {
   Route.get('/:id/opepen',              'OpepenController.forAccount')
 
   Route.post('/:id/mail/test',          'AccountsController.testMail').middleware(['admin'])
-  Route.post('/:id/mail/new-set/:set',  'AccountsController.setNotification').middleware(['admin'])
 
   Route.get('/:account/set-submissions', 'SetSubmissionsController.forAccount').middleware(['auth'])
   Route.get('/:account/set-submissions/:id/subscription', 'SetSubscriptionsController.forAccount')

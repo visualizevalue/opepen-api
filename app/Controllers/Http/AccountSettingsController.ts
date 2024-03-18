@@ -36,6 +36,10 @@ export default class AccountSettingsController extends BaseController {
 
     // Notifications
     account.notificationNewSet = config.request.input('notification_new_set', false)
+    account.notificationNewSubmission = config.request.input('notification_new_submission', false)
+    account.notificationNewCuratedSubmission = config.request.input('notification_new_curated_submission', false)
+    account.notificationRevealStarted = config.request.input('notification_reveal_started', false)
+    account.notificationRevealPaused = config.request.input('notification_reveal_paused', false)
 
     // Email + Email Verification on change
     const previousEmail = account.email
@@ -93,6 +97,10 @@ export default class AccountSettingsController extends BaseController {
       name: account.name,
       email: account.email,
       notification_new_set: account.notificationNewSet,
+      notification_new_submission: account.notificationNewSubmission,
+      notification_new_curated_submission: account.notificationNewCuratedSubmission,
+      notification_reveal_started: account.notificationRevealStarted,
+      notification_reveal_paused: account.notificationRevealPaused,
       pfp: account.pfp ? account.pfp.toJSON() : null,
       coverImage: account.coverImage ? account.coverImage.toJSON() : null,
       richContentLinks: account.richContentLinks || null,

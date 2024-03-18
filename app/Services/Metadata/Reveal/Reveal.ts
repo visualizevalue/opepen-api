@@ -121,7 +121,7 @@ export default class Reveal {
 
     await this.saveOpepenMetadata(submission, set)
 
-    // TODO: Notify about Reveal
+    await set.notifyPublished()
   }
 
   private async saveOpepenMetadata (submission: SetSubmission, set: SetModel) {

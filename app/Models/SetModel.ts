@@ -1,4 +1,7 @@
+import Logger from '@ioc:Adonis/Core/Logger'
 import { BaseModel, BelongsTo, HasMany, belongsTo, column, hasMany } from '@ioc:Adonis/Lucid/Orm'
+import NotifyNewSetEmail from 'App/Mailers/NotifyNewSetEmail'
+import Account from 'App/Models/Account'
 import Opepen from 'App/Models/Opepen'
 import SetSubmission from 'App/Models/SetSubmission'
 
@@ -49,24 +52,16 @@ export default class SetModel extends BaseModel {
   })
   public opepen: HasMany<typeof Opepen>
 
-  // // FIXME: Refactor out
-  // import Logger from '@ioc:Adonis/Core/Logger'
-  // import Account from 'App/Models/Account'
-  // import NotifyNewSetEmail from 'App/Mailers/NotifyNewSetEmail'
-  //
-  // public async notifyPublished () {
-  //   const users = await Account.query()
-  //     .whereNotNull('email')
-  //     .whereNotNull('emailVerifiedAt')
-  //     .where('notificationNewSet', true)
+  public async notifyPublished () {
+    const users = await Account.query().withScopes(scopes => scopes.receivesEmail('NewSet'))
 
-  //   for (const user of users) {
-  //     try {
-  //       await new NotifyNewSetEmail(user, this).sendLater()
-  //       Logger.info(`SetNotification email scheduled: ${user.email}`)
-  //     } catch (e) {
-  //       Logger.warn(`Error scheduling SetNotification email: ${user.email}`)
-  //     }
-  //   }
-  // }
+    for (const user of users) {
+      try {
+        await new NotifyNewSetEmail(user, this).sendLater()
+        Logger.info(`SetNotification email scheduled: ${user.email}`)
+      } catch (e) {
+        Logger.warn(`Error scheduling SetNotification email: ${user.email}`)
+      }
+    }
+  }
 }
