@@ -90,6 +90,12 @@ Route.group(() => {
   Route.get('/:id/subscribers',     'SetSubscriptionsController.listSubscribers')
 }).prefix('/v1/set-submissions').middleware(['auth'])
 
+// Comments
+Route.group(() => {
+  Route.get('/',                 'CommentsController.list')
+  Route.post('/',                'CommentsController.create').middleware(['auth'])
+}).prefix('/v1/comments')
+
 // Accounts
 Route.group(() => {
   // Account Settings

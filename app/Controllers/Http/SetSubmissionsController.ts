@@ -272,7 +272,6 @@ export default class SetSubmissionsController extends BaseController {
       return response.unauthorized('Not authorized')
     }
 
-
     const { page = 1, limit = 100 } = request.qs()
     return SetSubmission.query()
       .where('creator', creator.address)
