@@ -36,7 +36,6 @@ export default Env.rules({
   S3_REGION: Env.schema.string(),
   S3_ENDPOINT: Env.schema.string.optional(),
   RPC_PROVIDER: Env.schema.string(),
-  REPLICATE_API_TOKEN: Env.schema.string(),
   RESERVOIR_BASE: Env.schema.string(),
   RESERVOIR_KEY: Env.schema.string(),
   OPEPEN_ADDRESS: Env.schema.string(),
