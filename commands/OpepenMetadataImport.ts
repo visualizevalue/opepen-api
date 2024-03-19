@@ -1,5 +1,4 @@
 import { BaseCommand, flags } from '@adonisjs/core/build/standalone'
-import Opepen from 'App/Models/Opepen'
 import axios from 'axios'
 
 export default class OpepenMetadataImport extends BaseCommand {
@@ -28,6 +27,8 @@ export default class OpepenMetadataImport extends BaseCommand {
   public revealed: boolean = true
 
   public async run() {
+    const { default: Opepen } = await import('App/Models/Opepen')
+
     this.logger.info('Import Opepen Metadata')
 
     const query = Opepen.query()

@@ -1,5 +1,4 @@
 import { BaseCommand } from '@adonisjs/core/build/standalone'
-import Opepen from 'App/Models/Opepen'
 import { Wallet } from 'ethers'
 
 type Seed = { mnemonic: string, timestamp: number, privk: string, pubk: string, opepen?: number }
@@ -21,6 +20,8 @@ export default class ExportSet26Seeds extends BaseCommand {
   }
 
   public async run() {
+    const { default: Opepen } = await import('App/Models/Opepen')
+
     const opepen = await Opepen.query().where('setId', 26)
 
     let globalSeedCount = 0

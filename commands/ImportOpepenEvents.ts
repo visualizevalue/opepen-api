@@ -1,7 +1,6 @@
 import { BaseCommand, args } from '@adonisjs/core/build/standalone'
 import Database, { Dictionary } from '@ioc:Adonis/Lucid/Database'
 import { chunk } from 'App/Helpers/arrays'
-import Account from 'App/Models/Account'
 import { parse } from 'csv-parse/sync'
 import fs from 'fs'
 
@@ -25,6 +24,8 @@ export default class ImportOpepenEvents extends BaseCommand {
   public path: string
 
   public async run() {
+    const { default: Account } = await import('App/Models/Account')
+
     const records = parse(fs.readFileSync(this.path), {
       columns: true,
       skip_empty_lines: true

@@ -1,9 +1,6 @@
 import { BaseCommand, args, flags } from '@adonisjs/core/build/standalone'
 import Env from '@ioc:Adonis/Core/Env'
 import { delay } from 'App/Helpers/time'
-import Image from 'App/Models/Image'
-import Opepen from 'App/Models/Opepen'
-import SetModel from 'App/Models/SetModel'
 import OpenSea from 'App/Services/OpenSea'
 import axios from 'axios'
 
@@ -39,6 +36,9 @@ export default class ImportSetImages extends BaseCommand {
   public opensea: boolean = false
 
   public async run() {
+    const { default: Opepen } = await import('App/Models/Opepen')
+    const { default: SetModel } = await import('App/Models/SetModel')
+
     this.logger.info(`Importing images from metadata api for set #${this.set}`)
 
     const set = await SetModel.query().where('id', this.set).preload('submission').firstOrFail()
@@ -62,7 +62,9 @@ export default class ImportSetImages extends BaseCommand {
     }
   }
 
-  private async importDynamicSet (opepenInSet: Opepen[]) {
+  private async importDynamicSet (opepenInSet) {
+    const { default: Image } = await import('App/Models/Image')
+
     for (const opepen of opepenInSet) {
       const response = await axios.get(`https://metadata.opepen.art/${opepen.tokenId}/image-uri`)
 
@@ -88,7 +90,7 @@ export default class ImportSetImages extends BaseCommand {
     }
   }
 
-  private async importEditionSet (set: SetModel, opepenInSet: Opepen[]) {
+  private async importEditionSet (set, opepenInSet) {
     for (const opepen of opepenInSet) {
       opepen.imageId = set[`edition_${opepen.data.edition}ImageId`]
       await opepen.save()

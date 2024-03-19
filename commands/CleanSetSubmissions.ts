@@ -1,5 +1,4 @@
 import { BaseCommand, args } from '@adonisjs/core/build/standalone'
-import SetModel from 'App/Models/SetModel'
 
 export default class CleanSetSubmissions extends BaseCommand {
   /**
@@ -21,6 +20,8 @@ export default class CleanSetSubmissions extends BaseCommand {
   public set: string
 
   public async run() {
+    const { default: SetModel } = await import('App/Models/SetModel')
+
     if (this.set == 'all') {
       const sets = await SetModel.query().preload('submission').orderBy('id')
 
@@ -32,7 +33,7 @@ export default class CleanSetSubmissions extends BaseCommand {
     }
   }
 
-  private async compute (set: SetModel) {
+  private async compute (set) {
     await set.submission.cleanSubmissionsAndStats()
 
     console.log(`Set #${set.id} counts:`, set.submission.submissionStats)

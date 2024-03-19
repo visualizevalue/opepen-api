@@ -1,6 +1,5 @@
 import { BaseCommand, args } from '@adonisjs/core/build/standalone'
 import Database from '@ioc:Adonis/Lucid/Database'
-import SetSubmission from 'App/Models/SetSubmission'
 import { DateTime } from 'luxon'
 
 export default class MakeSubmissoinForSet extends BaseCommand {
@@ -23,6 +22,8 @@ export default class MakeSubmissoinForSet extends BaseCommand {
   public set: string
 
   public async run() {
+    const { default: SetSubmission } = await import('App/Models/SetSubmission')
+
     console.log(this.set)
     const existingSubmission = await SetSubmission.query().where('set_id', this.set).orderBy('created_at', 'desc').first()
     const set = await Database.query().from('sets').where('id', this.set).first()

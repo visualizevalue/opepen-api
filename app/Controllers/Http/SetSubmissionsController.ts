@@ -1,11 +1,11 @@
 import { DateTime } from 'luxon'
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
+import BotNotifications from 'App/Services/BotNotifications'
 import BaseController from './BaseController'
 import Account from 'App/Models/Account'
 import Image from 'App/Models/Image'
 import SetSubmission from 'App/Models/SetSubmission'
 import { isAdmin } from 'App/Middleware/AdminAuth'
-import BotNotifications from 'App/Services/BotNotifications'
 
 export default class SetSubmissionsController extends BaseController {
 

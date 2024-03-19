@@ -1,6 +1,5 @@
 import { BaseCommand } from '@adonisjs/core/build/standalone'
 import reservoir from 'App/Services/Reservoir'
-import Opepen from 'App/Models/Opepen'
 
 // FIXME: Fix TS build
 // import { path } from '@reservoir0x/reservoir-sdk'
@@ -23,6 +22,8 @@ export default class ImportOpepenListings extends BaseCommand {
   }
 
   public async run() {
+    const { default: Opepen } = await import('App/Models/Opepen')
+
     // Clear old olders
     const outdated = await Opepen.query().whereNotNull('price')
     const outdatedTokenIds = outdated.map(o => o.tokenId.toString())
@@ -39,7 +40,7 @@ export default class ImportOpepenListings extends BaseCommand {
     const distinctTokens = new Set(orders.map(o => o.criteria?.data?.token?.tokenId))
 
     // Keep track of opepen to update
-    const opepenToUpdate: Opepen[] = []
+    const opepenToUpdate: any[] = []
 
     // Save our order data
     for (const order of orders) {
@@ -106,14 +107,14 @@ export default class ImportOpepenListings extends BaseCommand {
 
   // Update Opepen that have to react to market dynamics
   // FIXME: Refactor into its own service
-  private async updateOpepenWithMarketDynamics (opepen: Opepen[]) {
+  private async updateOpepenWithMarketDynamics (opepen) {
     // Handle Set 031
     await this.handleSet31(opepen.filter(o => o.setId === 31))
 
     // Handle other things... (none for now)
   }
 
-  private async handleSet31 (opepen: Opepen[]) {
+  private async handleSet31 (opepen) {
     const editionsToFetch = new Set()
 
     for (const token of opepen) {

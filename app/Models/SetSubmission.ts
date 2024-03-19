@@ -2,6 +2,7 @@ import { DateTime } from 'luxon'
 import { v4 as uuid } from 'uuid'
 import { BaseModel, BelongsTo, beforeCreate, belongsTo, column, computed, scope } from '@ioc:Adonis/Lucid/Orm'
 import Logger from '@ioc:Adonis/Core/Logger'
+import BotNotifications from 'App/Services/BotNotifications'
 import Account from 'App/Models/Account'
 import SetModel from 'App/Models/SetModel'
 import { ArtistSignature, EditionGroups, EditionType, SubmissionStats } from './types'
@@ -15,7 +16,6 @@ import NotifyNewCuratedSubmissionEmail from 'App/Mailers/NotifyNewCuratedSubmiss
 import NotifyNewSubmissionEmail from 'App/Mailers/NotifyNewSubmissionEmail'
 import NotifySubmissionRevealPausedEmail from 'App/Mailers/NotifySubmissionRevealPausedEmail'
 import NotifySubmissionRevealStartedEmail from 'App/Mailers/NotifySubmissionRevealStartedEmail'
-import BotNotifications from 'App/Services/BotNotifications'
 
 const NOTIFICATIONS = {
   NewSubmission: NotifyNewSubmissionEmail,

@@ -1,7 +1,6 @@
 import Env from '@ioc:Adonis/Core/Env'
 import { BaseCommand } from '@adonisjs/core/build/standalone'
 import ImportCollection from 'App/Services/ImportCollection'
-import Opepen from 'App/Models/Opepen'
 
 export default class ImportOpepens extends BaseCommand {
   /**
@@ -20,6 +19,8 @@ export default class ImportOpepens extends BaseCommand {
   }
 
   public async run() {
+    const { default: Opepen } = await import('App/Models/Opepen')
+
     const service = new ImportCollection()
 
     await service.run(Env.get('OPEPEN_ADDRESS'), Opepen)

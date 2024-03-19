@@ -1,7 +1,5 @@
 import { BaseCommand, args } from '@adonisjs/core/build/standalone'
 import Drive from '@ioc:Adonis/Core/Drive'
-import Opepen from 'App/Models/Opepen'
-import SetModel from 'App/Models/SetModel'
 import { DateTime } from 'luxon'
 
 export default class ImportOpepenWinners extends BaseCommand {
@@ -24,6 +22,9 @@ export default class ImportOpepenWinners extends BaseCommand {
   public set: string
 
   public async run() {
+    const { default: Opepen } = await import('App/Models/Opepen')
+    const { default: SetModel } = await import('App/Models/SetModel')
+
     this.logger.info('Importing Opepen winners')
 
     const winners = JSON.parse((await Drive.get(`sets/${this.set}/winners.json`)).toString())

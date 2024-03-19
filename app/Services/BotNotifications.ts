@@ -1,24 +1,26 @@
 import { string } from '@ioc:Adonis/Core/Helpers'
-import Account from 'App/Models/Account'
-import SetSubmission from 'App/Models/SetSubmission'
+import Env from '@ioc:Adonis/Core/Env'
 import Twitter from './Twitter'
+import Account from 'App/Models/Account'
 
 export class BotNotifications {
-  xClient: Twitter
+  xClient: Twitter|undefined
+  initialized: boolean = false
 
-  constructor (xClient: Twitter) {
-    this.xClient = xClient
+  public async initialize () {
+    if (this.initialized) return
+
+    const account = await Account.byId(Env.get('TWITTER_BOT_ACCOUNT_ADDRESS')).firstOrFail()
+    this.xClient = await Twitter.initialize(account)
+
+    this.initialized = true
+
+    return this.initialized
   }
 
-  public static async initialize (address: string = `0xed029061b6e3d873057eeefd3be91121e103ea44`) {
-    const xClient = await Twitter.initialize(await Account.findByOrFail('address', address))
+  public async newSubmission (submission) {
+    await this.initialize()
 
-    if (! xClient) return
-
-    return new BotNotifications(xClient)
-  }
-
-  public async newSubmission (submission: SetSubmission) {
     await submission.load('creatorAccount')
 
     const lines = [
@@ -31,7 +33,7 @@ export class BotNotifications {
     const txt = lines.join(`\n`)
     const img = `https://api.opepen.art/sets/${submission.uuid}/detail/image` // TODO: Update image URI
 
-    await this.xClient.tweet(txt, img)
+    await this.xClient?.tweet(txt, img)
   }
 
 
@@ -60,16 +62,18 @@ export class BotNotifications {
   // Published at Block 24893434
   // [6up grid image preview]
 
-  public async provenance (submission: SetSubmission) {
+  public async provenance (submission) {
+    await this.initialize()
+
     const tweets = [
       { text: `Opepen Set "${submission.name}" reveal provenance thread...\n\n↓ https://opepen.art/sets/${submission.uuid}` },
       { text: `Reveal Block Hash: ${submission.revealBlockNumber} (in about 10 minutes) https://etherscan.io/block/${submission.revealBlockNumber}` },
       { text: `Opt in data hash: ${submission.revealSubmissionsInputCid}` },
     ]
 
-    await this.xClient.thread(tweets)
+    await this.xClient?.thread(tweets)
   }
 
 }
 
-export default await BotNotifications.initialize()
+export default new BotNotifications()
