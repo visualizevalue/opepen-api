@@ -66,6 +66,21 @@ export default class Twitter {
     }
   }
 
+  public async thread(tweets: { text: string, imageUrl?: string }[]) {
+    if (! Application.inProduction) return Logger.debug(`Not sending tweets in development`)
+
+    // Upload media items and prepare data
+    const withMedia: { text?: string, media?: { media_ids: string[] } }[] = []
+    for (const config of tweets) {
+      const media = await this.uploadMedia(config.imageUrl)
+
+      withMedia.push({ text: config.text, media: media ? { media_ids: [media] } : undefined })
+    }
+
+    // Send it
+    await this.userClient.v2.tweetThread(withMedia)
+  }
+
   public async media (imageUrl: string) {
     if (! Application.inProduction) return Logger.debug(`Not sending tweets in development`)
 

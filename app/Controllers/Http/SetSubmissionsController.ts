@@ -5,6 +5,7 @@ import Account from 'App/Models/Account'
 import Image from 'App/Models/Image'
 import SetSubmission from 'App/Models/SetSubmission'
 import { isAdmin } from 'App/Middleware/AdminAuth'
+import BotNotifications from 'App/Services/BotNotifications'
 
 export default class SetSubmissionsController extends BaseController {
 
@@ -230,6 +231,7 @@ export default class SetSubmissionsController extends BaseController {
     await submission.save()
 
     await submission.notify('NewSubmission')
+    await BotNotifications?.newSubmission(submission)
 
     return submission
   }

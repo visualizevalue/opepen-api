@@ -15,6 +15,7 @@ import NotifyNewCuratedSubmissionEmail from 'App/Mailers/NotifyNewCuratedSubmiss
 import NotifyNewSubmissionEmail from 'App/Mailers/NotifyNewSubmissionEmail'
 import NotifySubmissionRevealPausedEmail from 'App/Mailers/NotifySubmissionRevealPausedEmail'
 import NotifySubmissionRevealStartedEmail from 'App/Mailers/NotifySubmissionRevealStartedEmail'
+import BotNotifications from 'App/Services/BotNotifications'
 
 const NOTIFICATIONS = {
   NewSubmission: NotifyNewSubmissionEmail,
@@ -309,13 +310,9 @@ export default class SetSubmission extends BaseModel {
   }
 
   public async scheduleReveal () {
-    if (this.revealBlockNumber) throw new Error(`Reveal block already set`)
+    await (new Reveal()).schedule(this)
 
-    const currentBlock = await provider.getBlockNumber()
-
-    this.revealBlockNumber = (currentBlock + 50).toString()
-
-    await this.save()
+    await BotNotifications?.provenance(this)
   }
 
   public async reveal (setId: number|null = this.preferredSetId) {

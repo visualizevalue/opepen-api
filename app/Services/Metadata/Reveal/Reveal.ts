@@ -23,11 +23,22 @@ const EDITION_VOCAB = {
 }
 
 export default class Reveal {
+  public async schedule (submission: SetSubmission) {
+    if (submission.revealBlockNumber) throw new Error(`Reveal block already set`)
+
+    submission.revealBlockNumber = (await provider.getBlockNumber() + 50).toString()
+    await submission.save()
+
+    await this.prepareData(submission)
+  }
+
   public async compute (
     submission: SetSubmission,
     set: SetModel,
   ) {
-    await this.prepareData(submission)
+    if (! submission.revealSubmissionsInputCid) throw new Error(`Reveal data not prepared`)
+
+    fs.writeFileSync(this.inputPath(submission.id), submission.revealSubmissionsInput)
 
     const block = await provider.getBlock(submission.revealBlockNumber)
 
@@ -102,7 +113,6 @@ export default class Reveal {
 
     // And save to submission and to file (for python execution)
     await submission.save()
-    fs.writeFileSync(this.inputPath(submission.id), dataBlob)
   }
 
   private async handleResults (submission: SetSubmission, set: SetModel) {
