@@ -8,7 +8,7 @@ import HandshakeAuction from 'App/Models/HandshakeAuction'
 export default class AccountsController extends BaseController {
 
   public async list () {
-    const auctions = await HandshakeAuction.query().orderBy('id')
+    const auctions = await HandshakeAuction.query().orderBy('id', 'desc')
 
     const bidData = (await Promise.all(auctions.map(a => this.getBidData(a))))
       .map(b => ({
