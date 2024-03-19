@@ -1,4 +1,5 @@
 import puppeteer, { Browser } from 'puppeteer'
+import Env from '@ioc:Adonis/Core/Env'
 import Logger from '@ioc:Adonis/Core/Logger'
 
 let browser: Browser
@@ -9,7 +10,8 @@ export const newBrowser = async () => {
 
   Logger.info(`Loading new browser`)
   browser = await puppeteer.launch({
-    headless: 'new',
+    executablePath: Env.get('CHROMIUM_EXECUTABLE'),
+    headless: true,
     args: [
       '--single-process',
       '--no-zygote',
