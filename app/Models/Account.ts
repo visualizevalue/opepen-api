@@ -108,6 +108,7 @@ export default class Account extends BaseModel {
     foreignKey: 'creator',
     localKey: 'address',
     onQuery: query => {
+      query.withScopes(scopes => scopes.published())
       query.preload('edition1Image')
       query.preload('edition4Image')
       query.preload('edition5Image')

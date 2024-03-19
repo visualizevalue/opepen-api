@@ -6,10 +6,12 @@ import Account from 'App/Models/Account'
 import Image from 'App/Models/Image'
 import SetSubmission from 'App/Models/SetSubmission'
 import { isAdmin } from 'App/Middleware/AdminAuth'
+import NotAuthenticated from 'App/Exceptions/NotAuthenticated'
+import InvalidInput from 'App/Exceptions/InvalidInput'
 
 export default class SetSubmissionsController extends BaseController {
 
-  public async list ({ request }: HttpContextContract) {
+  public async list ({ request, session }: HttpContextContract) {
     const {
       page = 1,
       limit = 10,
@@ -28,15 +30,18 @@ export default class SetSubmissionsController extends BaseController {
 
     // Handle status filter
     switch (status) {
+      case 'unapproved':
+        if (isAdmin(session)) {
+          query.withScopes(scopes => {
+            scopes.unapproved()
+          })
+          break;
+        }
       case 'all':
-        query.withScopes(scopes => scopes.active())
-        break;
-      case 'complete':
         query.withScopes(scopes => {
-          scopes.complete()
           scopes.active()
           scopes.published()
-          scopes.unstarred()
+          scopes.approved()
         })
         break;
       case 'starred':
@@ -45,19 +50,16 @@ export default class SetSubmissionsController extends BaseController {
           scopes.starred()
         })
         break;
-      case 'published':
-        query.withScopes(scopes => {
-          scopes.active()
-          scopes.published()
-        })
-        break;
       case 'deleted':
-        query.whereNotNull('deletedAt')
-        break;
+        if (isAdmin(session)) {
+          query.whereNotNull('deletedAt')
+          break;
+        }
       default:
         query.withScopes(scopes => {
           scopes.active()
           scopes.published()
+          scopes.approved()
         })
         break;
     }
@@ -113,17 +115,10 @@ export default class SetSubmissionsController extends BaseController {
     })
   }
 
-  public async show ({
-    session,
-    params,
-    response
-  }: HttpContextContract) {
-    const user = await Account.firstOrCreate({
-      address: session.get('siwe')?.address?.toLowerCase()
-    })
-
+  public async show ({ params, session, response }: HttpContextContract) {
     const submission = await SetSubmission.query()
       .where('uuid', params.id)
+      .preload('set')
       .preload('edition1Image')
       .preload('edition4Image')
       .preload('edition5Image')
@@ -131,6 +126,7 @@ export default class SetSubmissionsController extends BaseController {
       .preload('edition20Image')
       .preload('edition40Image')
       .preload('dynamicSetImages')
+      .preload('creatorAccount')
       // TODO: Implement rich content links
       // .preload('richContentLinks', query => {
       //   query.preload('logo')
@@ -138,10 +134,6 @@ export default class SetSubmissionsController extends BaseController {
       //   query.orderBy('sortIndex')
       // })
       .firstOrFail()
-
-    if (user.address !== submission.creator && !isAdmin(session)) {
-      return response.unauthorized('Not authorized')
-    }
 
     return submission
   }
@@ -155,7 +147,9 @@ export default class SetSubmissionsController extends BaseController {
       return ctx.response.unauthorized(`Can't edit published set`)
     }
 
-    const { request } = ctx
+    const { request, session, response } = ctx
+
+    await this.creatorOrAdmin({ creator: submission.creatorAccount, session, response, })
 
     const [
       image1,
@@ -213,9 +207,14 @@ export default class SetSubmissionsController extends BaseController {
     return submission.save()
   }
 
-  public async publish (ctx: HttpContextContract) {
-    const submission = await this.show(ctx)
-    if (! submission) return ctx.response.badRequest()
+  public async publish ({ params, session }: HttpContextContract) {
+    const submission = await SetSubmission.query()
+      .where('uuid', params.id)
+      .withScopes(scopes => scopes.complete())
+      .preload('creatorAccount')
+      .firstOrFail()
+
+    await this.creatorOrAdmin({ creator: submission.creatorAccount, session })
 
     submission.publishedAt = DateTime.now()
 
@@ -257,22 +256,20 @@ export default class SetSubmissionsController extends BaseController {
     const submission = await this.show(ctx)
     if (! submission) return ctx.response.badRequest()
 
+    const { session } = ctx
+    await this.creatorOrAdmin({ creator: submission.creatorAccount, session })
+
+    if (submission.revealsAt) throw new InvalidInput(`Can't delete a live set`)
+
     submission.deletedAt = DateTime.now()
     await submission.save()
 
     return ctx.response.ok('')
   }
 
-  public async forAccount ({ params, session, request, response }: HttpContextContract) {
+  public async forAccount ({ params, session, request }: HttpContextContract) {
     const creator = await Account.byId(params.account).firstOrFail()
-    const user = await Account.firstOrCreate({
-      address: session.get('siwe')?.address?.toLowerCase()
-    })
-
-    // Make sure we're admin or creator
-    if (user.address !== creator.address && !isAdmin(session)) {
-      return response.unauthorized('Not authorized')
-    }
+    await this.creatorOrAdmin({ creator, session })
 
     const { page = 1, limit = 100 } = request.qs()
     return SetSubmission.query()
@@ -285,6 +282,19 @@ export default class SetSubmissionsController extends BaseController {
       .preload('edition20Image')
       .preload('edition40Image')
       .paginate(page, limit)
+  }
+
+  private async creatorOrAdmin({ creator, session }) {
+    const user = await Account.firstOrCreate({
+      address: session.get('siwe')?.address?.toLowerCase()
+    })
+
+    // Make sure we're admin or creator
+    if (user.address !== creator.address && !isAdmin(session)) {
+      throw new NotAuthenticated(`Not authorized`)
+    }
+
+    return { user }
   }
 
 }

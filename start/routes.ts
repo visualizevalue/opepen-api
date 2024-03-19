@@ -75,20 +75,24 @@ Route.group(() => {
 
 // Set Submissions
 Route.group(() => {
-  Route.get('/',                    'SetSubmissionsController.list').middleware(['admin'])
-  Route.post('/',                   'SetSubmissionsController.create')
+  Route.get('/',                    'SetSubmissionsController.list')
   Route.get('/:id',                 'SetSubmissionsController.show')
-  Route.post('/:id',                'SetSubmissionsController.update')
-  Route.delete('/:id',              'SetSubmissionsController.delete')
 
-  Route.post('/:id/sign',           'SetSubmissionsController.sign')
-  Route.post('/:id/publish',        'SetSubmissionsController.publish')
-  Route.post('/:id/approve',        'SetSubmissionsController.approve').middleware(['admin'])
-  Route.post('/:id/star',           'SetSubmissionsController.star').middleware(['admin'])
+  Route.group(() => {
+    Route.post('/',                   'SetSubmissionsController.create')
+    Route.post('/:id',                'SetSubmissionsController.update')
+    Route.delete('/:id',              'SetSubmissionsController.delete')
+
+    Route.post('/:id/sign',           'SetSubmissionsController.sign')
+    Route.post('/:id/publish',        'SetSubmissionsController.publish')
+    Route.post('/:id/approve',        'SetSubmissionsController.approve').middleware(['admin'])
+    Route.post('/:id/star',           'SetSubmissionsController.star').middleware(['admin'])
+
+    Route.get('/:id/subscribers',     'SetSubscriptionsController.listSubscribers')
+  }).middleware(['auth'])
 
   Route.post('/:id/subscribe',      'SetSubscriptionsController.subscribe')
-  Route.get('/:id/subscribers',     'SetSubscriptionsController.listSubscribers')
-}).prefix('/v1/set-submissions').middleware(['auth'])
+}).prefix('/v1/set-submissions')
 
 // Comments
 Route.group(() => {

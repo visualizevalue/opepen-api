@@ -54,6 +54,7 @@ export default class Opepen extends TokenModel {
 
   @belongsTo(() => SetModel, {
     foreignKey: 'setId',
+    onQuery: query => query.preload('submission')
   })
   public set: BelongsTo<typeof SetModel>
 

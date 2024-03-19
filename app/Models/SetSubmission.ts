@@ -24,6 +24,36 @@ const NOTIFICATIONS = {
   RevealPaused: NotifySubmissionRevealPausedEmail,
 }
 
+const DEFAULT_SUBMISSION_STATS = {
+  "demand": {
+    "1": 0,
+    "4": 0,
+    "5": 0,
+    "10": 0,
+    "20": 0,
+    "40": 0,
+    "total": 0
+  },
+  "holders": {
+    "1": 0,
+    "4": 0,
+    "5": 0,
+    "10": 0,
+    "20": 0,
+    "40": 0,
+    "total": 0
+  },
+  "opepens": {
+    "1": 0,
+    "4": 0,
+    "5": 0,
+    "10": 0,
+    "20": 0,
+    "40": 0,
+    "total": 0
+  }
+}
+
 export default class SetSubmission extends BaseModel {
   @column({ isPrimary: true })
   public id: number
@@ -80,7 +110,11 @@ export default class SetSubmission extends BaseModel {
   @column()
   public roundedPreview: boolean
 
-  @column()
+  @column({
+    consume: value => {
+      return value || 100
+    }
+  })
   public minSubscriptionPercentage: number
 
   @column({ serializeAs: 'edition1Name' })
@@ -152,7 +186,13 @@ export default class SetSubmission extends BaseModel {
   @column()
   public revealSubmissionsOutputCid: string
 
-  @column()
+  @column({
+    consume: value => {
+      if (! value) return DEFAULT_SUBMISSION_STATS
+
+      return value
+    }
+  })
   public submissionStats: SubmissionStats
 
   @column()
@@ -338,7 +378,7 @@ export default class SetSubmission extends BaseModel {
     }
   }
 
-  public async opepensInSet () {
+  public async opepensInSetSubmission () {
     const opepens = {
       1: new Set(),
       4: new Set(),
@@ -347,7 +387,7 @@ export default class SetSubmission extends BaseModel {
       20: new Set(),
       40: new Set(),
     }
-    const subscriptions = await Subscription.query().where('set_id', this.id)
+    const subscriptions = await Subscription.query().where('submission_id', this.id)
     for (const s of subscriptions) {
       for (const id of s.opepenIds) {
         const opepen = await Opepen.find(id)
@@ -368,40 +408,12 @@ export default class SetSubmission extends BaseModel {
   }
 
   public async updateAndValidateOpepensInSet () {
-    await this.cleanSubmissionsAndStats()
+    await this.cleanSubscriptionssAndStats()
     await this.maybeStartOrStopTimer()
   }
 
   public async clearOptIns () {
-    this.submissionStats = {
-      "demand": {
-        "1": 0,
-        "4": 0,
-        "5": 0,
-        "10": 0,
-        "20": 0,
-        "40": 0,
-        "total": 0
-      },
-      "holders": {
-        "1": 0,
-        "4": 0,
-        "5": 0,
-        "10": 0,
-        "20": 0,
-        "40": 0,
-        "total": 0
-      },
-      "opepens": {
-        "1": 0,
-        "4": 0,
-        "5": 0,
-        "10": 0,
-        "20": 0,
-        "40": 0,
-        "total": 0
-      }
-    }
+    this.submissionStats = DEFAULT_SUBMISSION_STATS
     this.submittedOpepen = []
 
     await this.save()
@@ -410,16 +422,16 @@ export default class SetSubmission extends BaseModel {
   }
 
   // FIXME: Clean up this ducking mess!
-  public async cleanSubmissionsAndStats () {
-    const submissions = await Subscription.query().where('setId', this.id)
+  public async cleanSubscriptionssAndStats () {
+    console.log('stats to update / clean')
+    const subscriptions = await Subscription.query().where('submissionId', this.id)
 
     const holders = { 1: 0, 4: 0, 5: 0, 10: 0, 20: 0, 40: 0, total: 0 }
     const opepens = { 1: 0, 4: 0, 5: 0, 10: 0, 20: 0, 40: 0, total: 0 }
     const demand = { 1: 0, 4: 0, 5: 0, 10: 0, 20: 0, 40: 0, total: 0 }
 
-    for (const submission of submissions) {
-      const submittedOpepen = await Opepen.query()
-        .whereIn('token_id', submission.opepenIds)
+    for (const subscription of subscriptions) {
+      const submittedOpepen = await Opepen.query().whereIn('token_id', subscription.opepenIds)
 
       const groups = submittedOpepen.reduce((groups, opepen) => {
         groups[opepen.data.edition].push(opepen.tokenId)
@@ -428,32 +440,32 @@ export default class SetSubmission extends BaseModel {
       }, { 1: [], 4: [], 5: [], 10: [], 20: [], 40: [] } as EditionGroups)
 
       for (const edition in groups) {
-        if (! submission.maxReveals) {
-          submission.maxReveals = {}
+        if (! subscription.maxReveals) {
+          subscription.maxReveals = {}
         }
 
         const opepenCount = groups[edition].length
-        const overallocated = opepenCount >= submission.maxReveals[edition]
+        const overallocated = opepenCount >= subscription.maxReveals[edition]
         const isOneOfOneOptIn = edition === '1' && opepenCount
 
-        submission.maxReveals[edition] = (
+        subscription.maxReveals[edition] = (
           overallocated &&
-          typeof submission.maxReveals[edition] === 'number'
+          typeof subscription.maxReveals[edition] === 'number'
         )
-          ? submission.maxReveals[edition]
+          ? subscription.maxReveals[edition]
           : opepenCount
 
         if (isOneOfOneOptIn) {
-          submission.maxReveals[edition] = 1
+          subscription.maxReveals[edition] = 1
         }
 
-        if (submission.maxReveals[edition] > 0) {
+        if (subscription.maxReveals[edition] > 0) {
           holders[edition] ++
         }
 
         const actual = isOneOfOneOptIn
           ? opepenCount
-          : Math.min(submission.maxReveals[edition], opepenCount)
+          : Math.min(subscription.maxReveals[edition], opepenCount)
 
         demand[edition] += actual
         demand.total += actual
@@ -463,7 +475,7 @@ export default class SetSubmission extends BaseModel {
 
       holders.total ++
 
-      await submission.save()
+      await subscription.save()
     }
 
     const owners = await Opepen.holdersAtBlock(parseInt(this.revealBlockNumber) || 9999999999999999)
@@ -475,8 +487,10 @@ export default class SetSubmission extends BaseModel {
       opepens,
       demand,
     }
-    this.submittedOpepen = await this.opepensInSet()
+    this.submittedOpepen = await this.opepensInSetSubmission()
     await this.save()
+
+    console.log('stats updated')
   }
 
   public async maybeStartOrStopTimer () {
