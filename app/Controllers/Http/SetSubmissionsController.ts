@@ -203,6 +203,32 @@ export default class SetSubmissionsController extends BaseController {
       .save()
   }
 
+  public async updateDynamicSetImages ({ params, request, session }: HttpContextContract) {
+    const submission = await SetSubmission.query()
+      .where('uuid', params.id)
+      .preload('creatorAccount')
+      .preload('dynamicSetImages')
+      .firstOrFail()
+
+    await this.creatorOrAdmin({ creator: submission.creatorAccount, session })
+
+    const imageConfig: { edition: number, index: number, uuid: string }[] = request.input('images')
+
+    await submission.load('dynamicSetImages')
+
+    for (const config of imageConfig) {
+      if (! config.uuid) continue
+
+      const image = await Image.query().where('uuid', config.uuid).firstOrFail()
+
+      submission.dynamicSetImages[`image_${config.edition}_${config.index}_id`] = image.id
+    }
+
+    await submission.dynamicSetImages.save()
+
+    return submission.load('dynamicSetImages')
+  }
+
   public async sign (ctx: HttpContextContract) {
     const { session, request, response } = ctx
 

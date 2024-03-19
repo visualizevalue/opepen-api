@@ -81,8 +81,8 @@ Route.group(() => {
   Route.group(() => {
     Route.post('/',                   'SetSubmissionsController.create')
     Route.post('/:id',                'SetSubmissionsController.update')
+    Route.post('/:id/dynamic-images', 'SetSubmissionsController.updateDynamicSetImages')
     Route.delete('/:id',              'SetSubmissionsController.delete')
-    Route.post('/:id/dynamic-images', 'DynamicSetImagesController.update')
 
     Route.post('/:id/sign',           'SetSubmissionsController.sign')
     Route.post('/:id/publish',        'SetSubmissionsController.publish')

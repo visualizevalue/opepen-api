@@ -162,7 +162,7 @@ export default class Reveal {
     const opepen = await Opepen.findOrFail(tokenId)
     const edition = opepen.data.edition
 
-    const image: Image = submission.isDynamic
+    const image: Image = submission.isDynamic && edition > 1
       ? submission.dynamicSetImages[`image${edition}_${index}`]
       : submission[`edition${edition}Image`]
 
