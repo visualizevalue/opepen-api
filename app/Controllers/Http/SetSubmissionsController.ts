@@ -8,6 +8,7 @@ import SetSubmission from 'App/Models/SetSubmission'
 import { isAdmin } from 'App/Middleware/AdminAuth'
 import NotAuthenticated from 'App/Exceptions/NotAuthenticated'
 import InvalidInput from 'App/Exceptions/InvalidInput'
+import DynamicSetImages from 'App/Models/DynamicSetImages'
 
 export default class SetSubmissionsController extends BaseController {
 
@@ -17,7 +18,7 @@ export default class SetSubmissionsController extends BaseController {
       limit = 10,
       filter = {},
       sort = '',
-      status = 'complete',
+      status = '',
     } = request.qs()
 
     const query = SetSubmission.query()
@@ -33,31 +34,45 @@ export default class SetSubmissionsController extends BaseController {
       case 'unapproved':
         if (isAdmin(session)) {
           query.withScopes(scopes => {
+            scopes.published()
             scopes.unapproved()
+            scopes.unstarred()
           })
           break;
         }
       case 'all':
-        query.withScopes(scopes => {
-          scopes.active()
-          scopes.published()
-          scopes.approved()
-        })
-        break;
+        if (isAdmin(session)) {
+          query.withScopes(scopes => {
+            scopes.complete()
+          })
+          break;
+        }
       case 'starred':
         query.withScopes(scopes => {
           scopes.active()
           scopes.starred()
         })
+        query.orderByRaw('starred_at desc NULLS LAST')
+        break;
+      case 'unstarred':
+        query.withScopes(scopes => {
+          scopes.active()
+          scopes.approved()
+          scopes.published()
+          scopes.unstarred()
+        })
+        query.orderByRaw('approved_at desc')
         break;
       case 'deleted':
         if (isAdmin(session)) {
           query.whereNotNull('deletedAt')
           break;
         }
+      case 'revealed':
+        query.whereNotNull('setId')
+        break;
       default:
         query.withScopes(scopes => {
-          scopes.active()
           scopes.published()
           scopes.approved()
         })
@@ -68,7 +83,6 @@ export default class SetSubmissionsController extends BaseController {
     this.applySorts(query, sort)
 
     return query
-      .orderByRaw('starred_at desc NULLS LAST')
       .orderBy('createdAt', 'desc')
       .paginate(page, limit)
   }
@@ -115,7 +129,7 @@ export default class SetSubmissionsController extends BaseController {
     })
   }
 
-  public async show ({ params, session, response }: HttpContextContract) {
+  public async show ({ params }: HttpContextContract) {
     const submission = await SetSubmission.query()
       .where('uuid', params.id)
       .preload('set')
@@ -147,9 +161,9 @@ export default class SetSubmissionsController extends BaseController {
       return ctx.response.unauthorized(`Can't edit published set`)
     }
 
-    const { request, session, response } = ctx
+    const { request, session } = ctx
 
-    await this.creatorOrAdmin({ creator: submission.creatorAccount, session, response, })
+    await this.creatorOrAdmin({ creator: submission.creatorAccount, session })
 
     const [
       image1,
@@ -235,6 +249,17 @@ export default class SetSubmissionsController extends BaseController {
     return submission
   }
 
+  public async unapprove (ctx: HttpContextContract) {
+    const submission = await this.show(ctx)
+    if (! submission) return ctx.response.badRequest()
+
+    submission.approvedAt = null
+
+    await submission.save()
+
+    return submission
+  }
+
   public async star (ctx: HttpContextContract) {
     const submission = await this.show(ctx)
     if (! submission) return ctx.response.badRequest()
@@ -284,7 +309,7 @@ export default class SetSubmissionsController extends BaseController {
       .paginate(page, limit)
   }
 
-  private async creatorOrAdmin({ creator, session }) {
+  protected async creatorOrAdmin({ creator, session }) {
     const user = await Account.firstOrCreate({
       address: session.get('siwe')?.address?.toLowerCase()
     })

@@ -82,10 +82,12 @@ Route.group(() => {
     Route.post('/',                   'SetSubmissionsController.create')
     Route.post('/:id',                'SetSubmissionsController.update')
     Route.delete('/:id',              'SetSubmissionsController.delete')
+    Route.post('/:id/dynamic-images', 'DynamicSetImagesController.update')
 
     Route.post('/:id/sign',           'SetSubmissionsController.sign')
     Route.post('/:id/publish',        'SetSubmissionsController.publish')
     Route.post('/:id/approve',        'SetSubmissionsController.approve').middleware(['admin'])
+    Route.post('/:id/unapprove',      'SetSubmissionsController.unapprove').middleware(['admin'])
     Route.post('/:id/star',           'SetSubmissionsController.star').middleware(['admin'])
 
     Route.get('/:id/subscribers',     'SetSubscriptionsController.listSubscribers')
