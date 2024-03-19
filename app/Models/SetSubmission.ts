@@ -57,10 +57,13 @@ export default class SetSubmission extends BaseModel {
   public deletedAt: DateTime|null
 
   @column.dateTime()
-  public starredAt: DateTime|null
+  public publishedAt: DateTime|null
 
   @column.dateTime()
-  public publishedAt: DateTime|null
+  public approvedAt: DateTime|null
+
+  @column.dateTime()
+  public starredAt: DateTime|null
 
   @column()
   public setId: number
@@ -233,6 +236,14 @@ export default class SetSubmission extends BaseModel {
     query.whereNull('deletedAt')
   })
 
+  public static published = scope((query) => {
+    query.whereNotNull('publishedAt')
+  })
+
+  public static unpublished = scope((query) => {
+    query.whereNull('publishedAt')
+  })
+
   public static starred = scope((query) => {
     query.whereNotNull('starredAt')
   })
@@ -241,12 +252,12 @@ export default class SetSubmission extends BaseModel {
     query.whereNull('starredAt')
   })
 
-  public static published = scope((query) => {
-    query.whereNotNull('publishedAt')
+  public static approved = scope((query) => {
+    query.whereNotNull('approvedAt')
   })
 
-  public static unpublished = scope((query) => {
-    query.whereNull('publishedAt')
+  public static unapproved = scope((query) => {
+    query.whereNull('approvedAt')
   })
 
   public static complete = scope((query) => {

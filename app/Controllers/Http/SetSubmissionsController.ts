@@ -34,14 +34,13 @@ export default class SetSubmissionsController extends BaseController {
         query.withScopes(scopes => {
           scopes.complete()
           scopes.active()
-          scopes.unpublished()
+          scopes.published()
           scopes.unstarred()
         })
         break;
       case 'starred':
         query.withScopes(scopes => {
           scopes.active()
-          scopes.unpublished()
           scopes.starred()
         })
         break;
@@ -55,7 +54,10 @@ export default class SetSubmissionsController extends BaseController {
         query.whereNotNull('deletedAt')
         break;
       default:
-        query.withScopes(scopes => scopes.active())
+        query.withScopes(scopes => {
+          scopes.active()
+          scopes.published()
+        })
         break;
     }
 
@@ -147,6 +149,11 @@ export default class SetSubmissionsController extends BaseController {
     const submission = await this.show(ctx)
     if (! submission) return ctx.response.badRequest()
 
+    // Don't allow updates on published submissions
+    if (submission.publishedAt && !isAdmin(ctx.session)) {
+      return ctx.response.unauthorized(`Can't edit published set`)
+    }
+
     const { request } = ctx
 
     const [
@@ -205,27 +212,43 @@ export default class SetSubmissionsController extends BaseController {
     return submission.save()
   }
 
+  public async publish (ctx: HttpContextContract) {
+    const submission = await this.show(ctx)
+    if (! submission) return ctx.response.badRequest()
+
+    submission.publishedAt = DateTime.now()
+
+    return submission.save()
+  }
+
+  public async approve (ctx: HttpContextContract) {
+    const submission = await this.show(ctx)
+    if (! submission || submission.approvedAt) return ctx.response.badRequest()
+
+    submission.approvedAt = DateTime.now()
+
+    await submission.save()
+
+    await submission.notify('NewSubmission')
+
+    return submission
+  }
+
   public async star (ctx: HttpContextContract) {
     const submission = await this.show(ctx)
     if (! submission) return ctx.response.badRequest()
 
     submission.starredAt = submission.starredAt ? null : DateTime.now()
 
-    return submission.save()
-  }
+    if (! submission.approvedAt) {
+      submission.approvedAt = DateTime.now()
+    }
 
-  public async notifyPublication (ctx: HttpContextContract) {
-    const submission = await this.show(ctx)
-    if (! submission) return ctx.response.badRequest()
-
-    if (! submission.setId) return ctx.response.badRequest('No set provided')
-    if (!! submission.notificationSentAt) return ctx.response.badRequest('Set notifications sent already')
-
-    // const set = await SetModel.findOrFail(submission.setId)
-    // // await set.notifyPublished()
-
-    submission.notificationSentAt = DateTime.now()
     await submission.save()
+
+    await submission.notify('NewCuratedSubmission')
+
+    return submission
   }
 
   public async delete (ctx: HttpContextContract) {

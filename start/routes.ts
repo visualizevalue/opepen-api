@@ -82,9 +82,9 @@ Route.group(() => {
   Route.delete('/:id',              'SetSubmissionsController.delete')
 
   Route.post('/:id/sign',           'SetSubmissionsController.sign')
-
+  Route.post('/:id/publish',        'SetSubmissionsController.publish')
+  Route.post('/:id/approve',        'SetSubmissionsController.approve').middleware(['admin'])
   Route.post('/:id/star',           'SetSubmissionsController.star').middleware(['admin'])
-  Route.post('/:id/notify',         'SetSubmissionsController.notifyPublication').middleware(['admin'])
 
   Route.post('/:id/subscribe',      'SetSubscriptionsController.subscribe')
   Route.get('/:id/subscribers',     'SetSubscriptionsController.listSubscribers')

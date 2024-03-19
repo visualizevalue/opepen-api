@@ -5,10 +5,10 @@ export default class extends BaseSchema {
 
   public async up () {
     this.schema.alterTable(this.tableName, (table) => {
-      table.boolean('notification_new_submission')
-      table.boolean('notification_new_curated_submission')
-      table.boolean('notification_reveal_started')
-      table.boolean('notification_reveal_paused')
+      table.boolean('notification_new_submission').defaultTo(false)
+      table.boolean('notification_new_curated_submission').defaultTo(true)
+      table.boolean('notification_reveal_started').defaultTo(true)
+      table.boolean('notification_reveal_paused').defaultTo(true)
     })
   }
 
