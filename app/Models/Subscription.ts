@@ -53,16 +53,16 @@ export default class Subscription extends BaseModel {
 
   public static async clearRevealingOpepenFromOtherSubmissions (submissionId: number) {
     const optedOpepen = await Database.rawQuery(`
-      SELECT jsonb_array_elements_text("opepen_ids")
+      SELECT jsonb_array_elements_text("opepen_ids") as id
       FROM set_subscriptions
       WHERE submission_id = ${submissionId}
     `)
-    const optedOpepenStr = optedOpepen.join(',')
+    const optedOpepenStr = optedOpepen.rows.map(r => r.id).join(',')
 
     await Database.rawQuery(`
       UPDATE set_subscriptions
       SET opepen_ids = opepen_ids - '{${optedOpepenStr}}'::text[]
-      WHERE opepen_ids ?| '{${optedOpepenStr}}'::text[]
+      WHERE opepen_ids \\?| '{${optedOpepenStr}}'::text[]
       AND submission_id != ${submissionId}
     `)
   }
