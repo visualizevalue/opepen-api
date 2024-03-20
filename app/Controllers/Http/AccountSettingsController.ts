@@ -8,51 +8,24 @@ import Image from 'App/Models/Image'
 
 export default class AccountSettingsController extends BaseController {
 
+  public async showMe (config: HttpContextContract) {
+    return this.transform(await this.me(config))
+  }
+
   public async show (config: HttpContextContract) {
-    return this.transform(await this.get(config))
+    return this.transform(await this.get(config.params.account))
+  }
+
+  public async updateMe (config: HttpContextContract) {
+    const account = await this.me(config)
+
+    return await this.updateAccount(account, config.request)
   }
 
   public async update (config: HttpContextContract) {
-    const account = await this.get(config)
+    const account = await this.get(config.params.account)
 
-    // PFP & Cover
-    const [pfpImage, coverImage] = await Promise.all([
-      Image.findBy('uuid', config.request.input('pfp_image_id', null)),
-      Image.findBy('uuid', config.request.input('cover_image_id', null)),
-    ])
-    account.pfpImageId = pfpImage ? pfpImage.id : null
-    account.coverImageId = coverImage ? coverImage.id : null
-    await Promise.all([
-      account.load('pfp'),
-      account.load('coverImage'),
-    ])
-
-    // Profile Data
-    account.name = config.request.input('name', '')?.replace('.eth', '')
-    account.tagline = config.request.input('tagline', '')
-    account.quote = config.request.input('quote', '')
-    account.bio = config.request.input('bio', '')
-    account.socials = config.request.input('socials', [])
-
-    // Notifications
-    account.notificationNewSet = config.request.input('notification_new_set', false)
-    account.notificationNewSubmission = config.request.input('notification_new_submission', false)
-    account.notificationNewCuratedSubmission = config.request.input('notification_new_curated_submission', false)
-    account.notificationRevealStarted = config.request.input('notification_reveal_started', false)
-    account.notificationRevealPaused = config.request.input('notification_reveal_paused', false)
-
-    // Email + Email Verification on change
-    const previousEmail = account.email
-    account.email = config.request.input('email', null)
-    if (account.email !== previousEmail) {
-      account.emailVerifiedAt = null
-      await new VerifyEmail(account).sendLater()
-    }
-
-    // Save the account
-    await account.save()
-
-    return this.transform(account)
+    return await this.updateAccount(account, config.request)
   }
 
   public async verifyEmail ({ request, params, response }: HttpContextContract) {
@@ -79,9 +52,54 @@ export default class AccountSettingsController extends BaseController {
     return response.redirect(`https://opepen.art?dialog=notification_unsubscribed&type=${params.type}`)
   }
 
-  private async get ({ session }: HttpContextContract) {
+  private async updateAccount (account: Account, request) {
+    // PFP & Cover
+    const [pfpImage, coverImage] = await Promise.all([
+      Image.findBy('uuid', request.input('pfp_image_id', null)),
+      Image.findBy('uuid', request.input('cover_image_id', null)),
+    ])
+    account.pfpImageId = pfpImage ? pfpImage.id : null
+    account.coverImageId = coverImage ? coverImage.id : null
+    await Promise.all([
+      account.load('pfp'),
+      account.load('coverImage'),
+    ])
+
+    // Profile Data
+    account.name = request.input('name', '')?.replace('.eth', '')
+    account.tagline = request.input('tagline', '')
+    account.quote = request.input('quote', '')
+    account.bio = request.input('bio', '')
+    account.socials = request.input('socials', [])
+
+    // Notifications
+    account.notificationNewSet = request.input('notification_new_set', false)
+    account.notificationNewSubmission = request.input('notification_new_submission', false)
+    account.notificationNewCuratedSubmission = request.input('notification_new_curated_submission', false)
+    account.notificationRevealStarted = request.input('notification_reveal_started', false)
+    account.notificationRevealPaused = request.input('notification_reveal_paused', false)
+
+    // Email + Email Verification on change
+    const previousEmail = account.email
+    account.email = request.input('email', null)
+    if (account.email !== previousEmail) {
+      account.emailVerifiedAt = null
+      await new VerifyEmail(account).sendLater()
+    }
+
+    // Save the account
+    await account.save()
+
+    return this.transform(account)
+  }
+
+  private async me ({ session }: HttpContextContract) {
+    return this.get(session.get('siwe')?.address)
+  }
+
+  private async get (address: string) {
     return Account.query()
-      .where('address', session.get('siwe')?.address?.toLowerCase())
+      .where('address', address.toLowerCase())
       .preload('pfp')
       .preload('coverImage')
       .preload('richContentLinks', query => {

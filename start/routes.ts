@@ -107,9 +107,14 @@ Route.group(() => {
   // Account Settings
   Route.group(() => {
     Route.group(() => {
-      Route.get('/',        'AccountSettingsController.show')
-      Route.post('/',       'AccountSettingsController.update')
+      Route.get('/',        'AccountSettingsController.showMe')
+      Route.post('/',       'AccountSettingsController.updateMe')
     }).middleware(['auth'])
+
+    Route.group(() => {
+      Route.get('/:account',        'AccountSettingsController.show')
+      Route.post('/:account',       'AccountSettingsController.update')
+    }).middleware(['admin'])
 
     Route.get('/:account/verify-email', 'AccountSettingsController.verifyEmail')
       .as('verifyEmail')

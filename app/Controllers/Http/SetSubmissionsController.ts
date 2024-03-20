@@ -1,5 +1,6 @@
 import { DateTime } from 'luxon'
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
+import Logger from '@ioc:Adonis/Core/Logger'
 import BotNotifications from 'App/Services/BotNotifications'
 import BaseController from './BaseController'
 import Account from 'App/Models/Account'
@@ -268,8 +269,12 @@ export default class SetSubmissionsController extends BaseController {
 
     await submission.save()
 
-    await submission.notify('NewSubmission')
-    await BotNotifications?.newSubmission(submission)
+    try {
+      await submission.notify('NewSubmission')
+      await BotNotifications?.newSubmission(submission)
+    } catch (e) {
+      Logger.error(e)
+    }
 
     return submission
   }
