@@ -158,13 +158,7 @@ export default class SetSubmission extends BaseModel {
   @column.dateTime()
   public revealsAt: DateTime|null
 
-  @column({
-    consume: value => {
-      if (value === 172800) return 0
-
-      return value
-    }
-  })
+  @column()
   public remainingRevealTime: number
 
   @column()
