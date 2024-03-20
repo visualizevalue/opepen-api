@@ -73,6 +73,7 @@ export default class AccountSettingsController extends BaseController {
     account.socials = request.input('socials', [])
 
     // Notifications
+    account.notificationGeneral = request.input('notification_general', false)
     account.notificationNewSet = request.input('notification_new_set', false)
     account.notificationNewSubmission = request.input('notification_new_submission', false)
     account.notificationNewCuratedSubmission = request.input('notification_new_curated_submission', false)
@@ -114,6 +115,7 @@ export default class AccountSettingsController extends BaseController {
     return {
       name: account.name,
       email: account.email,
+      notification_general: account.notificationGeneral,
       notification_new_set: account.notificationNewSet,
       notification_new_submission: account.notificationNewSubmission,
       notification_new_curated_submission: account.notificationNewCuratedSubmission,

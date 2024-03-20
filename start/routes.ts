@@ -144,6 +144,11 @@ Route.group(() => {
   Route.get('/:id',    'AuctionsController.show')
 }).prefix('/v1/auctions')
 
+// Notifications
+Route.group(() => {
+  Route.post('/general', 'NotificationsController.general').middleware(['admin'])
+}).prefix('/v1/notifications')
+
 // FC Frames
 Route.group(() => {
   // Account profiles

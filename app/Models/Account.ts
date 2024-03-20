@@ -37,6 +37,9 @@ export default class Account extends BaseModel {
   public emailVerifiedAt: DateTime|null
 
   @column({ serializeAs: null })
+  public notificationGeneral: boolean
+
+  @column({ serializeAs: null })
   public notificationNewSet: boolean
 
   @column({ serializeAs: null })
@@ -129,7 +132,7 @@ export default class Account extends BaseModel {
 
   public static receivesEmail = scope((
     query: Builder,
-    key: 'NewSet'|'NewSubmission'|'NewCuratedSubmission'|'RevealStarted'|'RevealPaused'
+    key: 'General'|'NewSet'|'NewSubmission'|'NewCuratedSubmission'|'RevealStarted'|'RevealPaused'
   ) => {
     query.withScopes(scopes => scopes.receivesEmails())
          .where(`notification${key}`, true)
