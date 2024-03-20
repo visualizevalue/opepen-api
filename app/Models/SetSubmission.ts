@@ -350,9 +350,13 @@ export default class SetSubmission extends BaseModel {
   }
 
   public async scheduleReveal () {
-    await (new Reveal()).schedule(this)
+    try {
+      await (new Reveal()).schedule(this)
 
-    await BotNotifications?.provenance(this)
+      await BotNotifications?.provenance(this)
+    } catch (e) {
+      Logger.error(`Something went wrong while scheduling the reveal`, e)
+    }
   }
 
   public async reveal (setId: number|null = this.preferredSetId) {
