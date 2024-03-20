@@ -9,6 +9,7 @@ import SetSubmission from 'App/Models/SetSubmission'
 import { isAdmin } from 'App/Middleware/AdminAuth'
 import NotAuthenticated from 'App/Exceptions/NotAuthenticated'
 import InvalidInput from 'App/Exceptions/InvalidInput'
+import DynamicSetImages from 'App/Models/DynamicSetImages'
 
 export default class SetSubmissionsController extends BaseController {
 
@@ -214,7 +215,13 @@ export default class SetSubmissionsController extends BaseController {
 
     const imageConfig: { edition: number, index: number, uuid: string }[] = request.input('images')
 
-    await submission.load('dynamicSetImages')
+
+    if (! submission.dynamicSetImages) {
+      const setImages = await DynamicSetImages.create({})
+      submission.dynamicSetImagesId = setImages.id
+      await submission.save()
+      await submission.load('dynamicSetImages')
+    }
 
     for (const config of imageConfig) {
       if (! config.uuid) continue
