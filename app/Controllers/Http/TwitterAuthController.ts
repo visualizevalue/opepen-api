@@ -57,9 +57,7 @@ export default class TwitterAuthController {
 
       await account.save()
 
-      return {
-        expiresAt: account.oauth.expiresAt,
-      }
+      return response.redirect(`${Env.get('FRONTEND_URL')}/holders/${account.address}`)
     } catch (e) {
       console.log(e)
       return response.status(403).send('Invalid verifier or access tokens!')
