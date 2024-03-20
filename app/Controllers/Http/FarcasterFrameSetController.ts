@@ -13,6 +13,7 @@ import FarcasterFramesController, { type Action } from './FarcasterFramesControl
 import SetOptInRenderer from 'App/Frames/SetOptInRenderer'
 import SetEditionRenderer from 'App/Frames/SetEditionRenderer'
 import SetDetailRenderer from 'App/Frames/SetDetailRenderer'
+import SetSubmission from 'App/Models/SetSubmission'
 
 export default class FarcasterFrameSetController extends FarcasterFramesController {
 
@@ -137,15 +138,15 @@ export default class FarcasterFrameSetController extends FarcasterFramesControll
   }
 
   public async entryImage ({ request, params, response }: HttpContextContract) {
-    const set = await SetModel.findOrFail(params.id)
-    await set.load('submission')
-    const key = `frames/sets/${set.id}_${set.submission.name ? string.toSlug(set.submission.name) : 'unrevealed'}_overview.png`
+    const submission = await SetSubmission.query().where('uuid', params.id).firstOrFail()
+    // FIXME: Fix for unrevealed sets
+    const key = `frames/sets/${submission.uuid}_${submission.name ? string.toSlug(submission.name) : 'unrevealed'}_overview.png`
 
     if (request.method() !== 'POST' && await Drive.exists(key)) {
       return this.imageResponse(await Drive.get(key), response)
     }
 
-    const png = await SetDetailRenderer.render(set.submission)
+    const png = await SetDetailRenderer.render(submission)
 
     await this.saveImage(key, png)
 
