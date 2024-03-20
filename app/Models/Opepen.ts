@@ -40,7 +40,14 @@ export default class Opepen extends TokenModel {
   })
   public data: OpepenData
 
-  @column({ serializeAs: null })
+  @column({
+    serializeAs: null,
+    consume: value => {
+      if (! value) return {}
+
+      return value
+    }
+  })
   public metadata: TokenMetadata
 
   @column()
