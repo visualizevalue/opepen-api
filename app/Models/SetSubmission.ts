@@ -341,7 +341,7 @@ export default class SetSubmission extends BaseModel {
     if (! this.revealsAt) return
     if (this.revealsAt < now) return
 
-    this.remainingRevealTime = this.revealsAt.diff(now).as('seconds')
+    this.remainingRevealTime = Math.floor(this.revealsAt.diff(now).as('seconds'))
     this.revealsAt = null
 
     await this.save()
