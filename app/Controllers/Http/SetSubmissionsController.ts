@@ -302,7 +302,9 @@ export default class SetSubmissionsController extends BaseController {
 
     await submission.save()
 
-    await submission.notify('NewCuratedSubmission')
+    if (submission.starredAt) {
+      await submission.notify('NewCuratedSubmission')
+    }
 
     return submission
   }
