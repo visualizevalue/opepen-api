@@ -76,6 +76,21 @@ export default class SetSubmission extends BaseModel {
   public creator: string
 
   @column()
+  public coCreator_1: string
+
+  @column()
+  public coCreator_2: string
+
+  @column()
+  public coCreator_3: string
+
+  @column()
+  public coCreator_4: string
+
+  @column()
+  public coCreator_5: string
+
+  @column()
   public description: string
 
   @column()
@@ -257,7 +272,6 @@ export default class SetSubmission extends BaseModel {
   })
   public set: BelongsTo<typeof SetModel>
 
-  // Note: In here and not the `SetBaseModel` bc of an import loop via Accounts.
   @belongsTo(() => Account, {
     foreignKey: 'creator',
     localKey: 'address',
@@ -266,6 +280,51 @@ export default class SetSubmission extends BaseModel {
     },
   })
   public creatorAccount: BelongsTo<typeof Account>
+
+  @belongsTo(() => Account, {
+    foreignKey: 'coCreator_1',
+    localKey: 'address',
+    onQuery: query => {
+      query.preload('pfp')
+    },
+  })
+  public coCreator1Account: BelongsTo<typeof Account>
+
+  @belongsTo(() => Account, {
+    foreignKey: 'coCreator_2',
+    localKey: 'address',
+    onQuery: query => {
+      query.preload('pfp')
+    },
+  })
+  public coCreator2Account: BelongsTo<typeof Account>
+
+  @belongsTo(() => Account, {
+    foreignKey: 'coCreator_3',
+    localKey: 'address',
+    onQuery: query => {
+      query.preload('pfp')
+    },
+  })
+  public coCreator3Account: BelongsTo<typeof Account>
+
+  @belongsTo(() => Account, {
+    foreignKey: 'coCreator_4',
+    localKey: 'address',
+    onQuery: query => {
+      query.preload('pfp')
+    },
+  })
+  public coCreator4Account: BelongsTo<typeof Account>
+
+  @belongsTo(() => Account, {
+    foreignKey: 'coCreator_5',
+    localKey: 'address',
+    onQuery: query => {
+      query.preload('pfp')
+    },
+  })
+  public coCreator5Account: BelongsTo<typeof Account>
 
   // @hasMany(() => RichContentLink, {
   //   foreignKey: 'setSubmissionId',

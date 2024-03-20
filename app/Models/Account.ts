@@ -5,7 +5,6 @@ import { afterSave, BaseModel, beforeSave, BelongsTo, belongsTo, column, compute
 import Address from 'App/Helpers/Address'
 import provider from 'App/Services/RPCProvider'
 import Image from 'App/Models/Image'
-import SetSubmission from 'App/Models/SetSubmission'
 import RichContentLink from 'App/Models/RichContentLink'
 import { ArtistSocials, OauthData } from './types'
 
@@ -106,25 +105,6 @@ export default class Account extends BaseModel {
     localKey: 'address',
   })
   public richContentLinks: HasMany<typeof RichContentLink>
-
-  @hasMany(() => SetSubmission, {
-    foreignKey: 'creator',
-    localKey: 'address',
-    onQuery: query => {
-      query.withScopes(scopes => {
-        scopes.published()
-        scopes.approved()
-      })
-      query.preload('edition1Image')
-      query.preload('edition4Image')
-      query.preload('edition5Image')
-      query.preload('edition10Image')
-      query.preload('edition20Image')
-      query.preload('edition40Image')
-      query.orderBy('id')
-    }
-  })
-  public createdSets: HasMany<typeof SetSubmission>
 
   public static receivesEmails = scope((query: Builder) => {
     query.whereNotNull('email').whereNotNull('emailVerifiedAt')

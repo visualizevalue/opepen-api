@@ -27,6 +27,11 @@ export default class SetModel extends BaseModel {
            .preload('edition20Image')
            .preload('edition40Image')
            .preload('creatorAccount')
+           .preload('coCreator1Account')
+           .preload('coCreator2Account')
+           .preload('coCreator3Account')
+           .preload('coCreator4Account')
+           .preload('coCreator5Account')
            .preload('dynamicPreviewImage')
     }
   })

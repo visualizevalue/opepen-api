@@ -2,6 +2,7 @@ import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import Account from 'App/Models/Account'
 import BaseController from './BaseController'
 import TestEmail from 'App/Mailers/TestEmail'
+import SetSubmission from 'App/Models/SetSubmission'
 
 export default class AccountsController extends BaseController {
 
@@ -13,7 +14,6 @@ export default class AccountsController extends BaseController {
         query.preload('cover')
         query.orderBy('sortIndex')
       })
-      .preload('createdSets')
       .first()
 
     if (! account) {
@@ -22,7 +22,30 @@ export default class AccountsController extends BaseController {
 
     account.updateNames()
 
-    return account
+    const response = account.toJSON()
+
+    response.createdSets = await SetSubmission.query()
+      .preload('edition1Image')
+      .preload('edition4Image')
+      .preload('edition5Image')
+      .preload('edition10Image')
+      .preload('edition20Image')
+      .preload('edition40Image')
+      .where((query) => {
+        query.where('creator', account.address)
+             .orWhere('coCreator_1', account.address)
+             .orWhere('coCreator_2', account.address)
+             .orWhere('coCreator_3', account.address)
+             .orWhere('coCreator_4', account.address)
+             .orWhere('coCreator_5', account.address)
+      })
+      .withScopes(scopes => {
+        scopes.approved()
+        scopes.published()
+      })
+      .orderBy('created_at', 'desc')
+
+    return response
   }
 
   public async update ({ params }) {
