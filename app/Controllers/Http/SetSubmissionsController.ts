@@ -149,7 +149,7 @@ export default class SetSubmissionsController extends BaseController {
     })
   }
 
-  public async show ({ params, session }: HttpContextContract) {
+  public async show ({ params }: HttpContextContract) {
     const submission = await SetSubmission.query()
       .where('uuid', params.id)
       .preload('set')
