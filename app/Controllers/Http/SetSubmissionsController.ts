@@ -62,6 +62,14 @@ export default class SetSubmissionsController extends BaseController {
         })
         query.orderByRaw('starred_at desc NULLS LAST')
         break
+      case 'curated':
+        query.withScopes(scopes => {
+          scopes.active()
+          scopes.starred()
+          scopes.noTimer()
+        })
+        query.orderByRaw('starred_at desc NULLS LAST')
+        break
       case 'unstarred':
         query.withScopes(scopes => {
           scopes.live()
