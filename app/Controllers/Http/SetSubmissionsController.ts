@@ -174,10 +174,6 @@ export default class SetSubmissionsController extends BaseController {
       //   query.orderBy('sortIndex')
       // })
 
-    if (! submission.approvedAt) {
-      await this.creatorOrAdmin({ creator: submission.creator, session })
-    }
-
     return submission
   }
 
