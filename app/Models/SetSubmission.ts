@@ -1,6 +1,6 @@
 import { DateTime } from 'luxon'
 import { v4 as uuid } from 'uuid'
-import { BaseModel, BelongsTo, beforeCreate, belongsTo, column, computed, scope } from '@ioc:Adonis/Lucid/Orm'
+import { BaseModel, BelongsTo, ModelQueryBuilderContract, beforeCreate, belongsTo, column, computed, scope } from '@ioc:Adonis/Lucid/Orm'
 import Logger from '@ioc:Adonis/Core/Logger'
 import BotNotifications from 'App/Services/BotNotifications'
 import Account from 'App/Models/Account'
@@ -16,6 +16,9 @@ import NotifyNewCuratedSubmissionEmail from 'App/Mailers/NotifyNewCuratedSubmiss
 import NotifyNewSubmissionEmail from 'App/Mailers/NotifyNewSubmissionEmail'
 import NotifySubmissionRevealPausedEmail from 'App/Mailers/NotifySubmissionRevealPausedEmail'
 import NotifySubmissionRevealStartedEmail from 'App/Mailers/NotifySubmissionRevealStartedEmail'
+import Database from '@ioc:Adonis/Lucid/Database'
+
+type Builder = ModelQueryBuilderContract<typeof SetSubmission>
 
 const NOTIFICATIONS = {
   NewSubmission: NotifyNewSubmissionEmail,
@@ -23,6 +26,8 @@ const NOTIFICATIONS = {
   RevealStarted: NotifySubmissionRevealStartedEmail,
   RevealPaused: NotifySubmissionRevealPausedEmail,
 }
+
+const DEFAULT_REMAINING_REVEAL_TIME = 48 * 60 * 60
 
 const DEFAULT_SUBMISSION_STATS = {
   "demand": {
@@ -375,6 +380,55 @@ export default class SetSubmission extends BaseModel {
     query.whereNotNull('edition_10ImageId')
     query.whereNotNull('edition_20ImageId')
     query.whereNotNull('edition_40ImageId')
+  })
+
+  public static live = scope((query: Builder) => {
+    query.withScopes(scopes => {
+      scopes.active()
+      scopes.published()
+      scopes.approved()
+    })
+  })
+
+  public static activeTimer = scope((query: Builder) => {
+    query.withScopes(scopes => scopes.live())
+    query.whereNotNull('revealsAt')
+    query.whereNull('setId')
+    query.orderBy('revealsAt')
+  })
+
+  public static pausedTimer = scope((query: Builder) => {
+    query.withScopes(scopes => scopes.live())
+    query.whereNull('revealsAt')
+    query.where('remainingRevealTime', '>', 0)
+    query.where('remainingRevealTime', '<', DEFAULT_REMAINING_REVEAL_TIME)
+    query.orderBy('remainingRevealTime')
+  })
+
+  public static prereveal = scope((query: Builder) => {
+    query
+      .withScopes(scopes => scopes.live())
+      .where(query => query
+        // Active Timer
+        .where(query => query
+          .whereNotNull('revealsAt')
+          .whereNull('setId')
+        // Paused Timer
+        ).orWhere(query => query
+            .whereNull('revealsAt')
+            .where('remainingRevealTime', '>', 0)
+            .where('remainingRevealTime', '<', DEFAULT_REMAINING_REVEAL_TIME)
+        )
+      )
+      .whereNotNull('revealsAt')
+      .whereNull('setId')
+      .select(Database.raw(`
+        *,
+        CASE
+          WHEN reveals_at IS NULL THEN remaining_reveal_time
+          ELSE EXTRACT(EPOCH FROM (reveals_at - NOW()))
+        END AS seconds_remaining`))
+      .orderBy(`seconds_remaining`)
   })
 
   public optInOpen () {

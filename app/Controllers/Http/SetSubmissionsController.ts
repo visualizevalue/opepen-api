@@ -18,7 +18,7 @@ export default class SetSubmissionsController extends BaseController {
       page = 1,
       limit = 10,
       filter = {},
-      sort = '',
+      sort = '-createdAt',
       status = '',
     } = request.qs()
 
@@ -35,18 +35,19 @@ export default class SetSubmissionsController extends BaseController {
       case 'unapproved':
         if (isAdmin(session)) {
           query.withScopes(scopes => {
+            scopes.active()
             scopes.published()
             scopes.unapproved()
             scopes.unstarred()
           })
-          break;
+          break
         }
       case 'all':
         if (isAdmin(session)) {
           query.withScopes(scopes => {
             scopes.complete()
           })
-          break;
+          break
         }
       case 'starred':
         query.withScopes(scopes => {
@@ -54,30 +55,35 @@ export default class SetSubmissionsController extends BaseController {
           scopes.starred()
         })
         query.orderByRaw('starred_at desc NULLS LAST')
-        break;
+        break
       case 'unstarred':
         query.withScopes(scopes => {
-          scopes.active()
-          scopes.approved()
-          scopes.published()
+          scopes.live()
           scopes.unstarred()
         })
         query.orderByRaw('approved_at desc')
-        break;
+        break
       case 'deleted':
         if (isAdmin(session)) {
           query.whereNotNull('deletedAt')
-          break;
+          break
         }
       case 'revealed':
         query.whereNotNull('setId')
-        break;
+        break
+      case 'active':
+        query.withScopes(scopes => scopes.activeTimer())
+        break
+      case 'paused':
+        query.withScopes(scopes => scopes.pausedTimer())
+        break
+      case 'prereveal':
+        query.withScopes(scopes => scopes.prereveal())
+        break
       default:
         query.withScopes(scopes => {
-          scopes.published()
-          scopes.approved()
+          scopes.live()
         })
-        break;
     }
 
     this.applyFilters(query, filter)
