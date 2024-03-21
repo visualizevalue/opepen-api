@@ -128,6 +128,7 @@ export default class AccountSettingsController extends BaseController {
       quote: account.quote,
       bio: account.bio,
       socials: account.socials,
+      x_user: account.oauth?.twitterUser,
     }
   }
 
