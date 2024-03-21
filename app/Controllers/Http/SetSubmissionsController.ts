@@ -149,7 +149,7 @@ export default class SetSubmissionsController extends BaseController {
     })
   }
 
-  public async show ({ params }: HttpContextContract) {
+  public async show ({ params, session }: HttpContextContract) {
     const submission = await SetSubmission.query()
       .where('uuid', params.id)
       .preload('set')
@@ -166,13 +166,17 @@ export default class SetSubmissionsController extends BaseController {
       .preload('coCreator3Account')
       .preload('coCreator4Account')
       .preload('coCreator5Account')
+      .firstOrFail()
       // TODO: Implement rich content links
       // .preload('richContentLinks', query => {
       //   query.preload('logo')
       //   query.preload('cover')
       //   query.orderBy('sortIndex')
       // })
-      .firstOrFail()
+
+    if (! submission.approvedAt) {
+      await this.creatorOrAdmin({ creator: submission.creator, session })
+    }
 
     return submission
   }
@@ -373,8 +377,12 @@ export default class SetSubmissionsController extends BaseController {
   }
 
   protected async creatorOrAdmin({ creator, session }) {
+    const currentUserAddress = session.get('siwe')?.address?.toLowerCase()
+
+    if (! currentUserAddress) throw new NotAuthenticated()
+
     const user = await Account.firstOrCreate({
-      address: session.get('siwe')?.address?.toLowerCase()
+      address: currentUserAddress
     })
 
     // Make sure we're admin or creator
