@@ -29,6 +29,12 @@ export default class SetSubmissionsController extends BaseController {
       .preload('edition10Image')
       .preload('edition20Image')
       .preload('edition40Image')
+      .preload('creatorAccount')
+      .preload('coCreator1Account')
+      .preload('coCreator2Account')
+      .preload('coCreator3Account')
+      .preload('coCreator4Account')
+      .preload('coCreator5Account')
 
     // Handle status filter
     switch (status) {

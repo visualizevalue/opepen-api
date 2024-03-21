@@ -31,6 +31,12 @@ export default class AccountsController extends BaseController {
       .preload('edition10Image')
       .preload('edition20Image')
       .preload('edition40Image')
+      .preload('creatorAccount')
+      .preload('coCreator1Account')
+      .preload('coCreator2Account')
+      .preload('coCreator3Account')
+      .preload('coCreator4Account')
+      .preload('coCreator5Account')
       .where((query) => {
         query.where('creator', account.address)
              .orWhere('coCreator_1', account.address)
