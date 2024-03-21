@@ -95,9 +95,8 @@ export default class SetSubmissionsController extends BaseController {
         query.withScopes(scopes => scopes.prereveal())
         break
       default:
-        query.withScopes(scopes => {
-          scopes.live()
-        })
+        query.withScopes(scopes => scopes.live())
+        query.whereNull('setId')
     }
 
     this.applyFilters(query, filter)
