@@ -426,7 +426,6 @@ export default class SetSubmission extends BaseModel {
             .where('remainingRevealTime', '<', DEFAULT_REMAINING_REVEAL_TIME)
         )
       )
-      .whereNotNull('revealsAt')
       .whereNull('setId')
       .select(Database.raw(`
         *,
