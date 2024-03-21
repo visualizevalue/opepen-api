@@ -86,6 +86,7 @@ Route.group(() => {
 
     Route.post('/:id/sign',           'SetSubmissionsController.sign')
     Route.post('/:id/publish',        'SetSubmissionsController.publish')
+    Route.post('/:id/unpublish',      'SetSubmissionsController.unpublish')
     Route.post('/:id/approve',        'SetSubmissionsController.approve').middleware(['admin'])
     Route.post('/:id/unapprove',      'SetSubmissionsController.unapprove').middleware(['admin'])
     Route.post('/:id/star',           'SetSubmissionsController.star').middleware(['admin'])

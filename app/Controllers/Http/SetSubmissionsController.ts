@@ -5,7 +5,7 @@ import BotNotifications from 'App/Services/BotNotifications'
 import BaseController from './BaseController'
 import Account from 'App/Models/Account'
 import Image from 'App/Models/Image'
-import SetSubmission from 'App/Models/SetSubmission'
+import SetSubmission, { DEFAULT_REMAINING_REVEAL_TIME } from 'App/Models/SetSubmission'
 import { isAdmin } from 'App/Middleware/AdminAuth'
 import NotAuthenticated from 'App/Exceptions/NotAuthenticated'
 import InvalidInput from 'App/Exceptions/InvalidInput'
@@ -292,6 +292,25 @@ export default class SetSubmissionsController extends BaseController {
     await this.creatorOrAdmin({ creator: submission.creatorAccount, session })
 
     submission.publishedAt = DateTime.now()
+
+    return submission.save()
+  }
+
+  public async unpublish ({ params, session }: HttpContextContract) {
+    const submission = await SetSubmission.query()
+      .where('uuid', params.id)
+      .whereNull('setId')
+      .preload('creatorAccount')
+      .firstOrFail()
+
+    await this.creatorOrAdmin({ creator: submission.creatorAccount, session })
+
+    submission.publishedAt = null
+    submission.approvedAt = null
+    submission.revealsAt = null
+    submission.remainingRevealTime = DEFAULT_REMAINING_REVEAL_TIME
+
+    await submission.clearOptIns()
 
     return submission.save()
   }

@@ -27,7 +27,7 @@ const NOTIFICATIONS = {
   RevealPaused: NotifySubmissionRevealPausedEmail,
 }
 
-const DEFAULT_REMAINING_REVEAL_TIME = 48 * 60 * 60
+export const DEFAULT_REMAINING_REVEAL_TIME = 48 * 60 * 60
 
 const DEFAULT_SUBMISSION_STATS = {
   "demand": {
