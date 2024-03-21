@@ -51,7 +51,10 @@ export default class SetSubscriptionsController extends BaseController {
       UPDATE set_subscriptions
       SET opepen_ids = opepen_ids - '{${optedOpepenStr}}'::text[]
       WHERE opepen_ids \\?| '{${optedOpepenStr}}'::text[]
-      AND submission_id != ${submission.id}
+      AND (
+        submission_id != ${submission.id}
+        OR address != ${subscription.address}
+      )
     `)
 
     // Save history

@@ -19,6 +19,18 @@
       "aliases": [],
       "flags": []
     },
+    "clear:multi_opt_ins": {
+      "settings": {
+        "loadApp": true,
+        "stayAlive": false
+      },
+      "commandPath": "./commands/ClearMultiOptIns",
+      "commandName": "clear:multi_opt_ins",
+      "description": "",
+      "args": [],
+      "aliases": [],
+      "flags": []
+    },
     "reveal:execute": {
       "settings": {
         "loadApp": true,
