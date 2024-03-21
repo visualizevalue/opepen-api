@@ -444,8 +444,6 @@ export default class SetSubmission extends BaseModel {
   public async startRevealTimer () {
     if (this.revealsAt) return
 
-    await Subscription.clearRevealingOpepenFromOtherSubmissions(this.id)
-
     this.revealsAt = DateTime.now().plus({ seconds: this.remainingRevealTime })
     this.remainingRevealTime = 0
 
@@ -546,7 +544,6 @@ export default class SetSubmission extends BaseModel {
 
   // FIXME: Clean up this ducking mess!
   public async cleanSubscriptionssAndStats () {
-    console.log('stats to update / clean')
     const subscriptions = await Subscription.query().where('submissionId', this.id)
 
     const holders = { 1: 0, 4: 0, 5: 0, 10: 0, 20: 0, 40: 0, total: 0 }
@@ -612,8 +609,6 @@ export default class SetSubmission extends BaseModel {
     }
     this.submittedOpepen = await this.opepensInSetSubmission()
     await this.save()
-
-    console.log('stats updated')
   }
 
   public async maybeStartOrStopTimer () {

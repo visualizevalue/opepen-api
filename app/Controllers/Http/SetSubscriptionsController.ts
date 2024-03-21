@@ -1,11 +1,13 @@
 import { ethers } from 'ethers'
 import { DateTime } from 'luxon'
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
+import Database from '@ioc:Adonis/Lucid/Database'
 import Account from 'App/Models/Account'
 import SetSubmission from 'App/Models/SetSubmission'
 import Subscription from 'App/Models/Subscription'
 import BaseController from './BaseController'
 import SubscriptionHistory from 'App/Models/SubscriptionHistory'
+import Opepen from 'App/Models/Opepen'
 
 export default class SetSubscriptionsController extends BaseController {
   public async subscribe ({ params, request }: HttpContextContract) {
@@ -37,6 +39,20 @@ export default class SetSubscriptionsController extends BaseController {
       delegatedBy: request.input('delegated_by'),
       createdAt: DateTime.now(),
     })
+
+    // Update opepen
+    await Opepen.query().whereIn('tokenId', subscription.opepenIds).update({
+      submissionId: submission.id,
+    })
+
+    // Clear other opt ins for these opepen
+    const optedOpepenStr = subscription.opepenIds.join(',')
+    await Database.rawQuery(`
+      UPDATE set_subscriptions
+      SET opepen_ids = opepen_ids - '{${optedOpepenStr}}'::text[]
+      WHERE opepen_ids \\?| '{${optedOpepenStr}}'::text[]
+      AND submission_id != ${submission.id}
+    `)
 
     // Save history
     await SubscriptionHistory.saveFor(subscription)

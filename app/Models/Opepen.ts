@@ -10,6 +10,7 @@ import SetModel from './SetModel'
 import Image from './Image'
 import { ContractType } from './types'
 import { TokenMetadata } from 'App/Services/Metadata/MetadataTypes'
+import SetSubmission from './SetSubmission'
 
 type SetConfig = any
 
@@ -54,6 +55,9 @@ export default class Opepen extends TokenModel {
   public setId: number
 
   @column()
+  public submissionId: number
+
+  @column()
   public setEditionId: number
 
   @column()
@@ -64,6 +68,11 @@ export default class Opepen extends TokenModel {
     onQuery: query => query.preload('submission')
   })
   public set: BelongsTo<typeof SetModel>
+
+  @belongsTo(() => SetSubmission, {
+    foreignKey: 'submissionId',
+  })
+  public submission: BelongsTo<typeof SetSubmission>
 
   @belongsTo(() => Image)
   public image: BelongsTo<typeof Image>

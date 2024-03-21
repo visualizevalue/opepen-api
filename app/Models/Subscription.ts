@@ -1,6 +1,5 @@
 import { DateTime } from 'luxon'
 import { BaseModel, BelongsTo, belongsTo, column } from '@ioc:Adonis/Lucid/Orm'
-import Database from '@ioc:Adonis/Lucid/Database'
 import Account from 'App/Models/Account'
 import SetSubmission from 'App/Models/SetSubmission'
 import { MaxReveal } from './types'
@@ -50,20 +49,4 @@ export default class Subscription extends BaseModel {
     localKey: 'address',
   })
   public account: BelongsTo<typeof Account>
-
-  public static async clearRevealingOpepenFromOtherSubmissions (submissionId: number) {
-    const optedOpepen = await Database.rawQuery(`
-      SELECT jsonb_array_elements_text("opepen_ids") as id
-      FROM set_subscriptions
-      WHERE submission_id = ${submissionId}
-    `)
-    const optedOpepenStr = optedOpepen.rows.map(r => r.id).join(',')
-
-    await Database.rawQuery(`
-      UPDATE set_subscriptions
-      SET opepen_ids = opepen_ids - '{${optedOpepenStr}}'::text[]
-      WHERE opepen_ids \\?| '{${optedOpepenStr}}'::text[]
-      AND submission_id != ${submissionId}
-    `)
-  }
 }
