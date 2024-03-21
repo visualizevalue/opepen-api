@@ -641,7 +641,7 @@ export default class SetSubmission extends BaseModel {
         await new Mailer(user, this).sendLater()
         Logger.info(`${scopeKey} email scheduled: ${user.email}`)
       } catch (e) {
-        Logger.warn(`Error scheduling ${scopeKey} email: ${user.email}`)
+        Logger.warn(`Error scheduling ${scopeKey} email: ${user.email}`, e)
       }
     }
   }
