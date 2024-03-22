@@ -26,6 +26,18 @@ class CID {
     this._setup = true
   }
 
+  toV0 (v1: string) {
+    const cid = this.CID.parse(v1)
+
+    return cid.toV0().toString()
+  }
+
+  toV1 (v0: string) {
+    const cid = this.CID.parse(v0)
+
+    return cid.toV1().toString()
+  }
+
   async getJsonCID (data: any): Promise<CID> {
     await this.setup()
 
