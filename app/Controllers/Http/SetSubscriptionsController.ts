@@ -61,7 +61,7 @@ export default class SetSubscriptionsController extends BaseController {
     await SubscriptionHistory.saveFor(subscription)
 
     // Update opepen cache
-    submission.updateAndValidateOpepensInSet()
+    await submission.updateAndValidateOpepensInSet()
 
     return subscription
   }
