@@ -43,7 +43,6 @@ export class BotNotifications {
     await this.initialize()
 
     await set.load('submission')
-    await set.load('creatorAccount')
 
     const lines = [
       `Set ${pad(set.id, 3)}: "${set.submission.name}"`,
