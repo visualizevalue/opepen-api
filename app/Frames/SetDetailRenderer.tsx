@@ -120,16 +120,14 @@ export default class SetDetailRenderer extends Renderer {
           justifyContent: 'flex-end',
           backgroundImage: 'linear-gradient(to top, rgba(0,0,0,0.69) 0%, rgba(0,0,0,0) 100%)',
         }}>
-          {
-            submission.setId && <p style={{
-              textTransform: 'uppercase',
-              display: 'block',
-              color: '#696969',
-              margin: '0 0 0.25em',
-              fontFamily: 'SpaceGrotesk-Bold',
-            }}
-            >Set {pad(submission.setId, 3)}</p>
-          }
+          <p style={{
+            textTransform: 'uppercase',
+            display: 'block',
+            color: '#696969',
+            margin: '0 0 0.25em',
+            fontFamily: 'SpaceGrotesk-Bold',
+          }}
+          >{ submission.setId ? `Set ${pad(submission.setId, 3)}` : `Set Submission` }</p>
           <h1 style={{ fontWeight: 500, margin: '0', lineHeight: '1.1', }}>{submission.name || 'Unrevealed'}</h1>
         </aside>
       </div>,

@@ -30,8 +30,7 @@ export class BotNotifications {
 
     const lines = [
       `New Set Submitted: "${submission.name}"`,
-      `${string.capitalCase(submission.editionType)} Editions`,
-      `By ${submission.creatorAccount.display}`, // TODO: Add social platform handle
+      `${string.capitalCase(submission.editionType)} Editions by ${submission.creatorAccount.display}`, // TODO: Add social platform handle
     ]
     Logger.info(`BotNotifications newSubmission ${lines.join('; ')}`)
 

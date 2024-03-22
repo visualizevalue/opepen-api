@@ -139,8 +139,7 @@ export default class FarcasterFrameSetController extends FarcasterFramesControll
 
   public async entryImage ({ request, params, response }: HttpContextContract) {
     const submission = await SetSubmission.query().where('uuid', params.id).firstOrFail()
-    // FIXME: Fix for unrevealed sets
-    const key = `frames/sets/${submission.uuid}_${submission.name ? string.toSlug(submission.name) : 'unrevealed'}_overview.png`
+    const key = `/submissions/${submission.uuid}_${submission.name ? string.toSlug(submission.name) : 'unrevealed'}_overview.png`
 
     if (request.method() !== 'POST' && await Drive.exists(key)) {
       return this.imageResponse(await Drive.get(key), response)
