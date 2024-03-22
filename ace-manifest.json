@@ -242,6 +242,25 @@
       "aliases": [],
       "flags": []
     },
+    "reveal:update-images": {
+      "settings": {
+        "loadApp": true,
+        "stayAlive": false
+      },
+      "commandPath": "./commands/SetRevealImages",
+      "commandName": "reveal:update-images",
+      "description": "Execute pending reveals",
+      "args": [
+        {
+          "type": "string",
+          "propertyName": "set",
+          "name": "set",
+          "required": true
+        }
+      ],
+      "aliases": [],
+      "flags": []
+    },
     "opepen:sync": {
       "settings": {
         "loadApp": true,

@@ -161,7 +161,7 @@ export default class Reveal {
     }
   }
 
-  private async generateMetadataFor (tokenId: number, index: number, submission: SetSubmission, set: SetModel) {
+  public async generateMetadataFor (tokenId: number, index: number, submission: SetSubmission, set: SetModel) {
     const opepen = await Opepen.findOrFail(tokenId)
     const edition = opepen.data.edition
 
