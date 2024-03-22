@@ -50,6 +50,7 @@ export default class ClearMultiOptIns extends BaseCommand {
           submission_id != ${opt.submission_id}
           OR address != '${opt.address}'
         )
+        AND submission_id NOT IN (SELECT submission_id FROM sets WHERE submission_id IS NOT NULL)
       `)
 
       this.logger.info(`Cleared all opt ins for ${opt.id} except to set ${opt.submission_id}`)
