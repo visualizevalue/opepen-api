@@ -24,7 +24,9 @@ export default class SetRevealImages extends BaseCommand {
     const { default: SetModel } = await import('App/Models/SetModel')
 
     const set = await SetModel.query()
-      .preload('submission')
+      .preload('submission', query => {
+        query.preload('dynamicSetImages')
+      })
       .preload('opepen')
       .where('id', this.set).firstOrFail()
 
