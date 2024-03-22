@@ -110,11 +110,6 @@
           "type": "boolean"
         },
         {
-          "name": "internal",
-          "propertyName": "internal",
-          "type": "boolean"
-        },
-        {
           "name": "opensea",
           "propertyName": "opensea",
           "type": "boolean"

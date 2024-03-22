@@ -408,7 +408,6 @@ export default class SetSubmission extends BaseModel {
   public static noTimer = scope((query: Builder) => {
     query.withScopes(scopes => scopes.live())
     query.whereNull('revealsAt')
-    query.where('remainingRevealTime', '=', DEFAULT_REMAINING_REVEAL_TIME)
   })
 
   public static prereveal = scope((query: Builder) => {
