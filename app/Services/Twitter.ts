@@ -113,7 +113,7 @@ export default class Twitter {
 
       return mediaId
     } catch (e) {
-      Logger.error(e)
+      Logger.error(`Media upload error: ${e}`)
 
       return null
     }
