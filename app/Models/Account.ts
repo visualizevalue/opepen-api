@@ -79,7 +79,7 @@ export default class Account extends BaseModel {
 
   @computed()
   public get twitterHandle () {
-    return this.oauth.twitterUser?.username
+    return this.oauth?.twitterUser?.username
   }
 
   @computed()
