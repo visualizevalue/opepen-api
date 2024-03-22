@@ -1,4 +1,5 @@
 import { BaseCommand } from '@adonisjs/core/build/standalone'
+import { delay } from 'App/Helpers/time'
 import provider from 'App/Services/RPCProvider'
 
 export default class ExecuteReveal extends BaseCommand {
@@ -19,6 +20,10 @@ export default class ExecuteReveal extends BaseCommand {
 
   public async run() {
     const { default: SetSubmission } = await import('App/Models/SetSubmission')
+
+    this.logger.info(`Waiting 5s to reveal`)
+
+    await delay(5000)
 
     const currentBlock = await provider.getBlockNumber()
 

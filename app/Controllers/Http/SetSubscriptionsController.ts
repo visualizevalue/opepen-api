@@ -55,6 +55,7 @@ export default class SetSubscriptionsController extends BaseController {
         submission_id != ${submission.id}
         OR address != '${subscription.address}'
       )
+      AND submission_id NOT IN (SELECT submission_id FROM sets WHERE submission_id IS NOT NULL)
     `)
 
     // Save history
