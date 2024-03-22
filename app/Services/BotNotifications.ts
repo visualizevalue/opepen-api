@@ -39,6 +39,23 @@ export class BotNotifications {
     await this.xClient?.tweet(txt, img)
   }
 
+  public async newCuratedSubmission (submission) {
+    await this.initialize()
+
+    await submission.load('creatorAccount')
+
+    const lines = [
+      `New Curated Set: "${submission.name}"`,
+      `${string.capitalCase(submission.editionType)} Editions by ${submission.creatorAccount.display}`, // TODO: Add social platform handle
+    ]
+    Logger.info(`BotNotifications newSubmission ${lines.join('; ')}`)
+
+    const txt = lines.join(`\n`)
+    const img = `https://api.opepen.art/v1/frames/sets/${submission.uuid}/detail/image`
+
+    await this.xClient?.tweet(txt, img)
+  }
+
   public async newSet (set) {
     await this.initialize()
 

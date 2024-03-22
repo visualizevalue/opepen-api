@@ -354,6 +354,7 @@ export default class SetSubmissionsController extends BaseController {
 
     if (submission.starredAt) {
       await submission.notify('NewCuratedSubmission')
+      BotNotifications?.newCuratedSubmission(submission)
     }
 
     return submission
