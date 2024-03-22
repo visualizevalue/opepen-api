@@ -1,9 +1,11 @@
 import { string } from '@ioc:Adonis/Core/Helpers'
 import Env from '@ioc:Adonis/Core/Env'
 import Logger from '@ioc:Adonis/Core/Logger'
-import Twitter from './Twitter'
-import Account from 'App/Models/Account'
 import pad from 'App/Helpers/pad'
+import Account from 'App/Models/Account'
+import SetModel from 'App/Models/SetModel'
+import SetSubmission from 'App/Models/SetSubmission'
+import Twitter from './Twitter'
 
 export class BotNotifications {
   xClient: Twitter|undefined
@@ -22,7 +24,7 @@ export class BotNotifications {
     return this.initialized
   }
 
-  public async newSubmission (submission) {
+  public async newSubmission (submission: SetSubmission) {
     await this.initialize()
 
     await submission.load('creatorAccount')
@@ -39,7 +41,7 @@ export class BotNotifications {
     await this.xClient?.tweet(txt, img)
   }
 
-  public async newCuratedSubmission (submission) {
+  public async newCuratedSubmission (submission: SetSubmission) {
     await this.initialize()
 
     await submission.load('creatorAccount')
@@ -54,22 +56,6 @@ export class BotNotifications {
     const img = `https://api.opepen.art/v1/frames/sets/${submission.uuid}/detail/image`
 
     await this.xClient?.tweet(txt, img)
-  }
-
-  public async newSet (set) {
-    await this.initialize()
-
-    await set.load('submission')
-
-    const lines = [
-      `Set ${pad(set.id, 3)}: "${set.submission.name}"`,
-      `htttps://opepen.art/sets/${pad(set.id, 3)}`,
-    ]
-    Logger.info(`BotNotifications neSet ${lines.join('; ')}`)
-
-    const txt = lines.join(`\n`)
-
-    await this.xClient?.tweet(txt)
   }
 
 
@@ -91,14 +77,24 @@ export class BotNotifications {
   // 1hr 00m remaining
   // [6up grid image preview]
 
+  public async newSet (set: SetModel) {
+    await this.initialize()
 
-  // TODO: Published
-  // “Title” by @artist
-  // Set 033
-  // Published at Block 24893434
-  // [6up grid image preview]
+    await set.load('submission')
 
-  public async provenance (submission) {
+    const lines = [
+      `"${set.submission.name}" by ${set.submission.creatorAccount.display}`,
+      `Set ${pad(set.id, 3)}`,
+      `Published at Block ${set.submission.revealBlockNumber}`,
+    ]
+    Logger.info(`BotNotifications newSet ${lines.join('; ')}`)
+
+    const txt = lines.join(`\n`)
+
+    await this.xClient?.tweet(txt, `https://api.opepen.art/v1/frames/sets/${set.submission.uuid}/detail/image`)
+  }
+
+  public async provenance (submission: SetSubmission) {
     await this.initialize()
 
     const tweets = [

@@ -108,7 +108,7 @@ export default class Twitter {
     try {
       const mediaId = await this.appClient.v1.uploadMedia(buffer, {
         mimeType: contentType,
-        additionalOwners: [this.account.oauth.twitterUser?.id as string]
+        additionalOwners: [this.account.oauth?.twitterUser?.id as string]
       })
 
       return mediaId
