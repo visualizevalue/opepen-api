@@ -35,11 +35,16 @@ export default class Twitter {
 
     const isExpired = DateTime.fromISO(account.oauth.expiresAt as string).diff(DateTime.now()).as('minutes') < 5
     if (isExpired) {
+      const oauthClient = new TwitterApi({
+        clientId: Env.get('TWITTER_CLIENT_ID'),
+        clientSecret: Env.get('TWITTER_CLIENT_SECRET'),
+      })
+
       const {
         accessToken,
         refreshToken,
         expiresIn,
-      } = await appClient.refreshOAuth2Token(account.oauth.refreshToken)
+      } = await oauthClient.refreshOAuth2Token(account.oauth.refreshToken)
 
       userAccessToken = accessToken
 
