@@ -25,6 +25,8 @@ export default class ScheduleReveal extends BaseCommand {
       .whereNotNull('revealsAt')
       .where('revealsAt', '<=', DateTime.now().toISO())
 
+    this.logger.info(`Reveals to schedule: ${toSchedule.length}`)
+
     for (const submission of toSchedule) {
       await submission.scheduleReveal()
 

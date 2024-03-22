@@ -27,10 +27,17 @@ export default class ExecuteReveal extends BaseCommand {
       .where('revealBlockNumber', '<=', currentBlock.toString())
       .whereNull('setId')
 
-    for (const submission of toReveal) {
-      await submission.reveal()
+    this.logger.info(`Reveals to execute: ${toReveal.length}`)
 
-      this.logger.info(`Executed reveal for submission ${submission.uuid}`)
+    for (const submission of toReveal) {
+      try {
+        await submission.reveal()
+
+        this.logger.info(`Executed reveal for submission ${submission.name}`)
+      } catch (e) {
+        this.logger.error(`Reveal execution for submission ${submission.name} failed: ${e}`)
+        console.error(e)
+      }
     }
   }
 }

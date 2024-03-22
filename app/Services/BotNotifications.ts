@@ -3,13 +3,13 @@ import Env from '@ioc:Adonis/Core/Env'
 import Logger from '@ioc:Adonis/Core/Logger'
 import Twitter from './Twitter'
 import Account from 'App/Models/Account'
+import pad from 'App/Helpers/pad'
 
 export class BotNotifications {
   xClient: Twitter|undefined
   initialized: boolean = false
 
   public async initialize () {
-    Logger.info(`BotNotifications already initialized`)
     if (this.initialized) return
 
     const account = await Account.byId(Env.get('TWITTER_BOT_ACCOUNT_ADDRESS')).firstOrFail()
@@ -23,7 +23,6 @@ export class BotNotifications {
   }
 
   public async newSubmission (submission) {
-    Logger.info(`BotNotifications newSubmission`)
     await this.initialize()
 
     await submission.load('creatorAccount')
@@ -38,7 +37,23 @@ export class BotNotifications {
     const img = `https://api.opepen.art/v1/frames/sets/${submission.uuid}/detail/image`
 
     await this.xClient?.tweet(txt, img)
-    Logger.info(`BotNotifications Post`)
+  }
+
+  public async newSet (set) {
+    await this.initialize()
+
+    await set.load('submission')
+    await set.load('creatorAccount')
+
+    const lines = [
+      `Set ${pad(set.id, 3)}: "${set.submission.name}"`,
+      `htttps://opepen.art/sets/${pad(set.id, 3)}`,
+    ]
+    Logger.info(`BotNotifications neSet ${lines.join('; ')}`)
+
+    const txt = lines.join(`\n`)
+
+    await this.xClient?.tweet(txt)
   }
 
 
@@ -72,7 +87,7 @@ export class BotNotifications {
 
     const tweets = [
       { text: `Opepen Set "${submission.name}" reveal provenance thread...\n\n↓ https://opepen.art/sets/${submission.uuid}` },
-      { text: `Reveal Block Hash: ${submission.revealBlockNumber} (in about 10 minutes) https://etherscan.io/block/${submission.revealBlockNumber}` },
+      { text: `Reveal block hash: ${submission.revealBlockNumber} (in about 10 minutes) https://etherscan.io/block/${submission.revealBlockNumber}` },
       { text: `Opt in data hash: ${submission.revealSubmissionsInputCid}` },
     ]
 

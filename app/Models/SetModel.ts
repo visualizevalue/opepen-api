@@ -4,6 +4,7 @@ import NotifyNewSetEmail from 'App/Mailers/NotifyNewSetEmail'
 import Account from 'App/Models/Account'
 import Opepen from 'App/Models/Opepen'
 import SetSubmission from 'App/Models/SetSubmission'
+import BotNotifications from 'App/Services/BotNotifications'
 
 export default class SetModel extends BaseModel {
   public static table = 'sets'
@@ -68,5 +69,7 @@ export default class SetModel extends BaseModel {
         Logger.warn(`Error scheduling SetNotification email: ${user.email}`)
       }
     }
+
+    await BotNotifications?.newSet(this)
   }
 }

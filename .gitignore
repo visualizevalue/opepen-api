@@ -7,3 +7,10 @@ coverage
 tmp
 sets
 !public/*
+
+# Reveal
+app/Services/Metadata/Reveal/__pycache__/
+app/Services/Metadata/Reveal/data/*
+!app/Services/Metadata/Reveal/data/001.json
+app/Services/Metadata/Reveal/results/*
+!app/Services/Metadata/Reveal/results/001.json

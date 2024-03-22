@@ -471,7 +471,8 @@ export default class SetSubmission extends BaseModel {
 
       await BotNotifications?.provenance(this)
     } catch (e) {
-      Logger.error(`Something went wrong while scheduling the reveal`, e)
+      Logger.error(`Something went wrong while scheduling the reveal: ${e}`)
+      console.error(e)
     }
   }
 
@@ -486,15 +487,16 @@ export default class SetSubmission extends BaseModel {
 
     if (! submission.revealsAt) throw new Error(`Unscheduled reveal`)
     if (
-      currentBlock > revealBlock ||
+      currentBlock < revealBlock + 5 ||
       submission.revealsAt > DateTime.now()
     ) throw new Error(`Not time to reveal yet`)
-    if (set.id !== set.submissionId) throw new Error(`Not allowed to re-reveal to a set`)
+    if (submission.setId && set.id !== submission.setId) throw new Error(`Not allowed to re-reveal to a set`)
 
     try {
       await (new Reveal()).compute(submission, set)
     } catch (e) {
-      Logger.info(`Something bad happened during reveal of set ${set.id} and submission ${submission.uuid}`, e)
+      Logger.info(`Something bad happened during reveal of set ${set.id} and submission ${submission.uuid}: ${e}`)
+      console.error(e)
     }
   }
 

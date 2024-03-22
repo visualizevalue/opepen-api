@@ -28,6 +28,7 @@ export default class Reveal {
 
     submission.revealBlockNumber = (await provider.getBlockNumber() + 50).toString()
     await submission.save()
+    Logger.info(`Set reveal block for ${submission.name} to ${submission.revealBlockNumber}`)
 
     await this.prepareData(submission)
   }
@@ -36,13 +37,14 @@ export default class Reveal {
     submission: SetSubmission,
     set: SetModel,
   ) {
+    Logger.info(`Computing reveal for ${submission.name}`)
     if (! submission.revealSubmissionsInputCid) throw new Error(`Reveal data not prepared`)
 
     fs.writeFileSync(this.inputPath(submission.id), submission.revealSubmissionsInput)
 
-    const block = await provider.getBlock(submission.revealBlockNumber)
+    const block = await provider.getBlock(parseInt(submission.revealBlockNumber))
 
-    await execute(`python3 randomize.py --seed "${block.hash}" --set ${submission.uuid}`)
+    await execute(`python3 ${this.executablePath()} --seed "${block.hash}" --set ${submission.id}`)
 
     await this.handleResults(submission, set)
   }
@@ -110,6 +112,7 @@ export default class Reveal {
     submission.revealSubmissionsInput = dataBlob
     const cid = await CID.getJsonCID(data)
     submission.revealSubmissionsInputCid = cid.toString()
+    Logger.info(`Prepared reveal data for ${submission.name}. CID ${submission.revealSubmissionsInputCid}`)
 
     // And save to submission and to file (for python execution)
     await submission.save()
@@ -193,11 +196,19 @@ export default class Reveal {
       ]
     }
 
+    opepen.setId = set.id
+    opepen.setEditionId = index
+    opepen.imageId = image.id
+
     await opepen.save()
   }
 
   private inputPath (submissionId: number) {
     return path.join(__dirname, `data/${submissionId}.json`)
+  }
+
+  private executablePath () {
+    return path.join(__dirname, `randomize.py`)
   }
 
   private outputPath (submissionId: number) {
