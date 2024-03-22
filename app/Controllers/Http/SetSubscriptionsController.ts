@@ -53,7 +53,7 @@ export default class SetSubscriptionsController extends BaseController {
       WHERE opepen_ids \\?| '{${optedOpepenStr}}'::text[]
       AND (
         submission_id != ${submission.id}
-        OR address != ${subscription.address}
+        OR address != '${subscription.address}'
       )
     `)
 
