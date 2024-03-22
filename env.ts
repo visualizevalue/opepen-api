@@ -57,6 +57,8 @@ export default Env.rules({
   TWITTER_BEARER: Env.schema.string(),
   TWITTER_CLIENT_ID: Env.schema.string(),
   TWITTER_CLIENT_SECRET: Env.schema.string(),
+  TWITTER_ACCESS_TOKEN: Env.schema.string(),
+  TWITTER_ACCESS_TOKEN_SECRET: Env.schema.string(),
   TWITTER_BOT_ACCOUNT_ADDRESS: Env.schema.string(),
   CHROMIUM_EXECUTABLE: Env.schema.string(),
 })

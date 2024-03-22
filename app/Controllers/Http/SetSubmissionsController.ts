@@ -320,8 +320,8 @@ export default class SetSubmissionsController extends BaseController {
     await submission.save()
 
     try {
-      await submission.notify('NewSubmission')
-      await BotNotifications?.newSubmission(submission)
+      submission.notify('NewSubmission')
+      BotNotifications?.newSubmission(submission)
     } catch (e) {
       Logger.error(e)
     }

@@ -1,5 +1,6 @@
 import { string } from '@ioc:Adonis/Core/Helpers'
 import Env from '@ioc:Adonis/Core/Env'
+import Logger from '@ioc:Adonis/Core/Logger'
 import Twitter from './Twitter'
 import Account from 'App/Models/Account'
 
@@ -8,6 +9,7 @@ export class BotNotifications {
   initialized: boolean = false
 
   public async initialize () {
+    Logger.info(`BotNotifications already initialized`)
     if (this.initialized) return
 
     const account = await Account.byId(Env.get('TWITTER_BOT_ACCOUNT_ADDRESS')).firstOrFail()
@@ -15,25 +17,29 @@ export class BotNotifications {
 
     this.initialized = true
 
+    Logger.info(`BotNotifications initialized to account ${account.address}`)
+
     return this.initialized
   }
 
   public async newSubmission (submission) {
+    Logger.info(`BotNotifications newSubmission`)
     await this.initialize()
 
     await submission.load('creatorAccount')
 
     const lines = [
-      `New Set Submitted`,
-      `"${submission.name}"`,
-      string.capitalCase(submission.editionType),
+      `New Set Submitted: "${submission.name}"`,
+      `${string.capitalCase(submission.editionType)} Editions`,
       `By ${submission.creatorAccount.display}`, // TODO: Add social platform handle
     ]
+    Logger.info(`BotNotifications newSubmission ${lines.join('; ')}`)
 
     const txt = lines.join(`\n`)
-    const img = `https://api.opepen.art/sets/${submission.uuid}/detail/image` // TODO: Update image URI
+    const img = `https://api.opepen.art/v1/frames/sets/${submission.uuid}/detail/image`
 
     await this.xClient?.tweet(txt, img)
+    Logger.info(`BotNotifications Post`)
   }
 
 

@@ -9,10 +9,16 @@ import Account from 'App/Models/Account'
 export default class Twitter {
   private appClient: TwitterApi
   private userClient: TwitterApi
+  private account: Account
 
-  constructor (config: { appClient: TwitterApi, userClient: TwitterApi }) {
+  constructor (config: {
+    appClient: TwitterApi,
+    userClient: TwitterApi,
+    account: Account
+  }) {
     this.appClient = config.appClient
     this.userClient = config.userClient
+    this.account = config.account
   }
 
   static async initialize (account: Account) {
@@ -46,7 +52,7 @@ export default class Twitter {
 
     const userClient = new TwitterApi(userAccessToken)
 
-    return new Twitter({ appClient, userClient })
+    return new Twitter({ appClient, userClient, account })
   }
 
   public async tweet (text: string, imageUrl?: string) {
@@ -95,7 +101,10 @@ export default class Twitter {
     const { contentType, buffer } = await this.loadImage(url)
 
     try {
-      const mediaId = await this.appClient.v1.uploadMedia(buffer, { mimeType: contentType })
+      const mediaId = await this.appClient.v1.uploadMedia(buffer, {
+        mimeType: contentType,
+        additionalOwners: [this.account.oauth.twitterUser?.id as string]
+      })
 
       return mediaId
     } catch (e) {
