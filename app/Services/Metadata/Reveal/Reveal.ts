@@ -1,5 +1,6 @@
 import fs from 'fs'
 import path from 'path'
+import { DateTime } from 'luxon'
 import Logger from '@ioc:Adonis/Core/Logger'
 import { execute } from 'App/Helpers/execute'
 import { MaxReveal } from 'App/Models/types'
@@ -10,7 +11,6 @@ import SetSubmission from 'App/Models/SetSubmission'
 import Subscription from 'App/Models/Subscription'
 import CID from 'App/Services/CID'
 import provider from 'App/Services/RPCProvider'
-import { DateTime } from 'luxon'
 import pad from 'App/Helpers/pad'
 
 const EDITION_VOCAB = {
@@ -197,6 +197,7 @@ export default class Reveal {
     }
 
     opepen.setId = set.id
+    opepen.revealedAt = DateTime.now()
     opepen.setEditionId = index
     opepen.imageId = image.id
 
