@@ -1,6 +1,6 @@
 import { BaseCommand } from '@adonisjs/core/build/standalone'
 import provider from 'App/Services/RPCProvider'
-import { DateTime } from 'luxon'
+// import { DateTime } from 'luxon'
 
 export default class ExecuteReveal extends BaseCommand {
   /**
@@ -41,16 +41,16 @@ export default class ExecuteReveal extends BaseCommand {
       }
     }
 
-    const toPostpone = await SetSubmission.query()
-      .whereNotNull('revealsAt')
-      .whereNull('setId')
-      .where('revealsAt', '<', DateTime.now().plus({ hours: 12 }).toISO())
+    // const toPostpone = await SetSubmission.query()
+    //   .whereNotNull('revealsAt')
+    //   .whereNull('setId')
+    //   .where('revealsAt', '<', DateTime.now().plus({ hours: 12 }).toISO())
 
-    for (const submission of toPostpone) {
-      if (! submission.revealsAt) continue
-      submission.revealsAt = submission.revealsAt.plus({ hours: 12 })
-      await submission.save()
-      this.logger.info(`Postponed ${submission.name} by 12 hours`)
-    }
+    // for (const submission of toPostpone) {
+    //   if (! submission.revealsAt) continue
+    //   submission.revealsAt = submission.revealsAt.plus({ hours: 12 })
+    //   await submission.save()
+    //   this.logger.info(`Postponed ${submission.name} by 12 hours`)
+    // }
   }
 }
