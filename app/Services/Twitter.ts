@@ -1,6 +1,5 @@
 import axios from 'axios'
 import { TwitterApi } from 'twitter-api-v2'
-import Application from '@ioc:Adonis/Core/Application'
 import Env from '@ioc:Adonis/Core/Env'
 import Logger from '@ioc:Adonis/Core/Logger'
 import { DateTime } from 'luxon'
@@ -61,8 +60,6 @@ export default class Twitter {
   }
 
   public async tweet (text: string, imageUrl?: string) {
-    if (! Application.inProduction) return Logger.debug(`Not sending tweets in development`)
-
     try {
       const media = await this.uploadMedia(imageUrl)
 
@@ -78,8 +75,6 @@ export default class Twitter {
   }
 
   public async thread(tweets: { text: string, imageUrl?: string }[]) {
-    if (! Application.inProduction) return Logger.debug(`Not sending tweets in development`)
-
     // Upload media items and prepare data
     const withMedia: { text?: string, media?: { media_ids: string[] } }[] = []
     for (const config of tweets) {
@@ -93,8 +88,6 @@ export default class Twitter {
   }
 
   public async media (imageUrl: string) {
-    if (! Application.inProduction) return Logger.debug(`Not sending tweets in development`)
-
     const media = await this.uploadMedia(imageUrl)
 
     return media
