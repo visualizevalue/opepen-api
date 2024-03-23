@@ -17,8 +17,8 @@ export default class OpepenController extends BaseController {
 
     const query = Opepen.query().preload('image')
 
-    this.applyFilters(query, filter)
-    this.applySorts(query, sort)
+    await this.applyFilters(query, filter)
+    await this.applySorts(query, sort)
 
     query.orderBy('tokenId', 'asc')
 
@@ -60,9 +60,9 @@ export default class OpepenController extends BaseController {
       query.whereJsonSuperset('data', { edition: parseInt(filter.edition) })
       delete filter.edition
     }
-    this.applyFilters(query, filter)
+    await this.applyFilters(query, filter)
 
-    this.applySorts(query, sort)
+    await this.applySorts(query, sort)
 
     return query
       .orderBy('setId')

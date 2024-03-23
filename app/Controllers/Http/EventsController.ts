@@ -17,8 +17,8 @@ export default class EventsController extends BaseController {
       .preload('fromAccount')
       .preload('toAccount')
 
-    this.applyFilters(query, filter)
-    this.applySorts(query, sort)
+    await this.applyFilters(query, filter)
+    await this.applySorts(query, sort)
 
     return query
       .orderByRaw('block_number::int desc')

@@ -78,8 +78,8 @@ export default class SetSubscriptionsController extends BaseController {
     const submission = await SetSubmission.findByOrFail('uuid', params.id)
     const query = Subscription.query().where('submissionId', submission.id)
 
-    this.applyFilters(query, filter)
-    this.applySorts(query, sort)
+    await this.applyFilters(query, filter)
+    await this.applySorts(query, sort)
 
     if (filter?.comment === '!null') {
       query.whereNot('comment', '')

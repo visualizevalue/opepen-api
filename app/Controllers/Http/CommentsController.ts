@@ -15,8 +15,8 @@ export default class CommentsController extends BaseController {
 
     const query = Comment.query().preload('account')
 
-    this.applyFilters(query, filter)
-    this.applySorts(query, sort)
+    await this.applyFilters(query, filter)
+    await this.applySorts(query, sort)
 
     return query.paginate(page, limit)
   }

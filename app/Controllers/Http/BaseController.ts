@@ -1,5 +1,8 @@
+import { DateTime } from 'luxon'
+import Database from '@ioc:Adonis/Lucid/Database'
+
 export default class BaseController {
-  protected applyIncludes (query, includes) {
+  protected async applyIncludes (query, includes) {
     for (const include of includes) {
       const nested = include.split('.')
       query.preload(nested[0], query => {
@@ -8,7 +11,7 @@ export default class BaseController {
     }
   }
 
-  protected applyFilters (query, filters) {
+  protected async applyFilters (query, filters) {
     Object.entries(filters).forEach(([key, value]) => {
       const values = Array.isArray(value) ? value : [`${value}`]
 
@@ -30,9 +33,10 @@ export default class BaseController {
     })
   }
 
-  protected applySorts (query, sort, separator = ',') {
+  protected async applySorts (query, sort, separator = ',') {
     const sorts = sort.split(separator)
-    sorts.forEach(s => {
+
+    for (const s of sorts) {
       if (!s) return
 
       const isDesc = s[0] === '-'
@@ -43,10 +47,20 @@ export default class BaseController {
         const [column, key] = sort.split('.')
         query.orderByRaw(`"${column}" -> '${key}'`)
       } else if (sort === 'random') {
+        await this.setRandomSeed()
         query.orderByRaw('random()')
       } else {
         query.orderBy(sort, sortDirection)
       }
-    })
+    }
+  }
+
+  protected async setRandomSeed () {
+    const now = DateTime.now()
+    const day = now.ordinal
+    const days = DateTime.local(now.year, 12, 31).ordinal
+    const seed = 2 * day / days - 1
+
+    await Database.rawQuery(`SELECT setseed(${seed})`)
   }
 }

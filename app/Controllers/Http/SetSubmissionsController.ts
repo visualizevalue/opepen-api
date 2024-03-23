@@ -99,8 +99,8 @@ export default class SetSubmissionsController extends BaseController {
         query.whereNull('setId')
     }
 
-    this.applyFilters(query, filter)
-    this.applySorts(query, sort)
+    await this.applyFilters(query, filter)
+    await this.applySorts(query, sort)
 
     return query
       .orderBy('createdAt', 'desc')
