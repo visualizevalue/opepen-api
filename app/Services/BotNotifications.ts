@@ -84,7 +84,7 @@ export class BotNotifications {
 
     const lines = [
       `"${set.submission.name}" by ${set.submission.creatorAccount.display}`,
-      `Set ${pad(set.id, 3)}`,
+      `Permanent Collection, Set ${pad(set.id, 3)}`,
       `Published at Block ${set.submission.revealBlockNumber}`,
     ]
     Logger.info(`BotNotifications newSet ${lines.join('; ')}`)
