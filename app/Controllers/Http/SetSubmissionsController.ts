@@ -319,11 +319,13 @@ export default class SetSubmissionsController extends BaseController {
 
     await submission.save()
 
-    try {
-      submission.notify('NewSubmission')
-      BotNotifications?.newSubmission(submission)
-    } catch (e) {
-      Logger.error(e)
+    if (ctx.request.input('notify', true)) {
+      try {
+        submission.notify('NewSubmission')
+        BotNotifications?.newSubmission(submission)
+      } catch (e) {
+        Logger.error(e)
+      }
     }
 
     return submission
