@@ -27,23 +27,32 @@ export default class SetSubscriptionsController extends BaseController {
     const account = await Account.updateOrCreate({ address }, {})
     account.updateNames()
 
-    const subscription = await Subscription.updateOrCreate({
+    const subscription = await Subscription.firstOrCreate({
       submissionId: submission.id,
       address,
-    }, {
-      message,
-      signature,
-      comment,
-      opepenIds: request.input('opepen'),
-      maxReveals: request.input('max_reveals'),
-      delegatedBy: request.input('delegated_by'),
-      createdAt: DateTime.now(),
     })
 
-    // Update opepen
-    await Opepen.query().whereIn('tokenId', subscription.opepenIds).update({
+    // Remove opted out opepen
+    if (subscription.opepenIds?.length) {
+      await Opepen.query().whereIn('tokenId', subscription.opepenIds).update({
+        submissionId: null,
+      })
+    }
+
+    // Add opted in opepen
+    await Opepen.query().whereIn('tokenId', request.input('opepen')).update({
       submissionId: submission.id,
     })
+
+    // Update subscription
+    subscription.message = message
+    subscription.signature = signature
+    subscription.comment = comment
+    subscription.opepenIds = request.input('opepen')
+    subscription.maxReveals = request.input('max_reveals')
+    subscription.delegatedBy = request.input('delegated_by')
+    subscription.createdAt = DateTime.now()
+    await subscription.save()
 
     // Clear other opt ins for these opepen
     const optedOpepenStr = subscription.opepenIds.join(',')

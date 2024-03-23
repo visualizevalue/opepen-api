@@ -12,11 +12,13 @@ export default class OpepenController extends BaseController {
       page = 1,
       limit = 24,
       filter = {},
+      includes = [],
       sort = ''
     } = request.qs()
 
     const query = Opepen.query().preload('image')
 
+    await this.applyIncludes(query, includes)
     await this.applyFilters(query, filter)
     await this.applySorts(query, sort)
 
@@ -47,6 +49,7 @@ export default class OpepenController extends BaseController {
       page = 1,
       limit = 16_000,
       filter = {},
+      includes = [],
       sort = ''
     } = request.qs()
 
@@ -60,8 +63,9 @@ export default class OpepenController extends BaseController {
       query.whereJsonSuperset('data', { edition: parseInt(filter.edition) })
       delete filter.edition
     }
-    await this.applyFilters(query, filter)
 
+    await this.applyIncludes(query, includes)
+    await this.applyFilters(query, filter)
     await this.applySorts(query, sort)
 
     return query
