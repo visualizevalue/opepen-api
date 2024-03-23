@@ -133,7 +133,7 @@ export default class Reveal {
     await submission.save()
 
     await this.saveOpepenMetadata(submission, set)
-
+    await this.freeUpUnrevealedOpepen(submission)
     await set.notifyPublished()
   }
 
@@ -202,6 +202,14 @@ export default class Reveal {
     opepen.imageId = image.id
 
     await opepen.save()
+  }
+
+  public async freeUpUnrevealedOpepen (submission: SetSubmission) {
+    await Opepen.query()
+      .where('submissionId', submission.id)
+      .whereNull('revealedAt')
+      .whereNull('setId')
+      .update('submissionId', null)
   }
 
   private inputPath (submissionId: number) {
