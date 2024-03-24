@@ -16,7 +16,7 @@ export default class NotifySubmissionRevealPausedEmail extends NotificationEmail
 
     return super.prepareEmail(message, {
       subject: `Consensus paused on "${this.submission.name}"`,
-      name: 'submission_reveal_paused',
+      name: 'reveal_paused',
       templateData: {
         setName: this.submission.name,
         artist: this.submission.artist,

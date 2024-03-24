@@ -13,8 +13,8 @@ export default class NotifySubmissionRevealStartedEmail extends NotificationEmai
     const timeRemaining = this.submission.revealsAt?.diff(DateTime.now()).shiftTo('hours', 'minutes', 'seconds')
 
     return super.prepareEmail(message, {
-      subject: `Consensus Reached on "${this.submission.name}"`,
-      name: 'submission_reveal_started',
+      subject: `Consensus reached on "${this.submission.name}"`,
+      name: 'reveal_started',
       templateData: {
         setName: this.submission.name,
         artist: this.submission.artist,

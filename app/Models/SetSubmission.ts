@@ -448,6 +448,7 @@ export default class SetSubmission extends BaseModel {
     await this.save()
 
     await this.notify('RevealStarted')
+    await BotNotifications.consensusReached(this)
   }
 
   public async pauseRevealTimer () {
@@ -462,6 +463,7 @@ export default class SetSubmission extends BaseModel {
     await this.save()
 
     await this.notify('RevealPaused')
+    await BotNotifications.consensusPaused(this)
   }
 
   public async scheduleReveal () {
@@ -641,7 +643,7 @@ export default class SetSubmission extends BaseModel {
         await new Mailer(user, this).sendLater()
         Logger.info(`${scopeKey} email scheduled: ${user.email}`)
       } catch (e) {
-        Logger.warn(`Error scheduling ${scopeKey} email: ${user.email}`, e)
+        Logger.warn(`Error scheduling ${scopeKey} email: ${user.email}: ${e}`)
       }
     }
   }
