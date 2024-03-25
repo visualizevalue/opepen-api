@@ -541,7 +541,10 @@ export default class SetSubmission extends BaseModel {
 
     await this.save()
 
-    await Subscription.query().where('submissionId', this.id).update({ submissionId: null })
+    await Promise.all([
+      Subscription.query().where('submissionId', this.id).update({ submissionId: null }),
+      Opepen.query().where('submissionId', this.id).update({ submissionId: null }),
+    ])
   }
 
   // FIXME: Clean up this ducking mess!
