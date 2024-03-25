@@ -29,11 +29,11 @@ export class BotNotifications {
   public async newSubmission (submission: SetSubmission) {
     await this.initialize()
 
-    await submission.load('creatorAccount')
+    const creators = string.toSentence(await submission.creatorNamesForX())
 
     const lines = [
       `New Set Submitted: "${submission.name}"`,
-      `${string.capitalCase(submission.editionType)} Editions by ${submission.creatorAccount.display}`, // TODO: Add social platform handle
+      `${string.capitalCase(submission.editionType)} Editions by ${creators}`,
     ]
     Logger.info(`BotNotifications newSubmission ${lines.join('; ')}`)
 
@@ -46,11 +46,11 @@ export class BotNotifications {
   public async newCuratedSubmission (submission: SetSubmission) {
     await this.initialize()
 
-    await submission.load('creatorAccount')
+    const creators = string.toSentence(await submission.creatorNamesForX())
 
     const lines = [
       `New Curated Set: "${submission.name}"`,
-      `${string.capitalCase(submission.editionType)} Editions by ${submission.creatorAccount.display}`, // TODO: Add social platform handle
+      `${string.capitalCase(submission.editionType)} Editions by ${creators}`,
     ]
     Logger.info(`BotNotifications newSubmission ${lines.join('; ')}`)
 
@@ -62,14 +62,14 @@ export class BotNotifications {
 
   public async consensusReached (submission: SetSubmission) {
     await this.initialize()
-    await submission.load('creatorAccount')
 
+    const creators = string.toSentence(await submission.creatorNamesForX())
     const remainingDuration = submission.revealsAt?.diff(DateTime.now())
     const isInitial = Math.abs((remainingDuration?.as('seconds') || 0) - DEFAULT_REMAINING_REVEAL_TIME) < 60
 
     const lines = [
       `Consensus ${isInitial ? 'Reached' : 'Resumed'}`,
-      `"${submission.name}" by ${submission.creatorAccount.display}`,
+      `"${submission.name}" by ${creators}`,
       `${timeRemaining(remainingDuration)} left`,
     ]
     Logger.info(`BotNotifications consensusReached ${lines.join('; ')}`)
@@ -82,11 +82,12 @@ export class BotNotifications {
 
   public async consensusPaused (submission: SetSubmission) {
     await this.initialize()
-    await submission.load('creatorAccount')
+
+    const creators = string.toSentence(await submission.creatorNamesForX())
 
     const lines = [
       `Consensus Paused`,
-      `"${submission.name}" by ${submission.creatorAccount.display}`,
+      `"${submission.name}" by ${creators}`,
       `${timeRemainingFromSeconds(submission.remainingRevealTime)} left`
     ]
     Logger.info(`BotNotifications consensusPaused ${lines.join('; ')}`)
@@ -110,9 +111,10 @@ export class BotNotifications {
     await this.initialize()
 
     await set.load('submission')
+    const creators = string.toSentence(await set.submission.creatorNamesForX())
 
     const lines = [
-      `"${set.submission.name}" by ${set.submission.creatorAccount.display}`,
+      `"${set.submission.name}" by ${creators}`,
       `Permanent Collection, Set ${pad(set.id, 3)}`,
       `Published at Block ${set.submission.revealBlockNumber}`,
     ]

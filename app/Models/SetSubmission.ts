@@ -450,6 +450,39 @@ export default class SetSubmission extends BaseModel {
     return this.revealsAt && this.revealsAt > DateTime.now()
   }
 
+  public async creators () {
+    const sub: SetSubmission = this
+    await sub.load((loader) => {
+      loader.load('creatorAccount')
+            .load('coCreator1Account')
+            .load('coCreator2Account')
+            .load('coCreator3Account')
+            .load('coCreator4Account')
+            .load('coCreator5Account')
+    })
+
+    return [
+      sub.creatorAccount,
+      sub.coCreator1Account,
+      sub.coCreator2Account,
+      sub.coCreator3Account,
+      sub.coCreator4Account,
+      sub.coCreator5Account,
+    ].filter(c => !!c)
+  }
+
+  public async creatorNames () {
+    const creators = await this.creators()
+
+    return creators.map(c => c.display)
+  }
+
+  public async creatorNamesForX () {
+    const creators = await this.creators()
+
+    return creators.map(c => c.twitterHandle ? `@${c.twitterHandle}` : c.display)
+  }
+
   public async startRevealTimer () {
     if (this.revealsAt) return
 

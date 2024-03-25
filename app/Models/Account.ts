@@ -86,6 +86,7 @@ export default class Account extends BaseModel {
   public get display () {
     if (this.name) return this.name
     if (this.ens) return this.ens
+    if (this.twitterHandle) return this.twitterHandle
 
     return Address.short(this.address)
   }
