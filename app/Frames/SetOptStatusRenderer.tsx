@@ -6,7 +6,7 @@ export default class SetOptStatusRenderer extends Renderer {
     const c = (edition: number) => {
       const percent = submission.submissionStats.demand[edition] / edition
 
-      return percent === 1
+      return percent >= 1
         ? `#3AB500` // green
         : percent === 0
           ? `#272727` // gray
