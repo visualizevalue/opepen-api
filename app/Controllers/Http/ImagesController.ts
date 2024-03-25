@@ -47,6 +47,17 @@ export default class ImagesController extends BaseController {
       .firstOrFail()
   }
 
+  public async render ({ params, response }: HttpContextContract) {
+    const image = await Image.query().where('uuid', params.id).firstOrFail()
+
+    const { contentType, buffer } = await image.render()
+
+    return response
+      .header('Content-Type', contentType)
+      .header('Content-Length', Buffer.byteLength(buffer))
+      .send(buffer)
+  }
+
   public async featured ({ request }: HttpContextContract) {
     const {
       page = 1,

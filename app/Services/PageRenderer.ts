@@ -40,6 +40,7 @@ export const renderPage = async (url: string, dimension: number = 960, tries: nu
 
     await page.setViewport({width: dimension, height: dimension})
     await page.goto(url)
+
     try {
       await page.waitForFunction("RENDERED === true", {
         timeout: 1000,

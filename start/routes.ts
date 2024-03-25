@@ -58,6 +58,7 @@ Route.group(() => {
   Route.get('/images/featured',         'ImagesController.featured')
   Route.post('/images',                 'ImagesController.store')
   Route.get('/images/:id',              'ImagesController.show')
+  Route.get('/images/:id/render',       'ImagesController.render')
 
   // Sets
   Route.get('/sets',                    'SetsController.list')

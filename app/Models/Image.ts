@@ -8,6 +8,8 @@ import Env from '@ioc:Adonis/Core/Env'
 import { toDriveFromURI } from 'App/Helpers/drive'
 import { execute } from 'App/Helpers/execute'
 import Account from './Account'
+import axios from 'axios'
+import { renderPage } from 'App/Services/PageRenderer'
 
 type ImageVersions = {
   sm?: boolean, // 512
@@ -77,6 +79,10 @@ export default class Image extends BaseModel {
 
   public get staticURI (): string {
     return `${this.cdn}/${this.path}/${this.uuid}@sm.${this.staticType}`
+  }
+
+  public get renderURI (): string {
+    return `${Env.get('APP_URL')}/v1/opepen/images/${this.uuid}/render`
   }
 
   public uri (size: keyof ImageVersions = 'sm'): string {
@@ -162,6 +168,27 @@ export default class Image extends BaseModel {
       Drive.use('local').delete(key),
       Drive.use('local').delete(pngKey),
     ])
+  }
+
+  public async render () {
+    const rendered = !! this.versions?.sm
+
+    if (rendered) {
+      const response = await axios.get(this.staticURI, { responseType: 'arraybuffer' })
+
+      let contentType = response.headers['content-type']
+      let buffer = response.data
+
+      return {
+        contentType,
+        buffer,
+      }
+    }
+
+    return {
+      contentType: 'image/png',
+      buffer: await renderPage(this.originalURI)
+    }
   }
 
   static async fromURI (url: string, data: object = { versions: {} }): Promise<Image> {
