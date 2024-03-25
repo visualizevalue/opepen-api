@@ -2,6 +2,7 @@ import { DateTime } from 'luxon'
 import { v4 as uuid } from 'uuid'
 import { BaseModel, BelongsTo, ModelQueryBuilderContract, beforeCreate, belongsTo, column, computed, scope } from '@ioc:Adonis/Lucid/Orm'
 import Logger from '@ioc:Adonis/Core/Logger'
+import { string } from '@ioc:Adonis/Core/Helpers'
 import BotNotifications from 'App/Services/BotNotifications'
 import Account from 'App/Models/Account'
 import SetModel from 'App/Models/SetModel'
@@ -481,6 +482,14 @@ export default class SetSubmission extends BaseModel {
     const creators = await this.creators()
 
     return creators.map(c => c.twitterHandle ? `@${c.twitterHandle}` : c.display)
+  }
+
+  public async creatorNamesStr () {
+    return string.toSentence(await this.creatorNames())
+  }
+
+  public async creatorNamesForXStr () {
+    return string.toSentence(await this.creatorNamesForX())
   }
 
   public async startRevealTimer () {

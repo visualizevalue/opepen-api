@@ -14,7 +14,7 @@ export default class NotifyNewCuratedSubmissionEmail extends NotificationEmail {
       name: 'new_curated_submission',
       templateData: {
         setName: this.submission.name,
-        artist: this.submission.artist,
+        artist: await this.submission.creatorNamesStr(),
         type: this.submission.editionType.toLowerCase(),
         setUrl: `https://opepen.art/sets/${this.submission.uuid}`,
       },

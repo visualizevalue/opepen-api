@@ -19,7 +19,7 @@ export default class NotifySubmissionRevealPausedEmail extends NotificationEmail
       name: 'reveal_paused',
       templateData: {
         setName: this.submission.name,
-        artist: this.submission.artist,
+        artist: await this.submission.creatorNamesStr(),
         timeRemaining: `${timeRemaining?.hours}h ${timeRemaining?.minutes}m`,
         setUrl: `https://opepen.art/sets/${this.submission.uuid}`,
       },

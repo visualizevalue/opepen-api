@@ -17,7 +17,7 @@ export default class NotifySubmissionRevealStartedEmail extends NotificationEmai
       name: 'reveal_started',
       templateData: {
         setName: this.submission.name,
-        artist: this.submission.artist,
+        artist: await this.submission.creatorNamesStr(),
         timeRemaining: `${timeRemaining?.hours}h ${timeRemaining?.minutes}m`,
         setUrl: `https://opepen.art/sets/${this.submission.uuid}`,
       },
