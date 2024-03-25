@@ -3,10 +3,18 @@ import SetSubmission from 'App/Models/SetSubmission'
 
 export default class SetOptStatusRenderer extends Renderer {
   public static async render ({ submission, }: { submission: SetSubmission, }) {
-    const c = (edition: number) => `rgba(58, 181, 0, ${submission.submissionStats.demand[edition] / edition})`
+    const c = (edition: number) => {
+      const percent = submission.submissionStats.demand[edition] / edition
+
+      return percent === 1
+        ? `#3AB500` // green
+        : percent === 0
+          ? `#272727` // gray
+          : `#F67600` // orange
+    }
 
     const svg = `<svg width="1000" height="1000" viewBox="0 0 1000 1000" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect width="1000" height="1000" fill="black"/>
+      <rect width="1000" height="1000" fill="#101010"/>
       <!-- 1/1 -->
       <rect fill="${c(1)}" x="750" y="750" width="50" height="50" transform="rotate(180 750 750)" stroke="white" stroke-width="6"/>
       <!-- 1/4 -->

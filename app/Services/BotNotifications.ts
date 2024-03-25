@@ -38,7 +38,7 @@ export class BotNotifications {
     Logger.info(`BotNotifications newSubmission ${lines.join('; ')}`)
 
     const txt = lines.join(`\n`)
-    const img = `https://api.opepen.art/v1/frames/sets/${submission.uuid}/detail/image`
+    const img = `${Env.get('APP_URL')}/v1/frames/sets/${submission.uuid}/detail/image`
 
     await this.xClient?.tweet(txt, img)
   }
@@ -55,7 +55,7 @@ export class BotNotifications {
     Logger.info(`BotNotifications newSubmission ${lines.join('; ')}`)
 
     const txt = lines.join(`\n`)
-    const img = `https://api.opepen.art/v1/frames/sets/${submission.uuid}/detail/image`
+    const img = `${Env.get('APP_URL')}/v1/frames/sets/${submission.uuid}/detail/image`
 
     await this.xClient?.tweet(txt, img)
   }
@@ -76,7 +76,7 @@ export class BotNotifications {
     Logger.info(`BotNotifications consensusReached ${lines.join('; ')}`)
 
     const txt = lines.join(`\n`)
-    const img = `https://api.opepen.art/v1/frames/sets/${submission.uuid}/detail/image`
+    const img = `${Env.get('APP_URL')}/v1/frames/sets/${submission.uuid}/detail/image`
 
     await this.xClient?.tweet(txt, img)
   }
@@ -94,8 +94,8 @@ export class BotNotifications {
 
     const txt = lines.join(`\n`)
     const imgs = [
-      `https://api.opepen.art/v1/frames/sets/${submission.uuid}/detail/image`,
-      `https://api.opepen.art/v1/frames/sets/${submission.uuid}/opt-in-status/image`,
+      `${Env.get('APP_URL')}/v1/frames/sets/${submission.uuid}/detail/image`,
+      `${Env.get('APP_URL')}/v1/frames/sets/${submission.uuid}/opt-in-status/image`,
     ]
 
     await this.xClient?.tweet(txt, imgs)
@@ -121,7 +121,7 @@ export class BotNotifications {
 
     const txt = lines.join(`\n`)
 
-    await this.xClient?.tweet(txt, `https://api.opepen.art/v1/frames/sets/${set.submission.uuid}/detail/image`)
+    await this.xClient?.tweet(txt, `${Env.get('APP_URL')}/v1/frames/sets/${set.submission.uuid}/detail/image`)
   }
 
   public async provenance (submission: SetSubmission) {
