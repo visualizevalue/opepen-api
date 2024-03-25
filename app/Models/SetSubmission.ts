@@ -27,6 +27,17 @@ const NOTIFICATIONS = {
   RevealPaused: NotifySubmissionRevealPausedEmail,
 }
 
+const activeSubmissionScope = (query, submission) => {
+  query.join('opepens', query => {
+    query.on('opepens.owner', '=', 'accounts.address')
+         .andOnVal('opepens.submission_id', '=', submission.id)
+  })
+}
+const SCOPED_NOTIFICATIONS = {
+  RevealStarted: activeSubmissionScope,
+  RevealPaused: activeSubmissionScope,
+}
+
 export const DEFAULT_REMAINING_REVEAL_TIME = 48 * 60 * 60
 
 const DEFAULT_SUBMISSION_STATS = {
@@ -448,7 +459,7 @@ export default class SetSubmission extends BaseModel {
     await this.save()
 
     await BotNotifications.consensusReached(this)
-    // await this.notify('RevealStarted')
+    await this.notify('RevealStarted')
   }
 
   public async pauseRevealTimer () {
@@ -463,7 +474,7 @@ export default class SetSubmission extends BaseModel {
     await this.save()
 
     await BotNotifications.consensusPaused(this)
-    // await this.notify('RevealPaused')
+    await this.notify('RevealPaused')
   }
 
   public async scheduleReveal () {
@@ -637,7 +648,13 @@ export default class SetSubmission extends BaseModel {
   }
 
   public async notify (scopeKey: keyof typeof NOTIFICATIONS) {
-    const users = await Account.query().withScopes(scopes => scopes.receivesEmail(scopeKey))
+    const query = Account.query().withScopes(scopes => scopes.receivesEmail(scopeKey))
+
+    if (SCOPED_NOTIFICATIONS[scopeKey]) {
+      SCOPED_NOTIFICATIONS[scopeKey](query, this)
+    }
+
+    const users = await query
 
     const Mailer = NOTIFICATIONS[scopeKey]
 
