@@ -12,9 +12,17 @@ export default class TwitterAuthController {
     return new TwitterApi({ clientId: Env.get('TWITTER_CLIENT_ID'), clientSecret: Env.get('TWITTER_CLIENT_SECRET') })
   }
 
-  public async getUrl ({ session }: HttpContextContract) {
+  public async getUrl ({ request, session }: HttpContextContract) {
+    const {
+      scope = 'read',
+    } = request.qs()
+
+    const scopes = scope === 'write'
+      ? ['tweet.read', 'tweet.write', 'users.read', 'offline.access']
+      : ['tweet.read', 'users.read']
+
     const { url, codeVerifier, state } = this.client.generateOAuth2AuthLink(this.callbackURI, {
-      scope: ['tweet.read', 'tweet.write', 'users.read', 'offline.access']
+      scope: scopes
     })
 
     session.put('codeVerifier', codeVerifier)
