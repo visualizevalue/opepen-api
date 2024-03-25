@@ -447,8 +447,8 @@ export default class SetSubmission extends BaseModel {
 
     await this.save()
 
-    await this.notify('RevealStarted')
     await BotNotifications.consensusReached(this)
+    // await this.notify('RevealStarted')
   }
 
   public async pauseRevealTimer () {
@@ -462,8 +462,8 @@ export default class SetSubmission extends BaseModel {
 
     await this.save()
 
-    await this.notify('RevealPaused')
     await BotNotifications.consensusPaused(this)
+    // await this.notify('RevealPaused')
   }
 
   public async scheduleReveal () {
