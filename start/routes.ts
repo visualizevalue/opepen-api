@@ -169,6 +169,7 @@ Route.group(() => {
   Route.post('/sets/:id/detail/:edition',                         'FarcasterFrameSetController.edition')
   Route.route('/sets/:id/detail/:edition/image', ['GET', 'POST'], 'FarcasterFrameSetController.editionImage')
   Route.route('/sets/:id/opt-in/image',          ['GET', 'POST'], 'FarcasterFrameSetController.optInImage')
+  Route.route('/sets/:id/opt-in-status/image',   ['GET', 'POST'], 'FarcasterFrameSetController.optInStatus')
 
   // Opepen Voting Game
   Route.get('/ranks',            'FarcasterFrameOpepenRanksController.entry')

@@ -59,17 +59,19 @@ export default class Twitter {
     return new Twitter({ appClient, userClient, account })
   }
 
-  public async tweet (text: string, imageUrl?: string) {
+  public async tweet (text: string, imageUrls?: string|string[]) {
+    const mediaURLs = Array.isArray(imageUrls) ? imageUrls : [imageUrls]
     try {
-      const media = await this.uploadMedia(imageUrl)
+      const media = (await Promise.all(mediaURLs.map(url => this.uploadMedia(url))))
+        .filter(m => !!m) as string[]
 
       const { data: createdTweet } = await this.userClient.v2.tweet(text, {
-        media: media ? { media_ids: [media] } : undefined,
+        media: media?.length ? { media_ids: media } : undefined,
       })
 
       return createdTweet
     } catch (e) {
-      console.error(e)
+      Logger.error(`Error sending tweet: ${e}`)
       return 'error'
     }
   }

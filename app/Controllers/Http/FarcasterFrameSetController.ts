@@ -14,6 +14,7 @@ import SetOptInRenderer from 'App/Frames/SetOptInRenderer'
 import SetEditionRenderer from 'App/Frames/SetEditionRenderer'
 import SetDetailRenderer from 'App/Frames/SetDetailRenderer'
 import SetSubmission from 'App/Models/SetSubmission'
+import SetOptStatusRenderer from 'App/Frames/SetOptStatusRenderer'
 
 export default class FarcasterFrameSetController extends FarcasterFramesController {
 
@@ -66,6 +67,15 @@ export default class FarcasterFrameSetController extends FarcasterFramesControll
 
     // Default view current edition
     return this.editionResponse(params.id, params.edition, data.fid)
+  }
+
+  public async optInStatus({ response, params }: HttpContextContract) {
+    const submission = await SetSubmission.findByOrFail('uuid', params.id)
+
+    return this.imageResponse(
+      await SetOptStatusRenderer.render({ submission }),
+      response
+    )
   }
 
   /**

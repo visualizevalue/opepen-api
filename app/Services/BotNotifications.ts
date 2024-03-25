@@ -2,7 +2,7 @@ import { DateTime } from 'luxon'
 import { string } from '@ioc:Adonis/Core/Helpers'
 import Env from '@ioc:Adonis/Core/Env'
 import Logger from '@ioc:Adonis/Core/Logger'
-import { timeRemainingFromSeconds } from 'App/Helpers/time'
+import { timeRemaining, timeRemainingFromSeconds } from 'App/Helpers/time'
 import pad from 'App/Helpers/pad'
 import Account from 'App/Models/Account'
 import SetModel from 'App/Models/SetModel'
@@ -61,16 +61,17 @@ export class BotNotifications {
   }
 
   public async consensusReached (submission: SetSubmission) {
+    await this.initialize()
     await submission.load('creatorAccount')
 
-    const timeRemaining = submission.revealsAt?.diff(DateTime.now()).shiftTo('days', 'hours', 'minutes', 'seconds')
+    const remainingDuration = submission.revealsAt?.diff(DateTime.now())
     // const isInitial = submission.remainingRevealTime === DEFAULT_REMAINING_REVEAL_TIME // FIXME: Implement this
 
     const lines = [
       // `Consensus ${isInitial ? 'Reached' : 'Resumed'}`,
       `Consensus Reached`,
       `"${submission.name}" by ${submission.creatorAccount.display}`,
-      `${timeRemaining?.days}d ${timeRemaining?.hours}h ${timeRemaining?.minutes}m left`,
+      `${timeRemaining(remainingDuration)} left`,
     ]
     Logger.info(`BotNotifications consensusReached ${lines.join('; ')}`)
 
@@ -81,6 +82,7 @@ export class BotNotifications {
   }
 
   public async consensusPaused (submission: SetSubmission) {
+    await this.initialize()
     await submission.load('creatorAccount')
 
     const lines = [
@@ -91,9 +93,12 @@ export class BotNotifications {
     Logger.info(`BotNotifications consensusPaused ${lines.join('; ')}`)
 
     const txt = lines.join(`\n`)
-    const img = `https://api.opepen.art/v1/frames/sets/${submission.uuid}/detail/image`
+    const imgs = [
+      `https://api.opepen.art/v1/frames/sets/${submission.uuid}/detail/image`,
+      `https://api.opepen.art/v1/frames/sets/${submission.uuid}/opt-in-status/image`,
+    ]
 
-    await this.xClient?.tweet(txt, img)
+    await this.xClient?.tweet(txt, imgs)
   }
 
   // TODO: Closing Soon

@@ -17,14 +17,19 @@ export const asUTCDate = (date: Date|null) => date
   )
   : null
 
-export const timeRemainingFromSeconds = (seconds: number) => {
-  const d = Duration.fromObject({ seconds: seconds }).shiftTo('days', 'hours', 'minutes', 'seconds')
+export const timeRemaining = (duration?: Duration) => {
+  if (! duration) return `0h 0m 0s`
 
+  const d = duration.shiftTo('days', 'hours', 'minutes', 'seconds')
   return [
     d.days ? `${d.days}d` : '',
     d.hours ? `${d.hours}h` : '',
     d.minutes ? `${d.minutes}m` : '',
   ].filter(t => !!t).join(' ')
+}
+
+export const timeRemainingFromSeconds = (seconds: number) => {
+  return timeRemaining(Duration.fromObject({ seconds: seconds }))
 }
 
 
