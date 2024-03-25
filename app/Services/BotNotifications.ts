@@ -6,7 +6,7 @@ import { timeRemaining, timeRemainingFromSeconds } from 'App/Helpers/time'
 import pad from 'App/Helpers/pad'
 import Account from 'App/Models/Account'
 import SetModel from 'App/Models/SetModel'
-import SetSubmission from 'App/Models/SetSubmission'
+import SetSubmission, { DEFAULT_REMAINING_REVEAL_TIME } from 'App/Models/SetSubmission'
 import Twitter from './Twitter'
 
 export class BotNotifications {
@@ -65,11 +65,10 @@ export class BotNotifications {
     await submission.load('creatorAccount')
 
     const remainingDuration = submission.revealsAt?.diff(DateTime.now())
-    // const isInitial = submission.remainingRevealTime === DEFAULT_REMAINING_REVEAL_TIME // FIXME: Implement this
+    const isInitial = Math.abs((remainingDuration?.as('seconds') || 0) - DEFAULT_REMAINING_REVEAL_TIME) < 60
 
     const lines = [
-      // `Consensus ${isInitial ? 'Reached' : 'Resumed'}`,
-      `Consensus Reached`,
+      `Consensus ${isInitial ? 'Reached' : 'Resumed'}`,
       `"${submission.name}" by ${submission.creatorAccount.display}`,
       `${timeRemaining(remainingDuration)} left`,
     ]
