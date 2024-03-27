@@ -41,21 +41,25 @@ export default class Twitter {
         clientSecret: Env.get('TWITTER_CLIENT_SECRET'),
       })
 
-      const {
-        accessToken,
-        refreshToken,
-        expiresIn,
-      } = await oauthClient.refreshOAuth2Token(account.oauth.refreshToken)
+      try {
+        const {
+          accessToken,
+          refreshToken,
+          expiresIn,
+        } = await oauthClient.refreshOAuth2Token(account.oauth.refreshToken)
 
-      Logger.info(`Fetched fresh Twitter auth tokens for ${account.address}`)
+        Logger.info(`Fetched fresh Twitter auth tokens for ${account.address}`)
 
-      userAccessToken = accessToken
+        userAccessToken = accessToken
 
-      account.oauth.accessToken = accessToken
-      account.oauth.refreshToken = refreshToken
-      account.oauth.expiresAt = DateTime.now().plus({ seconds: expiresIn - 30 }).toISO()
+        account.oauth.accessToken = accessToken
+        account.oauth.refreshToken = refreshToken
+        account.oauth.expiresAt = DateTime.now().plus({ seconds: expiresIn - 30 }).toISO()
 
-      await account.save()
+        await account.save()
+      } catch (e) {
+        Logger.info(`Error refreshing Twitter auth tokens for ${account.address}: ${e}`)
+      }
     }
 
     const userClient = new TwitterApi(userAccessToken)
