@@ -50,7 +50,8 @@ export default mailConfig({
 				user: Env.get('SMTP_USERNAME'),
 				pass: Env.get('SMTP_PASSWORD'),
 				type: 'login',
-			}
+			},
+      secure: true,
     },
   },
 })
