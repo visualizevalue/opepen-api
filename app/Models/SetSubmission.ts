@@ -690,6 +690,7 @@ export default class SetSubmission extends BaseModel {
   }
 
   public async notify (scopeKey: keyof typeof NOTIFICATIONS) {
+    Logger.info(`SetSubmission.notify(): ${scopeKey}`)
     const query = Account.query().withScopes(scopes => scopes.receivesEmail(scopeKey))
 
     if (SCOPED_NOTIFICATIONS[scopeKey]) {
@@ -697,16 +698,17 @@ export default class SetSubmission extends BaseModel {
     }
 
     const users = await query
+    Logger.info(`Scheduling emails for ${users.length} users`)
 
-    const Mailer = NOTIFICATIONS[scopeKey]
+    // const Mailer = NOTIFICATIONS[scopeKey]
 
-    for (const user of users) {
-      try {
-        await new Mailer(user, this).sendLater()
-        Logger.info(`${scopeKey} email scheduled: ${user.email}`)
-      } catch (e) {
-        Logger.warn(`Error scheduling ${scopeKey} email: ${user.email}: ${e}`)
-      }
-    }
+    // for (const user of users) {
+    //   try {
+    //     await new Mailer(user, this).sendLater()
+    //     Logger.info(`${scopeKey} email scheduled: ${user.email}`)
+    //   } catch (e) {
+    //     Logger.warn(`Error scheduling ${scopeKey} email: ${user.email}: ${e}`)
+    //   }
+    // }
   }
 }

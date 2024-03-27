@@ -34,6 +34,8 @@ export default class Twitter {
 
     const isExpired = DateTime.fromISO(account.oauth.expiresAt as string).diff(DateTime.now()).as('minutes') < 5
     if (isExpired) {
+      Logger.info(`Twitter token for ${account.address} expired, refreshing`)
+
       const oauthClient = new TwitterApi({
         clientId: Env.get('TWITTER_CLIENT_ID'),
         clientSecret: Env.get('TWITTER_CLIENT_SECRET'),
@@ -44,6 +46,8 @@ export default class Twitter {
         refreshToken,
         expiresIn,
       } = await oauthClient.refreshOAuth2Token(account.oauth.refreshToken)
+
+      Logger.info(`Fetched fresh Twitter auth tokens for ${account.address}`)
 
       userAccessToken = accessToken
 
@@ -60,14 +64,19 @@ export default class Twitter {
   }
 
   public async tweet (text: string, imageUrls?: string|string[]) {
+    Logger.info(`Twitter.tweet() ${text}, ${imageUrls}`)
     const mediaURLs = Array.isArray(imageUrls) ? imageUrls : [imageUrls]
     try {
       const media = (await Promise.all(mediaURLs.map(url => this.uploadMedia(url))))
         .filter(m => !!m) as string[]
 
+      Logger.info(`Uploaded media: ${media}`)
+
       const { data: createdTweet } = await this.userClient.v2.tweet(text, {
         media: media?.length ? { media_ids: media } : undefined,
       })
+
+      Logger.info(`Sent tweet: ${createdTweet}`)
 
       return createdTweet
     } catch (e) {
