@@ -700,15 +700,15 @@ export default class SetSubmission extends BaseModel {
     const users = await query
     Logger.info(`Scheduling emails for ${users.length} users`)
 
-    // const Mailer = NOTIFICATIONS[scopeKey]
+    const Mailer = NOTIFICATIONS[scopeKey]
 
-    // for (const user of users) {
-    //   try {
-    //     await new Mailer(user, this).sendLater()
-    //     Logger.info(`${scopeKey} email scheduled: ${user.email}`)
-    //   } catch (e) {
-    //     Logger.warn(`Error scheduling ${scopeKey} email: ${user.email}: ${e}`)
-    //   }
-    // }
+    for (const user of users) {
+      try {
+        await new Mailer(user, this).sendLater()
+        Logger.info(`${scopeKey} email scheduled: ${user.email}`)
+      } catch (e) {
+        Logger.warn(`Error scheduling ${scopeKey} email: ${user.email}: ${e}`)
+      }
+    }
   }
 }
