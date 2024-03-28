@@ -697,7 +697,7 @@ export default class SetSubmission extends BaseModel {
       SCOPED_NOTIFICATIONS[scopeKey](query, this)
     }
 
-    const users = await query
+    const users = await query.distinct('email')
     Logger.info(`Scheduling emails for ${users.length} users`)
 
     const Mailer = NOTIFICATIONS[scopeKey]
