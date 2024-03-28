@@ -422,9 +422,23 @@ export default class SetSubmission extends BaseModel {
     query.whereNull('revealsAt')
   })
 
+  public static orderByRemainingTime = scope((query: Builder) => {
+    query
+      .select(Database.raw(`
+        *,
+        CASE
+          WHEN reveals_at IS NULL THEN remaining_reveal_time
+          ELSE EXTRACT(EPOCH FROM (reveals_at - NOW()))
+        END AS seconds_remaining`))
+      .orderBy(`seconds_remaining`)
+  })
+
   public static prereveal = scope((query: Builder) => {
     query
-      .withScopes(scopes => scopes.live())
+      .withScopes(scopes => {
+        scopes.live()
+        scopes.orderByRemainingTime()
+      })
       .where(query => query
         // Active Timer
         .where(query => query
@@ -438,13 +452,6 @@ export default class SetSubmission extends BaseModel {
         )
       )
       .whereNull('setId')
-      .select(Database.raw(`
-        *,
-        CASE
-          WHEN reveals_at IS NULL THEN remaining_reveal_time
-          ELSE EXTRACT(EPOCH FROM (reveals_at - NOW()))
-        END AS seconds_remaining`))
-      .orderBy(`seconds_remaining`)
   })
 
   public optInOpen () {
