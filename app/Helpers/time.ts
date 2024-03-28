@@ -25,6 +25,7 @@ export const timeRemaining = (duration?: Duration) => {
     d.days ? `${d.days}d` : '',
     d.hours ? `${d.hours}h` : '',
     d.minutes ? `${d.minutes}m` : '',
+    (!d.days && !d.hours && d.minutes < 10) ? `${d.seconds}s` : '',
   ].filter(t => !!t).join(' ')
 }
 
