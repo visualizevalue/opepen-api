@@ -5,6 +5,7 @@ import Account from 'App/Models/Account'
 import BaseController from './BaseController'
 import VerifyEmail from 'App/Mailers/VerifyEmail'
 import Image from 'App/Models/Image'
+import BadRequest from 'App/Exceptions/BadRequest'
 
 export default class AccountSettingsController extends BaseController {
 
@@ -26,6 +27,14 @@ export default class AccountSettingsController extends BaseController {
     const account = await this.get(config.params.account)
 
     return await this.updateAccount(account, config.request)
+  }
+
+  public async sendVerifyEmail ({ params }: HttpContextContract) {
+    const account = await this.get(params.account)
+
+    if (account.emailVerifiedAt) throw new BadRequest(`Email already verified`)
+
+    await new VerifyEmail(account).sendLater()
   }
 
   public async verifyEmail ({ request, params, response }: HttpContextContract) {
