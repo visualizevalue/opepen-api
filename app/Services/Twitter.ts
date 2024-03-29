@@ -80,7 +80,7 @@ export default class Twitter {
         media: media?.length ? { media_ids: media } : undefined,
       })
 
-      Logger.info(`Sent tweet: ${createdTweet}`)
+      Logger.info(`Sent tweet: ${JSON.stringify(createdTweet)}`)
 
       return createdTweet
     } catch (e) {
