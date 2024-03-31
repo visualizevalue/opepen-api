@@ -12,7 +12,6 @@ import { ContractType } from './types'
 import { TokenMetadata } from 'App/Services/Metadata/MetadataTypes'
 import SetSubmission from './SetSubmission'
 import pad from 'App/Helpers/pad'
-import MetadataParser from 'App/Services/Metadata/MetadataParser'
 
 type SetConfig = any
 

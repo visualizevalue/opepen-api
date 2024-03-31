@@ -42,11 +42,9 @@ export default class OpepenController extends BaseController {
   }
 
   public async updateImage (context: HttpContextContract) {
-    const opepen = await this.show(context)
-
+    const opepen = await Opepen.query().where('tokenId', context.params.id).firstOrFail()
     await opepen.updateImage()
-
-    return opepen
+    return this.show(context)
   }
 
   public async forAccount ({ params, request }: HttpContextContract) {
