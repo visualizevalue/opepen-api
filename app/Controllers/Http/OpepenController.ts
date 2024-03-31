@@ -4,6 +4,7 @@ import Opepen from 'App/Models/Opepen'
 import { DateTime } from 'luxon'
 import DailyOpepen from 'App/Services/DailyOpepen'
 import { Account } from 'App/Models'
+import MetadataParser from 'App/Services/Metadata/MetadataParser'
 
 export default class OpepenController extends BaseController {
 
@@ -28,12 +29,16 @@ export default class OpepenController extends BaseController {
   }
 
   public async show ({ params }: HttpContextContract) {
-    return Opepen.query()
+    const opepen = await Opepen.query()
       .where('tokenId', params.id)
       .preload('set')
       .preload('ownerAccount')
       .preload('image')
       .firstOrFail()
+
+    const metadata = await (new MetadataParser()).forOpepen(opepen)
+
+    return { ...opepen.toJSON(), metadata }
   }
 
   public async updateImage (context: HttpContextContract) {

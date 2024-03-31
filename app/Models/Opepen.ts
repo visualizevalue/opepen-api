@@ -1,6 +1,6 @@
 import axios from 'axios'
 import Env from '@ioc:Adonis/Core/Env'
-import { beforeSave, BelongsTo, belongsTo, column, HasMany, hasMany } from '@ioc:Adonis/Lucid/Orm'
+import { beforeSave, BelongsTo, belongsTo, column, computed, HasMany, hasMany } from '@ioc:Adonis/Lucid/Orm'
 import Database from '@ioc:Adonis/Lucid/Database'
 import Logger from '@ioc:Adonis/Core/Logger'
 import OpenSea from 'App/Services/OpenSea'
@@ -11,6 +11,8 @@ import Image from './Image'
 import { ContractType } from './types'
 import { TokenMetadata } from 'App/Services/Metadata/MetadataTypes'
 import SetSubmission from './SetSubmission'
+import pad from 'App/Helpers/pad'
+import MetadataParser from 'App/Services/Metadata/MetadataParser'
 
 type SetConfig = any
 
@@ -50,6 +52,13 @@ export default class Opepen extends TokenModel {
     }
   })
   public metadata: TokenMetadata
+
+  @computed()
+  public get name () {
+    return this.revealedAt
+      ? `Set ${pad(this.setId, 3)}, 1/${this.data.edition} (#${this.tokenId})`
+      : `Unrevealed, 1/${this.data.edition} (#${this.tokenId})`
+  }
 
   @column()
   public setId: number

@@ -38,13 +38,7 @@ export default class OpepenMetadataController {
   public async metadata ({ params }: HttpContextContract) {
     await this.validate(params)
 
-    const data = await MetadataParser.forId(params.id)
-
-    if (! data.image.startsWith('http') && ! data.image.startsWith('ipfs://')) {
-      data.image = `https://metadata.opepen.art/${params.id}/image`
-    }
-
-    return data
+    return await MetadataParser.forId(params.id)
   }
 
   /**

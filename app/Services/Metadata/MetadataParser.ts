@@ -1,7 +1,6 @@
 import Setting from 'App/Models/Setting'
 import { Attribute, MetadataProvenance, ContractMetadata, TokenMetadata } from './MetadataTypes'
 import Opepen from 'App/Models/Opepen'
-import pad from 'App/Helpers/pad'
 
 /**
  * A class for parsing metadata and metadata provenance.
@@ -41,19 +40,24 @@ export default class MetadataParser {
    * @returns {Promise} A promise that resolves to the metadata for the specified ID
    */
   public async forId (id: string|number): Promise<TokenMetadata> {
-    const opepen = await Opepen.findOrFail(id)
+    return this.forOpepen(await Opepen.findOrFail(id))
+  }
+
+  /**
+   * Get the metadata for a specified Opepen
+   *
+   * @param {Opepen} opepen The token to render
+   * @returns {Promise} A promise that resolves to the metadata for the specified ID
+   */
+  public async forOpepen (opepen: Opepen): Promise<TokenMetadata> {
     const isRevealed = !! opepen.revealedAt
 
     const definition = isRevealed
       ? opepen.metadata
       : (await Setting.get('METADATA_EDITIONS')).data[opepen.data.edition]
 
-    const name = isRevealed
-      ? `Set ${pad(opepen.setId, 3)}, 1/${opepen.data.edition} (#${id})`
-      : `Unrevealed, 1/${opepen.data.edition} (#${id})`
-
-    return {
-      name,
+    const data = {
+      name: opepen.name,
       description:   await this.getAttribute('description',   definition) as string,
       image:         await this.getAttribute('image',         definition) as string,
       image_dark:    await this.getAttribute('image_dark',    definition) as string,
@@ -68,10 +72,16 @@ export default class MetadataParser {
         },
         {
           trait_type: 'Number',
-          value: parseInt(`${id}`),
+          value: parseInt(`${opepen.tokenId}`),
         }
       ],
     }
+
+    if (! data.image.startsWith('http') && ! data.image.startsWith('ipfs://')) {
+      data.image = `https://metadata.opepen.art/${opepen.tokenId}/image`
+    }
+
+    return data
   }
 
   async getAttribute (attribute: keyof TokenMetadata, bag: TokenMetadata) {
