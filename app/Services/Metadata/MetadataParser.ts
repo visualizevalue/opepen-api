@@ -1,6 +1,7 @@
 import Setting from 'App/Models/Setting'
 import { Attribute, MetadataProvenance, ContractMetadata, TokenMetadata } from './MetadataTypes'
 import Opepen from 'App/Models/Opepen'
+import pad from 'App/Helpers/pad'
 
 /**
  * A class for parsing metadata and metadata provenance.
@@ -47,8 +48,12 @@ export default class MetadataParser {
       ? opepen.metadata
       : (await Setting.get('METADATA_EDITIONS')).data[opepen.data.edition]
 
+    const name = isRevealed
+      ? `Set ${pad(opepen.setId, 3)}, 1/${opepen.data.edition} (#${id})`
+      : `Unrevealed, 1/${opepen.data.edition} (#${id})`
+
     return {
-      name:       `${await this.getAttribute('name',          definition)} ${id}`,
+      name,
       description:   await this.getAttribute('description',   definition) as string,
       image:         await this.getAttribute('image',         definition) as string,
       image_dark:    await this.getAttribute('image_dark',    definition) as string,

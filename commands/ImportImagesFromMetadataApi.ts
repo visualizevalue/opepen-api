@@ -48,7 +48,6 @@ export default class ImportSetImages extends BaseCommand {
 
     const opepenInSet = await query
 
-
     for (const opepen of opepenInSet) {
       await OpenSea.updateMetadata(opepen.tokenId.toString())
 
