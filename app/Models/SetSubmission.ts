@@ -430,6 +430,10 @@ export default class SetSubmission extends BaseModel {
     query.whereNull('revealsAt')
   })
 
+  public static orderActiveByRemainingTime = scope((query: Builder) => {
+    query.orderByRaw(`COALESCE(reveals_at, '1990-01-01') desc, COALESCE(remaining_reveal_time, 0) desc`)
+  })
+
   public static orderByRemainingTime = scope((query: Builder) => {
     query
       .select(Database.raw(`
@@ -445,7 +449,7 @@ export default class SetSubmission extends BaseModel {
     query
       .withScopes(scopes => {
         scopes.live()
-        scopes.orderByRemainingTime()
+        scopes.orderActiveByRemainingTime()
       })
       .where(query => query
         // Active Timer
