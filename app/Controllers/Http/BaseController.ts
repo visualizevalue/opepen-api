@@ -44,8 +44,8 @@ export default class BaseController {
       const sort = isDesc ? s.slice(1) : s
 
       if (sort.includes('.')) {
-        const [column, key] = sort.split('.')
-        query.orderByRaw(`"${column}" -> '${key}'`)
+        const [column, ...keys] = sort.split('.')
+        query.orderByRaw(`"${column}" -> ${keys.map(key => `'${key}'`).join(' -> ')} ${sortDirection}`)
       } else if (sort === 'random') {
         await this.setRandomSeed()
         query.orderByRaw('random()')
