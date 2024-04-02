@@ -103,7 +103,6 @@ export default class SetSubmissionsController extends BaseController {
     await this.applySorts(query, sort)
 
     return query
-      .orderBy('createdAt', 'desc')
       .paginate(page, limit)
   }
 

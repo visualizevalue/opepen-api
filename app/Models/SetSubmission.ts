@@ -233,6 +233,9 @@ export default class SetSubmission extends BaseModel {
   public submissionStats: SubmissionStats
 
   @column()
+  public demand: number
+
+  @column()
   public preferredSetId: number
 
   @column()
@@ -695,6 +698,7 @@ export default class SetSubmission extends BaseModel {
       opepens,
       demand,
     }
+    this.demand = demand.total // save for easy access and sorting
     this.submittedOpepen = await this.opepensInSetSubmission()
     await this.save()
   }
