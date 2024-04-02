@@ -1,12 +1,11 @@
-import { DateTime } from 'luxon'
 import { string } from '@ioc:Adonis/Core/Helpers'
 import Env from '@ioc:Adonis/Core/Env'
 import Logger from '@ioc:Adonis/Core/Logger'
-import { timeRemaining, timeRemainingFromSeconds } from 'App/Helpers/time'
+import { timeRemainingFromSeconds } from 'App/Helpers/time'
 import pad from 'App/Helpers/pad'
 import Account from 'App/Models/Account'
 import SetModel from 'App/Models/SetModel'
-import SetSubmission, { DEFAULT_REMAINING_REVEAL_TIME } from 'App/Models/SetSubmission'
+import SetSubmission from 'App/Models/SetSubmission'
 import Twitter from './Twitter'
 
 export class BotNotifications {
@@ -64,13 +63,11 @@ export class BotNotifications {
     await this.initialize()
 
     const creators = string.toSentence(await submission.creatorNamesForX())
-    const remainingDuration = submission.revealsAt?.diff(DateTime.now())
-    const isInitial = Math.abs((remainingDuration?.as('seconds') || 0) - DEFAULT_REMAINING_REVEAL_TIME) < 60
 
     const lines = [
-      `Consensus ${isInitial ? 'Reached' : 'Resumed'}`,
+      `Consensus ${submission.countdownHasRun() ? 'Resumed' : 'Reached'}`,
       `"${submission.name}" by ${creators}`,
-      `${timeRemaining(remainingDuration)} left`,
+      `${submission.timeRemainigStr()} left`,
     ]
     Logger.info(`BotNotifications consensusReached ${lines.join('; ')}`)
 

@@ -18,6 +18,7 @@ import NotifyNewSubmissionEmail from 'App/Mailers/NotifyNewSubmissionEmail'
 import NotifySubmissionRevealPausedEmail from 'App/Mailers/NotifySubmissionRevealPausedEmail'
 import NotifySubmissionRevealStartedEmail from 'App/Mailers/NotifySubmissionRevealStartedEmail'
 import Database from '@ioc:Adonis/Lucid/Database'
+import { timeRemaining } from 'App/Helpers/time'
 
 type Builder = ModelQueryBuilderContract<typeof SetSubmission>
 
@@ -35,7 +36,11 @@ const activeSubmissionScope = (query, submission) => {
   })
 }
 const SCOPED_NOTIFICATIONS = {
-  RevealStarted: activeSubmissionScope,
+  RevealStarted: (query, submission) => {
+    if (submission.countdownHasRun()) {
+      activeSubmissionScope(query, submission)
+    }
+  },
   RevealPaused: activeSubmissionScope,
 }
 
@@ -454,6 +459,24 @@ export default class SetSubmission extends BaseModel {
       .whereNull('setId')
   })
 
+  public remainingDuration () {
+    return this.revealsAt
+      ? this.revealsAt.diff(DateTime.now())
+      : DateTime.now().plus({ seconds: this.remainingRevealTime }).diff(DateTime.now())
+  }
+
+  public remainingSeconds () {
+    return this.remainingDuration().as('seconds')
+  }
+
+  public timeRemainigStr () {
+    return timeRemaining(this.remainingDuration())
+  }
+
+  public countdownHasRun () {
+    return Math.abs(this.remainingSeconds() - DEFAULT_REMAINING_REVEAL_TIME) < 60
+  }
+
   public optInOpen () {
     return this.revealsAt && this.revealsAt > DateTime.now()
   }
@@ -704,7 +727,7 @@ export default class SetSubmission extends BaseModel {
       SCOPED_NOTIFICATIONS[scopeKey](query, this)
     }
 
-    const users = await query.distinct('email', 'address')
+    const users = await query.distinct('email', 'address', 'ens', 'name')
     Logger.info(`Scheduling emails for ${users.length} users`)
 
     const Mailer = NOTIFICATIONS[scopeKey]

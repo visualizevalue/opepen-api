@@ -94,7 +94,7 @@ export default class AccountSettingsController extends BaseController {
     account.email = request.input('email', null)
     if (account.email !== previousEmail) {
       account.emailVerifiedAt = null
-      await new VerifyEmail(account).sendLater()
+      await (new VerifyEmail(account)).sendLater()
     }
 
     // Save the account
