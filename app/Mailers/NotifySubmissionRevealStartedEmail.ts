@@ -9,7 +9,7 @@ export default class NotifySubmissionRevealStartedEmail extends NotificationEmai
   }
 
   public async prepare(message: MessageContract) {
-    const actionVerb = this.submission.countdownHasRun() ? 'resumed' : 'reached'
+    const actionVerb = this.submission.countdownHasRun() ? 'reached' : 'reached'
 
     return super.prepareEmail(message, {
       subject: `Consensus ${actionVerb} on "${this.submission.name}"`,

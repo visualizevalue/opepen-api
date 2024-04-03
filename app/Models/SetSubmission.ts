@@ -481,7 +481,7 @@ export default class SetSubmission extends BaseModel {
   }
 
   public countdownHasRun () {
-    return Math.abs(this.remainingSeconds() - DEFAULT_REMAINING_REVEAL_TIME) < 60
+    return (DEFAULT_REMAINING_REVEAL_TIME - this.remainingSeconds()) < 60
   }
 
   public optInOpen () {

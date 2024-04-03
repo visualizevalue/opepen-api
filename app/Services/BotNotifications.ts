@@ -65,7 +65,7 @@ export class BotNotifications {
     const creators = string.toSentence(await submission.creatorNamesForX())
 
     const lines = [
-      `Consensus ${submission.countdownHasRun() ? 'Resumed' : 'Reached'}`,
+      `Consensus ${submission.countdownHasRun() ? 'Reached' : 'Reached'}`,
       `"${submission.name}" by ${creators}`,
       `${submission.timeRemainigStr()} left`,
     ]
