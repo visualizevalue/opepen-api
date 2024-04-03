@@ -76,9 +76,12 @@ export default class Twitter {
 
       Logger.info(`Uploaded media: ${media}`)
 
-      const { data: createdTweet } = await this.userClient.v2.tweet(text, {
-        media: media?.length ? { media_ids: media } : undefined,
-      })
+      const config = { media: media?.length ? { media_ids: media } : undefined }
+
+      Logger.info(`Tweet txt: "${text}"`)
+      Logger.info(`Tweet config: ${JSON.stringify(config)}`)
+
+      const { data: createdTweet } = await this.userClient.v2.tweet(text, config)
 
       Logger.info(`Sent tweet: ${JSON.stringify(createdTweet)}`)
 
