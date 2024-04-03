@@ -65,6 +65,7 @@ export class BotNotifications {
     const creators = string.toSentence(await submission.creatorNamesForX())
 
     const lines = [
+      // FIXME: Check `resumed` computation
       `Consensus ${submission.countdownHasRun() ? 'Reached' : 'Reached'}`,
       `"${submission.name}" by ${creators}`,
       `${submission.timeRemainigStr()} left`,

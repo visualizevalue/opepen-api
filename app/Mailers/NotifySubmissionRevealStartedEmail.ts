@@ -9,6 +9,7 @@ export default class NotifySubmissionRevealStartedEmail extends NotificationEmai
   }
 
   public async prepare(message: MessageContract) {
+    // FIXME: Check `resumed` computation
     const actionVerb = this.submission.countdownHasRun() ? 'reached' : 'reached'
 
     return super.prepareEmail(message, {
