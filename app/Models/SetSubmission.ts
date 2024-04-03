@@ -431,7 +431,9 @@ export default class SetSubmission extends BaseModel {
   })
 
   public static orderActiveByRemainingTime = scope((query: Builder) => {
-    query.orderByRaw(`COALESCE(reveals_at, '1990-01-01') asc, COALESCE(remaining_reveal_time, ${DEFAULT_REMAINING_REVEAL_TIME}) asc`)
+    query.orderByRaw(
+      `COALESCE(reveals_at, '3000-01-01') asc, COALESCE(remaining_reveal_time, ${DEFAULT_REMAINING_REVEAL_TIME}) asc`
+    )
   })
 
   public static orderByRemainingTime = scope((query: Builder) => {
