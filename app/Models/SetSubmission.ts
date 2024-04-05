@@ -466,6 +466,7 @@ export default class SetSubmission extends BaseModel {
             .whereNull('revealsAt')
             .where('remainingRevealTime', '>', 0)
             .where('remainingRevealTime', '<', DEFAULT_REMAINING_REVEAL_TIME)
+            .where('pausedAt', '>', DateTime.now().minus({ hours: 24 }).toISO())
         )
       )
       .whereNull('setId')
