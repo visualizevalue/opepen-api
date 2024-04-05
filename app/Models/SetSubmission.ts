@@ -133,6 +133,9 @@ export default class SetSubmission extends BaseModel {
   @column.dateTime()
   public starredAt: DateTime|null
 
+  @column.dateTime()
+  public pausedAt: DateTime|null
+
   @column()
   public setId: number
 
@@ -536,6 +539,7 @@ export default class SetSubmission extends BaseModel {
 
     this.revealsAt = DateTime.now().plus({ seconds: this.remainingRevealTime })
     this.remainingRevealTime = 0
+    this.pausedAt = null
 
     await this.save()
 
@@ -551,6 +555,7 @@ export default class SetSubmission extends BaseModel {
 
     this.remainingRevealTime = Math.floor(this.revealsAt.diff(now).as('seconds'))
     this.revealsAt = null
+    this.pausedAt = DateTime.now()
 
     await this.save()
 
