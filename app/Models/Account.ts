@@ -175,9 +175,12 @@ export default class Account extends BaseModel {
   }
 
   static byId (id) {
+    const value = id?.toLowerCase()
+
     return this.query()
-      .where('address', id?.toLowerCase())
-      .orWhere('ens', id?.toLowerCase())
+      .where('address', value)
+      .orWhere('ens', value)
+      .orWhere('ens', `${value}.eth`)
       .preload('pfp')
   }
 }
