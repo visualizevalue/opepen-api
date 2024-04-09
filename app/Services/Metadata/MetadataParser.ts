@@ -64,6 +64,7 @@ export default class MetadataParser {
       animation_url: await this.getAttribute('animation_url', definition) as string,
       embed_url:     await this.getAttribute('embed_url',     definition) as string,
       download_url:  await this.getAttribute('download_url',  definition) as string,
+      generator:     await this.getAttribute('generator',     definition) as string,
       attributes: [
         ...(await this.getAttribute('attributes', definition)) as Attribute[],
         {

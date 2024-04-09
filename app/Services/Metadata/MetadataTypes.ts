@@ -28,6 +28,7 @@ export type TokenMetadata = {
   animation_url?: string,
   embed_url?: string,
   download_url?: string,
+  generator?: string,
   attributes?: Attribute[],
 }
 
