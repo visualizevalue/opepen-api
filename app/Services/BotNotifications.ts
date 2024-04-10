@@ -10,19 +10,12 @@ import Twitter from './Twitter'
 
 export class BotNotifications {
   xClient: Twitter|undefined
-  initialized: boolean = false
 
   public async initialize () {
-    if (this.initialized) return
-
     const account = await Account.byId(Env.get('TWITTER_BOT_ACCOUNT_ADDRESS')).firstOrFail()
     this.xClient = await Twitter.initialize(account)
 
-    this.initialized = true
-
     Logger.info(`BotNotifications initialized to account ${account.address}`)
-
-    return this.initialized
   }
 
   public async newSubmission (submission: SetSubmission) {

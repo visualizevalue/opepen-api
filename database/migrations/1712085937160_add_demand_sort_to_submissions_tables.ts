@@ -5,7 +5,7 @@ export default class extends BaseSchema {
 
   public async up () {
     this.schema.alterTable(this.tableName, (table) => {
-      table.integer('demand').index()
+      table.integer('demand').defaultTo(0).index()
     })
 
     this.defer(async db => {

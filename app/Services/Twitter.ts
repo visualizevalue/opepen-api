@@ -32,7 +32,7 @@ export default class Twitter {
 
     let userAccessToken: string = account.oauth.accessToken
 
-    const isExpired = DateTime.fromISO(account.oauth.expiresAt as string).diff(DateTime.now()).as('minutes') < 5
+    const isExpired = DateTime.fromISO(account.oauth.expiresAt as string).diff(DateTime.now()).as('minutes') < 10
     if (isExpired) {
       Logger.info(`Twitter token for ${account.address} expired, refreshing`)
 
