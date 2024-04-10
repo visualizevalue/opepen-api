@@ -7,9 +7,11 @@ import Account from 'App/Models/Account'
 import SetModel from 'App/Models/SetModel'
 import SetSubmission from 'App/Models/SetSubmission'
 import Twitter from './Twitter'
+import Farcaster from './Farcaster'
 
 export class BotNotifications {
   xClient: Twitter|undefined
+  fcClient = Farcaster
 
   public async initialize () {
     const account = await Account.byId(Env.get('TWITTER_BOT_ACCOUNT_ADDRESS')).firstOrFail()
@@ -33,6 +35,7 @@ export class BotNotifications {
     const img = `${Env.get('APP_URL')}/v1/frames/sets/${submission.uuid}/detail/image`
 
     await this.xClient?.tweet(txt, img)
+    await this.fcClient?.cast(txt, img)
   }
 
   public async newCuratedSubmission (submission: SetSubmission) {
@@ -50,6 +53,7 @@ export class BotNotifications {
     const img = `${Env.get('APP_URL')}/v1/frames/sets/${submission.uuid}/detail/image`
 
     await this.xClient?.tweet(txt, img)
+    await this.fcClient?.cast(txt, img)
   }
 
   public async consensusReached (submission: SetSubmission) {
@@ -69,6 +73,7 @@ export class BotNotifications {
     const img = `${Env.get('APP_URL')}/v1/frames/sets/${submission.uuid}/detail/image`
 
     await this.xClient?.tweet(txt, img)
+    await this.fcClient?.cast(txt, img)
   }
 
   public async consensusPaused (submission: SetSubmission) {
@@ -90,6 +95,7 @@ export class BotNotifications {
     ]
 
     await this.xClient?.tweet(txt, imgs)
+    await this.fcClient?.cast(txt, imgs)
   }
 
   // TODO: Closing Soon
@@ -112,8 +118,10 @@ export class BotNotifications {
     Logger.info(`BotNotifications newSet ${lines.join('; ')}`)
 
     const txt = lines.join(`\n`)
+    const img = `${Env.get('APP_URL')}/v1/frames/sets/${set.submission.uuid}/detail/image`
 
-    await this.xClient?.tweet(txt, `${Env.get('APP_URL')}/v1/frames/sets/${set.submission.uuid}/detail/image`)
+    await this.xClient?.tweet(txt, img)
+    await this.fcClient?.cast(txt, img)
   }
 
   public async provenance (submission: SetSubmission) {
