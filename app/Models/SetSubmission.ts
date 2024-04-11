@@ -636,6 +636,7 @@ export default class SetSubmission extends BaseModel {
   public async clearOptIns () {
     this.submissionStats = DEFAULT_SUBMISSION_STATS
     this.submittedOpepen = []
+    this.demand = 0
 
     await this.save()
 
