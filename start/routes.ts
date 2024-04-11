@@ -157,7 +157,6 @@ Route.group(() => {
 Route.group(() => {
   // Account profiles
   Route.route('/accounts/:id',          ['GET', 'POST'], 'FarcasterFrameAccountsController.account')
-  Route.get('/accounts/:id/image',                       'FarcasterFrameAccountsController.image')
 
   // Sets
   Route.get('/sets',             'FarcasterFrameSetsController.setsEntry')
@@ -186,6 +185,8 @@ Route.group(() => {
 
 // OpenGraph
 Route.group(() => {
+  Route.get('/accounts/:id/image',                                 'FarcasterFrameAccountsController.image')
+
   Route.route('/sets/:id/og',                ['GET', 'POST'],      'FarcasterFrameSetsController.image')
   Route.route('/sets/:id/square',            ['GET', 'POST'],      'FarcasterFrameSetController.entryImage')
   Route.route('/sets/:id/:edition/square',   ['GET', 'POST'],      'FarcasterFrameSetController.editionImage')
