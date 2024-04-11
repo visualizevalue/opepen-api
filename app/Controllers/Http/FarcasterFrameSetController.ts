@@ -132,15 +132,14 @@ export default class FarcasterFrameSetController extends FarcasterFramesControll
   }
 
   public async editionImage ({ request, params, response }: HttpContextContract) {
-    const set = await SetModel.findOrFail(params.id)
-    await set.load('submission')
-    const key = `frames/sets/${set.id}_${set.submission.name ? string.toSlug(set.submission.name) : 'unrevealed'}_${params.edition}.png`
+    const submission = await SetSubmission.query().where('uuid', params.id).firstOrFail()
+    const key = `frames/submissions/${submission.uuid}_${submission.name ? string.toSlug(submission.name) : 'unrevealed'}_${params.edition}.png`
 
     if (request.method() !== 'POST' && await Drive.exists(key)) {
       return this.imageResponse(await Drive.get(key), response)
     }
 
-    const png = await SetEditionRenderer.render({ set, edition: params.edition })
+    const png = await SetEditionRenderer.render({ submission, edition: params.edition })
 
     await this.saveImage(key, png)
 
