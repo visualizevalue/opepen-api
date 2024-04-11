@@ -39,7 +39,9 @@ export const renderPage = async (url: string, dimension: number = 960, tries: nu
     const page = await browser.newPage()
 
     await page.setViewport({width: dimension, height: dimension})
-    await page.goto(url)
+    const html = `<iframe src="${url}" width="${dimension}" height="${dimension}" style="border:none;"></iframe>`
+    const dataUrl = `data:text/html;base64;charset=UTF-8,${Buffer.from(html).toString('base64')}`
+    await page.goto(dataUrl)
 
     try {
       await page.waitForFunction("RENDERED === true", {
