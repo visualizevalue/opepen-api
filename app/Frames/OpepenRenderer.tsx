@@ -77,7 +77,7 @@ export default class OpepenRenderer extends Renderer {
                 <p style={{margin: '12px 0'}}>Release {pad(submission.setId, 3)}</p>
                 <p style={{margin: '12px 0'}}>By {await submission.creatorNames()}</p>
                 <p style={{margin: '12px 0'}}>{submission.editionType} Editions</p>
-                <p style={{margin: '12px 0 0'}}>Consensus on {submission.revealsAt && formatDate(submission.revealsAt)} Editions</p>
+                <p style={{margin: '12px 0 0'}}>Consensus on {submission.revealsAt && formatDate(submission.revealsAt)}</p>
               </div>
             )
           }
