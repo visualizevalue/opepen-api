@@ -53,7 +53,15 @@ export class Farcaster {
     this.initiated = true
   }
 
-  public async cast (text: string, imageUrl?: string|string[], parentUrl: string = `chain://eip155:1/erc721:0x6339e5e072086621540d0362c4e3cea0d643e114`) {
+  public async cast (
+    text: string,
+    imageUrl?: string|string[],
+    parentCastId?: {
+      fid?: number;
+      hash?: Uint8Array;
+    } | undefined,
+    parentUrl: string = `chain://eip155:1/erc721:0x6339e5e072086621540d0362c4e3cea0d643e114`,
+  ) {
     await this.init()
     if (! Application.inProduction) return Logger.debug(`Not sending casts in development`)
 
@@ -67,6 +75,7 @@ export class Farcaster {
             mentions: [],
             mentionsPositions: [],
             parentUrl,
+            parentCastId,
           },
           this.DATA_OPTIONS,
           this.ed25519Signer,
@@ -74,8 +83,25 @@ export class Farcaster {
       )
 
       Logger.info(`New cast: ${this.bytesToHex(cast.value.hash)}`)
+
+      return cast
     } catch (e) {
       Logger.warn(`Error Casting: ${e?.message || JSON.stringify(e)}`)
+    }
+  }
+
+  public async thread(casts: { text: string, images?: string|string[] }[]) {
+    let parentCastId
+
+    for (const cast of casts) {
+      const result = await this.cast(cast.text, cast.images, parentCastId)
+
+      if (result) {
+        parentCastId = {
+          fid: this.FID,
+          hash: this.bytesToHex(result.value.hash),
+        }
+      }
     }
   }
 

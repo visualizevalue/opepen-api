@@ -33,6 +33,7 @@ export default class Twitter {
     let userAccessToken: string = account.oauth.accessToken
 
     const isExpired = DateTime.fromISO(account.oauth.expiresAt as string).diff(DateTime.now()).as('minutes') < 10
+    Logger.info(`${account.oauth.twitterUser?.name} token expires ${account.oauth.expiresAt}: ${isExpired ? 'expired' : 'active'}`)
     if (isExpired) {
       Logger.info(`Twitter token for ${account.address} expired, refreshing`)
 
@@ -92,17 +93,34 @@ export default class Twitter {
     }
   }
 
-  public async thread(tweets: { text: string, imageUrl?: string }[]) {
+  public async thread(tweets: { text: string, images?: string|string[] }[]) {
     // Upload media items and prepare data
     const withMedia: { text?: string, media?: { media_ids: string[] } }[] = []
     for (const config of tweets) {
-      const media = await this.uploadMedia(config.imageUrl)
+      const media_ids: string[] = []
+      const addMedia = async (url) => {
+        const media = await this.uploadMedia(url)
 
-      withMedia.push({ text: config.text, media: media ? { media_ids: [media] } : undefined })
+        if (media) media_ids.push(media)
+      }
+
+      if (Array.isArray(config.images)) {
+        for (const url of config.images) {
+          await addMedia(url)
+        }
+      } else if (typeof config.images === 'string') {
+        await addMedia(config.images)
+      }
+
+      withMedia.push({ text: config.text, media: media_ids.length ? { media_ids } : undefined })
     }
 
     // Send it
-    await this.userClient.v2.tweetThread(withMedia)
+    try {
+      await this.userClient.v2.tweetThread(withMedia)
+    } catch (e) {
+      Logger.error(`Error sending twitter thread: ${e}`)
+    }
   }
 
   public async media (imageUrl: string) {

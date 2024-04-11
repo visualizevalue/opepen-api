@@ -21,81 +21,52 @@ export class BotNotifications {
   }
 
   public async newSubmission (submission: SetSubmission) {
-    await this.initialize()
-
-    const creators = string.toSentence(await submission.creatorNamesForX())
-
-    const lines = [
+    const template = ({ creators }) => [
       `New Set Submitted: "${submission.name}"`,
       `${string.capitalCase(submission.editionType)} Editions by ${creators}`,
     ]
-    Logger.info(`BotNotifications newSubmission ${lines.join('; ')}`)
 
-    const txt = lines.join(`\n`)
     const img = `${Env.get('APP_URL')}/v1/frames/sets/${submission.uuid}/detail/image`
 
-    await this.xClient?.tweet(txt, img)
-    await this.fcClient?.cast(txt, img)
+    await this.sendForSubmission(submission, template, img)
   }
 
   public async newCuratedSubmission (submission: SetSubmission) {
-    await this.initialize()
-
-    const creators = string.toSentence(await submission.creatorNamesForX())
-
-    const lines = [
+    const template = ({ creators }) => [
       `New Curated Set: "${submission.name}"`,
       `${string.capitalCase(submission.editionType)} Editions by ${creators}`,
     ]
-    Logger.info(`BotNotifications newSubmission ${lines.join('; ')}`)
 
-    const txt = lines.join(`\n`)
     const img = `${Env.get('APP_URL')}/v1/frames/sets/${submission.uuid}/detail/image`
 
-    await this.xClient?.tweet(txt, img)
-    await this.fcClient?.cast(txt, img)
+    await this.sendForSubmission(submission, template, img)
   }
 
   public async consensusReached (submission: SetSubmission) {
-    await this.initialize()
-
-    const creators = string.toSentence(await submission.creatorNamesForX())
-
-    const lines = [
-      // FIXME: Check `resumed` computation
-      `Consensus ${submission.countdownHasRun() ? 'Reached' : 'Reached'}`,
+    const template = ({ creators }) => [
+      `Consensus ${submission.countdownHasRun() ? 'Resumed' : 'Reached'}`,
       `"${submission.name}" by ${creators}`,
       `${submission.timeRemainigStr()} left`,
     ]
-    Logger.info(`BotNotifications consensusReached ${lines.join('; ')}`)
 
-    const txt = lines.join(`\n`)
     const img = `${Env.get('APP_URL')}/v1/frames/sets/${submission.uuid}/detail/image`
 
-    await this.xClient?.tweet(txt, img)
-    await this.fcClient?.cast(txt, img)
+    await this.sendForSubmission(submission, template, img)
   }
 
   public async consensusPaused (submission: SetSubmission) {
-    await this.initialize()
-
-    const creators = string.toSentence(await submission.creatorNamesForX())
-
-    const lines = [
+    const template = ({ creators }) => [
       `Consensus Paused`,
       `"${submission.name}" by ${creators}`,
       `${timeRemainingFromSeconds(submission.remainingRevealTime)} left`
     ]
-    Logger.info(`BotNotifications consensusPaused ${lines.join('; ')}`)
 
-    const txt = lines.join(`\n`)
     const imgs = [
       `${Env.get('APP_URL')}/v1/frames/sets/${submission.uuid}/detail/image`,
       `${Env.get('APP_URL')}/v1/frames/sets/${submission.uuid}/opt-in-status/image`,
     ]
 
-    await this.xClient?.tweet(txt, imgs)
-    await this.fcClient?.cast(txt, imgs)
+    await this.sendForSubmission(submission, template, imgs)
   }
 
   // TODO: Closing Soon
@@ -105,35 +76,49 @@ export class BotNotifications {
   // [6up grid image preview]
 
   public async newSet (set: SetModel) {
-    await this.initialize()
-
     await set.load('submission')
-    const creators = string.toSentence(await set.submission.creatorNamesForX())
 
-    const lines = [
+    const template = ({ creators }) => [
       `"${set.submission.name}" by ${creators}`,
       `Permanent Collection, Set ${pad(set.id, 3)}`,
       `Published at Block ${set.submission.revealBlockNumber}`,
     ]
-    Logger.info(`BotNotifications newSet ${lines.join('; ')}`)
 
-    const txt = lines.join(`\n`)
     const img = `${Env.get('APP_URL')}/v1/frames/sets/${set.submission.uuid}/detail/image`
 
-    await this.xClient?.tweet(txt, img)
-    await this.fcClient?.cast(txt, img)
+    await this.sendForSubmission(set.submission, template, img)
   }
 
   public async provenance (submission: SetSubmission) {
     await this.initialize()
 
-    const tweets = [
+    const posts = [
       { text: `Opepen Set "${submission.name}" reveal provenance thread...\n\n↓ https://opepen.art/sets/${submission.uuid}` },
       { text: `Reveal block hash: ${submission.revealBlockNumber} (in about 10 minutes) https://etherscan.io/block/${submission.revealBlockNumber}` },
       { text: `Opt in data hash: ${submission.revealSubmissionsInputCid}` },
     ]
 
-    await this.xClient?.thread(tweets)
+    await this.xClient?.thread(posts)
+    await this.fcClient?.thread(posts)
+  }
+
+  private async sendForSubmission (submission: SetSubmission, template: Function, images: string|string[]) {
+    // Make sure we have valid API keys, and any other setup
+    await this.initialize()
+
+    // Get the creator list for different platforms
+    const creators  = string.toSentence(await submission.creatorNames())
+    const xCreators = string.toSentence(await submission.creatorNamesForX())
+
+    // Function to render the given template.
+    const render = (creators, delimiter = '\n') => template({ creators }).join(delimiter)
+
+    // Log the tweet.
+    Logger.info(`BotNotification: ${render(creators, '; ')}`)
+
+    // Send to the networks
+    await this.xClient?.tweet(render(xCreators), images)
+    await this.fcClient?.cast(render(creators), images)
   }
 
 }

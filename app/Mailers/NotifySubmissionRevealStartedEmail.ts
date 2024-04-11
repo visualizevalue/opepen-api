@@ -10,13 +10,14 @@ export default class NotifySubmissionRevealStartedEmail extends NotificationEmai
 
   public async prepare(message: MessageContract) {
     // FIXME: Check `resumed` computation
-    const actionVerb = this.submission.countdownHasRun() ? 'reached' : 'reached'
+    const actionVerb = this.submission.countdownHasRun() ? 'resumed' : 'reached'
 
     return super.prepareEmail(message, {
       subject: `Consensus ${actionVerb} on "${this.submission.name}"`,
       name: 'reveal_started',
       templateData: {
         setName: this.submission.name,
+        actionVerb,
         artist: await this.submission.creatorNamesStr(),
         timeRemaining: this.submission.timeRemainigStr(),
         setUrl: `https://opepen.art/sets/${this.submission.uuid}`,
