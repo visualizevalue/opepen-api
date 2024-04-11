@@ -39,8 +39,8 @@ export default class FarcasterFrameAccountsController extends FarcasterFramesCon
     }
 
     return this.response({
-      imageUrl: `${Env.get('APP_URL')}/v1/frames/accounts/${id}/image`,
-      postUrl: `${Env.get('APP_URL')}/v1/frames/accounts/${id}`,
+      imageUrl: `${Env.get('APP_URL')}/v1/render/accounts/${id}/image`,
+      postUrl: `${Env.get('APP_URL')}/v1/render/accounts/${id}`,
       actions,
     })
   }
@@ -78,7 +78,7 @@ export default class FarcasterFrameAccountsController extends FarcasterFramesCon
 
     return this.response({
       imageUrl,
-      postUrl: `${Env.get('APP_URL')}/v1/frames/accounts/${accountId}?index=${opepenIndex}`,
+      postUrl: `${Env.get('APP_URL')}/v1/render/accounts/${accountId}?index=${opepenIndex}`,
       imageRatio: '1:1',
       actions,
     })

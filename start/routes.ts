@@ -167,7 +167,6 @@ Route.group(() => {
   Route.route('/sets/:id/detail',                ['GET', 'POST'], 'FarcasterFrameSetController.set')
   Route.post('/sets/:id/detail/:edition',                         'FarcasterFrameSetController.edition')
   Route.route('/sets/:id/opt-in/image',          ['GET', 'POST'], 'FarcasterFrameSetController.optInImage')
-  Route.route('/sets/:id/opt-in-status/image',   ['GET', 'POST'], 'FarcasterFrameSetController.optInStatus')
 
   // Opepen Voting Game
   Route.get('/ranks',            'FarcasterFrameOpepenRanksController.entry')
@@ -190,6 +189,7 @@ Route.group(() => {
   Route.route('/sets/:id/og',                ['GET', 'POST'],      'FarcasterFrameSetsController.image')
   Route.route('/sets/:id/square',            ['GET', 'POST'],      'FarcasterFrameSetController.entryImage')
   Route.route('/sets/:id/:edition/square',   ['GET', 'POST'],      'FarcasterFrameSetController.editionImage')
+  Route.route('/sets/:id/opt-in-status',     ['GET', 'POST'],      'FarcasterFrameSetController.optInStatus')
 
   Route.route('/opepen/:id/og',              ['GET', 'POST'],      'OpepenController.og')
 }).prefix('/v1/render')

@@ -26,7 +26,7 @@ export class BotNotifications {
       `${string.capitalCase(submission.editionType)} Editions by ${creators}`,
     ]
 
-    const img = `${Env.get('APP_URL')}/v1/frames/sets/${submission.uuid}/detail/image`
+    const img = `${Env.get('APP_URL')}/v1/render/sets/${submission.uuid}/square`
 
     await this.sendForSubmission(submission, template, img)
   }
@@ -37,7 +37,7 @@ export class BotNotifications {
       `${string.capitalCase(submission.editionType)} Editions by ${creators}`,
     ]
 
-    const img = `${Env.get('APP_URL')}/v1/frames/sets/${submission.uuid}/detail/image`
+    const img = `${Env.get('APP_URL')}/v1/render/sets/${submission.uuid}/square`
 
     await this.sendForSubmission(submission, template, img)
   }
@@ -49,7 +49,7 @@ export class BotNotifications {
       `${submission.timeRemainigStr()} left`,
     ]
 
-    const img = `${Env.get('APP_URL')}/v1/frames/sets/${submission.uuid}/detail/image`
+    const img = `${Env.get('APP_URL')}/v1/render/sets/${submission.uuid}/square`
 
     await this.sendForSubmission(submission, template, img)
   }
@@ -62,8 +62,8 @@ export class BotNotifications {
     ]
 
     const imgs = [
-      `${Env.get('APP_URL')}/v1/frames/sets/${submission.uuid}/detail/image`,
-      `${Env.get('APP_URL')}/v1/frames/sets/${submission.uuid}/opt-in-status/image`,
+      `${Env.get('APP_URL')}/v1/render/sets/${submission.uuid}/square`,
+      `${Env.get('APP_URL')}/v1/render/sets/${submission.uuid}/opt-in-status`,
     ]
 
     await this.sendForSubmission(submission, template, imgs)
@@ -84,7 +84,7 @@ export class BotNotifications {
       `Published at Block ${set.submission.revealBlockNumber}`,
     ]
 
-    const img = `${Env.get('APP_URL')}/v1/frames/sets/${set.submission.uuid}/detail/image`
+    const img = `${Env.get('APP_URL')}/v1/render/sets/${set.submission.uuid}/square`
 
     await this.sendForSubmission(set.submission, template, img)
   }

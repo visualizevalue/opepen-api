@@ -191,7 +191,7 @@ export default class FarcasterFrameSetController extends FarcasterFramesControll
     await set.load('submission')
 
     return this.response({
-      imageUrl: `${Env.get('APP_URL')}/v1/frames/sets/${id}/detail/image`,
+      imageUrl: `${Env.get('APP_URL')}/v1/render/sets/${id}/square`,
       postUrl: `${Env.get('APP_URL')}/v1/frames/sets/${id}/detail`,
       actions: [
         set.submission.optInOpen()
@@ -221,7 +221,7 @@ export default class FarcasterFrameSetController extends FarcasterFramesControll
     }
 
     return this.response({
-      imageUrl: `${Env.get('APP_URL')}/v1/frames/sets/${id}/detail/${edition}/image`,
+      imageUrl: `${Env.get('APP_URL')}/v1/render/sets/${id}/${edition}/square`,
       imageRatio: '1:1',
       postUrl: `${Env.get('APP_URL')}/v1/frames/sets/${id}/detail/${edition}`,
       actions

@@ -75,7 +75,7 @@ export default class FarcasterFrameSetsController extends FarcasterFramesControl
 
   private setResponse (id) {
     return this.response({
-      imageUrl: `${Env.get('APP_URL')}/v1/frames/image/sets/${id}`,
+      imageUrl: `${Env.get('APP_URL')}/v1/render/sets/${id}/og`,
       postUrl: `${Env.get('APP_URL')}/v1/frames/sets/${id}`,
       actions: [
         id <= 1 ? '← Overview' : `← Previous`,
