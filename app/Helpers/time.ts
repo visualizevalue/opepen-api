@@ -33,7 +33,6 @@ export const timeRemainingFromSeconds = (seconds: number) => {
   return timeRemaining(Duration.fromObject({ seconds: seconds }))
 }
 
-
 export const BLOCKS_PER_DAY = 6200
 export const BLOCKS_PER_WEEK = BLOCKS_PER_DAY * 7
 export const BLOCKS_PER_2_WEEKS = BLOCKS_PER_WEEK * 2

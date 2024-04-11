@@ -163,14 +163,10 @@ Route.group(() => {
   Route.get('/sets',             'FarcasterFrameSetsController.setsEntry')
   Route.post('/sets',            'FarcasterFrameSetsController.sets')
   Route.post('/sets/:id',        'FarcasterFrameSetsController.set')
-  Route.get('/image/sets/:id',   'FarcasterFrameSetsController.image') // deprecate & swap URL
-  Route.post('/image/sets/:id',  'FarcasterFrameSetsController.image')
 
   // Set Detail
   Route.route('/sets/:id/detail',                ['GET', 'POST'], 'FarcasterFrameSetController.set')
-  Route.route('/sets/:id/detail/image',          ['GET', 'POST'], 'FarcasterFrameSetController.entryImage')
   Route.post('/sets/:id/detail/:edition',                         'FarcasterFrameSetController.edition')
-  Route.route('/sets/:id/detail/:edition/image', ['GET', 'POST'], 'FarcasterFrameSetController.editionImage')
   Route.route('/sets/:id/opt-in/image',          ['GET', 'POST'], 'FarcasterFrameSetController.optInImage')
   Route.route('/sets/:id/opt-in-status/image',   ['GET', 'POST'], 'FarcasterFrameSetController.optInStatus')
 
@@ -187,3 +183,12 @@ Route.group(() => {
   Route.route('/merch/:id/variants',             ['GET', 'POST'], 'FarcasterFrameMerchController.variants')
   Route.route('/merch/:id/image',                ['GET', 'POST'], 'FarcasterFrameMerchController.image')
 }).prefix('/v1/frames')
+
+// OpenGraph
+Route.group(() => {
+  Route.route('/sets/:id/og',                ['GET', 'POST'],      'FarcasterFrameSetsController.image')
+  Route.route('/sets/:id/square',            ['GET', 'POST'],      'FarcasterFrameSetController.entryImage')
+  Route.route('/sets/:id/:edition/square',   ['GET', 'POST'],      'FarcasterFrameSetController.editionImage')
+
+  Route.route('/opepen/:id/og',              ['GET', 'POST'],      'OpepenController.og')
+}).prefix('/v1/render')

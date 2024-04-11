@@ -2,6 +2,7 @@ import fs from 'fs'
 import axios from 'axios'
 import satori from 'satori'
 import sharp from 'sharp'
+import Drive from '@ioc:Adonis/Core/Drive'
 import Application from '@ioc:Adonis/Core/Application'
 
 export type Action = string|{ text: string, action: 'post'|'post_redirect'|'link'|'mint', target?: string }
@@ -21,12 +22,12 @@ export default class Renderer {
   }
   static PADDING = 64
 
-  protected static async svg (svg, ratio: 'SQUARE'|'WIDE' = 'WIDE') {
+  protected static async svg (svg, ratio: 'SQUARE'|'WIDE' = 'WIDE', size: number = 1) {
     return satori(
       svg,
       {
-        width: this.ASPECT_RATIOS[ratio].WIDTH,
-        height: this.ASPECT_RATIOS[ratio].HEIGHT,
+        width: this.ASPECT_RATIOS[ratio].WIDTH * size,
+        height: this.ASPECT_RATIOS[ratio].HEIGHT * size,
         fonts: [
           {
             name: 'SpaceGrotesk-Medium',
@@ -67,6 +68,12 @@ export default class Renderer {
     } catch (e) {
       return 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=='
     }
+  }
+
+  protected static saveImage (key, png) {
+    return Drive.put(key, png, {
+      contentType: 'image/png',
+    })
   }
 
 }

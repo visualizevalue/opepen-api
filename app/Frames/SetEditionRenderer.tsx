@@ -1,18 +1,18 @@
 import React from 'react'
 import pad from 'App/Helpers/pad'
 import Renderer from './Renderer'
-import SetModel from 'App/Models/SetModel'
+import SetSubmission from 'App/Models/SetSubmission'
 
 export default class SetEditionRenderer extends Renderer {
   public static async render ({
-      set,
+      submission,
       edition,
     }: {
-      set: SetModel,
+      submission: SetSubmission,
       edition: 1|4|5|10|20|40,
     }) {
-    await set.load('submission')
-    const image = set.submission[`edition${edition}Image`]
+    await submission.load(`edition${edition}Image`)
+    const image = submission[`edition${edition}Image`]
 
     const paddingY = 32
     const paddingX = paddingY*3
@@ -61,8 +61,8 @@ export default class SetEditionRenderer extends Renderer {
             margin: '0 0 0.25em',
             fontFamily: 'SpaceGrotesk-Bold',
           }}
-          >Set {pad(set.id, 3)} – Edition of { edition }</p>
-          <h1 style={{ fontWeight: 500, margin: '0', lineHeight: '1.1', }}>{set[`edition_${edition}Name`] || 'Unnamed'}</h1>
+          >{ submission.setId ? `Set ${pad(submission.setId, 3)}` : `Set Submission` } - Edition of { edition }</p>
+          <h1 style={{ fontWeight: 500, margin: '0', lineHeight: '1.1', }}>{submission[`edition_${edition}Name`] || 'Unnamed'}</h1>
         </aside>
       </div>,
       'SQUARE'

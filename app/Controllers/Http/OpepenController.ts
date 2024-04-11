@@ -5,6 +5,7 @@ import { DateTime } from 'luxon'
 import DailyOpepen from 'App/Services/DailyOpepen'
 import { Account } from 'App/Models'
 import MetadataParser from 'App/Services/Metadata/MetadataParser'
+import OpepenRenderer from 'App/Frames/OpepenRenderer'
 
 export default class OpepenController extends BaseController {
 
@@ -79,6 +80,23 @@ export default class OpepenController extends BaseController {
 
   public async summary ({ params, response, }: HttpContextContract) {
     const image = await DailyOpepen.forDay(DateTime.fromISO(params.date))
+
+    return response
+      .header('Content-Type', 'image/png')
+      .header('Content-Length', Buffer.byteLength(image))
+      .send(image)
+  }
+
+  public async og ({ request, params, response }: HttpContextContract) {
+    const opepen = await Opepen.query()
+      .where('tokenId', params.id)
+      .preload('submission')
+      .preload('ownerAccount')
+      .preload('events')
+      .preload('image')
+      .firstOrFail()
+
+    const image = await OpepenRenderer.render(opepen, request.method() === 'POST')
 
     return response
       .header('Content-Type', 'image/png')
