@@ -39,7 +39,10 @@ export const renderPage = async (url: string, dimension: number = 960, tries: nu
     const page = await browser.newPage()
 
     await page.setViewport({width: dimension, height: dimension})
-    const html = `<body style="margin:0;"><iframe src="${url}" width="${dimension}" height="${dimension}" style="border:none;"></iframe></body>`
+    const item = url.endsWith('.gif') || url.endsWith('.png')
+      ? `<img src="${url}" width="${dimension}" height="${dimension}" />`
+      : `<iframe src="${url}" width="${dimension}" height="${dimension}" style="border:none;"></iframe>`
+    const html = `<body style="margin:0;">${item}</body>`
     const dataUrl = `data:text/html;base64;charset=UTF-8,${Buffer.from(html).toString('base64')}`
     await page.goto(dataUrl)
 

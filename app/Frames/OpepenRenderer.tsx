@@ -1,5 +1,6 @@
 import React from 'react'
 import Drive from '@ioc:Adonis/Core/Drive'
+import Env from '@ioc:Adonis/Core/Env'
 import Renderer from './Renderer'
 import Opepen from 'App/Models/Opepen'
 import pad from 'App/Helpers/pad'
@@ -32,7 +33,7 @@ export default class OpepenRenderer extends Renderer {
           padding: '0',
         }}
       >
-        <img src={`https://api.opepen.art/${opepen.tokenId}/render`} alt="Opepen Image" width="1000" height="1000" />
+        <img src={`${Env.get('APP_URL')}/${opepen.tokenId}/render`} alt="Opepen Image" width="1000" height="1000" />
         <div
           style={{
             display: 'flex',

@@ -88,20 +88,24 @@ export default class OpepenMetadataController {
     const { params, response } = ctx
     await this.validate(params)
 
-    let { animation_url } = await MetadataParser.forId(params.id)
+    let { animation_url, image } = await MetadataParser.forId(params.id)
+    let url = animation_url || image
+    const isAnimated = image.endsWith('.gif') || image.endsWith('.svg') || animation_url
 
-    if (! animation_url) return await this.image(ctx)
+    if (! isAnimated) return await this.image(ctx)
 
-    if (animation_url.startsWith('ipfs://')) {
-      animation_url = `https://ipfs.vv.xyz/ipfs/${animation_url.replace('ipfs://', '')}`
+    if (url.startsWith('ipfs://')) {
+      url = `https://ipfs.vv.xyz/ipfs/${url.replace('ipfs://', '')}`
     }
 
-    const image = await renderPage(animation_url)
+    console.log('rednerererer')
+
+    const rendered = await renderPage(url)
 
     return response
       .header('Content-Type', 'image/png')
-      .header('Content-Length', Buffer.byteLength(image))
-      .send(image)
+      .header('Content-Length', Buffer.byteLength(rendered))
+      .send(rendered)
   }
 
   /**
