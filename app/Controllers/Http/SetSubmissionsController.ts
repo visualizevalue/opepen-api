@@ -316,6 +316,7 @@ export default class SetSubmissionsController extends BaseController {
     if (! submission || submission.approvedAt) return ctx.response.badRequest()
 
     submission.approvedAt = DateTime.now()
+    submission.publishedAt = submission.publishedAt ?? submission.approvedAt
 
     await submission.save()
 
