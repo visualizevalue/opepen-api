@@ -92,10 +92,11 @@ Route.group(() => {
     Route.post('/:id/unapprove',      'SetSubmissionsController.unapprove').middleware(['admin'])
     Route.post('/:id/star',           'SetSubmissionsController.star').middleware(['admin'])
 
-    Route.get('/:id/subscribers',     'SetSubscriptionsController.listSubscribers')
   }).middleware(['auth'])
 
   Route.post('/:id/subscribe',      'SetSubscriptionsController.subscribe')
+  Route.get('/:id/subscribers',     'SetSubscriptionsController.listSubscribers')
+  Route.get('/:id/history',         'SetSubscriptionsController.history')
 }).prefix('/v1/set-submissions')
 
 // Comments

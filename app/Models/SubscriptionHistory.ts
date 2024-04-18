@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon'
-import { BaseModel, BelongsTo, belongsTo, column } from '@ioc:Adonis/Lucid/Orm'
+import { BaseModel, BelongsTo, belongsTo, column, computed } from '@ioc:Adonis/Lucid/Orm'
 import Account from 'App/Models/Account'
 import SetSubmission from 'App/Models/SetSubmission'
 import { MaxReveal } from './types'
@@ -25,10 +25,28 @@ export default class SubscriptionHistory extends BaseModel {
   })
   public opepenIds: string[]
 
+  @column()
+  public opepenCount: number
+
   @column({
     prepare: value => JSON.stringify(value),
   })
   public maxReveals: MaxReveal
+
+  @column({
+    prepare: value => JSON.stringify(value),
+  })
+  public previousOpepenIds: string[]
+
+  @column()
+  public previousOpepenCount: number
+
+  @computed({
+    serializeAs: 'is_opt_in'
+  })
+  public get isOptIn (): boolean {
+    return this.opepenCount > this.previousOpepenCount && this.opepenCount > 0
+  }
 
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime
