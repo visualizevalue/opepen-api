@@ -66,8 +66,10 @@ export default class SubscriptionHistory extends BaseModel {
       subscriptionId: subscription.id,
       address: subscription.address,
       opepenIds: subscription.opepenIds,
+      opepenCount: subscription.opepenIds.length,
       maxReveals: subscription.maxReveals,
       createdAt: subscription.createdAt,
+      // TODO: Implement previous count / history
     })
   }
 }
