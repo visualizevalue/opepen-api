@@ -730,7 +730,9 @@ export default class SetSubmission extends BaseModel {
         }
       }
 
-      holders.total ++
+      if (subscription.opepenIds?.length) {
+        holders.total ++
+      }
 
       await subscription.save()
     }
