@@ -62,6 +62,22 @@ export type SubmissionStats = {
   totalHolders?: number
 }
 
+export type CurationStat = {
+  [key: string]: {
+    opepens: number,
+    demand: number,
+  }
+}
+
+export type CurationStats = {
+  1: CurationStat,
+  4: CurationStat,
+  5: CurationStat,
+  10: CurationStat,
+  20: CurationStat,
+  40: CurationStat,
+  total: CurationStat,
+}
 
 export type OauthData = {
   accessToken: string|undefined

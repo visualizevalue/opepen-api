@@ -177,6 +177,12 @@ export default class SetSubmissionsController extends BaseController {
     return submission
   }
 
+  public async curationStats ({ params }: HttpContextContract) {
+    const submission = await SetSubmission.query().where('uuid', params.id).firstOrFail()
+
+    return submission.curationStats
+  }
+
   public async update (ctx: HttpContextContract) {
     const submission = await this.show(ctx)
     if (! submission) return ctx.response.badRequest()

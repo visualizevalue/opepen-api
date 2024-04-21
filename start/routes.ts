@@ -78,6 +78,7 @@ Route.group(() => {
 Route.group(() => {
   Route.get('/',                    'SetSubmissionsController.list')
   Route.get('/:id',                 'SetSubmissionsController.show')
+  Route.get('/:id/curation-stats',  'SetSubmissionsController.curationStats')
 
   Route.group(() => {
     Route.post('/',                   'SetSubmissionsController.create')

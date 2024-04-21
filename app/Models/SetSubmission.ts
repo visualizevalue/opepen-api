@@ -6,7 +6,7 @@ import { string } from '@ioc:Adonis/Core/Helpers'
 import BotNotifications from 'App/Services/BotNotifications'
 import Account from 'App/Models/Account'
 import SetModel from 'App/Models/SetModel'
-import { ArtistSignature, EditionGroups, EditionType, SubmissionStats } from './types'
+import { ArtistSignature, EditionGroups, EditionType, CurationStats, SubmissionStats } from './types'
 import Image from './Image'
 import DynamicSetImages from './DynamicSetImages'
 import Subscription from './Subscription'
@@ -234,6 +234,24 @@ export default class SetSubmission extends BaseModel {
     }
   })
   public submissionStats: SubmissionStats
+
+  @column({
+    consume: value => {
+      if (! value) return {
+        1: {},
+        4: {},
+        5: {},
+        10: {},
+        20: {},
+        40: {},
+        total: {},
+      }
+
+      return value
+    },
+    serializeAs: null,
+  })
+  public curationStats: CurationStats
 
   @column()
   public demand: number
@@ -629,7 +647,7 @@ export default class SetSubmission extends BaseModel {
   }
 
   public async updateAndValidateOpepensInSet () {
-    await this.cleanSubscriptionssAndStats()
+    await this.cleanSubscriptionsAndStats()
     await this.maybeStartOrStopTimer()
   }
 
@@ -647,12 +665,13 @@ export default class SetSubmission extends BaseModel {
   }
 
   // FIXME: Clean up this ducking mess!
-  public async cleanSubscriptionssAndStats () {
+  public async cleanSubscriptionsAndStats () {
     const subscriptions = await Subscription.query().where('submissionId', this.id)
 
     const holders = { 1: 0, 4: 0, 5: 0, 10: 0, 20: 0, 40: 0, total: 0 }
     const opepens = { 1: 0, 4: 0, 5: 0, 10: 0, 20: 0, 40: 0, total: 0 }
     const demand = { 1: 0, 4: 0, 5: 0, 10: 0, 20: 0, 40: 0, total: 0 }
+    const curationStats = { 1: {}, 4: {}, 5: {}, 10: {}, 20: {}, 40: {}, total: {} }
 
     for (const subscription of subscriptions) {
       const submittedOpepen = await Opepen.query().whereIn('token_id', subscription.opepenIds)
@@ -695,6 +714,20 @@ export default class SetSubmission extends BaseModel {
         demand.total += actual
         opepens[edition] += opepenCount
         opepens.total += opepenCount
+
+        // Update curator stats
+        if (actual) {
+          if (! curationStats[edition][subscription.address]) {
+            curationStats[edition][subscription.address] = { opepens: 0, demand: 0 }
+          }
+          if (! curationStats.total[subscription.address]) {
+            curationStats.total[subscription.address] = { opepens: 0, demand: 0 }
+          }
+          curationStats[edition][subscription.address].opepens += opepenCount
+          curationStats.total[subscription.address].opepens += opepenCount
+          curationStats[edition][subscription.address].demand += actual
+          curationStats.total[subscription.address].demand += actual
+        }
       }
 
       holders.total ++
@@ -711,6 +744,7 @@ export default class SetSubmission extends BaseModel {
       opepens,
       demand,
     }
+    this.curationStats = curationStats
     this.demand = demand.total // save for easy access and sorting
     this.submittedOpepen = await this.opepensInSetSubmission()
     await this.save()
