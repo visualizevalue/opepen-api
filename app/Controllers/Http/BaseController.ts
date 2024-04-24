@@ -47,6 +47,8 @@ export default class BaseController {
         const [column, ...keys] = sort.split('.')
         query.orderByRaw(`"${column}" -> ${keys.map(key => `'${key}'`).join(' -> ')} ${sortDirection}`)
       } else if (sort === 'random') {
+        query.orderByRaw('random()')
+      } else if (sort === 'dailyRandom') {
         await this.setRandomSeed()
         query.orderByRaw('random()')
       } else {
