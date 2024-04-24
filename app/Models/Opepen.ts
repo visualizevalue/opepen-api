@@ -1,6 +1,6 @@
 import axios from 'axios'
 import Env from '@ioc:Adonis/Core/Env'
-import { beforeSave, BelongsTo, belongsTo, column, computed, HasMany, hasMany } from '@ioc:Adonis/Lucid/Orm'
+import { beforeSave, BelongsTo, belongsTo, column, computed, HasMany, hasMany, hasOne, HasOne } from '@ioc:Adonis/Lucid/Orm'
 import Database from '@ioc:Adonis/Lucid/Database'
 import Logger from '@ioc:Adonis/Core/Logger'
 import OpenSea from 'App/Services/OpenSea'
@@ -95,6 +95,18 @@ export default class Opepen extends TokenModel {
     }
   })
   public events: HasMany<typeof Event>
+
+  @hasOne(() => Event, {
+    foreignKey: 'tokenId',
+    localKey: 'tokenId',
+    onQuery: query => {
+      query.where('contract', 'OPEPEN')
+      query.orderBy('blockNumber', 'desc')
+      query.orderBy('logIndex', 'desc')
+      query.limit(1)
+    }
+  })
+  public lastEvent: HasOne<typeof Event>
 
   @beforeSave()
   public static async lowerCaseAddresses(model: TokenModel) {

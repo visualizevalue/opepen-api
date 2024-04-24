@@ -35,6 +35,7 @@ export default class OpepenController extends BaseController {
       .preload('set')
       .preload('ownerAccount')
       .preload('image')
+      .preload('lastEvent')
       .firstOrFail()
 
     const metadata = await (new MetadataParser()).forOpepen(opepen)
