@@ -113,7 +113,7 @@ export default class SetSubscriptionsController extends BaseController {
     await this.applySorts(query, sort)
 
     return query.orderBy('createdAt', 'desc')
-      .preload('account')
+      .preload('account', query => query.preload('pfp'))
       .paginate(page, limit)
   }
 
@@ -132,7 +132,7 @@ export default class SetSubscriptionsController extends BaseController {
     await this.applySorts(query, sort)
 
     return query.orderBy('createdAt', 'desc')
-      .preload('account')
+      .preload('account', query => query.preload('pfp'))
       .paginate(page, limit)
   }
 
