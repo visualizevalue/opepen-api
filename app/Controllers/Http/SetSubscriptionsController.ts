@@ -99,6 +99,24 @@ export default class SetSubscriptionsController extends BaseController {
       .paginate(page, limit)
   }
 
+  public async globalHistory ({ request }: HttpContextContract) {
+    const {
+      page = 1,
+      limit = 20,
+      filter = {},
+      sort = ''
+    } = request.qs()
+
+    const query = SubscriptionHistory.query()
+
+    await this.applyFilters(query, filter)
+    await this.applySorts(query, sort)
+
+    return query.orderBy('createdAt', 'desc')
+      .preload('account')
+      .paginate(page, limit)
+  }
+
   public async history ({ params, request }: HttpContextContract) {
     const {
       page = 1,

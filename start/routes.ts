@@ -23,6 +23,8 @@ import Route from '@ioc:Adonis/Core/Route'
 // Welcome
 Route.get('/', () => ({ hello: 'opepen' }))
 
+Route.get('/v1/stats', 'StatsController.show')
+
 // General metadata
 Route.group(() => {
   Route.get('/opepen.json', 'OpepenMetadataController.contractMetadata')
@@ -77,6 +79,7 @@ Route.group(() => {
 // Set Submissions
 Route.group(() => {
   Route.get('/',                    'SetSubmissionsController.list')
+  Route.get('/history',             'SetSubscriptionsController.globalHistory')
   Route.get('/:id',                 'SetSubmissionsController.show')
   Route.get('/:id/curation-stats',  'SetSubmissionsController.curationStats')
 
