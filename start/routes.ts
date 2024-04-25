@@ -131,6 +131,8 @@ Route.group(() => {
       .as('unsubscribeNotification')
   }).prefix('/settings')
 
+  Route.get('/artists',                 'AccountsController.artists')
+  Route.get('/curators',                'AccountsController.curators')
   Route.get('/:id',                     'AccountsController.show')
   Route.put('/:id',                     'AccountsController.update')
   Route.get('/:id/opepen',              'OpepenController.forAccount')

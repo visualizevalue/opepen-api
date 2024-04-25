@@ -307,6 +307,11 @@ export default class SetSubmissionsController extends BaseController {
 
     await this.creatorOrAdmin({ creator: submission.creatorAccount, session })
 
+    // Remove set from count
+    submission.creatorAccount.setSubmissionsCount -= 1
+    await submission.creatorAccount.save()
+
+    // Update submission
     submission.publishedAt = null
     submission.approvedAt = null
     submission.revealsAt = null
@@ -321,10 +326,7 @@ export default class SetSubmissionsController extends BaseController {
     const submission = await this.show(ctx)
     if (! submission || submission.approvedAt) return ctx.response.badRequest()
 
-    submission.approvedAt = DateTime.now()
-    submission.publishedAt = submission.publishedAt ?? submission.approvedAt
-
-    await submission.save()
+    await this._approve(submission)
 
     if (ctx.request.input('notify', true)) {
       try {
@@ -354,12 +356,7 @@ export default class SetSubmissionsController extends BaseController {
     if (! submission) return ctx.response.badRequest()
 
     submission.starredAt = submission.starredAt ? null : DateTime.now()
-
-    if (! submission.approvedAt) {
-      submission.approvedAt = DateTime.now()
-    }
-
-    await submission.save()
+    await this._approve(submission)
 
     if (submission.starredAt) {
       await submission.notify('NewCuratedSubmission')
@@ -399,6 +396,23 @@ export default class SetSubmissionsController extends BaseController {
       .preload('edition20Image')
       .preload('edition40Image')
       .paginate(page, limit)
+  }
+
+  protected async _approve (submission: SetSubmission) {
+    const wasApproved = !!submission.approvedAt
+
+    // Approve and publish
+    submission.approvedAt = DateTime.now()
+    submission.publishedAt = submission.publishedAt ?? submission.approvedAt
+    await submission.save()
+
+    // Add submission to creator count
+    if (! wasApproved) {
+      submission.creatorAccount.setSubmissionsCount += 1
+      await submission.creatorAccount.save()
+    }
+
+    return submission
   }
 
   protected async creatorOrAdmin({ creator, session }) {

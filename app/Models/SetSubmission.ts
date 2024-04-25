@@ -611,6 +611,13 @@ export default class SetSubmission extends BaseModel {
 
     try {
       await (new Reveal()).compute(submission, set)
+
+      // Update sets counts for contributors
+      const creators = await this.creators()
+      for (const creator of creators) {
+        creator.setsCount += 1
+        await creator.save()
+      }
     } catch (e) {
       Logger.info(`Something bad happened during reveal of set ${set.id} and submission ${submission.uuid}: ${e}`)
       console.error(e)

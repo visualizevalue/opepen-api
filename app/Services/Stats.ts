@@ -14,6 +14,7 @@ export type Stats = {
     permanentArtists: number
     artists: number
     curators: number
+    holders: number
   }
   optIns: number
   revealed: {
@@ -43,6 +44,7 @@ class StatsService {
       sets,
       artists,
       permanentArtists,
+      curators,
       holders,
     ] = await Promise.all([
       SetSubmission.query().count('id'),
@@ -51,6 +53,7 @@ class StatsService {
       SetModel.query().whereNotNull('submissionId').count('id'),
       SetSubmission.query().whereNotNull('approved_at').countDistinct('creator'),
       this.permanentArtistsQuery(),
+      SubscriptionHistory.query().countDistinct('address'),
       Opepen.query().countDistinct('owner'),
     ])
 
@@ -69,7 +72,8 @@ class StatsService {
       users: {
         permanentArtists: parseInt(permanentArtists.rows[0].count),
         artists: parseInt(artists[0].$extras.count),
-        curators: parseInt(holders[0].$extras.count),
+        curators: parseInt(curators[0].$extras.count),
+        holders: parseInt(holders[0].$extras.count),
       },
       revealed: {
         opepen: setsCount * 80,

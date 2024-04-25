@@ -100,6 +100,9 @@ export default class AccountSettingsController extends BaseController {
     // Save the account
     await account.save()
 
+    // Update the completion rank
+    await account.updateProfileCompletion()
+
     return this.transform(account)
   }
 

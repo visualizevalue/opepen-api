@@ -287,6 +287,30 @@
       "aliases": [],
       "flags": []
     },
+    "update:account_profile_completion": {
+      "settings": {
+        "loadApp": true,
+        "stayAlive": false
+      },
+      "commandPath": "./commands/UpdateAccountProfileCompletion",
+      "commandName": "update:account_profile_completion",
+      "description": "",
+      "args": [],
+      "aliases": [],
+      "flags": []
+    },
+    "update:account_set_counts": {
+      "settings": {
+        "loadApp": true,
+        "stayAlive": false
+      },
+      "commandPath": "./commands/UpdateAccountSetCounts",
+      "commandName": "update:account_set_counts",
+      "description": "",
+      "args": [],
+      "aliases": [],
+      "flags": []
+    },
     "dump:rcfile": {
       "settings": {},
       "commandPath": "@adonisjs/core/build/commands/DumpRc",

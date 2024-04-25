@@ -7,6 +7,10 @@ import provider from 'App/Services/RPCProvider'
 import Image from 'App/Models/Image'
 import RichContentLink from 'App/Models/RichContentLink'
 import { ArtistSocials, OauthData } from './types'
+import Opepen from './Opepen'
+import Subscription from './Subscription'
+import SubscriptionHistory from './SubscriptionHistory'
+import SetSubmission from './SetSubmission'
 
 type Builder = ModelQueryBuilderContract<typeof Account>
 
@@ -68,6 +72,15 @@ export default class Account extends BaseModel {
   @column()
   public bio: string
 
+  @column()
+  public setSubmissionsCount: number
+
+  @column()
+  public setsCount: number
+
+  @column()
+  public profileCompletion: number
+
   @column({
     consume: (value: string) => typeof value === 'string' ? JSON.parse(value) : value,
     prepare: (value: any) => Array.isArray(value) ? JSON.stringify(value) : value,
@@ -100,6 +113,30 @@ export default class Account extends BaseModel {
     foreignKey: 'coverImageId',
   })
   public coverImage: BelongsTo<typeof Image>
+
+  @hasMany(() => Opepen, {
+    foreignKey: 'owner',
+    localKey: 'address',
+  })
+  public opepen: HasMany<typeof Opepen>
+
+  @hasMany(() => SetSubmission, {
+    foreignKey: 'creator',
+    localKey: 'address',
+  })
+  public submissions: HasMany<typeof SetSubmission>
+
+  @hasMany(() => Subscription, {
+    foreignKey: 'address',
+    localKey: 'address',
+  })
+  public subscriptions: HasMany<typeof Subscription>
+
+  @hasMany(() => SubscriptionHistory, {
+    foreignKey: 'address',
+    localKey: 'address',
+  })
+  public subscriptionsHistory: HasMany<typeof SubscriptionHistory>
 
   @hasMany(() => RichContentLink, {
     foreignKey: 'address',
@@ -172,6 +209,49 @@ export default class Account extends BaseModel {
     } catch (e) {
       Logger.error(e)
     }
+  }
+
+  public async updateProfileCompletion () {
+    const account: Account = this
+    await account.load('richContentLinks')
+
+    let completion = 0
+    if (account.name || account.ens) completion ++
+    if (account.pfpImageId) completion ++
+    if (account.coverImageId) completion ++
+    if (account.tagline) completion ++
+    if (account.quote) completion ++
+    if (account.bio) completion ++
+    if (account.twitterHandle) completion ++
+    if (account.socials?.length) completion ++
+    if (account.richContentLinks?.length) completion ++
+
+    this.profileCompletion = completion
+    await this.save()
+  }
+
+  public async updateSetSubmissionsCount () {
+    const artistFor = SetSubmission.query()
+        .where((query) => {
+          query.where('creator', this.address)
+              .orWhere('coCreator_1', this.address)
+              .orWhere('coCreator_2', this.address)
+              .orWhere('coCreator_3', this.address)
+              .orWhere('coCreator_4', this.address)
+              .orWhere('coCreator_5', this.address)
+        })
+        .withScopes(scopes => {
+          scopes.approved()
+          scopes.published()
+        })
+
+    const submissionsCount = await artistFor.clone().count('id')
+    const setsCount = await artistFor.clone().whereNotNull('set_id').count('id')
+
+    this.setsCount = setsCount[0].$extras.count
+    this.setSubmissionsCount = submissionsCount[0].$extras.count
+
+    await this.save()
   }
 
   static byId (id) {
