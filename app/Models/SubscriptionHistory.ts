@@ -51,7 +51,9 @@ export default class SubscriptionHistory extends BaseModel {
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime
 
-  @belongsTo(() => SetSubmission)
+  @belongsTo(() => SetSubmission, {
+    foreignKey: 'submissionId',
+  })
   public submission: BelongsTo<typeof SetSubmission>
 
   @belongsTo(() => Account, {
