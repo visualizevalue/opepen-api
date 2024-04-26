@@ -27,6 +27,10 @@ export default class RestorePastValidOptIns extends BaseCommand {
       const subscriptions = await Subscription.query().where('submissionId', submission.id)
 
       for (const subscription of subscriptions) {
+        if (submission.revealStrategy === 'v1') {
+          subscription.maxReveals = {}
+        }
+
         const lastHistoryItem = await SubscriptionHistory.query()
           .where('subscriptionId', subscription.id.toString())
           .orderBy('id', 'desc')
