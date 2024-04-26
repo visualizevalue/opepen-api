@@ -38,7 +38,7 @@ export default class AccountsController extends BaseController {
       .withCount('opepen')
       .preload('pfp')
       .preload('coverImage')
-      .orderByRaw(`("profile_completion" + 3) / 4 DESC, id`)
+      // .orderByRaw(`("profile_completion" + 4) / 5 DESC, id`)
 
     await this.applyFilters(query, filter)
     await this.applySorts(query, sort)
