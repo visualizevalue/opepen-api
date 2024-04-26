@@ -225,6 +225,18 @@
         }
       ]
     },
+    "restore:past_valid_opt_ins": {
+      "settings": {
+        "loadApp": true,
+        "stayAlive": false
+      },
+      "commandPath": "./commands/RestorePastValidOptIns",
+      "commandName": "restore:past_valid_opt_ins",
+      "description": "",
+      "args": [],
+      "aliases": [],
+      "flags": []
+    },
     "reveal:schedule": {
       "settings": {
         "loadApp": true,
