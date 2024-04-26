@@ -700,7 +700,8 @@ export default class SetSubmission extends BaseModel {
 
         subscription.maxReveals[edition] = (
           overallocated &&
-          typeof subscription.maxReveals[edition] === 'number'
+          typeof subscription.maxReveals[edition] === 'number' &&
+          subscription.maxReveals[edition] > 0
         )
           ? subscription.maxReveals[edition]
           : opepenCount
