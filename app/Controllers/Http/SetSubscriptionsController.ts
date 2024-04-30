@@ -115,6 +115,7 @@ export default class SetSubscriptionsController extends BaseController {
     return query.orderBy('createdAt', 'desc')
       .preload('account', query => query.preload('pfp'))
       .preload('submission')
+      .whereNotNull('submissionId')
       .paginate(page, limit)
   }
 
