@@ -98,7 +98,11 @@ export default class Account extends BaseModel {
   @computed()
   public get display () {
     if (this.name) return this.name
-    if (this.ens) return this.ens
+    if (this.ens) {
+      if (this.ens.endsWith('.eth')) return this.ens.slice(0, -4)
+
+      return this.ens
+    }
     if (this.twitterHandle) return this.twitterHandle
 
     return Address.short(this.address)
