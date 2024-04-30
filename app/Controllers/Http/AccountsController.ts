@@ -3,6 +3,8 @@ import Account from 'App/Models/Account'
 import BaseController from './BaseController'
 import TestEmail from 'App/Mailers/TestEmail'
 import SetSubmission from 'App/Models/SetSubmission'
+import { isAddress } from 'ethers/lib/utils'
+import { constants } from 'ethers'
 
 export default class AccountsController extends BaseController {
 
@@ -47,7 +49,10 @@ export default class AccountsController extends BaseController {
   }
 
   public async show ({ params }) {
-    const account = await Account.byId(decodeURIComponent(params.id.toLowerCase()))
+    const id = decodeURIComponent(params.id.toLowerCase())
+    const address = isAddress(id) ? id : constants.AddressZero
+
+    const account = await Account.byId(id)
       .preload('coverImage')
       .preload('richContentLinks', query => {
         query.preload('logo')
@@ -57,7 +62,7 @@ export default class AccountsController extends BaseController {
       .first()
 
     if (! account) {
-      return Account.create({ address: params.id })
+      return Account.firstOrCreate({ address })
     }
 
     account.updateNames()
