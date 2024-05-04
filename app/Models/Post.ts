@@ -5,7 +5,7 @@ import SetSubmission from './SetSubmission'
 import Opepen from './Opepen'
 import Account from './Account'
 
-export default class Comment extends BaseModel {
+export default class Post extends BaseModel {
   @column({ isPrimary: true })
   public id: bigint
 
@@ -25,7 +25,7 @@ export default class Comment extends BaseModel {
   public imageId: bigint
 
   @column()
-  public parentCommentId: bigint
+  public parentPostId: bigint
 
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime
@@ -58,8 +58,8 @@ export default class Comment extends BaseModel {
   })
   public image: BelongsTo<typeof Image>
 
-  @belongsTo(() => Comment, {
-    foreignKey: 'parentCommentId',
+  @belongsTo(() => Post, {
+    foreignKey: 'parentPostId',
   })
-  public parent: BelongsTo<typeof Comment>
+  public parent: BelongsTo<typeof Post>
 }

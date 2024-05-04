@@ -1,9 +1,9 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import Account from 'App/Models/Account'
 import BaseController from './BaseController'
-import Comment from 'App/Models/Comment'
+import Post from 'App/Models/Post'
 
-export default class CommentsController extends BaseController {
+export default class PostsController extends BaseController {
 
   public async list ({ request }: HttpContextContract) {
     const {
@@ -13,7 +13,7 @@ export default class CommentsController extends BaseController {
       sort = '-createdAt',
     } = request.qs()
 
-    const query = Comment.query().preload('account')
+    const query = Post.query().preload('account')
 
     await this.applyFilters(query, filter)
     await this.applySorts(query, sort)
@@ -24,13 +24,13 @@ export default class CommentsController extends BaseController {
   public async create ({ request, session }: HttpContextContract) {
     const account = await Account.query().where('address', session.get('siwe')?.address?.toLowerCase()).firstOrFail()
 
-    const comment = await Comment.create({
+    const post = await Post.create({
       address: account.address,
       body: request.input('body'),
       submissionId: request.input('submission_id', null),
     })
 
-    return comment
+    return post
   }
 
 }

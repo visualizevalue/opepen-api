@@ -103,11 +103,11 @@ Route.group(() => {
   Route.get('/:id/history',         'SetSubscriptionsController.history')
 }).prefix('/v1/set-submissions')
 
-// Comments
+// Posts
 Route.group(() => {
-  Route.get('/',                 'CommentsController.list')
-  Route.post('/',                'CommentsController.create').middleware(['auth'])
-}).prefix('/v1/comments')
+  Route.get('/',                 'PostsController.list')
+  Route.post('/',                'PostsController.create').middleware(['auth'])
+}).prefix('/v1/posts')
 
 // Accounts
 Route.group(() => {

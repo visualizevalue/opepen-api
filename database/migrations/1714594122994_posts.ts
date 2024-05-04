@@ -7,7 +7,7 @@ export default class extends BaseSchema {
   public async up () {
     this.schema.createTable(this.tableName, (table) => {
       table.bigIncrements('id')
-      table.string('account')
+      table.string('address')
       table.timestamp('created_at', { useTz: true })
       table.timestamp('updated_at', { useTz: true })
 
