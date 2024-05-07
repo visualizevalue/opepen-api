@@ -98,6 +98,12 @@ export class BotNotifications {
       { text: `Opt in data hash: ${submission.revealSubmissionsInputCid}` },
     ]
 
+    // Make sure we're sending notification in this environment
+    if (! Env.get('SEND_NOTIFICATIONS')) {
+      Logger.info(`BotNotification for ${posts[0].text}`)
+      return
+    }
+
     await this.xClient?.thread(posts)
     await this.fcClient?.thread(posts)
   }
@@ -113,8 +119,11 @@ export class BotNotifications {
     // Function to render the given template.
     const render = (creators, delimiter = '\n') => template({ creators }).join(delimiter)
 
-    // Log the tweet.
-    Logger.info(`BotNotification: ${render(creators, '; ')}`)
+    // Make sure we're sending notification in this environment
+    if (! Env.get('SEND_NOTIFICATIONS')) {
+      Logger.info(`BotNotification: ${render(creators, '; ')}`)
+      return
+    }
 
     // Send to the networks
     await this.xClient?.tweet(render(xCreators), images)

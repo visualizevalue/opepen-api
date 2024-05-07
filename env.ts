@@ -53,6 +53,7 @@ export default Env.rules({
   FARCASTER_HUB: Env.schema.string(),
   FARCASTER_SIGNER: Env.schema.string(),
   SIGNATURE_API_BASE: Env.schema.string(),
+  SEND_NOTIFICATIONS: Env.schema.boolean(),
   TWITTER_API_KEY: Env.schema.string(),
   TWITTER_API_SECRET: Env.schema.string(),
   TWITTER_BEARER: Env.schema.string(),

@@ -1,24 +1,5 @@
 {
   "commands": {
-    "set:clean-submissions": {
-      "settings": {
-        "loadApp": true,
-        "stayAlive": false
-      },
-      "commandPath": "./commands/CleanSetSubmissions",
-      "commandName": "set:clean-submissions",
-      "description": "Force update opepen tokens and ownership",
-      "args": [
-        {
-          "type": "string",
-          "propertyName": "set",
-          "name": "set",
-          "required": true
-        }
-      ],
-      "aliases": [],
-      "flags": []
-    },
     "clear:multi_opt_ins": {
       "settings": {
         "loadApp": true,
@@ -28,6 +9,25 @@
       "commandName": "clear:multi_opt_ins",
       "description": "",
       "args": [],
+      "aliases": [],
+      "flags": []
+    },
+    "set:compute-opt-ins": {
+      "settings": {
+        "loadApp": true,
+        "stayAlive": false
+      },
+      "commandPath": "./commands/ComputeOptIns",
+      "commandName": "set:compute-opt-ins",
+      "description": "Update & validate the statistics of a set submission (opt ins, demand)",
+      "args": [
+        {
+          "type": "string",
+          "propertyName": "submission",
+          "name": "submission",
+          "required": true
+        }
+      ],
       "aliases": [],
       "flags": []
     },
