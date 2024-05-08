@@ -1,7 +1,7 @@
 import { DateTime } from 'luxon'
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import Account from 'App/Models/Account'
-import { adminAddress, isAdmin, isAdminAddress } from 'App/Middleware/AdminAuth'
+import { isAdmin, isAdminAddress } from 'App/Middleware/AdminAuth'
 import BaseController from './BaseController'
 import Post from 'App/Models/Post'
 import Image from 'App/Models/Image'
