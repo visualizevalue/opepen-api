@@ -107,6 +107,7 @@ Route.group(() => {
 Route.group(() => {
   Route.get('/',                 'PostsController.list')
   Route.post('/',                'PostsController.create').middleware(['auth'])
+  Route.get('/:id',              'PostsController.show')
 }).prefix('/v1/posts')
 
 // Accounts

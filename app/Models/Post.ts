@@ -1,5 +1,6 @@
 import { DateTime } from 'luxon'
-import { BaseModel, BelongsTo, belongsTo, column } from '@ioc:Adonis/Lucid/Orm'
+import { v4 as uuid } from 'uuid'
+import { BaseModel, BelongsTo, ManyToMany, beforeCreate, belongsTo, column, manyToMany } from '@ioc:Adonis/Lucid/Orm'
 import Image from './Image'
 import SetSubmission from './SetSubmission'
 import Opepen from './Opepen'
@@ -10,10 +11,21 @@ export default class Post extends BaseModel {
   public id: bigint
 
   @column()
+  public uuid: string
+
+  @beforeCreate()
+  public static async createUUID (model: Image) {
+    model.uuid = uuid()
+  }
+
+  @column()
   public address: string
 
   @column()
   public body: string
+
+  @column()
+  public signature: string
 
   @column()
   public submissionId: number|null
@@ -32,6 +44,9 @@ export default class Post extends BaseModel {
 
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   public updatedAt: DateTime
+
+  @column.dateTime()
+  public approvedAt: DateTime
 
   @belongsTo(() => Account, {
     foreignKey: 'address',
@@ -53,13 +68,16 @@ export default class Post extends BaseModel {
   })
   public opepen: BelongsTo<typeof Opepen>
 
+  @belongsTo(() => Post, {
+    foreignKey: 'parentPostId',
+  })
+  public parent: BelongsTo<typeof Post>
+
   @belongsTo(() => Image, {
     foreignKey: 'imageId',
   })
   public image: BelongsTo<typeof Image>
 
-  @belongsTo(() => Post, {
-    foreignKey: 'parentPostId',
-  })
-  public parent: BelongsTo<typeof Post>
+  @manyToMany(() => Image)
+  public images: ManyToMany<typeof Image>
 }
