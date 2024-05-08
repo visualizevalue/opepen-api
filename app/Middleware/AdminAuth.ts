@@ -8,12 +8,14 @@ export const AUTH_ADDRESSES = [
   '0x1d4c8282a408d8fe92496cccd1eaa4ff0fdd3b97',
 ]
 
-export const isAdmin = (session: SessionContract) => {
-  const address = session.get('siwe')?.address?.toLowerCase()
-
-  if (AUTH_ADDRESSES.includes(address)) return true
+export const isAdminAddress = (address: string) => {
+  if (AUTH_ADDRESSES.includes(address?.toLowerCase())) return true
 
   return false
+}
+
+export const isAdmin = (session: SessionContract) => {
+  return isAdminAddress(session.get('siwe')?.address)
 }
 
 export default class AdminAuth {

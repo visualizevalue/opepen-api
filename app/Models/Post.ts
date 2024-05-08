@@ -46,7 +46,10 @@ export default class Post extends BaseModel {
   public updatedAt: DateTime
 
   @column.dateTime()
-  public approvedAt: DateTime
+  public approvedAt: DateTime|null
+
+  @column.dateTime()
+  public deletedAt: DateTime|null
 
   @belongsTo(() => Account, {
     foreignKey: 'address',

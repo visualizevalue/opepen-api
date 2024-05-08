@@ -108,6 +108,9 @@ Route.group(() => {
   Route.get('/',                 'PostsController.list')
   Route.post('/',                'PostsController.create').middleware(['auth'])
   Route.get('/:id',              'PostsController.show')
+  Route.post('/:id/approve',     'PostsController.approve').middleware(['admin'])
+  Route.post('/:id/unapprove',   'PostsController.unapprove').middleware(['admin'])
+  Route.delete('/:id',           'PostsController.destroy').middleware(['auth'])
 }).prefix('/v1/posts')
 
 // Accounts
