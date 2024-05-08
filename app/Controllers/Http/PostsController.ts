@@ -31,7 +31,7 @@ export default class PostsController extends BaseController {
     // Filter non approved for non admins
     if (! isAdmin(session)) {
       query.where(q => {
-        q.where('approvedAt', '<', DateTime.now().toISO())
+        q.whereNotNull('approvedAt')
 
         const userAddress = session.get('siwe')?.address?.toLowerCase()
         if (userAddress) q.orWhere('address', userAddress)
