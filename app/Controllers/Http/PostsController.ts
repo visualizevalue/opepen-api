@@ -17,9 +17,6 @@ export default class PostsController extends BaseController {
       sort = 'createdAt',
     } = request.qs()
 
-    const userAddress = session.get('siwe')?.address?.toLowerCase()
-    const admin = isAdmin(session)
-
     const query = Post.query()
       .whereNull('deletedAt')
       // Main relationship...
@@ -32,10 +29,11 @@ export default class PostsController extends BaseController {
       .preload('image')
 
     // Filter non approved for non admins
-    if (! admin) {
+    if (! isAdmin(session)) {
       query.where(q => {
         q.where('approvedAt', '<', DateTime.now().toISO())
 
+        const userAddress = session.get('siwe')?.address?.toLowerCase()
         if (userAddress) q.orWhere('address', userAddress)
       })
     }
