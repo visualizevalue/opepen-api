@@ -69,9 +69,10 @@ export default class PostsController extends BaseController {
 
   public async create ({ request, session }: HttpContextContract) {
     const account = await Account.query().where('address', session.get('siwe')?.address?.toLowerCase()).firstOrFail()
+    const parentPostId = request.input('parent_post_id', null)
 
     // Auto-approve post
-    const isApproved = isAdminAddress(account.address)
+    const isApproved = isAdminAddress(account.address) || parentPostId
 
     // Create post
     const post = await Post.create({
@@ -80,7 +81,7 @@ export default class PostsController extends BaseController {
       imageId: request.input('image_id', null),
       opepenId: request.input('opepen_id', null),
       submissionId: request.input('submission_id', null),
-      parentPostId: request.input('parent_post_id', null),
+      parentPostId,
       signature: request.input('signature', null),
       approvedAt: isApproved ? DateTime.now() : null,
     })
