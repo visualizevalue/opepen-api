@@ -6,6 +6,7 @@ import BaseController from './BaseController'
 import Post from 'App/Models/Post'
 import Image from 'App/Models/Image'
 import NotAuthenticated from 'App/Exceptions/NotAuthenticated'
+import BadRequest from 'App/Exceptions/BadRequest'
 
 export default class PostsController extends BaseController {
 
@@ -69,7 +70,16 @@ export default class PostsController extends BaseController {
 
   public async create ({ request, session }: HttpContextContract) {
     const account = await Account.query().where('address', session.get('siwe')?.address?.toLowerCase()).firstOrFail()
+
+    // Gather basic data
     const parentPostId = request.input('parent_post_id', null)
+    const body = request.input('body', null)
+    const imageIds = request.input('image_ids', [])
+
+    // Basic content validation
+    if (! body && ! imageIds?.length) {
+      throw new BadRequest(`Posts need content`)
+    }
 
     // Auto-approve post
     const isApproved = isAdminAddress(account.address) || parentPostId
@@ -87,7 +97,7 @@ export default class PostsController extends BaseController {
     })
 
     // Attach images
-    const images = await Image.query().whereIn('uuid', request.input('image_ids', []))
+    const images = await Image.query().whereIn('uuid', imageIds)
     await post.related('images').sync(images.map(i => i.id?.toString()))
     await post.load('images')
 
