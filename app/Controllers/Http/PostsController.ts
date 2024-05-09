@@ -27,6 +27,12 @@ export default class PostsController extends BaseController {
       .preload('opepen')
       .preload('parent')
       .preload('image')
+      .withCount('commentsCount')
+
+    // Apply default comment filter
+    if (! filter[`parent_post_id`]) {
+      query.whereNull('parentPostId')
+    }
 
     // Filter non approved for non admins
     if (! isAdmin(session)) {

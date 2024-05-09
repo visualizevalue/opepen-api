@@ -1,6 +1,6 @@
 import { DateTime } from 'luxon'
 import { v4 as uuid } from 'uuid'
-import { BaseModel, BelongsTo, ManyToMany, beforeCreate, belongsTo, column, manyToMany } from '@ioc:Adonis/Lucid/Orm'
+import { BaseModel, BelongsTo, HasMany, ManyToMany, beforeCreate, belongsTo, column, hasMany, manyToMany } from '@ioc:Adonis/Lucid/Orm'
 import Image from './Image'
 import SetSubmission from './SetSubmission'
 import Opepen from './Opepen'
@@ -83,4 +83,43 @@ export default class Post extends BaseModel {
 
   @manyToMany(() => Image)
   public images: ManyToMany<typeof Image>
+
+  @hasMany(() => Post, {
+    foreignKey: 'parentPostId',
+    onQuery: query => {
+      query.whereNull('deletedAt')
+      query.whereNotNull('approvedAt')
+    },
+  })
+  public commentsCount: HasMany<typeof Post>
+
+
+  @hasMany(() => Post, {
+    foreignKey: 'parentPostId',
+    onQuery: query => {
+      query.whereNull('deletedAt')
+      query.whereNotNull('approvedAt')
+      query.orderBy('createdAt')
+    },
+  })
+  public comments: HasMany<typeof Post>
+  @hasMany(() => Post, {
+    foreignKey: 'parentPostId',
+    onQuery: query => {
+      query.whereNull('deletedAt')
+      query.whereNotNull('approvedAt')
+      query.orderBy('createdAt', 'desc')
+      query.preload('account')
+      query.limit(3)
+    }
+  })
+  public latestComments: HasMany<typeof Post>
+
+  public serializeExtras() {
+    return {
+      commentsCount: this.$extras.commentsCount_count
+        ? parseInt(this.$extras.commentsCount_count)
+        : undefined,
+    }
+  }
 }
