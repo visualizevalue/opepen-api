@@ -39,6 +39,9 @@ export default class Account extends BaseModel {
   @column.dateTime({ serializeAs: null })
   public emailVerifiedAt: DateTime|null
 
+  @column.dateTime()
+  public notificationsReadUntil: DateTime
+
   @column({ serializeAs: null })
   public notificationGeneral: boolean
 
