@@ -55,6 +55,18 @@
       "aliases": [],
       "flags": []
     },
+    "farcaster:import-casts": {
+      "settings": {
+        "loadApp": true,
+        "stayAlive": false
+      },
+      "commandPath": "./commands/ImportCasts",
+      "commandName": "farcaster:import-casts",
+      "description": "Import Opepen Casts",
+      "args": [],
+      "aliases": [],
+      "flags": []
+    },
     "images:import": {
       "settings": {
         "loadApp": true,

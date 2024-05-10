@@ -15,6 +15,7 @@ import SetEditionRenderer from 'App/Frames/SetEditionRenderer'
 import SetDetailRenderer from 'App/Frames/SetDetailRenderer'
 import SetSubmission from 'App/Models/SetSubmission'
 import SetOptStatusRenderer from 'App/Frames/SetOptStatusRenderer'
+import FarcasterData from 'App/Services/FarcasterData'
 
 export default class FarcasterFrameSetController extends FarcasterFramesController {
 
@@ -168,7 +169,7 @@ export default class FarcasterFrameSetController extends FarcasterFramesControll
 
   private async getOwnedOpepen(fid: number, edition?: string) {
     // Get Farcaster user
-    const fcUser = await Farcaster.getUser(fid)
+    const fcUser = await FarcasterData.getUser(fid)
 
     // Get opepen account(s)
     // @ts-ignore
