@@ -65,7 +65,14 @@
       "description": "Import Opepen Casts",
       "args": [],
       "aliases": [],
-      "flags": []
+      "flags": [
+        {
+          "name": "all",
+          "propertyName": "all",
+          "type": "boolean",
+          "alias": "a"
+        }
+      ]
     },
     "images:import": {
       "settings": {

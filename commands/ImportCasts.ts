@@ -1,4 +1,4 @@
-import { BaseCommand } from '@adonisjs/core/build/standalone'
+import { BaseCommand, flags } from '@adonisjs/core/build/standalone'
 import FarcasterData from 'App/Services/FarcasterData'
 
 export default class ImportCasts extends BaseCommand {
@@ -17,7 +17,13 @@ export default class ImportCasts extends BaseCommand {
     stayAlive: false,
   }
 
+  @flags.boolean({ alias: 'a' })
+  public all: boolean
+
   public async run() {
-    await FarcasterData.importCasts()
+    const reverse = !this.all
+    const allPages = !!this.all
+
+    await FarcasterData.importCasts(reverse, allPages)
   }
 }

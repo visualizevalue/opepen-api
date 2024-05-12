@@ -6,7 +6,7 @@ import Address from 'App/Helpers/Address'
 import provider from 'App/Services/RPCProvider'
 import Image from 'App/Models/Image'
 import RichContentLink from 'App/Models/RichContentLink'
-import { ArtistSocials, OauthData } from './types'
+import { ArtistSocials, FarcasterData, OauthData } from './types'
 import Opepen from './Opepen'
 import Subscription from './Subscription'
 import SubscriptionHistory from './SubscriptionHistory'
@@ -29,6 +29,15 @@ export default class Account extends BaseModel {
 
   @column()
   public data: object
+
+  @column({
+    consume: value => {
+      if (! value) return {}
+
+      return value
+    }
+  })
+  public farcaster: FarcasterData
 
   @column({ serializeAs: null })
   public oauth: OauthData

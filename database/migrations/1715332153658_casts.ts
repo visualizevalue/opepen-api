@@ -8,7 +8,6 @@ export default class extends BaseSchema {
       table.jsonb('farcaster')
     })
 
-
     this.schema.createTable(this.tableName, (table) => {
       table.bigIncrements('id')
 
@@ -28,5 +27,9 @@ export default class extends BaseSchema {
 
   public async down () {
     this.schema.dropTable(this.tableName)
+
+    this.schema.alterTable('accounts', table => {
+      table.dropColumn('farcaster')
+    })
   }
 }
