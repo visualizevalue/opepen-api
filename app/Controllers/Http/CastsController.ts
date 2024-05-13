@@ -8,8 +8,6 @@ export default class CastsController extends BaseController {
   public async show ({ params }: HttpContextContract) {
     return Cast.query()
       .where('hash', params.id)
-      .whereNull('deletedAt')
-      // Main relationship...
       .preload('account')
       .firstOrFail()
   }
