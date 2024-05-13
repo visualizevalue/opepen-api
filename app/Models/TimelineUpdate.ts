@@ -67,15 +67,14 @@ export default class TimelineUpdate extends BaseModel {
   @belongsTo(() => Post, {
     onQuery: query => {
       query.whereNull('deleted_at')
-      query.whereNotNull('approved_at')
       query.preload('account')
+      query.preload('images')
     },
   })
   public post: BelongsTo<typeof Post>
 
   @belongsTo(() => Cast, {
     onQuery: query => {
-      // query.whereNotNull('approved_at')
       query.preload('account')
     },
   })
