@@ -30,6 +30,9 @@ export default class Cast extends BaseModel {
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime
 
+  @column.dateTime()
+  public approvedAt: DateTime
+
   @belongsTo(() => Account, {
     foreignKey: 'address',
     localKey: 'address',
