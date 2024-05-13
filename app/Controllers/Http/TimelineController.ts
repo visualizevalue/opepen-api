@@ -27,6 +27,7 @@ export default class TimelineController extends BaseController {
 
     // Restrict items
     query
+      .whereNotNull('createdAt')
       .where(query => {
         query.where('type', 'POST:INTERNAL')
         query.whereHas('post', query => {
