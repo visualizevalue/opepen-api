@@ -10,6 +10,7 @@ import { isAdmin } from 'App/Middleware/AdminAuth'
 import NotAuthenticated from 'App/Exceptions/NotAuthenticated'
 import InvalidInput from 'App/Exceptions/InvalidInput'
 import DynamicSetImages from 'App/Models/DynamicSetImages'
+import TimelineUpdate from 'App/Models/TimelineUpdate'
 
 export default class SetSubmissionsController extends BaseController {
 
@@ -410,6 +411,8 @@ export default class SetSubmissionsController extends BaseController {
     if (! wasApproved) {
       submission.creatorAccount.setSubmissionsCount += 1
       await submission.creatorAccount.save()
+
+      await TimelineUpdate.createFor(submission)
     }
 
     return submission
