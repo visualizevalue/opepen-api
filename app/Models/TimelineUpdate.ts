@@ -69,6 +69,7 @@ export default class TimelineUpdate extends BaseModel {
       query.whereNull('deleted_at')
       query.preload('account')
       query.preload('images')
+      query.withCount('commentsCount')
     },
   })
   public post: BelongsTo<typeof Post>
