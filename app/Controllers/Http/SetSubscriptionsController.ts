@@ -8,6 +8,7 @@ import Subscription from 'App/Models/Subscription'
 import BaseController from './BaseController'
 import SubscriptionHistory from 'App/Models/SubscriptionHistory'
 import Opepen from 'App/Models/Opepen'
+import TimelineUpdate from 'App/Models/TimelineUpdate'
 
 export default class SetSubscriptionsController extends BaseController {
   public async subscribe ({ params, request }: HttpContextContract) {
@@ -68,7 +69,10 @@ export default class SetSubscriptionsController extends BaseController {
     `)
 
     // Save history
-    await SubscriptionHistory.saveFor(subscription)
+    const history = await SubscriptionHistory.saveFor(subscription)
+
+    // Save timeline
+    await TimelineUpdate.createFor(history)
 
     // Update opepen cache
     await submission.updateAndValidateOpepensInSet()

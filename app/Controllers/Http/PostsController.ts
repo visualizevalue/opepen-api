@@ -7,6 +7,7 @@ import Post from 'App/Models/Post'
 import Image from 'App/Models/Image'
 import NotAuthenticated from 'App/Exceptions/NotAuthenticated'
 import BadRequest from 'App/Exceptions/BadRequest'
+import TimelineUpdate from 'App/Models/TimelineUpdate'
 
 export default class PostsController extends BaseController {
 
@@ -100,6 +101,9 @@ export default class PostsController extends BaseController {
     const images = await Image.query().whereIn('uuid', imageIds)
     await post.related('images').sync(images.map(i => i.id?.toString()))
     await post.load('images')
+
+    // Save timeline item
+    await TimelineUpdate.createFor(post)
 
     return post
   }
