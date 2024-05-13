@@ -5,6 +5,7 @@ import TestEmail from 'App/Mailers/TestEmail'
 import SetSubmission from 'App/Models/SetSubmission'
 import { isAddress } from 'ethers/lib/utils'
 import { constants } from 'ethers'
+import FarcasterData from 'App/Services/FarcasterData'
 
 export default class AccountsController extends BaseController {
 
@@ -116,6 +117,10 @@ export default class AccountsController extends BaseController {
     }
 
     return await new TestEmail(account).sendLater()
+  }
+
+  public async byFid ({ params }: HttpContextContract) {
+    return FarcasterData.getAccount(params.fid)
   }
 
 }
