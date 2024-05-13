@@ -113,6 +113,11 @@ Route.group(() => {
   Route.delete('/:id',           'PostsController.destroy').middleware(['auth'])
 }).prefix('/v1/posts')
 
+// Casts
+Route.group(() => {
+  Route.post('/:id/approve',     'CastsController.approve').middleware(['admin'])
+}).prefix('/v1/casts')
+
 // Timeline
 Route.group(() => {
   Route.get('/',                 'TimelineController.list')
