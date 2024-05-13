@@ -25,10 +25,13 @@ export default class TimelineController extends BaseController {
       .preload('post')
       .preload('cast')
 
+    // Default filters
+    query.whereNotNull('createdAt')
+
     // Restrict items
-    query
-      .whereNotNull('createdAt')
-      .where(query => {
+    query.where(query => {
+      // POSTS
+      query.where(query => {
         query.where('type', 'POST:INTERNAL')
         query.whereHas('post', query => {
           // Filter out comments // FIXME: maybe not do this and display comments nicely?
@@ -43,7 +46,9 @@ export default class TimelineController extends BaseController {
           }
         })
       })
-      .orWhere(query => {
+
+      // CASTS
+      query.orWhere(query => {
         query.where('type', 'POST:FARCASTER')
         query.whereHas('cast', query => {
           if (! admin) {
@@ -52,8 +57,13 @@ export default class TimelineController extends BaseController {
           }
         })
       })
-      .orWhere('type', 'SET_SUBMISSION:PUBLISH')
-      .orWhere('type', 'SET_SUBMISSION:OPT_IN')
+
+      // SUBMISSIONS
+      query.orWhere('type', 'SET_SUBMISSION:PUBLISH')
+
+      // OPT-INS
+      query.orWhere('type', 'SET_SUBMISSION:OPT_IN')
+    })
 
     await this.applyFilters(query, filter)
     await this.applySorts(query, sort)
