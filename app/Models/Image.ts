@@ -49,6 +49,9 @@ export default class Image extends BaseModel {
   @column()
   public points: number
 
+  @column()
+  public aspectRatio: number
+
   @computed()
   public get cdn (): string {
     return Env.get('CDN_URL')
@@ -121,8 +124,10 @@ export default class Image extends BaseModel {
 
       if (! metadata.width || !['png', 'jpeg', 'webp'].includes(distType)) return
 
+      this.aspectRatio = metadata.width / (metadata.height || metadata.width)
+
       if (metadata.width > 2048) {
-        const v2048 = await imageProcessor.resize({ width: 2048 }).toBuffer()
+      const v2048 = await imageProcessor.resize({ width: 2048 }).toBuffer()
         await Drive.put(`images/${this.uuid}@xl.${distType}`, v2048, { contentType: `image/${distType}` })
         this.versions.xl = true
       }
