@@ -118,6 +118,11 @@ Route.group(() => {
   Route.get('/',                 'TimelineController.list')
 }).prefix('/v1/timeline')
 
+// External URLs
+Route.group(() => {
+  Route.get('/',              'OpenGraphController.show')
+}).prefix('/v1/open-graph-data')
+
 // Accounts
 Route.group(() => {
   // Account Settings
