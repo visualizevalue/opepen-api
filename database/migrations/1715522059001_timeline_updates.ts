@@ -44,7 +44,8 @@ export default class extends BaseSchema {
           submission_id, address, created_at, type
         )
         SELECT id, creator, approved_at, 'SET_SUBMISSION:PUBLISH'
-        FROM set_submissions;
+        FROM set_submissions
+        WHERE approved_at is not null;
       `)
 
       // Copy over opt ins
