@@ -8,6 +8,17 @@ import { DateTime } from 'luxon'
 
 const TIME_START = 1609455600
 
+type FnameTransfer = {
+  id: number,
+  timestamp: number,
+  username: string,
+  owner: string,
+  from: number,
+  to: number,
+  user_signature: string,
+  server_signature: string,
+}
+
 export class FarcasterData {
   HUB_HTTP_URL: string = `https://${Env.get('FARCASTER_HUB')}`
   NETWORK: number = 1
@@ -54,7 +65,7 @@ export class FarcasterData {
     }
   }
 
-  public async getFidOwner (fid: number): Promise<string|null> {
+  public async getFidOwner (fid: number): Promise<FnameTransfer|null> {
     const url = `https://fnames.farcaster.xyz/transfers?fid=${fid}`
 
     try {
@@ -62,7 +73,7 @@ export class FarcasterData {
 
       const latestTransfer = response.data.transfers[response.data.transfers.length - 1]
 
-      return latestTransfer.owner?.toLowerCase()
+      return latestTransfer
     } catch (e) {
       console.error(e)
     }
@@ -74,9 +85,11 @@ export class FarcasterData {
     const url = `${this.HUB_HTTP_URL}/v1/verificationsByFid?fid=${fid}&pageSize=1000`
     const user: {
       fid: number,
+      username: string,
       addresses: string[]
     } = {
       fid,
+      username: '',
       addresses: [],
     }
 
@@ -95,8 +108,11 @@ export class FarcasterData {
     }
 
     // Fetch the onchain owner of the FID.
-    const owner = await this.getFidOwner(fid)
-    if (owner) user.addresses.push(owner)
+    const transfer = await this.getFidOwner(fid)
+    if (transfer) {
+      user.addresses.push(transfer.owner)
+      user.username = transfer.username
+    }
 
     return user
   }
@@ -122,6 +138,13 @@ export class FarcasterData {
     if (! account) {
       account = await Account.create({ address: user.addresses[0] })
     }
+
+    // Save farcaster data to account
+    account.farcaster = {
+      fid,
+      username: user.username,
+    }
+    await account.save()
 
     return account
   }
