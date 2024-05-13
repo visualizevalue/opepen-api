@@ -14,14 +14,14 @@ export default class TimelineUpdate extends BaseModel {
   @column({ isPrimary: true })
   public id: bigint
 
-  @column({ serializeAs: null })
-  public address: string
+  @column()
+  public type: string
 
-  @column({ serializeAs: null })
+  @column()
   public blockNumber: string
 
   @column({ serializeAs: null })
-  public type: string
+  public address: string
 
   @column({ serializeAs: null })
   public postId: bigint
@@ -75,7 +75,7 @@ export default class TimelineUpdate extends BaseModel {
 
   @belongsTo(() => Cast, {
     onQuery: query => {
-      query.whereNotNull('approved_at')
+      // query.whereNotNull('approved_at')
       query.preload('account')
     },
   })
