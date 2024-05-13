@@ -12,7 +12,7 @@ export default class TimelineController extends BaseController {
       page = 1,
       limit = 10,
       filter = {},
-      sort = 'createdAt',
+      sort = '-createdAt',
     } = request.qs()
 
     const query = TimelineUpdate.query()
@@ -22,28 +22,37 @@ export default class TimelineController extends BaseController {
       .preload('submission')
       .preload('subscriptionHistory')
       .preload('event')
+      .preload('post')
+      .preload('cast')
 
-    // Preload Posts
-    query.preload('post', query => {
-      // Filter out comments // FIXME: maybe not do this and display comments nicely?
-      query.whereNull('parentPostId')
+    // Restrict items
+    query
+      .where(query => {
+        query.where('type', 'POST:INTERNAL')
+        query.whereHas('post', query => {
+          // Filter out comments // FIXME: maybe not do this and display comments nicely?
+          query.whereNull('parentPostId')
 
-      // Filter out deleted comments
-      query.whereNull('deletedAt')
+          // Filter out deleted comments
+          query.whereNull('deletedAt')
 
-      if (! admin) {
-        query.whereNotNull('approvedAt')
-             .orWhere('address', userAddress)
-      }
-    })
-
-    // Preload Casts
-    query.preload('cast', query => {
-      if (! admin) {
-        query.whereNotNull('approvedAt')
-             .orWhere('address', userAddress)
-      }
-    })
+          if (! admin) {
+            query.whereNotNull('approvedAt')
+                .orWhere('address', userAddress)
+          }
+        })
+      })
+      .orWhere(query => {
+        query.where('type', 'POST:FARCASTER')
+        query.whereHas('cast', query => {
+          if (! admin) {
+            query.whereNotNull('approvedAt')
+                .orWhere('address', userAddress)
+          }
+        })
+      })
+      .orWhere('type', 'SET_SUBMISSION:PUBLISH')
+      .orWhere('type', 'SET_SUBMISSION:OPT_IN')
 
     await this.applyFilters(query, filter)
     await this.applySorts(query, sort)
