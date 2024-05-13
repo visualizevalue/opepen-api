@@ -3,6 +3,10 @@ import Env from '@ioc:Adonis/Core/Env'
 import Logger from '@ioc:Adonis/Core/Logger'
 import Cast from 'App/Models/Cast'
 import { Account } from 'App/Models'
+import TimelineUpdate from 'App/Models/TimelineUpdate'
+import { DateTime } from 'luxon'
+
+const TIME_START = 1609455600
 
 export class FarcasterData {
   HUB_HTTP_URL: string = `https://${Env.get('FARCASTER_HUB')}`
@@ -32,7 +36,17 @@ export class FarcasterData {
 
           const account = await this.getAccount(message.data.fid)
 
-          await Cast.firstOrCreate({ hash: message.hash }, { ...message, address: account?.address })
+          let cast = await Cast.findBy('hash', message.hash)
+          if (! cast) {
+            cast = await Cast.create({
+              ...message,
+              address: account?.address,
+              createdAt: DateTime.fromSeconds(TIME_START + message.data.timestamp).toISO(),
+            })
+
+            // Save timeline for initial creation
+            await TimelineUpdate.createFor(cast)
+          }
         }
       }
     } catch (e) {
