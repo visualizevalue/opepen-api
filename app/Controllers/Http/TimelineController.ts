@@ -41,8 +41,10 @@ export default class TimelineController extends BaseController {
           query.whereNull('deletedAt')
 
           if (! admin) {
-            query.whereNotNull('approvedAt')
-                .orWhere('address', userAddress)
+            query.where(query => {
+              query.whereNotNull('approvedAt')
+                  .orWhere('address', userAddress)
+            })
           }
         })
       })
@@ -51,9 +53,14 @@ export default class TimelineController extends BaseController {
       query.orWhere(query => {
         query.where('type', 'POST:FARCASTER')
         query.whereHas('cast', query => {
+          // Filter out deleted casts
+          query.whereNull('deletedAt')
+
           if (! admin) {
-            query.whereNotNull('approvedAt')
-                .orWhere('address', userAddress)
+            query.where(query => {
+              query.whereNotNull('approvedAt')
+                  .orWhere('address', userAddress)
+            })
           }
         })
       })

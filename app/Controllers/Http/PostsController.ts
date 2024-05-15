@@ -5,9 +5,9 @@ import { isAdmin, isAdminAddress } from 'App/Middleware/AdminAuth'
 import BaseController from './BaseController'
 import Post from 'App/Models/Post'
 import Image from 'App/Models/Image'
-import NotAuthenticated from 'App/Exceptions/NotAuthenticated'
 import BadRequest from 'App/Exceptions/BadRequest'
 import TimelineUpdate from 'App/Models/TimelineUpdate'
+import NotAuthorized from 'App/Exceptions/NotAuthorized'
 
 export default class PostsController extends BaseController {
 
@@ -131,7 +131,7 @@ export default class PostsController extends BaseController {
 
     const currentAddress = ctx.session.get('siwe')?.address?.toLowerCase()
     if (post.address !== currentAddress && ! isAdmin(ctx.session)) {
-      throw new NotAuthenticated(`Only the owner can delete a post`)
+      throw new NotAuthorized(`Only the owner can delete a post`)
     }
 
     post.deletedAt = DateTime.now()
