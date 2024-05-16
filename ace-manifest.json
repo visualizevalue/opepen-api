@@ -216,6 +216,18 @@
       "aliases": [],
       "flags": []
     },
+    "notify:daily_movements": {
+      "settings": {
+        "loadApp": true,
+        "stayAlive": false
+      },
+      "commandPath": "./commands/NotifyDailyMovements",
+      "commandName": "notify:daily_movements",
+      "description": "",
+      "args": [],
+      "aliases": [],
+      "flags": []
+    },
     "opepen:import-metadata": {
       "settings": {
         "loadApp": true,

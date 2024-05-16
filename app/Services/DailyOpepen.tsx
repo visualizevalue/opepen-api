@@ -9,7 +9,7 @@ import EventModel from 'App/Models/Event'
 export class DailyOpepen {
 
   public async forDay (date: DateTime) {
-    const key = `daily-summaries/${date.toFormat(`YYY-MM-DD`)}`
+    const key = `daily-summaries/${date.toISODate()}`
 
     if (await Drive.exists(key)) {
       return await Drive.get(key)
