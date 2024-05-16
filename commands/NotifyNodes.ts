@@ -40,7 +40,6 @@ export default class NotifyNodes extends BaseCommand {
 
     const eventsPerNode = await this.getEventsPerNode(movementsSince)
     const lastEvent = await Event.query()
-      .whereIn('contract', ['ORIGINAL', 'EDITION'])
       .where('from', '!=', ethers.constants.AddressZero)
       .where('to', '!=', ethers.constants.AddressZero)
       .orderBy('timestamp', 'desc')
@@ -96,7 +95,7 @@ export default class NotifyNodes extends BaseCommand {
 
     const imageURI = `https://api.opepen.art/v1/accounts/${account.address}/opepen/grid.png?key=${DateTime.now().toISO()}`
 
-    const value = events.reduce((value, event) => BigInt(value) + event.value, BigInt(0))
+    const value = events.reduce((value, event) => BigInt(value) + BigInt(event.value || 0), BigInt(0))
     const action = value > 0n ? `Acquired` : `Received`
     const actionString = `${action} ${events.length} Opepen ${value > 0n ? `(Ξ${formatEther(value)})` : ''}`
 
