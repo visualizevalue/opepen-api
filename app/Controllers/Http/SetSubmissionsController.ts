@@ -309,8 +309,7 @@ export default class SetSubmissionsController extends BaseController {
     await this.creatorOrAdmin({ creator: submission.creatorAccount, session })
 
     // Remove set from count
-    submission.creatorAccount.setSubmissionsCount -= 1
-    await submission.creatorAccount.save()
+    await submission.creatorAccount.updateSetSubmissionsCount()
 
     // Update submission
     submission.publishedAt = null
