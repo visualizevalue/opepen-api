@@ -197,6 +197,18 @@
       "aliases": [],
       "flags": []
     },
+    "opepen:import-sales": {
+      "settings": {
+        "loadApp": true,
+        "stayAlive": false
+      },
+      "commandPath": "./commands/ImportSales",
+      "commandName": "opepen:import-sales",
+      "description": "Import marketplace activity",
+      "args": [],
+      "aliases": [],
+      "flags": []
+    },
     "set:generate-submission": {
       "settings": {
         "loadApp": true,
@@ -223,6 +235,18 @@
       },
       "commandPath": "./commands/NotifyDailyMovements",
       "commandName": "notify:daily_movements",
+      "description": "",
+      "args": [],
+      "aliases": [],
+      "flags": []
+    },
+    "notify:nodes": {
+      "settings": {
+        "loadApp": true,
+        "stayAlive": false
+      },
+      "commandPath": "./commands/NotifyNodes",
+      "commandName": "notify:nodes",
       "description": "",
       "args": [],
       "aliases": [],

@@ -157,6 +157,7 @@ Route.group(() => {
   Route.get('/:id',                     'AccountsController.show')
   Route.put('/:id',                     'AccountsController.update')
   Route.get('/:id/opepen',              'OpepenController.forAccount')
+  Route.get('/:id/opepen/grid.png',     'OpepenController.gridForAccount')
 
   Route.post('/:id/mail/test',          'AccountsController.testMail').middleware(['admin'])
 

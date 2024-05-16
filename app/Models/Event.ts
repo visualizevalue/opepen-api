@@ -39,7 +39,7 @@ export default class Event extends BaseModel {
       return value.toString()
     },
   })
-  public value: BigInt
+  public value: bigint
 
   get price () {
     return ethers.utils.formatEther(this.value.toString())

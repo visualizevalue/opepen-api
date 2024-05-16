@@ -1,4 +1,5 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
+import Drive from '@ioc:Adonis/Core/Drive'
 import BaseController from './BaseController'
 import Opepen from 'App/Models/Opepen'
 import { DateTime } from 'luxon'
@@ -6,6 +7,7 @@ import DailyOpepen from 'App/Services/DailyOpepen'
 import { Account } from 'App/Models'
 import MetadataParser from 'App/Services/Metadata/MetadataParser'
 import OpepenRenderer from 'App/Frames/OpepenRenderer'
+import OpepenGrid from 'App/Services/OpepenGrid'
 
 export default class OpepenController extends BaseController {
 
@@ -81,6 +83,30 @@ export default class OpepenController extends BaseController {
 
   public async summary ({ params, response, }: HttpContextContract) {
     const image = await DailyOpepen.forDay(DateTime.fromISO(params.date))
+
+    return response
+      .header('Content-Type', 'image/png')
+      .header('Content-Length', Buffer.byteLength(image))
+      .send(image)
+  }
+
+  async gridForAccount (ctx: HttpContextContract) {
+    const { params, request, response } = ctx
+    const query = request.qs()
+    const key = query.key || DateTime.now().toISODate()
+    const imagePath = `opepen-profile-grids/${params.id}-${key}.png`
+
+    let image: Buffer
+    if (await Drive.exists(imagePath)) {
+      image = await Drive.get(imagePath)
+    } else {
+      const opepen = await this.forAccount(ctx)
+      image = await OpepenGrid.make(
+        opepen.map(c => c.tokenId.toString()),
+        false,
+        query.highlight?.split(',')
+      )
+    }
 
     return response
       .header('Content-Type', 'image/png')

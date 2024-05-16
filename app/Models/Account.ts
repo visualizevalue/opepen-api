@@ -1,4 +1,4 @@
-import { DateTime } from 'luxon'
+import { DateTime, Duration } from 'luxon'
 import Logger from '@ioc:Adonis/Core/Logger'
 import Env from '@ioc:Adonis/Core/Env'
 import { afterSave, BaseModel, beforeSave, BelongsTo, belongsTo, column, computed, HasMany, hasMany, ModelQueryBuilderContract, scope } from '@ioc:Adonis/Lucid/Orm'
@@ -8,6 +8,7 @@ import Image from 'App/Models/Image'
 import RichContentLink from 'App/Models/RichContentLink'
 import { ArtistSocials, FarcasterData, OauthData } from './types'
 import Opepen from './Opepen'
+import Event from './Event'
 import Subscription from './Subscription'
 import SubscriptionHistory from './SubscriptionHistory'
 import SetSubmission from './SetSubmission'
@@ -268,6 +269,63 @@ export default class Account extends BaseModel {
     this.setSubmissionsCount = submissionsCount[0].$extras.count
 
     await this.save()
+  }
+
+  public async holdDurations () {
+    const events = await Event.query()
+      .where('type', 'Transfer')
+      .where(query => {
+        query.where('to', this.address)
+        query.orWhere('from', this.address)
+      })
+      .orderBy('timestamp', 'asc')
+
+    const holdDurations: Duration[] = []
+    let timeHeldSince: DateTime = events[0].timestamp
+    let currentAmountHeld = 0
+
+    events.forEach((event, index) => {
+      const isIncoming = event.to === this.address
+
+      if (isIncoming && currentAmountHeld === 0) {
+        timeHeldSince = event.timestamp
+      }
+
+      if (isIncoming) {
+        currentAmountHeld ++
+      } else {
+        currentAmountHeld --
+      }
+
+      if (
+        // stopped holding
+        ! currentAmountHeld ||
+        // last event
+        index === events.length - 1
+      ) {
+        if (events.length === 1) {
+          holdDurations.push(DateTime.now().diff(timeHeldSince))
+        } else {
+          holdDurations.push(event.timestamp.diff(timeHeldSince))
+        }
+      }
+    })
+
+    return holdDurations
+  }
+
+  public async timeHeld (offset = 0) {
+    const uptimes = (await this.holdDurations())
+
+    return uptimes[uptimes.length - 1 - offset]
+  }
+
+  public async totalTimeHeld () {
+    return (await this.holdDurations())
+      .reduce(
+        (total, duration) => total.plus(duration),
+        Duration.fromObject({ seconds: 0 })
+      )
   }
 
   static byId (id) {
