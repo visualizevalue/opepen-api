@@ -81,6 +81,8 @@ export default class Image extends BaseModel {
   }
 
   public get staticURI (): string {
+    if (this.type === 'svg') return this.renderURI
+
     return `${this.cdn}/${this.path}/${this.uuid}@sm.${this.staticType}`
   }
 

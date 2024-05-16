@@ -33,11 +33,6 @@ export class DailyOpepen {
     const count = events.length
     const perSide = Math.floor(Math.sqrt(count))
     const dimension = Math.floor(1920 / perSide)
-    console.log('count', count)
-    console.log('perSide', perSide)
-    console.log('dimension', dimension)
-
-    console.log(events.map(e => e.opepen.image?.staticURI))
 
     const svg = await this.svg(
       <div
@@ -56,7 +51,7 @@ export class DailyOpepen {
                 src={
                   await this.urlAsBuffer(e.opepen.image
                     ? e.opepen.image.staticURI
-                    : `https://metadata.opepen.art/${e.tokenId}/image`)
+                    : `https://api.opepen.art/${e.tokenId}/image`)
                 }
                 width={dimension}
                 height={dimension}
