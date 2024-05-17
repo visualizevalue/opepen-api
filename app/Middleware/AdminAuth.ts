@@ -6,6 +6,7 @@ export const AUTH_ADDRESSES = [
   '0xc8f8e2f59dd95ff67c3d39109eca2e2a017d4c8a',
   '0x412c84b454ee700cb22d1a7d214eb5bad1ba19b4',
   '0x1d4c8282a408d8fe92496cccd1eaa4ff0fdd3b97',
+  '0xed029061b6e3d873057eeefd3be91121e103ea44',
 ]
 
 export const isAdminAddress = (address: string) => {
