@@ -115,7 +115,7 @@ export default class NotifyNodes extends BaseCommand {
       const msg = [
         `Expanding Node ${account.display}`,
         actionString,
-        `Owns ${this.pluralize(ownedCount, 'Opepen')}`,
+        `Owns ${ownedCount} Opepen`,
       ]
 
       msg.push(`Node uptime: ${formatDuration(await account.timeHeld())}`)
@@ -149,11 +149,5 @@ export default class NotifyNodes extends BaseCommand {
 
     await xClient.tweet(txt, img)
     await Farcaster.cast(txt, img)
-  }
-
-  private pluralize (amount: number, word: string) {
-    return amount > 1
-      ? `${amount} ${string.pluralize(word)}`
-      : `one ${word}`
   }
 }
