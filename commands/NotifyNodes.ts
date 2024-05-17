@@ -97,7 +97,10 @@ export default class NotifyNodes extends BaseCommand {
 
     const value = events.reduce((value, event) => BigInt(value) + BigInt(event.value || 0), BigInt(0))
     const action = value > 0n ? `Acquired` : `Received`
-    const actionString = `${action} ${events.length} Opepen ${value > 0n ? `(Ξ${formatEther(value)})` : ''}`
+    const opepenStr = events.length > 2
+      ? `${events.length} Opepen`
+      : `${events.map(e => e.opepen.name).join(' & ')}`
+    const actionString = `${action} ${opepenStr} ${value > 0n ? `(Ξ${formatEther(value)})` : ''}`
 
     // New node
     if (previouslyOwnedCount === ownedCount && ownedCount === events.length) {
@@ -105,8 +108,6 @@ export default class NotifyNodes extends BaseCommand {
         `New Node ${account.display}`,
         actionString,
       ]
-      this.logger.info(msg.join('; '))
-
       await this.notify(msg, imageURI)
     }
     // Expanding node
@@ -118,8 +119,6 @@ export default class NotifyNodes extends BaseCommand {
       ]
 
       msg.push(`Node uptime: ${formatDuration(await account.timeHeld())}`)
-
-      this.logger.info(msg.join('; '))
 
       await this.notify(msg, `${imageURI}&highlight=${events.map(e => e.tokenId).join(',')}`)
     }
@@ -135,13 +134,13 @@ export default class NotifyNodes extends BaseCommand {
 
       msg.push(`Node downtime: ${formatDuration(DateTime.now().diff(lastOwnedOpepen.timestamp))}`)
 
-      this.logger.info(msg.join('; '))
-
       await this.notify(msg, imageURI)
     }
   }
 
   private async notify (lines: string[], img: string) {
+    this.logger.info(lines.join('; ') + ' ' + img)
+
     const txt = lines.join(`\n`)
 
     const account = await Account.byId(Env.get('TWITTER_BOT_ACCOUNT_ADDRESS')).firstOrFail()
