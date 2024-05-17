@@ -20,37 +20,43 @@ export default class OpenGraphController extends BaseController {
     let og = await OpenGraphUrl.findBy('url', url)
 
     if (! og) {
-      og = new OpenGraphUrl()
-      og.url = url
+      og = await this.make(url)
+    }
 
-      try {
-        const response = await axios(url)
-        const isImage = isImageMime(response.headers['content-type'])
-        const isHtml = response.headers['content-type'].includes('text/html')
+    return og
+  }
 
-        if (! isImage && ! isHtml) throw new InvalidInput()
+  private async make (url: string) {
+    const og = new OpenGraphUrl()
+    og.url = url
 
-        if (isImage) {
-          og.image = url
-        } else {
-          const { result } = await ogs({ html: response.data })
-          og.title = result.ogTitle || ''
-          og.description = result.ogDescription || ''
-          og.image = result.ogImage?.length ? result.ogImage[0].url : ''
+    try {
+      const response = await axios(url)
+      const isImage = isImageMime(response.headers['content-type'])
+      const isHtml = response.headers['content-type'].includes('text/html')
 
-          og.data = {
-            type: result.ogType,
-            images: result.ogImage,
-            favicon: result.favicon,
-            charset: result.charset,
-            success: result.success,
-          }
+      if (! isImage && ! isHtml) throw new InvalidInput()
+
+      if (isImage) {
+        og.image = url
+      } else {
+        const { result } = await ogs({ html: response.data })
+        og.title = result.ogTitle || ''
+        og.description = result.ogDescription || ''
+        og.image = result.ogImage?.length ? result.ogImage[0].url : ''
+
+        og.data = {
+          type: result.ogType,
+          images: result.ogImage,
+          favicon: result.favicon,
+          charset: result.charset,
+          success: result.success,
         }
-
-        await og.save()
-      } catch (e) {
-        // ...
       }
+
+      await og.save()
+    } catch (e) {
+      // ...
     }
 
     return og
