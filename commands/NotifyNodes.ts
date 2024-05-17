@@ -1,7 +1,6 @@
 import { ethers } from 'ethers'
 import { DateTime } from 'luxon'
 import { BaseCommand } from '@adonisjs/core/build/standalone'
-import { string } from '@ioc:Adonis/Core/Helpers'
 import Env from '@ioc:Adonis/Core/Env'
 import Account from 'App/Models/Account'
 import Opepen from 'App/Models/Opepen'
