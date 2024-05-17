@@ -1,5 +1,6 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import Drive from '@ioc:Adonis/Core/Drive'
+import Env from '@ioc:Adonis/Core/Env'
 import BaseController from './BaseController'
 import Opepen from 'App/Models/Opepen'
 import { DateTime } from 'luxon'
@@ -98,7 +99,7 @@ export default class OpepenController extends BaseController {
 
     let image: Buffer
     if (await Drive.exists(imagePath)) {
-      image = await Drive.get(imagePath)
+      return await ctx.response.redirect(`${Env.get('CDN_URL')}/${imagePath}`)
     } else {
       const opepen = await this.forAccount(ctx)
       image = await OpepenGrid.make(
