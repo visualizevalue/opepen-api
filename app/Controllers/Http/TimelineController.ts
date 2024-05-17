@@ -65,8 +65,9 @@ export default class TimelineController extends BaseController {
         })
       })
 
-      // SUBMISSIONS
-      query.orWhere('type', 'SET_SUBMISSION:PUBLISH')
+      // Disable submissions for now since they are duplicated with the opepen bot messages
+      // // SUBMISSIONS
+      // query.orWhere('type', 'SET_SUBMISSION:PUBLISH')
 
       // OPT-INS
       query.orWhere('type', 'SET_SUBMISSION:OPT_IN')
