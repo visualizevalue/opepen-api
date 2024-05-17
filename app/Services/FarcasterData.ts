@@ -5,6 +5,7 @@ import Cast from 'App/Models/Cast'
 import { Account } from 'App/Models'
 import TimelineUpdate from 'App/Models/TimelineUpdate'
 import { DateTime } from 'luxon'
+import { isAdminAddress } from 'App/Middleware/AdminAuth'
 
 const TIME_START = 1609455600
 
@@ -53,6 +54,7 @@ export class FarcasterData {
               ...message,
               address: account?.address,
               createdAt: DateTime.fromSeconds(TIME_START + message.data.timestamp).toISO(),
+              approvedAt: isAdminAddress(account?.address || '') ? DateTime.now() : null,
             })
 
             // Save timeline for initial creation
