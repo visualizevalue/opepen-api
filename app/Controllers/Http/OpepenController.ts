@@ -93,7 +93,7 @@ export default class OpepenController extends BaseController {
   async gridForAccount (ctx: HttpContextContract) {
     const { params, request, response } = ctx
     const query = request.qs()
-    const key = query.key || DateTime.now().toISODate()
+    const key = query.key || DateTime.now().toUnixInteger()
     const imagePath = `opepen-profile-grids/${params.id}-${key}.png`
 
     let image: Buffer
