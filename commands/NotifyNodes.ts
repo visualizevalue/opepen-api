@@ -93,7 +93,7 @@ export default class NotifyNodes extends BaseCommand {
       return
     }
 
-    const imageURI = `https://api.opepen.art/v1/accounts/${account.address}/opepen/grid.png?key=${DateTime.now().toISO()}`
+    const imageURI = `https://api.opepen.art/v1/accounts/${account.address}/opepen/grid.png?key=${DateTime.now().toUnixInteger()}`
 
     const value = events.reduce((value, event) => BigInt(value) + BigInt(event.value || 0), BigInt(0))
     const action = value > 0n ? `Acquired` : `Received`
