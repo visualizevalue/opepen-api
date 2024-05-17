@@ -98,7 +98,6 @@ export default class OpepenController extends BaseController {
 
     let image: Buffer
     if (await Drive.exists(imagePath)) {
-      await ctx.response.redirect(imagePath)
       image = await Drive.get(imagePath)
     } else {
       const opepen = await this.forAccount(ctx)
