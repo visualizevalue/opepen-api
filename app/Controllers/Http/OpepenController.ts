@@ -106,6 +106,10 @@ export default class OpepenController extends BaseController {
         false,
         query.highlight?.split(',')
       )
+
+      await Drive.put(key, image, {
+        contentType: 'image/png',
+      })
     }
 
     return response
