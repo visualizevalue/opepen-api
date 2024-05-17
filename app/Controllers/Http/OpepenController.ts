@@ -83,7 +83,16 @@ export default class OpepenController extends BaseController {
   }
 
   public async summary ({ params, response, }: HttpContextContract) {
-    const image = await DailyOpepen.forDay(DateTime.fromISO(params.date))
+    const key = `daily-summaries/${DateTime.now().toISODate()}`
+
+    if (await Drive.exists(key)) {
+      return response.redirect(`${Env.get('CDN_URL')}/${key}`)
+    }
+
+    const image = await DailyOpepen.render(DateTime.fromISO(params.date))
+    await Drive.put(key, image, {
+      contentType: 'image/png',
+    })
 
     return response
       .header('Content-Type', 'image/png')

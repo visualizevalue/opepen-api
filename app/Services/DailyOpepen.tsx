@@ -3,26 +3,11 @@ import axios from 'axios'
 import satori from 'satori'
 import sharp from 'sharp'
 import { DateTime } from 'luxon'
-import Drive from '@ioc:Adonis/Core/Drive'
 import EventModel from 'App/Models/Event'
 
 export class DailyOpepen {
 
-  public async forDay (date: DateTime) {
-    const key = `daily-summaries/${date.toISODate()}`
-
-    if (await Drive.exists(key)) {
-      return await Drive.get(key)
-    }
-
-    const image = await this.makePNG(date)
-
-    await Drive.put(key, image)
-
-    return image
-  }
-
-  private async makePNG (date: DateTime) {
+  public async render (date: DateTime) {
     const events = await EventModel.query()
       .preload('opepen', query => query.preload('image'))
       .where('timestamp', '>=', date.minus({ day: 1 }).toISO())
