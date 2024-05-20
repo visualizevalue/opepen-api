@@ -8,10 +8,11 @@ import EventModel from 'App/Models/Event'
 export class DailyOpepen {
 
   public async render (date: DateTime) {
+    date.set({ hour: 13, minute: 21 })
     const events = await EventModel.query()
       .preload('opepen', query => query.preload('image'))
-      .where('timestamp', '>=', date.minus({ day: 1 }).toISO())
-      .where('timestamp', '<=', date.toISO())
+      .where('timestamp', '>=', date.minus({ day: 1 }).toSQL())
+      .where('timestamp', '<=', date.toSQL())
       .distinct('tokenId')
       .limit(81)
 
