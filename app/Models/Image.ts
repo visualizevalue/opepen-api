@@ -73,7 +73,7 @@ export default class Image extends BaseModel {
   }
 
   public get staticType (): string {
-    return this.isAnimated ? 'png' : this.type
+    return this.isAnimated || this.type === 'svg' ? 'png' : this.type
   }
 
   public get originalURI (): string {
@@ -81,9 +81,11 @@ export default class Image extends BaseModel {
   }
 
   public get staticURI (): string {
-    if (this.type === 'svg') return this.renderURI
+    if (this.versions.sm) {
+      return `${this.cdn}/${this.path}/${this.uuid}@sm.${this.staticType}`
+    }
 
-    return `${this.cdn}/${this.path}/${this.uuid}@sm.${this.staticType}`
+    return this.renderURI
   }
 
   public get renderURI (): string {
@@ -120,35 +122,39 @@ export default class Image extends BaseModel {
       }
 
       const original = await Drive.get(key)
-      const imageProcessor = await sharp(original)
-      const metadata = await imageProcessor.metadata()
-      const distType = this.isAnimated ? (metadata.format || this.type) : this.type
-
-      if (! metadata.width || !['png', 'jpeg', 'webp'].includes(distType)) return
-
-      this.aspectRatio = metadata.width / (metadata.height || metadata.width)
-
-      if (metadata.width > 2048) {
-      const v2048 = await imageProcessor.resize({ width: 2048 }).toBuffer()
-        await Drive.put(`images/${this.uuid}@xl.${distType}`, v2048, { contentType: `image/${distType}` })
-        this.versions.xl = true
-      }
-
-      if (metadata.width > 1024) {
-        const v1024 = await imageProcessor.resize({ width: 1024 }).toBuffer()
-        await Drive.put(`images/${this.uuid}@lg.${distType}`, v1024, { contentType: `image/${distType}` })
-        this.versions.lg = true
-      }
-
-      const v512 = await imageProcessor.resize({ width: 512 }).toBuffer()
-      await Drive.put(`images/${this.uuid}@sm.${distType}`, v512, { contentType: `image/${distType}` })
-      this.versions.sm = true
-
-      await this.save()
+      await this.renderToScaledVersions(original)
     } catch (e) {
       // ...
       console.log(e)
     }
+  }
+
+  async renderToScaledVersions (image: Buffer) {
+    const imageProcessor = await sharp(image)
+    const metadata = await imageProcessor.metadata()
+    const distType = this.isAnimated || this.type === 'svg' ? 'png' : this.type
+
+    if (! metadata.width || !['png', 'jpeg', 'webp'].includes(distType)) return
+
+    this.aspectRatio = metadata.width / (metadata.height || metadata.width)
+
+    if (metadata.width > 2048) {
+      const v2048 = await imageProcessor.resize({ width: 2048 }).toBuffer()
+      await Drive.put(`images/${this.uuid}@xl.${distType}`, v2048, { contentType: `image/${distType}` })
+      this.versions.xl = true
+    }
+
+    if (metadata.width > 1024) {
+      const v1024 = await imageProcessor.resize({ width: 1024 }).toBuffer()
+      await Drive.put(`images/${this.uuid}@lg.${distType}`, v1024, { contentType: `image/${distType}` })
+      this.versions.lg = true
+    }
+
+    const v512 = await imageProcessor.resize({ width: 512 }).toBuffer()
+    await Drive.put(`images/${this.uuid}@sm.${distType}`, v512, { contentType: `image/${distType}` })
+    this.versions.sm = true
+
+    await this.save()
   }
 
   async generateStill (): Promise<void> {
@@ -192,9 +198,12 @@ export default class Image extends BaseModel {
       }
     }
 
+    const buffer = await renderPage(this.originalURI)
+    await this.renderToScaledVersions(buffer)
+
     return {
       contentType: 'image/png',
-      buffer: await renderPage(this.originalURI)
+      buffer,
     }
   }
 

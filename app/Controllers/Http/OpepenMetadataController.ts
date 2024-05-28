@@ -98,8 +98,6 @@ export default class OpepenMetadataController {
       url = `https://ipfs.vv.xyz/ipfs/${url.replace('ipfs://', '')}`
     }
 
-    console.log('rednerererer')
-
     const rendered = await renderPage(url)
 
     return response
