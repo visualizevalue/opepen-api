@@ -20,7 +20,7 @@ export default class NotifyRandomOpepen extends BaseCommand {
   public async run() {
     const { default: Opepen } = await import('App/Models/Opepen')
 
-    if (Math.random() < 0.19) {
+    if (Math.random() > 0.19) {
       this.logger.info(`Skipping featured tweet`)
       return
     }
