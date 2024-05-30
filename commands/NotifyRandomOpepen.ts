@@ -1,5 +1,8 @@
 import { BaseCommand } from '@adonisjs/core/build/standalone'
 import Env from '@ioc:Adonis/Core/Env'
+import { takeRandom } from 'App/Helpers/arrays'
+
+const EDITIONS = [1, 4, 5, 10, 20, 40]
 
 export default class NotifyRandomOpepen extends BaseCommand {
   /**
@@ -27,6 +30,7 @@ export default class NotifyRandomOpepen extends BaseCommand {
 
     const opepen = await Opepen.query()
       .whereNotNull('imageId')
+      .whereJsonSubset('data', { edition: takeRandom(EDITIONS) })
       .orderByRaw('random()')
       .preload('image')
       .firstOrFail()
