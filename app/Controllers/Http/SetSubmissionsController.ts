@@ -213,6 +213,22 @@ export default class SetSubmissionsController extends BaseController {
       Image.findBy('uuid', request.input('edition_40_image_id', null)),
     ])
 
+    const co_creator_1 = request.input('co_creator_1', null)
+    const co_creator_2 = request.input('co_creator_2', null)
+    const co_creator_3 = request.input('co_creator_3', null)
+    const co_creator_4 = request.input('co_creator_4', null)
+    const co_creator_5 = request.input('co_creator_5', null)
+
+    await Promise.all([
+      co_creator_1,
+      co_creator_2,
+      co_creator_3,
+      co_creator_4,
+      co_creator_5,
+    ]
+      .filter(address => !! address)
+      .map(address => Account.firstOrCreate({ address: address.toLowerCase() })))
+
     const updateData: any = {
       name: request.input('name'),
       artist: request.input('artist'),
@@ -230,15 +246,20 @@ export default class SetSubmissionsController extends BaseController {
       edition_10ImageId: image10?.id,
       edition_20ImageId: image20?.id,
       edition_40ImageId: image40?.id,
+      co_creator_1: co_creator_1,
+      co_creator_2: co_creator_2,
+      co_creator_3: co_creator_3,
+      co_creator_4: co_creator_4,
+      co_creator_5: co_creator_5,
     }
 
     if (isAdmin(ctx.session)) {
       updateData.creator = request.input('creator', submission.creator)?.toLowerCase()
     }
 
-    return submission
-      .merge(updateData)
-      .save()
+    await submission.merge(updateData).save()
+
+    return this.show(ctx)
   }
 
   public async updateDynamicSetImages ({ params, request, session }: HttpContextContract) {
