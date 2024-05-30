@@ -213,25 +213,31 @@ export default class SetSubmissionsController extends BaseController {
       Image.findBy('uuid', request.input('edition_40_image_id', null)),
     ])
 
+    const updateData: any = {
+      name: request.input('name'),
+      artist: request.input('artist'),
+      description: request.input('description'),
+      editionType: request.input('edition_type', 'PRINT'),
+      edition_1Name: request.input('edition_1_name'),
+      edition_4Name: request.input('edition_4_name'),
+      edition_5Name: request.input('edition_5_name'),
+      edition_10Name: request.input('edition_10_name'),
+      edition_20Name: request.input('edition_20_name'),
+      edition_40Name: request.input('edition_40_name'),
+      edition_1ImageId: image1?.id,
+      edition_4ImageId: image4?.id,
+      edition_5ImageId: image5?.id,
+      edition_10ImageId: image10?.id,
+      edition_20ImageId: image20?.id,
+      edition_40ImageId: image40?.id,
+    }
+
+    if (isAdmin(ctx.session)) {
+      updateData.creator = request.input('creator', submission.creator)?.toLowerCase()
+    }
+
     return submission
-      .merge({
-        name: request.input('name'),
-        artist: request.input('artist'),
-        description: request.input('description'),
-        editionType: request.input('edition_type', 'PRINT'),
-        edition_1Name: request.input('edition_1_name'),
-        edition_4Name: request.input('edition_4_name'),
-        edition_5Name: request.input('edition_5_name'),
-        edition_10Name: request.input('edition_10_name'),
-        edition_20Name: request.input('edition_20_name'),
-        edition_40Name: request.input('edition_40_name'),
-        edition_1ImageId: image1?.id,
-        edition_4ImageId: image4?.id,
-        edition_5ImageId: image5?.id,
-        edition_10ImageId: image10?.id,
-        edition_20ImageId: image20?.id,
-        edition_40ImageId: image40?.id,
-      })
+      .merge(updateData)
       .save()
   }
 
