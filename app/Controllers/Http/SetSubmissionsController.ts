@@ -1,4 +1,5 @@
 import { DateTime } from 'luxon'
+import { isAddress } from 'ethers/lib/utils'
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import Logger from '@ioc:Adonis/Core/Logger'
 import BotNotifications from 'App/Services/BotNotifications'
@@ -213,21 +214,24 @@ export default class SetSubmissionsController extends BaseController {
       Image.findBy('uuid', request.input('edition_40_image_id', null)),
     ])
 
-    const co_creator_1 = request.input('co_creator_1', null)
-    const co_creator_2 = request.input('co_creator_2', null)
-    const co_creator_3 = request.input('co_creator_3', null)
-    const co_creator_4 = request.input('co_creator_4', null)
-    const co_creator_5 = request.input('co_creator_5', null)
-
-    await Promise.all([
+    const [
       co_creator_1,
       co_creator_2,
       co_creator_3,
       co_creator_4,
       co_creator_5,
-    ]
-      .filter(address => !! address)
-      .map(address => Account.firstOrCreate({ address: address.toLowerCase() })))
+    ] = await Promise.all(
+      [
+        request.input('co_creator_1', null),
+        request.input('co_creator_2', null),
+        request.input('co_creator_3', null),
+        request.input('co_creator_4', null),
+        request.input('co_creator_5', null),
+      ]
+      .filter(address => isAddress(address))
+      .map(address => address.toLowerCase())
+      .map(address => Account.firstOrCreate({ address }))
+    )
 
     const updateData: any = {
       name: request.input('name'),
@@ -246,11 +250,11 @@ export default class SetSubmissionsController extends BaseController {
       edition_10ImageId: image10?.id,
       edition_20ImageId: image20?.id,
       edition_40ImageId: image40?.id,
-      co_creator_1: co_creator_1,
-      co_creator_2: co_creator_2,
-      co_creator_3: co_creator_3,
-      co_creator_4: co_creator_4,
-      co_creator_5: co_creator_5,
+      co_creator_1: co_creator_1?.address,
+      co_creator_2: co_creator_2?.address,
+      co_creator_3: co_creator_3?.address,
+      co_creator_4: co_creator_4?.address,
+      co_creator_5: co_creator_5?.address,
     }
 
     if (isAdmin(ctx.session)) {
