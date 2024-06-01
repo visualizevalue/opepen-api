@@ -12,7 +12,7 @@ export default class OpepenRenderer extends Renderer {
     const submission = opepen.submission
     const lastEvent = opepen.events[0]
 
-    const key = `opepen/${opepen.tokenId}_${submission?.uuid}_${lastEvent.blockNumber}.png`
+    const key = `opepen/${opepen.tokenId}_${submission?.uuid}_${lastEvent.blockNumber}_v2.png`
 
     if (!force && await Drive.exists(key)) {
       return await Drive.get(key)
