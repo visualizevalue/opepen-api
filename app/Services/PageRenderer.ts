@@ -41,7 +41,9 @@ export const renderPage = async (url: string, dimension: number = 960, tries: nu
     await page.setViewport({width: dimension, height: dimension})
     const item = url.endsWith('.gif') || url.endsWith('.png')
       ? `<img src="${url}" width="${dimension}" height="${dimension}" />`
-      : `<iframe src="${url}" width="${dimension}" height="${dimension}" style="border:none;"></iframe>`
+      : url.endsWith('.mp4') || url.endsWith('.webm')
+        ? `<video src="${url}" playsinline loop autoplay muted width="${dimension}" height="${dimension}"></video>`
+        : `<iframe src="${url}" width="${dimension}" height="${dimension}" style="border:none;"></iframe>`
     const html = `<body style="margin:0;">${item}</body>`
     const dataUrl = `data:text/html;base64;charset=UTF-8,${Buffer.from(html).toString('base64')}`
     await page.goto(dataUrl)
