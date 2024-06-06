@@ -56,6 +56,9 @@ export default class TimelineController extends BaseController {
           // Filter out deleted casts
           query.whereNull('deletedAt')
 
+          // Filter out bot
+          query.whereNot('address', '0xed029061b6e3d873057eeefd3be91121e103ea44')
+
           if (! admin) {
             query.where(query => {
               query.whereNotNull('approvedAt')
