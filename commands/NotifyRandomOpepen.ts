@@ -33,10 +33,13 @@ export default class NotifyRandomOpepen extends BaseCommand {
       .whereJsonSubset('data', { edition: takeRandom(EDITIONS) })
       .orderByRaw('random()')
       .preload('image')
+      .preload('submission')
       .firstOrFail()
 
+    const creatorNames = await opepen.submission.creatorNamesForXStr()
+
     await this.notify([
-      `Featured Opepen: ${opepen.name}`,
+      `Featured Opepen: ${opepen.name}${creatorNames ? ` by ${creatorNames}` : ``}`,
       `https://opepen.art/opepen/${opepen.tokenId}`
     ], `https://api.opepen.art/v1/render/opepen/${opepen?.tokenId}/og`)
   }
