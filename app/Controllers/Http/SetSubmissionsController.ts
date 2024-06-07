@@ -43,7 +43,7 @@ export default class SetSubmissionsController extends BaseController {
       case 'unapproved':
         if (isAdmin(session)) {
           query.withScopes(scopes => {
-            scopes.active()
+            query.whereNull('deletedAt')
             scopes.published()
             scopes.unapproved()
             scopes.unstarred()
@@ -95,6 +95,14 @@ export default class SetSubmissionsController extends BaseController {
         break
       case 'prereveal':
         query.withScopes(scopes => scopes.prereveal())
+        break
+      case 'public-unrevealed':
+        query.whereNull('deletedAt')
+        query.whereNull('setId')
+        query.withScopes(scopes => {
+          scopes.published()
+          scopes.approved()
+        })
         break
       default:
         query.withScopes(scopes => scopes.live())
