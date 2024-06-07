@@ -136,6 +136,12 @@ export default class SetSubmission extends BaseModel {
   @column.dateTime()
   public pausedAt: DateTime|null
 
+  @column.dateTime()
+  public lastOptInAt: DateTime|null
+
+  @column.dateTime()
+  public archivedAt: DateTime|null
+
   @column()
   public setId: number
 
@@ -380,6 +386,7 @@ export default class SetSubmission extends BaseModel {
 
   public static active = scope((query) => {
     query.whereNull('deletedAt')
+    query.whereNull('archivedAt')
   })
 
   public static published = scope((query) => {
@@ -404,6 +411,10 @@ export default class SetSubmission extends BaseModel {
 
   public static unapproved = scope((query) => {
     query.whereNull('approvedAt')
+  })
+
+  public static archived = scope((query) => {
+    query.whereNotNull('archivedAt')
   })
 
   public static complete = scope((query) => {
