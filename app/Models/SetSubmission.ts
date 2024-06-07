@@ -670,16 +670,13 @@ export default class SetSubmission extends BaseModel {
   }
 
   public async clearOptIns () {
-    this.submissionStats = DEFAULT_SUBMISSION_STATS
-    this.submittedOpepen = []
-    this.demand = 0
-
-    await this.save()
-
     await Promise.all([
       Subscription.query().where('submissionId', this.id).update({ submissionId: null }),
       Opepen.query().where('submissionId', this.id).update({ submissionId: null }),
     ])
+
+    this.submissionStats = DEFAULT_SUBMISSION_STATS
+    await this.cleanSubscriptionsAndStats()
   }
 
   // FIXME: Clean up this ducking mess!

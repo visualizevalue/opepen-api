@@ -41,15 +41,22 @@ export default class SetSubscriptionsController extends BaseController {
     }
 
     // Add opted in opepen
-    await Opepen.query().whereIn('tokenId', request.input('opepen')).update({
-      submissionId: submission.id,
-    })
+    const newOptIns = request.input('opepen')
+    if (newOptIns?.length) {
+      await Opepen.query().whereIn('tokenId', newOptIns).update({
+        submissionId: submission.id,
+      })
+
+      submission.lastOptInAt = DateTime.now()
+      submission.archivedAt = null
+      await submission.save()
+    }
 
     // Update subscription
     subscription.message = message
     subscription.signature = signature
     subscription.comment = comment
-    subscription.opepenIds = request.input('opepen')
+    subscription.opepenIds = newOptIns
     subscription.maxReveals = request.input('max_reveals')
     subscription.delegatedBy = request.input('delegated_by')
     subscription.createdAt = DateTime.now()

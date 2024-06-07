@@ -1,5 +1,17 @@
 {
   "commands": {
+    "submissions:archive_stale": {
+      "settings": {
+        "loadApp": true,
+        "stayAlive": false
+      },
+      "commandPath": "./commands/ArchiveStaleSetSubmissions",
+      "commandName": "submissions:archive_stale",
+      "description": "",
+      "args": [],
+      "aliases": [],
+      "flags": []
+    },
     "clear:multi_opt_ins": {
       "settings": {
         "loadApp": true,
