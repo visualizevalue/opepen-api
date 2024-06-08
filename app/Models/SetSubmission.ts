@@ -763,7 +763,7 @@ export default class SetSubmission extends BaseModel {
       demand,
     }
     this.curationStats = curationStats
-    this.demand = demand.total // save for easy access and sorting
+    this.demand = demand.total * (this.submissionStats.totalHolders ?? 1) // save for easy access and sorting
     this.submittedOpepen = await this.opepensInSetSubmission()
     await this.save()
   }
