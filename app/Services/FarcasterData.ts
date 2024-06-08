@@ -24,6 +24,26 @@ export class FarcasterData {
   HUB_HTTP_URL: string = `https://${Env.get('FARCASTER_HUB')}`
   NETWORK: number = 1
 
+  public async getOrImportCast (fid: string, hash: string) {
+    const existing = await Cast.query()
+      .where('hash', hash)
+      .preload('account')
+      .first()
+
+    if (existing) return existing
+
+    const { data: message } = await axios.get(`${this.HUB_HTTP_URL}/v1/castById?fid=${fid}&hash=${hash}`)
+
+    const account = await this.getAccount(message.data.fid)
+
+    return Cast.create({
+      ...message,
+      address: account?.address,
+      createdAt: DateTime.fromSeconds(TIME_START + message.data.timestamp).toISO(),
+      approvedAt: isAdminAddress(account?.address || '') ? DateTime.now() : null,
+    })
+  }
+
   public async importCasts (
     reverse: boolean = true,
     allPages: boolean = true,

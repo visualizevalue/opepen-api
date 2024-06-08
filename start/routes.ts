@@ -115,6 +115,7 @@ Route.group(() => {
 
 // Casts
 Route.group(() => {
+  Route.get('/:fid/:hash',       'CastsController.show')
   Route.post('/:id/approve',     'CastsController.approve').middleware(['admin'])
   Route.delete('/:id',           'CastsController.destroy').middleware(['auth'])
 }).prefix('/v1/casts')
