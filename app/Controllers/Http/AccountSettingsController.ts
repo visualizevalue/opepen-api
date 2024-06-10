@@ -127,6 +127,7 @@ export default class AccountSettingsController extends BaseController {
     return {
       name: account.name,
       email: account.email,
+      email_verified: !! account.emailVerifiedAt,
       notification_general: account.notificationGeneral,
       notification_new_set: account.notificationNewSet,
       notification_new_submission: account.notificationNewSubmission,
