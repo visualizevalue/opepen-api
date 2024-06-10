@@ -6,6 +6,8 @@ import BaseController from './BaseController'
 import VerifyEmail from 'App/Mailers/VerifyEmail'
 import Image from 'App/Models/Image'
 import BadRequest from 'App/Exceptions/BadRequest'
+import { isAdmin } from 'App/Middleware/AdminAuth'
+import NotAuthenticated from 'App/Exceptions/NotAuthenticated'
 
 export default class AccountSettingsController extends BaseController {
 
@@ -29,8 +31,13 @@ export default class AccountSettingsController extends BaseController {
     return await this.updateAccount(account, config.request)
   }
 
-  public async sendVerifyEmail ({ params }: HttpContextContract) {
+  public async sendVerifyEmail ({ params, session }: HttpContextContract) {
     const account = await this.get(params.account)
+
+    const currentAddress = session.get('siwe')?.address?.toLowerCase()
+    if (params.address?.toLowerCase() !== currentAddress && ! isAdmin(session)) {
+      throw new NotAuthenticated(`Can only request for yourself`)
+    }
 
     if (account.emailVerifiedAt) throw new BadRequest(`Email already verified`)
 

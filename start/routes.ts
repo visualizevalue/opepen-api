@@ -142,10 +142,9 @@ Route.group(() => {
     Route.group(() => {
       Route.get('/:account',        'AccountSettingsController.show')
       Route.post('/:account',       'AccountSettingsController.update')
-
-      Route.post('/:account/send-verify-email', 'AccountSettingsController.sendVerifyEmail')
     }).middleware(['admin'])
 
+    Route.post('/:account/send-verify-email', 'AccountSettingsController.sendVerifyEmail')
     Route.get('/:account/verify-email', 'AccountSettingsController.verifyEmail')
       .as('verifyEmail')
     Route.get('/:account/unsubscribe/:type', 'AccountSettingsController.unsubscribeNotification')
