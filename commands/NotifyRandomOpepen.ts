@@ -41,7 +41,8 @@ export default class NotifyRandomOpepen extends BaseCommand {
     await this.notify([
       `Featured Opepen: ${opepen.name}${creatorNames ? ` by ${creatorNames}` : ``}`,
       `https://opepen.art/opepen/${opepen.tokenId}`
-    ], `https://api.opepen.art/v1/render/opepen/${opepen?.tokenId}/og`)
+    ], opepen.image.staticURI)
+    // ], `https://api.opepen.art/v1/render/opepen/${opepen?.tokenId}/og`)
   }
 
   private async notify (lines: string[], img: string) {
