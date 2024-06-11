@@ -74,8 +74,8 @@ export default class AccountSettingsController extends BaseController {
       Image.findBy('uuid', request.input('pfp_image_id', null)),
       Image.findBy('uuid', request.input('cover_image_id', null)),
     ])
-    account.pfpImageId = pfpImage ? pfpImage.id : null
-    account.coverImageId = coverImage ? coverImage.id : null
+    account.pfpImageId   = (request.input('pfp_image_id',   false) && pfpImage)   ? pfpImage.id   : null
+    account.coverImageId = (request.input('cover_image_id', false) && coverImage) ? coverImage.id : null
     await Promise.all([
       account.load('pfp'),
       account.load('coverImage'),
