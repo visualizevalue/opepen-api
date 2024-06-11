@@ -211,6 +211,15 @@ Route.group(() => {
   Route.route('/merch/:id/image',                ['GET', 'POST'], 'FarcasterFrameMerchController.image')
 }).prefix('/v1/frames')
 
+// Generative
+Route.group(() => {
+  Route.post('/',   'GenerativesController.create')
+  Route.get('/:id', 'GenerativesController.show')
+  Route.put('/:id', 'GenerativesController.update')
+
+  Route.get('/preview/:id', 'PreviewController.p5')
+}).prefix('/v1/generative')
+
 // OpenGraph
 Route.group(() => {
   Route.get('/accounts/:id/image',                                 'FarcasterFrameAccountsController.image')
