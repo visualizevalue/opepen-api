@@ -20,7 +20,10 @@ export default class GenerativesController extends BaseController {
   public async update ({ params, request }: HttpContextContract) {
     const generative = await Generative.findOrFail(params.id)
 
-    generative.merge({ code: request.input('code') })
+    generative.merge({
+      code: request.input('code'),
+      name: request.input('name'),
+    })
 
     return generative.save()
   }

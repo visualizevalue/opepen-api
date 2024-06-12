@@ -18,6 +18,9 @@ export default class Generative extends BaseModel {
   public address: string
 
   @column()
+  public name: string
+
+  @column()
   public type: string
 
   @column()
