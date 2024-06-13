@@ -109,11 +109,13 @@ export default class Image extends BaseModel {
   public votes: HasMany<typeof Vote>
 
   async calculatePoints () {
-    await this.load('votes')
+    const image: Image = this
 
-    this.points = this.votes.reduce((acc, curr) => acc + curr.points, 0)
+    await image.load('votes')
 
-    await this.save()
+    image.points = image.votes.reduce((acc, curr) => acc + curr.points, 0)
+
+    await image.save()
   }
 
   @manyToMany(() => Post)
