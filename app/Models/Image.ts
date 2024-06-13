@@ -2,7 +2,7 @@ import { DateTime } from 'luxon'
 import { v4 as uuid } from 'uuid'
 import sharp from 'sharp'
 import Application from '@ioc:Adonis/Core/Application'
-import { BaseModel, BelongsTo, beforeCreate, belongsTo, column, computed } from '@ioc:Adonis/Lucid/Orm'
+import { BaseModel, BelongsTo, HasMany, HasOne, ManyToMany, beforeCreate, belongsTo, column, computed, hasMany, hasOne, manyToMany } from '@ioc:Adonis/Lucid/Orm'
 import Drive from '@ioc:Adonis/Core/Drive'
 import Env from '@ioc:Adonis/Core/Env'
 import { toDriveFromURI } from 'App/Helpers/drive'
@@ -10,6 +10,9 @@ import { execute } from 'App/Helpers/execute'
 import Account from './Account'
 import axios from 'axios'
 import { renderPage } from 'App/Services/PageRenderer'
+import Vote from './Vote'
+import Post from './Post'
+import SetSubmission from './SetSubmission'
 
 type ImageVersions = {
   sm?: boolean, // 512
@@ -101,6 +104,20 @@ export default class Image extends BaseModel {
     localKey: 'address',
   })
   public creatorAccount: BelongsTo<typeof Account>
+
+  @hasMany(() => Vote)
+  public votes: HasMany<typeof Vote>
+
+  async calculatePoints () {
+    await this.load('votes')
+
+    this.points = this.votes.reduce((acc, curr) => acc + curr.points, 0)
+
+    await this.save()
+  }
+
+  @manyToMany(() => Post)
+  public posts: ManyToMany<typeof Post>
 
   async fillImageFromURI (url: string): Promise<Image> {
     const file = await toDriveFromURI(url, this.uuid)

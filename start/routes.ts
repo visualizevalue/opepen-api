@@ -125,6 +125,12 @@ Route.group(() => {
   Route.get('/',                 'TimelineController.list')
 }).prefix('/v1/timeline')
 
+// Votes
+Route.group(() => {
+  Route.post('/',                'VotesController.create').middleware(['auth'])
+  Route.get('/votable',          'VotesController.votable')
+}).prefix('/v1/votes')
+
 // External URLs
 Route.group(() => {
   Route.get('/',              'OpenGraphController.show')
