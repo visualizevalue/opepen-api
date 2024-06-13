@@ -2,7 +2,7 @@ import { DateTime } from 'luxon'
 import { v4 as uuid } from 'uuid'
 import sharp from 'sharp'
 import Application from '@ioc:Adonis/Core/Application'
-import { BaseModel, BelongsTo, HasMany, HasOne, ManyToMany, beforeCreate, belongsTo, column, computed, hasMany, hasOne, manyToMany } from '@ioc:Adonis/Lucid/Orm'
+import { BaseModel, BelongsTo, HasMany, ManyToMany, beforeCreate, belongsTo, column, computed, hasMany, manyToMany } from '@ioc:Adonis/Lucid/Orm'
 import Drive from '@ioc:Adonis/Core/Drive'
 import Env from '@ioc:Adonis/Core/Env'
 import { toDriveFromURI } from 'App/Helpers/drive'
@@ -12,7 +12,6 @@ import axios from 'axios'
 import { renderPage } from 'App/Services/PageRenderer'
 import Vote from './Vote'
 import Post from './Post'
-import SetSubmission from './SetSubmission'
 
 type ImageVersions = {
   sm?: boolean, // 512
