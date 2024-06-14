@@ -70,4 +70,16 @@ export default class ImagesController extends BaseController {
 
     return query.paginate(page, limit)
   }
+
+  public async curated ({ request }: HttpContextContract) {
+    const {
+      page = 1,
+      limit = 24,
+    } = request.qs()
+
+    return Image.query()
+      .has('votes')
+      .orderBy('points', 'desc')
+      .paginate(page, limit)
+  }
 }
