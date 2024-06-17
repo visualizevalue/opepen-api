@@ -79,7 +79,27 @@ export default class ImagesController extends BaseController {
 
     return Image.query()
       .has('votes')
+      .where('points', '>', 0)
       .orderBy('points', 'desc')
+      .paginate(page, limit)
+  }
+
+  public async myCurated ({ request, session }: HttpContextContract) {
+    const {
+      page = 1,
+      limit = 24,
+    } = request.qs()
+
+    return Image.query()
+      .preload('votes')
+      .innerJoin('votes', query => query
+        .on('votes.image_id', '=', 'images.id')
+        .andOnVal('address', '=', session.get('siwe')?.address?.toLowerCase())
+        .andOnVal('votes.points', '>', 0)
+      )
+      .select('images.*')
+      .select('votes.created_at')
+      .orderBy('votes.created_at', 'desc')
       .paginate(page, limit)
   }
 }
