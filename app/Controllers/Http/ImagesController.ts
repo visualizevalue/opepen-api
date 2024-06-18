@@ -81,6 +81,7 @@ export default class ImagesController extends BaseController {
       .has('votes')
       .where('points', '>', 0)
       .orderBy('points', 'desc')
+      .orderBy('id', 'desc')
       .paginate(page, limit)
   }
 
@@ -100,6 +101,7 @@ export default class ImagesController extends BaseController {
       .select('images.*')
       .select('votes.created_at')
       .orderBy('votes.created_at', 'desc')
+      .orderBy('id', 'desc')
       .paginate(page, limit)
   }
 }
