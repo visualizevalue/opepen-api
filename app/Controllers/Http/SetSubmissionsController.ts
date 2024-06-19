@@ -192,6 +192,48 @@ export default class SetSubmissionsController extends BaseController {
     return submission
   }
 
+  public async curated () {
+      const baseQuery = query => query
+        .whereNotNull('starredAt')
+        .where('starredAt', '<', DateTime.now().toISO())
+        .preload('set')
+        .preload('edition1Image')
+        .preload('edition4Image')
+        .preload('edition5Image')
+        .preload('edition10Image')
+        .preload('edition20Image')
+        .preload('edition40Image')
+        .preload('dynamicSetImages')
+        .preload('creatorAccount')
+        .preload('coCreator1Account')
+        .preload('coCreator2Account')
+        .preload('coCreator3Account')
+        .preload('coCreator4Account')
+        .preload('coCreator5Account')
+
+    let currentOrPastSubmission = await baseQuery(SetSubmission.query())
+      .where('starredAt', '>=',  DateTime.now().minus({ hours: 48 }).toISO())
+      .orderBy('starredAt')
+      .first()
+
+    if (! currentOrPastSubmission) {
+      currentOrPastSubmission = await baseQuery(SetSubmission.query())
+        .orderBy('starredAt', 'desc')
+        .firstOrFail()
+    }
+
+    const nextSubmission = await SetSubmission.query()
+      .whereNotNull('starredAt')
+      .where('starredAt', '>', DateTime.now().toISO())
+      .orderBy('starredAt')
+      .first()
+
+    return {
+      submission: currentOrPastSubmission.toJSON(),
+      nextSetAt: nextSubmission?.starredAt,
+    }
+  }
+
   public async curationStats ({ params }: HttpContextContract) {
     const submission = await SetSubmission.query().where('uuid', params.id).firstOrFail()
 

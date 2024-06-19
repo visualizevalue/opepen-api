@@ -81,6 +81,7 @@ Route.group(() => {
 // Set Submissions
 Route.group(() => {
   Route.get('/',                    'SetSubmissionsController.list')
+  Route.get('/curated',             'SetSubmissionsController.curated')
   Route.get('/history',             'SetSubscriptionsController.globalHistory')
   Route.get('/:id',                 'SetSubmissionsController.show')
   Route.get('/:id/curation-stats',  'SetSubmissionsController.curationStats')
