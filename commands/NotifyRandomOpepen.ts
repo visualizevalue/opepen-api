@@ -30,7 +30,7 @@ export default class NotifyRandomOpepen extends BaseCommand {
 
     const opepen = await Opepen.query()
       .whereNotNull('imageId')
-      .whereJsonSubset('data', { edition: takeRandom(EDITIONS) })
+      .whereJsonSuperset('data', { edition: takeRandom(EDITIONS) })
       .orderByRaw('random()')
       .preload('image')
       .preload('submission')
