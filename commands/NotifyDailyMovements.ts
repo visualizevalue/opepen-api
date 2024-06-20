@@ -24,7 +24,7 @@ export default class NotifyDailyMovements extends BaseCommand {
     const { default: Farcaster } = await import('App/Services/Farcaster')
     const { default: Twitter } = await import('App/Services/Twitter')
 
-    // const deployment = DateTime.fromSeconds(1673158871)
+    const deployment = DateTime.fromSeconds(1673158871)
     const today = DateTime.utc()
     const imageUrl = `https://api.opepen.art/v1/opepen/summary/${today.toISODate()}`
 
@@ -58,7 +58,7 @@ export default class NotifyDailyMovements extends BaseCommand {
     if (events.length < 4) return
 
     const txt = [
-      `Opepen Day`,
+      `Opepen Day ${Math.abs(Math.floor(deployment.diffNow('days').as('days')))}`,
       ``,
       `New Nodes: ${newNodes.size}`,
       `Transfers: ${transfers}`,
