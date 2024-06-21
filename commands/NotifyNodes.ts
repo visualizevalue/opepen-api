@@ -126,12 +126,15 @@ export default class NotifyNodes extends BaseCommand {
       const lastOwnedOpepen = await Event.query().where('from', account.address).orderBy('timestamp', 'desc').first()
       if (! lastOwnedOpepen) return
 
+      const diff = DateTime.now().diff(lastOwnedOpepen.timestamp)
+      if (diff.days < 30) return
+
       const msg = [
         `Returning Node ${account.display}`,
         actionString,
       ]
 
-      msg.push(`Node downtime: ${formatDuration(DateTime.now().diff(lastOwnedOpepen.timestamp))}`)
+      msg.push(`Node downtime: ${formatDuration(diff)}`)
 
       await this.notify(msg, imageURI)
     }
