@@ -130,7 +130,7 @@ Route.group(() => {
 
 // Votes
 Route.group(() => {
-  Route.get('/stats',            'VotesController.stats').middleware(['auth'])
+  Route.get('/stats',            'VotesController.stats')
   Route.post('/',                'VotesController.create').middleware(['auth'])
   Route.get('/votable',          'VotesController.votable')
   Route.get('/leaderboard',      'VotesController.leaderboard')
