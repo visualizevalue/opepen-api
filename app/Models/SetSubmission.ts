@@ -520,7 +520,9 @@ export default class SetSubmission extends BaseModel {
   }
 
   public optInOpen () {
-    return this.revealsAt && this.revealsAt > DateTime.now()
+    return this.starredAt &&
+      this.starredAt < DateTime.now() &&
+      this.starredAt.plus({ hours: 48 }) > DateTime.now()
   }
 
   public async creators () {

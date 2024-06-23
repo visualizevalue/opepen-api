@@ -12,6 +12,7 @@ import Event from './Event'
 import Subscription from './Subscription'
 import SubscriptionHistory from './SubscriptionHistory'
 import SetSubmission from './SetSubmission'
+import Vote from './Vote'
 
 type Builder = ModelQueryBuilderContract<typeof Account>
 
@@ -154,6 +155,12 @@ export default class Account extends BaseModel {
     localKey: 'address',
   })
   public subscriptionsHistory: HasMany<typeof SubscriptionHistory>
+
+  @hasMany(() => Vote, {
+    foreignKey: 'address',
+    localKey: 'address',
+  })
+  public votes: HasMany<typeof Vote>
 
   @hasMany(() => RichContentLink, {
     foreignKey: 'address',

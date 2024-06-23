@@ -133,6 +133,7 @@ Route.group(() => {
   Route.get('/stats',            'VotesController.stats').middleware(['auth'])
   Route.post('/',                'VotesController.create').middleware(['auth'])
   Route.get('/votable',          'VotesController.votable')
+  Route.get('/leaderboard',      'VotesController.leaderboard')
 }).prefix('/v1/votes')
 
 // External URLs

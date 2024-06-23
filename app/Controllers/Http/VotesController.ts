@@ -3,6 +3,7 @@ import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import BaseController from './BaseController'
 import Image from 'App/Models/Image'
 import Vote from 'App/Models/Vote'
+import { Account } from 'App/Models'
 
 export default class VotesController extends BaseController {
 
@@ -51,6 +52,27 @@ export default class VotesController extends BaseController {
       .first()
 
     return image
+  }
+
+  public async leaderboard ({ request }: HttpContextContract) {
+    const {
+      page = 1,
+      limit = 32,
+    } = request.qs()
+
+    const accounts = await Account.query()
+      .has('votes')
+      .withCount('votes')
+      .preload('pfp')
+      .orderBy('votes_count', 'desc')
+      .paginate(page, limit)
+
+    const json = accounts.toJSON()
+
+    return {
+      ...json,
+      data: json.data.map(d => ({ ...d.serialize(), votes_count: d.$extras.votes_count })),
+    }
   }
 
   protected votableQuery () {

@@ -6,6 +6,7 @@ import Opepen from "App/Models/Opepen"
 import Database from "@ioc:Adonis/Lucid/Database"
 import Vote from "App/Models/Vote"
 import Image from "App/Models/Image"
+import { formatEther } from "ethers/lib/utils"
 
 export type Stats = {
   submissions: {
@@ -24,6 +25,13 @@ export type Stats = {
     sets: number
   }
   votes: number
+  markets: {
+    floor: {
+      total?: string
+      unrevealed?: string
+      revealed?: string
+    }
+  }
 }
 
 class StatsService {
@@ -51,6 +59,8 @@ class StatsService {
       holders,
       votes,
       postImages,
+      revealedFloorOpepen,
+      unrevealedFloorOpepen,
     ] = await Promise.all([
       SetSubmission.query().count('id'),
       SetSubmission.query().where('edition_type', 'PRINT').count('id'),
@@ -62,6 +72,8 @@ class StatsService {
       Opepen.query().countDistinct('owner'),
       Vote.query().count('id'),
       Image.query().has('posts').count('id'),
+      Opepen.query().whereNotNull('price').whereNotNull('setId').orderBy('price').first(),
+      Opepen.query().whereNotNull('price').whereNull('setId').orderBy('price').first(),
     ])
 
     const setsCount: number = parseInt(sets[0].$extras.count)
@@ -89,6 +101,15 @@ class StatsService {
         sets: setsCount,
       },
       votes: votesCount,
+      markets: {
+        floor: {
+          unrevealed: `${unrevealedFloorOpepen?.price}`,
+          revealed: `${revealedFloorOpepen?.price}`,
+          total: unrevealedFloorOpepen && revealedFloorOpepen && (unrevealedFloorOpepen.price || 0n) > (revealedFloorOpepen.price || 0n)
+            ? `${revealedFloorOpepen?.price}`
+            : `${unrevealedFloorOpepen?.price}`,
+        }
+      }
     }
 
     this.lastUpdated = DateTime.now().toUnixInteger()
