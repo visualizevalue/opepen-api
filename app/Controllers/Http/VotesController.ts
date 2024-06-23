@@ -21,13 +21,40 @@ export default class VotesController extends BaseController {
     return vote
   }
 
+  public async stats ({ session }: HttpContextContract) {
+    const address = session.get('siwe')?.address?.toLowerCase() || constants.AddressZero
+
+    const [
+      votesCount,
+      votableCount
+    ] = await Promise.all([
+      Vote.query().where('address', address).count('id'),
+      this.votableQuery().count('id'),
+    ])
+
+    return {
+      votes: votesCount[0].$extras.count,
+      votable: votableCount[0].$extras.count,
+    }
+  }
+
   /**
    * Randomly select an image belonging to a set or a post.
    */
   public async votable ({ session }) {
     const address = session.get('siwe')?.address?.toLowerCase() || constants.AddressZero
 
-    const image = await Image.query()
+    const image = await this.votableQuery()
+      // That we haven't voted on yet
+      .whereDoesntHave('votes', query => query.where('votes.address', address))
+      .orderByRaw('random()')
+      .first()
+
+    return image
+  }
+
+  protected votableQuery () {
+    return Image.query()
       // Belonging to...
       .where(query => {
         // ...a post
@@ -47,12 +74,6 @@ export default class VotesController extends BaseController {
           )
         )
       })
-      // That we haven't voted on yet
-      .whereDoesntHave('votes', query => query.where('votes.address', address))
-      .orderByRaw('random()')
-      .first()
-
-    return image
   }
 
 }

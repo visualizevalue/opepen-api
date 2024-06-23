@@ -666,7 +666,7 @@ export default class SetSubmission extends BaseModel {
 
   public async updateAndValidateOpepensInSet () {
     await this.cleanSubscriptionsAndStats()
-    await this.maybeStartOrStopTimer()
+    await this.maybeStartOrStopTimer() // FIXME:
   }
 
   public async clearOptIns () {

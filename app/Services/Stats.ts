@@ -4,6 +4,8 @@ import SetSubmission from "App/Models/SetSubmission"
 import SubscriptionHistory from "App/Models/SubscriptionHistory"
 import Opepen from "App/Models/Opepen"
 import Database from "@ioc:Adonis/Lucid/Database"
+import Vote from "App/Models/Vote"
+import Image from "App/Models/Image"
 
 export type Stats = {
   submissions: {
@@ -21,6 +23,7 @@ export type Stats = {
     opepen: number
     sets: number
   }
+  votes: number
 }
 
 class StatsService {
@@ -46,6 +49,8 @@ class StatsService {
       permanentArtists,
       curators,
       holders,
+      votes,
+      postImages,
     ] = await Promise.all([
       SetSubmission.query().count('id'),
       SetSubmission.query().where('edition_type', 'PRINT').count('id'),
@@ -55,13 +60,17 @@ class StatsService {
       this.permanentArtistsQuery(),
       SubscriptionHistory.query().countDistinct('address'),
       Opepen.query().countDistinct('owner'),
+      Vote.query().count('id'),
+      Image.query().has('posts').count('id'),
     ])
 
     const setsCount: number = parseInt(sets[0].$extras.count)
+    const votesCount: number = parseInt(votes[0].$extras.count)
     const submissionsCount: number = parseInt(submissions[0].$extras.count)
     const printSubmissionsCount: number = parseInt(printSubmissions[0].$extras.count)
     const dynamicSubmissionsCount: number = submissionsCount - printSubmissionsCount
-    const submittedImagesCount: number = dynamicSubmissionsCount * 80 + printSubmissionsCount * 6
+    const postImagesCount: number = parseInt(postImages[0].$extras.count)
+    const submittedImagesCount: number = dynamicSubmissionsCount * 80 + printSubmissionsCount * 6 + postImagesCount
 
     this.stats = {
       submissions: {
@@ -79,6 +88,7 @@ class StatsService {
         opepen: setsCount * 80,
         sets: setsCount,
       },
+      votes: votesCount,
     }
 
     this.lastUpdated = DateTime.now().toUnixInteger()

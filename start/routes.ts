@@ -130,6 +130,7 @@ Route.group(() => {
 
 // Votes
 Route.group(() => {
+  Route.get('/stats',            'VotesController.stats').middleware(['auth'])
   Route.post('/',                'VotesController.create').middleware(['auth'])
   Route.get('/votable',          'VotesController.votable')
 }).prefix('/v1/votes')
