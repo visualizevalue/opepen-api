@@ -414,15 +414,6 @@ export default class SetSubmissionsController extends BaseController {
 
     await this._approve(submission)
 
-    if (ctx.request.input('notify', true)) {
-      try {
-        submission.notify('NewSubmission')
-        BotNotifications?.newSubmission(submission)
-      } catch (e) {
-        Logger.error(e)
-      }
-    }
-
     return submission
   }
 
