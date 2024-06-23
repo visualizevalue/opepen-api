@@ -1,7 +1,6 @@
 import { DateTime } from 'luxon'
 import { isAddress } from 'ethers/lib/utils'
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
-import Logger from '@ioc:Adonis/Core/Logger'
 import BotNotifications from 'App/Services/BotNotifications'
 import BaseController from './BaseController'
 import Account from 'App/Models/Account'
