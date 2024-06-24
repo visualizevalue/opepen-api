@@ -109,6 +109,7 @@ Route.group(() => {
 // Posts
 Route.group(() => {
   Route.get('/',                 'PostsController.list')
+  Route.get('/images',           'PostsController.listImagePosts')
   Route.post('/',                'PostsController.create').middleware(['auth'])
   Route.get('/:id',              'PostsController.show')
   Route.post('/:id/approve',     'PostsController.approve').middleware(['admin'])

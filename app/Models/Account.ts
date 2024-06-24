@@ -335,6 +335,17 @@ export default class Account extends BaseModel {
       )
   }
 
+  public serializeExtras() {
+    return {
+      opepen_count: this.$extras.opepen_count
+        ? parseInt(this.$extras.opepen_count)
+        : undefined,
+      votes_count: this.$extras.votes_count
+        ? parseInt(this.$extras.votes_count)
+        : undefined,
+    }
+  }
+
   static byId (id) {
     const value = id?.toLowerCase()
 

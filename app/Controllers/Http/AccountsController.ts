@@ -45,14 +45,7 @@ export default class AccountsController extends BaseController {
     await this.applyFilters(query, filter)
     await this.applySorts(query, sort)
 
-    const result = await query.paginate(page, limit)
-
-    const json = result.toJSON()
-
-    return {
-      ...json,
-      data: json.data.map(d => ({ ...d.serialize(), opepen_count: d.$extras.opepen_count })),
-    }
+    return query.paginate(page, limit)
   }
 
   public async show ({ params }) {

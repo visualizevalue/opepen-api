@@ -55,6 +55,46 @@ export default class PostsController extends BaseController {
       .paginate(page, limit)
   }
 
+  public async listImagePosts ({ request, session }: HttpContextContract) {
+    const {
+      page = 1,
+      limit = 10,
+      filter = {},
+      sort = '-createdAt',
+    } = request.qs()
+
+    const query = Post.query()
+      .has('images')
+      .whereNull('deletedAt')
+      .whereNull('parentPostId')
+      // Main relationship...
+      .preload('account')
+      .preload('images')
+      // Attached to...
+      .preload('submission')
+      .preload('opepen')
+      .preload('parent')
+      .preload('image')
+
+    // Filter non approved for non admins
+    if (! isAdmin(session)) {
+      query.where(q => {
+        q.whereNotNull('approvedAt')
+
+        const userAddress = session.get('siwe')?.address?.toLowerCase()
+        if (userAddress) q.orWhere('address', userAddress)
+      })
+    }
+
+    await this.applyFilters(query, filter)
+    await this.applySorts(query, sort)
+
+    return query
+      // Fix sort pagination
+      .orderBy('id')
+      .paginate(page, limit)
+  }
+
   public async show ({ params }: HttpContextContract) {
     return Post.query()
       .where('uuid', params.id)

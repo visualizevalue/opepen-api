@@ -60,19 +60,12 @@ export default class VotesController extends BaseController {
       limit = 32,
     } = request.qs()
 
-    const accounts = await Account.query()
+    return Account.query()
       .has('votes')
       .withCount('votes')
       .preload('pfp')
       .orderBy('votes_count', 'desc')
       .paginate(page, limit)
-
-    const json = accounts.toJSON()
-
-    return {
-      ...json,
-      data: json.data.map(d => ({ ...d.serialize(), votes_count: d.$extras.votes_count })),
-    }
   }
 
   protected votableQuery () {
