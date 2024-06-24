@@ -10,11 +10,16 @@ export default class VotesController extends BaseController {
   public async create ({ request, session }: HttpContextContract) {
     const image = await Image.findByOrFail('uuid', request.input('image'))
 
-    const vote = await Vote.create({
-      address: session.get('siwe')?.address?.toLowerCase(),
-      points: request.input('approve') === true ? 1 : -1,
-      imageId: image.id,
-    })
+    const vote = await Vote.updateOrCreate(
+      {
+        address: session.get('siwe')?.address?.toLowerCase(),
+        imageId: image.id,
+      }, {
+        address: session.get('siwe')?.address?.toLowerCase(),
+        points: request.input('approve') === true ? 1 : -1,
+        imageId: image.id,
+      }
+    )
 
     image.points += vote.points
     await image.save()
