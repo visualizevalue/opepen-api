@@ -46,7 +46,6 @@ export class BotNotifications {
     const template = ({ creators }) => [
       `Consensus ${submission.countdownHasRun() ? 'Resumed' : 'Reached'}`,
       `"${submission.name}" by ${creators}`,
-      `${submission.timeRemainigStr()} left`,
     ]
 
     const img = `${Env.get('APP_URL')}/v1/render/sets/${submission.uuid}/square`
@@ -58,7 +57,6 @@ export class BotNotifications {
     const template = ({ creators }) => [
       `Consensus Paused`,
       `"${submission.name}" by ${creators}`,
-      `${timeRemainingFromSeconds(submission.remainingRevealTime)} left`
     ]
 
     const imgs = [

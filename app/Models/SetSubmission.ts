@@ -567,9 +567,9 @@ export default class SetSubmission extends BaseModel {
   }
 
   public async startRevealTimer () {
-    if (this.revealsAt) return
+    if (this.revealsAt || !this.starredAt) return
 
-    this.revealsAt = DateTime.now().plus({ seconds: this.remainingRevealTime })
+    this.revealsAt = this.starredAt.plus({ hours: 48 })
     this.remainingRevealTime = 0
     this.pausedAt = null
 
@@ -585,7 +585,7 @@ export default class SetSubmission extends BaseModel {
     if (! this.revealsAt) return
     if (this.revealsAt < now) return
 
-    this.remainingRevealTime = Math.floor(this.revealsAt.diff(now).as('seconds'))
+    this.remainingRevealTime = 0
     this.revealsAt = null
     this.pausedAt = DateTime.now()
 
@@ -668,7 +668,7 @@ export default class SetSubmission extends BaseModel {
 
   public async updateAndValidateOpepensInSet () {
     await this.cleanSubscriptionsAndStats()
-    await this.maybeStartOrStopTimer() // FIXME:
+    await this.maybeStartOrStopTimer()
   }
 
   public async clearOptIns () {
