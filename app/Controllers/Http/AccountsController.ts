@@ -41,12 +41,18 @@ export default class AccountsController extends BaseController {
       .withCount('opepen')
       .preload('pfp')
       .preload('coverImage')
-      // .orderByRaw(`("profile_completion" + 4) / 5 DESC, id`)
 
     await this.applyFilters(query, filter)
     await this.applySorts(query, sort)
 
-    return query.paginate(page, limit)
+    const result = await query.paginate(page, limit)
+
+    const json = result.toJSON()
+
+    return {
+      ...json,
+      data: json.data.map(d => ({ ...d.serialize(), opepen_count: d.$extras.opepen_count })),
+    }
   }
 
   public async show ({ params }) {

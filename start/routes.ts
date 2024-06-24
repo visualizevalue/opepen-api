@@ -164,7 +164,7 @@ Route.group(() => {
 
   Route.get('/artists',                 'AccountsController.artists')
   Route.get('/curators',                'AccountsController.curators')
-  Route.get('/fid/:fid',                  'AccountsController.byFid')
+  Route.get('/fid/:fid',                'AccountsController.byFid')
   Route.get('/:id',                     'AccountsController.show')
   Route.put('/:id',                     'AccountsController.update')
   Route.get('/:id/opepen',              'OpepenController.forAccount')
