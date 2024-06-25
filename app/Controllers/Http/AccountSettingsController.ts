@@ -70,31 +70,35 @@ export default class AccountSettingsController extends BaseController {
 
   private async updateAccount (account: Account, request) {
     // PFP & Cover
-    const [pfpImage, coverImage] = await Promise.all([
-      Image.findBy('uuid', request.input('pfp_image_id', null)),
-      Image.findBy('uuid', request.input('cover_image_id', null)),
+    await Promise.all([
+      account.load('pfp'),
+      account.load('coverImage'),
     ])
-    account.pfpImageId   = (request.input('pfp_image_id',   false) && pfpImage)   ? pfpImage.id   : null
-    account.coverImageId = (request.input('cover_image_id', false) && coverImage) ? coverImage.id : null
+    const [pfpImage, coverImage] = await Promise.all([
+      Image.findBy('uuid', request.input('pfp_image_id', account.pfp?.uuid ?? null)),
+      Image.findBy('uuid', request.input('cover_image_id', account.coverImage?.uuid ?? null)),
+    ])
+    account.pfpImageId   = pfpImage?.id || null
+    account.coverImageId = coverImage?.id || null
     await Promise.all([
       account.load('pfp'),
       account.load('coverImage'),
     ])
 
     // Profile Data
-    account.name = request.input('name', '')?.replace('.eth', '')
-    account.tagline = request.input('tagline', '')
-    account.quote = request.input('quote', '')
-    account.bio = request.input('bio', '')
-    account.socials = request.input('socials', [])
+    account.name    = request.input('name', account.name)?.replace('.eth', '')
+    account.tagline = request.input('tagline', account.tagline)
+    account.socials = request.input('socials', account.socials)
+    account.quote   = request.input('quote', account.quote)
+    account.bio     = request.input('bio', account.bio)
 
     // Notifications
-    account.notificationGeneral = request.input('notification_general', false)
-    account.notificationNewSet = request.input('notification_new_set', false)
-    account.notificationNewSubmission = request.input('notification_new_submission', false)
-    account.notificationNewCuratedSubmission = request.input('notification_new_curated_submission', false)
-    account.notificationRevealStarted = request.input('notification_reveal_started', false)
-    account.notificationRevealPaused = request.input('notification_reveal_paused', false)
+    account.notificationNewCuratedSubmission = request.input('notification_new_curated_submission', account.notificationNewCuratedSubmission)
+    account.notificationNewSubmission = request.input('notification_new_submission', account.notificationNewSubmission)
+    account.notificationRevealStarted = request.input('notification_reveal_started', account.notificationRevealStarted)
+    account.notificationRevealPaused = request.input('notification_reveal_paused', account.notificationRevealPaused)
+    account.notificationGeneral = request.input('notification_general', account.notificationGeneral)
+    account.notificationNewSet = request.input('notification_new_set', account.notificationNewSet)
 
     // Email + Email Verification on change
     const previousEmail = account.email
