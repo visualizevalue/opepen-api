@@ -1,4 +1,4 @@
-import { BaseCommand } from '@adonisjs/core/build/standalone'
+import { BaseCommand, flags } from '@adonisjs/core/build/standalone'
 
 export default class RecomputeVotes extends BaseCommand {
   /**
@@ -16,9 +16,24 @@ export default class RecomputeVotes extends BaseCommand {
     stayAlive: false,
   }
 
+  @flags.boolean()
+  public removeDuplicates: boolean = true
+
+  @flags.boolean()
+  public recompute: boolean = true
+
   public async run() {
+    if (this.removeDuplicates) {
+      await this.findAndRemoveDuplicates()
+    }
+
+    if (this.recompute) {
+      await this.recomputePoints()
+    }
+  }
+
+  protected async findAndRemoveDuplicates () {
     const { default: Vote } = await import('App/Models/Vote')
-    const { default: Image } = await import('App/Models/Image')
 
     this.logger.info('Find duplicate votes')
 
@@ -45,7 +60,10 @@ export default class RecomputeVotes extends BaseCommand {
         .where('id', '>', firstVote?.id.toString() || 0)
         .delete()
     }
+  }
 
+  protected async recomputePoints () {
+    const { default: Image } = await import('App/Models/Image')
 
     const images = await Image.query().has('votes').preload('votes')
     this.logger.info(`Recomputing ${images.length} images`)
