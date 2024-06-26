@@ -1,7 +1,6 @@
 import { string } from '@ioc:Adonis/Core/Helpers'
 import Env from '@ioc:Adonis/Core/Env'
 import Logger from '@ioc:Adonis/Core/Logger'
-import { timeRemainingFromSeconds } from 'App/Helpers/time'
 import pad from 'App/Helpers/pad'
 import Account from 'App/Models/Account'
 import SetModel from 'App/Models/SetModel'
