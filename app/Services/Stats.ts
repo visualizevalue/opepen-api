@@ -69,14 +69,14 @@ class StatsService {
       this.permanentArtistsQuery(),
       SubscriptionHistory.query().countDistinct('address'),
       Opepen.query().countDistinct('owner'),
-      Vote.query().count('id'),
+      Vote.query().where('createdAt', '>', '2024-06-25 16:30.000+00').count('id'),
       Image.query().has('posts').count('id'),
       Opepen.query().whereNotNull('price').whereNotNull('setId').orderBy('price').first(),
       Opepen.query().whereNotNull('price').whereNull('setId').orderBy('price').first(),
     ])
 
     const setsCount: number = parseInt(sets[0].$extras.count)
-    const votesCount: number = parseInt(votes[0].$extras.count)
+    const votesCount: number = parseInt(votes[0].$extras.count) + 51005 // Account for initially lost but legitimate votes
     const submissionsCount: number = parseInt(submissions[0].$extras.count)
     const printSubmissionsCount: number = parseInt(printSubmissions[0].$extras.count)
     const dynamicSubmissionsCount: number = submissionsCount - printSubmissionsCount

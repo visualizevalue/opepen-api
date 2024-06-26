@@ -85,6 +85,8 @@ export default class SetSubmissionsController extends BaseController {
         }
       case 'revealed':
         query.whereNotNull('setId')
+        query.whereNotNull('revealBlockNumber')
+        query.orderBy('reveals_at', 'desc')
         break
       case 'active':
         query.withScopes(scopes => scopes.activeTimer())
