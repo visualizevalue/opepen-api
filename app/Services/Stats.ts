@@ -1,5 +1,5 @@
 import { DateTime } from "luxon"
-import { SetModel } from "App/Models"
+import { Account, SetModel } from "App/Models"
 import SetSubmission from "App/Models/SetSubmission"
 import SubscriptionHistory from "App/Models/SubscriptionHistory"
 import Opepen from "App/Models/Opepen"
@@ -22,6 +22,10 @@ export type Stats = {
   revealed: {
     opepen: number
     sets: number
+  }
+  emails: {
+    total: number
+    verified: number
   }
   votes: number
   markets: {
@@ -60,6 +64,8 @@ class StatsService {
       postImages,
       revealedFloorOpepen,
       unrevealedFloorOpepen,
+      emailsTotal,
+      emailsVerified,
     ] = await Promise.all([
       SetSubmission.query().count('id'),
       SetSubmission.query().where('edition_type', 'PRINT').count('id'),
@@ -73,6 +79,8 @@ class StatsService {
       Image.query().has('posts').count('id'),
       Opepen.query().whereNotNull('price').whereNotNull('setId').orderBy('price').first(),
       Opepen.query().whereNotNull('price').whereNull('setId').orderBy('price').first(),
+      Account.query().whereNotNull('email').count('address'),
+      Account.query().withScopes(scopes => scopes.receivesEmails()).count('address'),
     ])
 
     const setsCount: number = parseInt(sets[0].$extras.count)
@@ -82,6 +90,8 @@ class StatsService {
     const dynamicSubmissionsCount: number = submissionsCount - printSubmissionsCount
     const postImagesCount: number = parseInt(postImages[0].$extras.count)
     const submittedImagesCount: number = dynamicSubmissionsCount * 80 + printSubmissionsCount * 6 + postImagesCount
+    const emailsTotalCount: number = parseInt(emailsTotal[0].$extras.count)
+    const emailsVerifiedCount: number = parseInt(emailsVerified[0].$extras.count)
 
     this.stats = {
       submissions: {
@@ -100,6 +110,10 @@ class StatsService {
         sets: setsCount,
       },
       votes: votesCount,
+      emails: {
+        total: emailsTotalCount,
+        verified: emailsVerifiedCount,
+      },
       markets: {
         floor: {
           unrevealed: `${unrevealedFloorOpepen?.price}`,
