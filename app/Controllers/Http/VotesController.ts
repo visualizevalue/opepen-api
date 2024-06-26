@@ -8,20 +8,32 @@ import { Account } from 'App/Models'
 export default class VotesController extends BaseController {
 
   public async create ({ request, session }: HttpContextContract) {
+    const address = session.get('siwe')?.address?.toLowerCase()
     const image = await Image.findByOrFail('uuid', request.input('image'))
 
-    const vote = await Vote.updateOrCreate(
-      {
-        address: session.get('siwe')?.address?.toLowerCase(),
-        imageId: image.id,
-      }, {
-        address: session.get('siwe')?.address?.toLowerCase(),
-        points: request.input('approve') === true ? 1 : -1,
-        imageId: image.id,
-      }
-    )
+    let vote = await Vote.query()
+      .where('address', address)
+      .where('imageId', image.id.toString())
+      .first()
 
+    // If the vote existed, remove its previous points
+    if (vote) {
+      image.points -= vote.points
+    }
+
+    // Create or update the vote
+    vote = await Vote.updateOrCreate({
+      address: address,
+      imageId: image.id,
+    }, {
+      address: address,
+      points: request.input('approve') === true ? 1 : -1,
+      imageId: image.id,
+    })
+
+    // Calculate the new points based on the new vote
     image.points += vote.points
+
     await image.save()
 
     return vote
