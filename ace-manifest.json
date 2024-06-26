@@ -314,7 +314,18 @@
       "description": "",
       "args": [],
       "aliases": [],
-      "flags": []
+      "flags": [
+        {
+          "name": "remove-duplicates",
+          "propertyName": "removeDuplicates",
+          "type": "boolean"
+        },
+        {
+          "name": "recompute",
+          "propertyName": "recompute",
+          "type": "boolean"
+        }
+      ]
     },
     "restore:past_valid_opt_ins": {
       "settings": {

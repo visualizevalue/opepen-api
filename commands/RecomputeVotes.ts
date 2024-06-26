@@ -50,7 +50,7 @@ export default class RecomputeVotes extends BaseCommand {
       const firstVote = await Vote.query()
         .where('address', vote.address)
         .where('imageId', vote.imageId.toString())
-        .orderBy('createdAt')
+        .orderBy('id')
         .first()
 
       // Delete all after first
