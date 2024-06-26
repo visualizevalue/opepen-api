@@ -304,6 +304,18 @@
         }
       ]
     },
+    "votes:recompute": {
+      "settings": {
+        "loadApp": true,
+        "stayAlive": false
+      },
+      "commandPath": "./commands/RecomputeVotes",
+      "commandName": "votes:recompute",
+      "description": "",
+      "args": [],
+      "aliases": [],
+      "flags": []
+    },
     "restore:past_valid_opt_ins": {
       "settings": {
         "loadApp": true,
