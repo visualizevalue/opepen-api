@@ -65,7 +65,6 @@ export default class PostsController extends BaseController {
 
     const query = Post.query()
       .has('images')
-      .whereNull('deletedAt')
       .whereNull('parentPostId')
       // Main relationship...
       .preload('account')
@@ -78,6 +77,7 @@ export default class PostsController extends BaseController {
 
     // Filter non approved for non admins
     if (! isAdmin(session)) {
+      query.whereNull('deletedAt')
       query.where(q => {
         q.whereNotNull('approvedAt')
 
