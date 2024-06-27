@@ -123,7 +123,7 @@ export default class Image extends BaseModel {
   public postId: bigint
 
   @belongsTo(() => Post, {
-    localKey: 'post_id',
+    foreignKey: 'postId',
   })
   public cachedPost: BelongsTo<typeof Post>
 
@@ -131,7 +131,7 @@ export default class Image extends BaseModel {
   public castId: bigint
 
   @belongsTo(() => Cast, {
-    localKey: 'cast_id',
+    foreignKey: 'castId',
   })
   public cachedCast: BelongsTo<typeof Cast>
 
@@ -139,7 +139,7 @@ export default class Image extends BaseModel {
   public setSubmissionId: number
 
   @belongsTo(() => SetSubmission, {
-    localKey: 'set_submission_id',
+    foreignKey: 'setSubmissionId',
   })
   public cachedSetSubmission: BelongsTo<typeof SetSubmission>
 
@@ -147,8 +147,8 @@ export default class Image extends BaseModel {
   public opepenId: bigint
 
   @belongsTo(() => Opepen, {
-    foreignKey: 'token_id',
-    localKey: 'opepen_id',
+    localKey: 'tokenId',
+    foreignKey: 'opepenId',
   })
   public cachedOpepen: BelongsTo<typeof Opepen>
 

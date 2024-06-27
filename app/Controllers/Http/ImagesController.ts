@@ -79,6 +79,10 @@ export default class ImagesController extends BaseController {
 
     return Image.query()
       .has('votes')
+      .preload('creatorAccount')
+      .preload('cachedPost')
+      .preload('cachedSetSubmission')
+      .preload('cachedOpepen')
       .where('points', '>', 0)
       .orderBy('points', 'desc')
       .orderBy('id', 'desc')
@@ -93,6 +97,10 @@ export default class ImagesController extends BaseController {
 
     return Image.query()
       .preload('votes')
+      .preload('creatorAccount')
+      .preload('cachedPost')
+      .preload('cachedSetSubmission')
+      .preload('cachedOpepen')
       .innerJoin('votes', query => query
         .on('votes.image_id', '=', 'images.id')
         .andOnVal('address', '=', session.get('siwe')?.address?.toLowerCase())
