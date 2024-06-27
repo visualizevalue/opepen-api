@@ -104,6 +104,9 @@ export default class Image extends BaseModel {
   @belongsTo(() => Account, {
     foreignKey: 'creator',
     localKey: 'address',
+    onQuery: query => {
+      query.preload('pfp')
+    }
   })
   public creatorAccount: BelongsTo<typeof Account>
 
