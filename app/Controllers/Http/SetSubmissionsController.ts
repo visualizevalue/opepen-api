@@ -128,14 +128,7 @@ export default class SetSubmissionsController extends BaseController {
       address: session.get('siwe')?.address?.toLowerCase()
     })
 
-    const [
-      image1,
-      image4,
-      image5,
-      image10,
-      image20,
-      image40,
-    ] = await Promise.all([
+    const images = await Promise.all([
       Image.findBy('uuid', request.input('edition_1_image_id', null)),
       Image.findBy('uuid', request.input('edition_4_image_id', null)),
       Image.findBy('uuid', request.input('edition_5_image_id', null)),
@@ -144,7 +137,7 @@ export default class SetSubmissionsController extends BaseController {
       Image.findBy('uuid', request.input('edition_40_image_id', null)),
     ])
 
-    return SetSubmission.create({
+    const submission = await SetSubmission.create({
       creator: creator.address,
       name: request.input('name'),
       artist: request.input('artist'),
@@ -156,13 +149,24 @@ export default class SetSubmissionsController extends BaseController {
       edition_10Name: request.input('edition_10_name'),
       edition_20Name: request.input('edition_20_name'),
       edition_40Name: request.input('edition_40_name'),
-      edition_1ImageId: image1?.id,
-      edition_4ImageId: image4?.id,
-      edition_5ImageId: image5?.id,
-      edition_10ImageId: image10?.id,
-      edition_20ImageId: image20?.id,
-      edition_40ImageId: image40?.id,
+      edition_1ImageId: images[0]?.id,
+      edition_4ImageId: images[1]?.id,
+      edition_5ImageId: images[2]?.id,
+      edition_10ImageId: images[3]?.id,
+      edition_20ImageId: images[4]?.id,
+      edition_40ImageId: images[5]?.id,
     })
+
+    // Maintain cache
+    for (const image of images) {
+      if (! image) continue
+
+      image.setSubmissionId = submission.id
+      image.creator = creator.address
+      await image.save()
+    }
+
+    return submission
   }
 
   public async show ({ params }: HttpContextContract) {
@@ -254,14 +258,7 @@ export default class SetSubmissionsController extends BaseController {
 
     await this.creatorOrAdmin({ creator: submission.creatorAccount, session })
 
-    const [
-      image1,
-      image4,
-      image5,
-      image10,
-      image20,
-      image40,
-    ] = await Promise.all([
+    const images = await Promise.all([
       Image.findBy('uuid', request.input('edition_1_image_id', null)),
       Image.findBy('uuid', request.input('edition_4_image_id', null)),
       Image.findBy('uuid', request.input('edition_5_image_id', null)),
@@ -269,6 +266,15 @@ export default class SetSubmissionsController extends BaseController {
       Image.findBy('uuid', request.input('edition_20_image_id', null)),
       Image.findBy('uuid', request.input('edition_40_image_id', null)),
     ])
+
+    // Maintain cache
+    for (const image of images) {
+      if (! image) continue
+
+      image.setSubmissionId = submission.id
+      image.creator = submission.creator
+      await image.save()
+    }
 
     const [
       co_creator_1,
@@ -300,12 +306,12 @@ export default class SetSubmissionsController extends BaseController {
       edition_10Name: request.input('edition_10_name'),
       edition_20Name: request.input('edition_20_name'),
       edition_40Name: request.input('edition_40_name'),
-      edition_1ImageId: image1?.id,
-      edition_4ImageId: image4?.id,
-      edition_5ImageId: image5?.id,
-      edition_10ImageId: image10?.id,
-      edition_20ImageId: image20?.id,
-      edition_40ImageId: image40?.id,
+      edition_1ImageId: images[0]?.id,
+      edition_4ImageId: images[1]?.id,
+      edition_5ImageId: images[2]?.id,
+      edition_10ImageId: images[3]?.id,
+      edition_20ImageId: images[4]?.id,
+      edition_40ImageId: images[5]?.id,
       co_creator_1: co_creator_1?.address,
       co_creator_2: co_creator_2?.address,
       co_creator_3: co_creator_3?.address,
@@ -333,7 +339,6 @@ export default class SetSubmissionsController extends BaseController {
 
     const imageConfig: { edition: number, index: number, uuid: string }[] = request.input('images')
 
-
     if (! submission.dynamicSetImages) {
       const setImages = await DynamicSetImages.create({})
       submission.dynamicSetImagesId = setImages.id
@@ -346,6 +351,12 @@ export default class SetSubmissionsController extends BaseController {
 
       const image = await Image.query().where('uuid', config.uuid).firstOrFail()
 
+      // Maintain cache
+      image.setSubmissionId = submission.id
+      image.creator = submission.creator
+      await image.save()
+
+      // Attach to submission
       submission.dynamicSetImages[`image_${config.edition}_${config.index}_id`] = image.id
     }
 

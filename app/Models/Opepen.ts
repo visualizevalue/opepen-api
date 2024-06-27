@@ -126,18 +126,28 @@ export default class Opepen extends TokenModel {
   }
 
   public async updateImage () {
-    const response = await axios.get(`https://metadata.opepen.art/${this.tokenId}/image-uri`)
+    const opepen: Opepen = this
+    const response = await axios.get(`https://metadata.opepen.art/${opepen.tokenId}/image-uri`)
 
     const { uri } = response.data
     const gatewayURI = uri.replace('ipfs.io', Env.get('IPFS_GATEWAY'))
 
-    Logger.info(`Opepen #${this.tokenId} image importing from: ${gatewayURI}`)
-    const image = await Image.fromURI(gatewayURI)
-    image.generateScaledVersions()
+    Logger.info(`Opepen #${opepen.tokenId} image importing from: ${gatewayURI}`)
 
-    this.imageId = image.id
-    await this.save()
+    await opepen.load('image')
 
-    await OpenSea.updateMetadata(this.tokenId.toString())
+    if (! opepen.image) {
+      const image = await Image.fromURI(gatewayURI)
+      await image.generateScaledVersions()
+      opepen.imageId = image.id
+      image.opepenId = opepen.tokenId as bigint // maintain non normalized image relations cache
+      await opepen.save()
+      await image.save()
+    } else {
+      await opepen.image.fillImageFromURI(gatewayURI)
+      await opepen.image.generateScaledVersions()
+    }
+
+    await OpenSea.updateMetadata(opepen.tokenId.toString())
   }
 }

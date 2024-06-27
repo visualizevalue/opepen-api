@@ -12,6 +12,9 @@ import axios from 'axios'
 import { renderPage } from 'App/Services/PageRenderer'
 import Vote from './Vote'
 import Post from './Post'
+import Cast from './Cast'
+import SetSubmission from './SetSubmission'
+import Opepen from './Opepen'
 
 type ImageVersions = {
   sm?: boolean, // 512
@@ -107,6 +110,48 @@ export default class Image extends BaseModel {
   @hasMany(() => Vote)
   public votes: HasMany<typeof Vote>
 
+  @manyToMany(() => Post)
+  public posts: ManyToMany<typeof Post>
+
+  /**
+   * Main Relations...
+   *
+   * These are non-normalized data points for easy retrieval & cashing...
+   */
+
+  @column({ serializeAs: null })
+  public postId: bigint
+
+  @belongsTo(() => Post, {
+    localKey: 'post_id',
+  })
+  public cachedPost: BelongsTo<typeof Post>
+
+  @column({ serializeAs: null })
+  public castId: bigint
+
+  @belongsTo(() => Cast, {
+    localKey: 'cast_id',
+  })
+  public cachedCast: BelongsTo<typeof Cast>
+
+  @column({ serializeAs: null })
+  public setSubmissionId: number
+
+  @belongsTo(() => SetSubmission, {
+    localKey: 'set_submission_id',
+  })
+  public cachedSetSubmission: BelongsTo<typeof SetSubmission>
+
+  @column({ serializeAs: null })
+  public opepenId: bigint
+
+  @belongsTo(() => Opepen, {
+    foreignKey: 'token_id',
+    localKey: 'opepen_id',
+  })
+  public cachedOpepen: BelongsTo<typeof Opepen>
+
   async calculatePoints () {
     const image: Image = this
 
@@ -116,9 +161,6 @@ export default class Image extends BaseModel {
 
     await image.save()
   }
-
-  @manyToMany(() => Post)
-  public posts: ManyToMany<typeof Post>
 
   async fillImageFromURI (url: string): Promise<Image> {
     const file = await toDriveFromURI(url, this.uuid)

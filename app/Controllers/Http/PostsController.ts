@@ -141,6 +141,9 @@ export default class PostsController extends BaseController {
     const images = await Image.query().whereIn('uuid', imageIds)
     await post.related('images').sync(images.map(i => i.id?.toString()))
     await post.load('images')
+    await Image.query().whereIn('uuid', images.map(i => i.uuid)).update({
+      postId: post.id,
+    })
 
     // Save timeline item
     await TimelineUpdate.createFor(post)

@@ -12,6 +12,18 @@
       "aliases": [],
       "flags": []
     },
+    "cache:main_image_relations": {
+      "settings": {
+        "loadApp": true,
+        "stayAlive": false
+      },
+      "commandPath": "./commands/CacheMainImageRelations",
+      "commandName": "cache:main_image_relations",
+      "description": "Connect images to their main parent (artist, posts, set_submission, opepen) for easy querying.",
+      "args": [],
+      "aliases": [],
+      "flags": []
+    },
     "clear:multi_opt_ins": {
       "settings": {
         "loadApp": true,
