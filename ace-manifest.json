@@ -24,6 +24,18 @@
       "aliases": [],
       "flags": []
     },
+    "clean:opepen_images": {
+      "settings": {
+        "loadApp": true,
+        "stayAlive": false
+      },
+      "commandPath": "./commands/CleanOpepenImages",
+      "commandName": "clean:opepen_images",
+      "description": "",
+      "args": [],
+      "aliases": [],
+      "flags": []
+    },
     "clear:multi_opt_ins": {
       "settings": {
         "loadApp": true,

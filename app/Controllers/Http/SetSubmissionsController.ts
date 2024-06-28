@@ -158,9 +158,19 @@ export default class SetSubmissionsController extends BaseController {
     })
 
     // Maintain cache
-    for (const image of images) {
+    const oneOfOneImage = images[0]
+    if (oneOfOneImage) {
+      oneOfOneImage.setSubmissionId = submission.id
+      oneOfOneImage.creator = creator.address
+      await oneOfOneImage.save()
+    }
+    const editionImages = images.slice(1)
+    for (const image of editionImages) {
       if (! image) continue
 
+      if (submission.editionType === 'PRINT') {
+        image.setSubmissionId = submission.id
+      }
       image.setSubmissionId = submission.id
       image.creator = creator.address
       await image.save()
@@ -268,10 +278,24 @@ export default class SetSubmissionsController extends BaseController {
     ])
 
     // Maintain cache
-    for (const image of images) {
+    if (submission.editionType === 'PRINT') {
+      await Image.query().where('setSubmissionId', submission.id).update({
+        setSubmissionId: null,
+      })
+    }
+    const oneOfOneImage = images[0]
+    if (oneOfOneImage) {
+      oneOfOneImage.setSubmissionId = submission.id
+      oneOfOneImage.creator = submission.creator
+      await oneOfOneImage.save()
+    }
+    const editionImages = images.slice(1)
+    for (const image of editionImages) {
       if (! image) continue
 
-      image.setSubmissionId = submission.id
+      if (submission.editionType === 'PRINT') {
+        image.setSubmissionId = submission.id
+      }
       image.creator = submission.creator
       await image.save()
     }
@@ -346,6 +370,11 @@ export default class SetSubmissionsController extends BaseController {
       await submission.load('dynamicSetImages')
     }
 
+    // Clear cache
+    await Image.query()
+      .where('setSubmissionId', submission.id)
+      .whereNot('id', `${submission.edition_1ImageId}`)
+      .update({ setSubmissionId: null })
     for (const config of imageConfig) {
       if (! config.uuid) continue
 

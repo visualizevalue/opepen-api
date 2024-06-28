@@ -123,7 +123,7 @@ export default class Image extends BaseModel {
    */
 
   @column({ serializeAs: null })
-  public postId: bigint
+  public postId: bigint|null
 
   @belongsTo(() => Post, {
     foreignKey: 'postId',
@@ -131,7 +131,7 @@ export default class Image extends BaseModel {
   public cachedPost: BelongsTo<typeof Post>
 
   @column({ serializeAs: null })
-  public castId: bigint
+  public castId: bigint|null
 
   @belongsTo(() => Cast, {
     foreignKey: 'castId',
@@ -139,7 +139,7 @@ export default class Image extends BaseModel {
   public cachedCast: BelongsTo<typeof Cast>
 
   @column({ serializeAs: null })
-  public setSubmissionId: number
+  public setSubmissionId: number|null
 
   @belongsTo(() => SetSubmission, {
     foreignKey: 'setSubmissionId',
@@ -147,13 +147,22 @@ export default class Image extends BaseModel {
   public cachedSetSubmission: BelongsTo<typeof SetSubmission>
 
   @column({ serializeAs: null })
-  public opepenId: bigint
+  public opepenId: bigint|null
 
   @belongsTo(() => Opepen, {
     localKey: 'tokenId',
     foreignKey: 'opepenId',
   })
   public cachedOpepen: BelongsTo<typeof Opepen>
+
+  async clearCashed () {
+    this.opepenId = null
+    this.setSubmissionId = null
+    this.castId = null
+    this.postId = null
+
+    await this.save()
+  }
 
   async calculatePoints () {
     const image: Image = this
@@ -270,11 +279,34 @@ export default class Image extends BaseModel {
     }
   }
 
+  public async updateImage (url) {
+    await this.fillImageFromURI(url)
+    await this.generateScaledVersions()
+  }
+
   static async fromURI (url: string, data: object = { versions: {} }): Promise<Image> {
     const image = await Image.create(data)
 
     await image.fillImageFromURI(url)
 
     return image
+  }
+
+  static votableQuery () {
+    return Image.query()
+      .whereHas('cachedPost', query => query.whereNotNull('approvedAt'))
+      // Revealed Dynamic Opepen
+      .orHas('cachedOpepen')
+      // Revealed Print Opepen
+      .orWhereHas('cachedSetSubmission', query => query
+        .whereNotNull('setId')
+        .whereNotNull('revealBlockNumber')
+        .whereIn('editionType', ['PRINT', 'NUMBERED_PRINT'])
+      )
+      // Unrevealed Submissions
+      .orWhereHas('cachedSetSubmission', query => query
+        .whereNotNull('approvedAt')
+        .whereNull('revealBlockNumber')
+      )
   }
 }

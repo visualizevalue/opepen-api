@@ -144,8 +144,7 @@ export default class Opepen extends TokenModel {
       await opepen.save()
       await image.save()
     } else {
-      await opepen.image.fillImageFromURI(gatewayURI)
-      await opepen.image.generateScaledVersions()
+      await opepen.image.updateImage(gatewayURI)
     }
 
     await OpenSea.updateMetadata(opepen.tokenId.toString())

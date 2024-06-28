@@ -47,7 +47,7 @@ export default class VotesController extends BaseController {
       votableCount
     ] = await Promise.all([
       Vote.query().where('address', address).count('id'),
-      this.votableQuery().count('id'),
+      Image.votableQuery().count('id'),
     ])
 
     return {
@@ -62,7 +62,7 @@ export default class VotesController extends BaseController {
   public async votable ({ session }) {
     const address = session.get('siwe')?.address?.toLowerCase() || constants.AddressZero
 
-    const image = await this.votableQuery()
+    const image = await Image.votableQuery()
       // That we haven't voted on yet
       .whereDoesntHave('votes', query => query.where('votes.address', address))
       .orderByRaw('random()')
@@ -83,29 +83,6 @@ export default class VotesController extends BaseController {
       .preload('pfp')
       .orderBy('votes_count', 'desc')
       .paginate(page, limit)
-  }
-
-  protected votableQuery () {
-    return Image.query()
-      // Belonging to...
-      .where(query => {
-        // ...a post
-        query.whereHas('posts', query => query.whereNotNull('approved_at'))
-        // ... an opepen
-        query.orWhereExists(query => query.from('opepens').whereColumn('image_id', 'images.id'))
-        // ...a set submission
-        query.orWhereExists(query => query.from('set_submissions')
-          .whereNotNull('approved_at')
-          .where(query => query
-            .whereColumn('set_submissions.edition_1_image_id', 'images.id')
-            .orWhereColumn('set_submissions.edition_4_image_id', 'images.id')
-            .orWhereColumn('set_submissions.edition_5_image_id', 'images.id')
-            .orWhereColumn('set_submissions.edition_10_image_id', 'images.id')
-            .orWhereColumn('set_submissions.edition_20_image_id', 'images.id')
-            .orWhereColumn('set_submissions.edition_40_image_id', 'images.id')
-          )
-        )
-      })
   }
 
 }

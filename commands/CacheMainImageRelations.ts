@@ -17,9 +17,23 @@ export default class CacheMainImageRelations extends BaseCommand {
   }
 
   public async run() {
+    await this.detatchAll()
     await this.attachPostImages()
     await this.attachOpepenImages()
     await this.attachSetImages()
+  }
+
+  protected async detatchAll () {
+    const { default: Image } = await import('App/Models/Image')
+
+    await Image.query().update({
+      postId: null,
+      castId: null,
+      opepenId: null,
+      setSubmissionId: null,
+    })
+
+    this.logger.info(`Detatched main relations`)
   }
 
   protected async attachPostImages () {
@@ -45,13 +59,22 @@ export default class CacheMainImageRelations extends BaseCommand {
 
     const opepen = await Opepen.query().whereNotNull('setId').whereNotNull('imageId').preload('image').preload('set')
 
+    let skippedPrintCount = 0
+    let count = 0
     for (const token of opepen) {
+      if (token.set.submission.editionType === 'PRINT') {
+        skippedPrintCount++
+        continue
+      }
+
       token.image.opepenId = token.tokenId as bigint
       token.image.creator = token.set.submission.creator
       await token.image.save()
+
+      count++
     }
 
-    this.logger.info(`Attached ${opepen.length} images to opepen`)
+    this.logger.info(`Attached ${count} images to opepen (skipped ${skippedPrintCount} for prints)`)
   }
 
   protected async attachSetImages () {
