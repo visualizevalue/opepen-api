@@ -143,6 +143,15 @@ export default class Image extends BaseModel {
 
   @belongsTo(() => SetSubmission, {
     foreignKey: 'setSubmissionId',
+    onQuery: query => {
+      query.preload('edition1Image')
+           .preload('edition4Image')
+           .preload('edition5Image')
+           .preload('edition10Image')
+           .preload('edition20Image')
+           .preload('edition40Image')
+           .preload('creatorAccount')
+    }
   })
   public cachedSetSubmission: BelongsTo<typeof SetSubmission>
 
