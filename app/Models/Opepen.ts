@@ -135,14 +135,20 @@ export default class Opepen extends TokenModel {
     Logger.info(`Opepen #${opepen.tokenId} image importing from: ${gatewayURI}`)
 
     await opepen.load('image')
+    await opepen.load('set')
 
     if (! opepen.image) {
       const image = await Image.fromURI(gatewayURI)
       await image.generateScaledVersions()
-      opepen.imageId = image.id
-      image.opepenId = opepen.tokenId as bigint // maintain non normalized image relations cache
-      await opepen.save()
+
+      if (opepen.set.submission.editionType === 'DYNAMIC') {
+        image.opepenId = opepen.tokenId as bigint // maintain non normalized image relations cache
+      }
+      image.setSubmissionId = opepen.set.submission.id
       await image.save()
+
+      opepen.imageId = image.id
+      await opepen.save()
     } else {
       await opepen.image.updateImage(gatewayURI)
     }
