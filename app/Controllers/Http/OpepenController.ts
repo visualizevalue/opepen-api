@@ -79,6 +79,7 @@ export default class OpepenController extends BaseController {
     return query
       .orderBy('setId')
       .orderByRaw(`(data->>'edition')::int`)
+      .orderBy(`tokenId`)
       .paginate(page, limit)
   }
 
