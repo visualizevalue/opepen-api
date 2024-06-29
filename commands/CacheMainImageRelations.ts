@@ -62,7 +62,7 @@ export default class CacheMainImageRelations extends BaseCommand {
     let skippedPrintCount = 0
     let count = 0
     for (const token of opepen) {
-      if (token.set.submission.editionType === 'PRINT') {
+      if (token.set.submission.editionType !== 'DYNAMIC') {
         skippedPrintCount++
         continue
       }
