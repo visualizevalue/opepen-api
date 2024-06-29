@@ -145,6 +145,7 @@ export default class Opepen extends TokenModel {
         image.opepenId = opepen.tokenId as bigint // maintain non normalized image relations cache
       }
       image.setSubmissionId = opepen.set.submission.id
+      image.creator = opepen.set.submission.creator
       await image.save()
 
       opepen.imageId = image.id
