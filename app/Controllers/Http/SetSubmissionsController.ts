@@ -373,7 +373,7 @@ export default class SetSubmissionsController extends BaseController {
     // Clear cache
     await Image.query()
       .where('setSubmissionId', submission.id)
-      .whereNot('id', `${submission.edition_1ImageId}`)
+      .whereNot('id', `${submission.edition_1ImageId ? submission.edition_1ImageId : 0n}`)
       .update({ setSubmissionId: null })
     for (const config of imageConfig) {
       if (! config.uuid) continue
