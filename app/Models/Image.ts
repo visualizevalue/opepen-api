@@ -264,6 +264,14 @@ export default class Image extends BaseModel {
     ])
   }
 
+  public serializeExtras() {
+    return {
+      votes_count: this.$extras.votes_count
+        ? parseInt(this.$extras.votes_count)
+        : undefined,
+    }
+  }
+
   public async render () {
     const rendered = !! this.versions?.sm
 
