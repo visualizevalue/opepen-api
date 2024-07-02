@@ -344,7 +344,9 @@ export default class SetSubmissionsController extends BaseController {
     }
 
     if (isAdmin(ctx.session)) {
-      updateData.creator = request.input('creator', submission.creator)?.toLowerCase()
+      const address = request.input('creator', submission.creator)?.toLowerCase()
+      await Account.firstOrCreate({ address }) // Ensure we have this account
+      updateData.creator = address
     }
 
     await submission.merge(updateData).save()
