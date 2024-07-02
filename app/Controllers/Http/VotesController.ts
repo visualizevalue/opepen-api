@@ -64,12 +64,17 @@ export default class VotesController extends BaseController {
   public async votable ({ session }) {
     const address = session.get('siwe')?.address?.toLowerCase() || constants.AddressZero
 
-    const image = await Image.votableQuery()
-      // That we haven't voted on yet
-      .whereDoesntHave('votes', query => query.where('votes.address', address))
-      .orderBy('votesCount', 'asc')
-      .orderByRaw('random()')
-      .first()
+    const query = Image.votableQuery()
+
+    // That we haven't voted on yet
+    query.whereDoesntHave('votes', query => query.where('votes.address', address))
+
+    // Half of the time, only select the least voted on opepen...
+    if (Math.random() > 0.5) {
+      query.orderBy('votesCount', 'asc')
+    }
+
+    const image = await query.orderByRaw('random()').first()
 
     return image
   }
