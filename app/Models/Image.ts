@@ -55,6 +55,9 @@ export default class Image extends BaseModel {
   public points: number
 
   @column()
+  public votesCount: number
+
+  @column()
   public aspectRatio: number
 
   @computed()
@@ -262,14 +265,6 @@ export default class Image extends BaseModel {
       Drive.use('local').delete(key),
       Drive.use('local').delete(pngKey),
     ])
-  }
-
-  public serializeExtras() {
-    return {
-      votes_count: this.$extras.votes_count
-        ? parseInt(this.$extras.votes_count)
-        : undefined,
-    }
   }
 
   public async render () {

@@ -65,16 +65,18 @@ export default class RecomputeVotes extends BaseCommand {
   protected async recomputePoints () {
     const { default: Image } = await import('App/Models/Image')
 
-    await Image.query().update({ points: 0 })
+    await Image.query().update({ points: 0, votesCount: 0 })
 
     const images = await Image.query().has('votes').preload('votes')
     this.logger.info(`Recomputing ${images.length} images`)
 
     for (const image of images) {
       image.points = 0
+      image.votesCount = 0
 
       for (const vote of image.votes) {
         image.points += vote.points
+        image.votesCount ++
       }
 
       await image.save()

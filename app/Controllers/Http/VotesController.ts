@@ -19,6 +19,7 @@ export default class VotesController extends BaseController {
     // If the vote existed, remove its previous points
     if (vote) {
       image.points -= vote.points
+      image.votesCount --
     }
 
     // Create or update the vote
@@ -33,6 +34,7 @@ export default class VotesController extends BaseController {
 
     // Calculate the new points based on the new vote
     image.points += vote.points
+    image.votesCount ++
 
     await image.save()
 
@@ -65,6 +67,7 @@ export default class VotesController extends BaseController {
     const image = await Image.votableQuery()
       // That we haven't voted on yet
       .whereDoesntHave('votes', query => query.where('votes.address', address))
+      .orderBy('votesCount', 'asc')
       .orderByRaw('random()')
       .first()
 
