@@ -306,6 +306,7 @@ export default class Image extends BaseModel {
 
   static votableQuery () {
     return Image.query()
+      .where('points', '>', -10)
       .whereHas('cachedPost', query => query.whereNotNull('approvedAt'))
       // Revealed Dynamic Opepen
       .orHas('cachedOpepen')
