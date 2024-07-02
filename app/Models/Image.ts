@@ -306,8 +306,6 @@ export default class Image extends BaseModel {
 
   static votableQuery () {
     return Image.query()
-      // Filter out bad ones
-      .where('points', '>', -10)
       .where(query => query
         // Attached to approved single upload
         .whereHas('cachedPost', query => query.whereNotNull('approvedAt'))
