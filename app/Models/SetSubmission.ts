@@ -36,11 +36,7 @@ const activeSubmissionScope = (query, submission) => {
   })
 }
 const SCOPED_NOTIFICATIONS = {
-  RevealStarted: (query, submission) => {
-    if (submission.countdownHasRun()) {
-      activeSubmissionScope(query, submission)
-    }
-  },
+  RevealStarted: activeSubmissionScope,
   RevealPaused: activeSubmissionScope,
 }
 
@@ -513,10 +509,6 @@ export default class SetSubmission extends BaseModel {
 
   public timeRemainigStr () {
     return timeRemaining(this.remainingDuration())
-  }
-
-  public countdownHasRun () {
-    return (DEFAULT_REMAINING_REVEAL_TIME - this.remainingSeconds()) > 60
   }
 
   public optInOpen () {

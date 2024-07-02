@@ -43,7 +43,7 @@ export class BotNotifications {
 
   public async consensusReached (submission: SetSubmission) {
     const template = ({ creators }) => [
-      `Consensus ${submission.countdownHasRun() ? 'Resumed' : 'Reached'}`,
+      `Consensus Reached`,
       `"${submission.name}" by ${creators}`,
     ]
 
