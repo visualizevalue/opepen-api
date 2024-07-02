@@ -10,7 +10,7 @@ export default class NotifyNewCuratedSubmissionEmail extends NotificationEmail {
 
   public async prepare(message: MessageContract) {
     return super.prepareEmail(message, {
-      subject: 'New Curated Opepen Set Submission',
+      subject: 'New Curated Opepen Set',
       name: 'new_curated_submission',
       templateData: {
         setName: this.submission.name,
