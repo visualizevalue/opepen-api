@@ -65,7 +65,7 @@ export default class RecomputeVotes extends BaseCommand {
   protected async recomputePoints () {
     const { default: Image } = await import('App/Models/Image')
 
-    await Image.query().update({ points: 0, votesCount: 0 })
+    await Image.query().doesntHave('votes').update({ points: 0, votesCount: 0 })
 
     const images = await Image.query().has('votes').preload('votes')
     this.logger.info(`Recomputing ${images.length} images`)
