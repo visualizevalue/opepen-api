@@ -112,4 +112,25 @@ export default class ImagesController extends BaseController {
       .orderBy('id', 'desc')
       .paginate(page, limit)
   }
+
+  public async myArtCurated ({ request, session }: HttpContextContract) {
+    const {
+      page = 1,
+      limit = 24,
+      sort = '-points,-id',
+    } = request.qs()
+
+    const address = session.get('siwe')?.address?.toLowerCase()
+
+    const query = Image.votableQuery()
+      .where('creator', address)
+      .preload('creatorAccount')
+      .preload('cachedSetSubmission')
+      .preload('cachedOpepen')
+      .preload('cachedPost')
+
+    this.applySorts(query, sort)
+
+    return query.paginate(page, limit)
+  }
 }

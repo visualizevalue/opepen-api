@@ -306,19 +306,24 @@ export default class Image extends BaseModel {
 
   static votableQuery () {
     return Image.query()
-      .whereHas('cachedPost', query => query.whereNotNull('approvedAt'))
-      // Revealed Dynamic Opepen
-      .orHas('cachedOpepen')
-      // Revealed Print Opepen
-      .orWhereHas('cachedSetSubmission', query => query
-        .whereNotNull('setId')
-        .whereNotNull('revealBlockNumber')
-        .whereIn('editionType', ['PRINT', 'NUMBERED_PRINT'])
-      )
-      // Unrevealed Submissions
-      .orWhereHas('cachedSetSubmission', query => query
-        .whereNotNull('approvedAt')
-        .whereNull('revealBlockNumber')
+      // Filter out bad ones
+      .where('points', '>', -10)
+      .where(query => query
+        // Attached to approved single upload
+        .whereHas('cachedPost', query => query.whereNotNull('approvedAt'))
+        // Revealed Dynamic Opepen
+        .orHas('cachedOpepen')
+        // Revealed Print Opepen
+        .orWhereHas('cachedSetSubmission', query => query
+          .whereNotNull('setId')
+          .whereNotNull('revealBlockNumber')
+          .whereIn('editionType', ['PRINT', 'NUMBERED_PRINT'])
+        )
+        // Unrevealed Submissions
+        .orWhereHas('cachedSetSubmission', query => query
+          .whereNotNull('approvedAt')
+          .whereNull('revealBlockNumber')
+        )
       )
   }
 }

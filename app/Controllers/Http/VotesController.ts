@@ -66,9 +66,6 @@ export default class VotesController extends BaseController {
 
     const query = Image.votableQuery()
 
-    // Filter out the bad ones
-    query.where('points', '>', -10)
-
     // That we haven't voted on yet
     query.whereDoesntHave('votes', query => query.where('votes.address', address))
 

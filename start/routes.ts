@@ -59,6 +59,7 @@ Route.group(() => {
   // Images
   Route.get('/images/featured',         'ImagesController.featured')
   Route.get('/images/curated',          'ImagesController.curated')
+  Route.get('/images/curated/my-art',   'ImagesController.myArtCurated').middleware(['auth'])
   Route.get('/images/curated/mine',     'ImagesController.myCurated').middleware(['auth'])
   Route.post('/images',                 'ImagesController.store')
   Route.get('/images/:id',              'ImagesController.show')
