@@ -85,7 +85,8 @@ export default class ImagesController extends BaseController {
       .preload('cachedSetSubmission')
       .preload('cachedOpepen')
       .where('points', '>', 0)
-      .orderBy('points', 'desc')
+      .orderBy('vote_score', 'desc')
+      .orderBy('votes_count', 'desc')
       .orderBy('id', 'desc')
       .paginate(page, limit)
   }
