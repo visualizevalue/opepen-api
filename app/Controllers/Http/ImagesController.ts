@@ -88,22 +88,7 @@ export default class ImagesController extends BaseController {
       .where('points', '>', 0)
       .where('votes_count', '>=', 9)
 
-    switch (filter) {
-      case 'posts':
-        query.has('cachedPost')
-        break;
-      case 'submissions':
-        query.whereHas('cachedSetSubmission', query => query.whereNull('revealBlockNumber'))
-        break;
-      case 'sets':
-        query.where(query => query
-          .has('cachedOpepen')
-          .orWhereHas('cachedSetSubmission', query => query.whereNotNull('setId').whereNotNull('revealBlockNumber'))
-        )
-        break;
-      default:
-        break;
-    }
+    this.applyCachedFilter(query, filter)
 
     query
       .orderBy('vote_score', 'desc')
@@ -117,9 +102,10 @@ export default class ImagesController extends BaseController {
     const {
       page = 1,
       limit = 24,
+      filter = 'all',
     } = request.qs()
 
-    return Image.query()
+    const query = Image.query()
       .preload('votes')
       .preload('creatorAccount')
       .preload('cachedPost')
@@ -132,9 +118,14 @@ export default class ImagesController extends BaseController {
       )
       .select('images.*')
       .select('votes.created_at')
+
+    this.applyCachedFilter(query, filter)
+
+    query
       .orderBy('votes.created_at', 'desc')
       .orderBy('id', 'desc')
-      .paginate(page, limit)
+
+    return query.paginate(page, limit)
   }
 
   public async curatedArt ({ request, session }: HttpContextContract) {
@@ -162,5 +153,24 @@ export default class ImagesController extends BaseController {
     this.applySorts(query, sort)
 
     return query.paginate(page, limit)
+  }
+
+  protected applyCachedFilter (query, filter: string) {
+    switch (filter) {
+      case 'singles':
+        query.has('cachedPost')
+        break;
+      case 'submissions':
+        query.whereHas('cachedSetSubmission', query => query.whereNull('revealBlockNumber'))
+        break;
+      case 'sets':
+        query.where(query => query
+          .has('cachedOpepen')
+          .orWhereHas('cachedSetSubmission', query => query.whereNotNull('setId').whereNotNull('revealBlockNumber'))
+        )
+        break;
+      default:
+        break;
+    }
   }
 }
