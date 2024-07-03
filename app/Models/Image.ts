@@ -58,6 +58,9 @@ export default class Image extends BaseModel {
   public votesCount: number
 
   @column()
+  public voteScore: number
+
+  @column()
   public aspectRatio: number
 
   @computed()

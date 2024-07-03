@@ -114,7 +114,7 @@ export default class ImagesController extends BaseController {
       .paginate(page, limit)
   }
 
-  public async myArtCurated ({ request, session }: HttpContextContract) {
+  public async curatedArt ({ request, session }: HttpContextContract) {
     const {
       page = 1,
       limit = 24,
@@ -123,6 +123,7 @@ export default class ImagesController extends BaseController {
     } = request.qs()
 
     const query = Image.votableQuery()
+      .where('votesCount', '>', 0)
       .preload('creatorAccount')
       .preload('cachedSetSubmission')
       .preload('cachedOpepen')

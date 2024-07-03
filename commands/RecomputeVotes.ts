@@ -22,6 +22,9 @@ export default class RecomputeVotes extends BaseCommand {
   @flags.boolean()
   public recompute: boolean = true
 
+  @flags.boolean()
+  public scores: boolean = true
+
   public async run() {
     if (this.removeDuplicates) {
       await this.findAndRemoveDuplicates()
@@ -30,6 +33,11 @@ export default class RecomputeVotes extends BaseCommand {
     if (this.recompute) {
       await this.recomputePoints()
     }
+
+    if (this.scores) {
+      await this.recomputeScores()
+    }
+
   }
 
   protected async findAndRemoveDuplicates () {
@@ -78,6 +86,19 @@ export default class RecomputeVotes extends BaseCommand {
         image.points += vote.points
         image.votesCount ++
       }
+
+      await image.save()
+    }
+  }
+
+  protected async recomputeScores () {
+    const { default: Image } = await import('App/Models/Image')
+
+    const images = await Image.query().where('votesCount', '>', 0)
+    this.logger.info(`Recomputing ${images.length} image vote scores`)
+
+    for (const image of images) {
+      image.voteScore = image.points / image.votesCount
 
       await image.save()
     }
