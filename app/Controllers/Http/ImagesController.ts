@@ -76,9 +76,10 @@ export default class ImagesController extends BaseController {
     const {
       page = 1,
       limit = 24,
+      filter = 'all',
     } = request.qs()
 
-    return Image.query()
+    const query = Image.query()
       .has('votes')
       .preload('creatorAccount')
       .preload('cachedPost')
@@ -86,10 +87,30 @@ export default class ImagesController extends BaseController {
       .preload('cachedOpepen')
       .where('points', '>', 0)
       .where('votes_count', '>=', 9)
+
+    switch (filter) {
+      case 'posts':
+        query.has('cachedPost')
+        break;
+      case 'submissions':
+        query.whereHas('cachedSetSubmission', query => query.whereNull('revealBlockNumber'))
+        break;
+      case 'sets':
+        query.where(query => query
+          .has('cachedOpepen')
+          .orWhereHas('cachedSetSubmission', query => query.whereNotNull('setId').whereNotNull('revealBlockNumber'))
+        )
+        break;
+      default:
+        break;
+    }
+
+    query
       .orderBy('vote_score', 'desc')
       .orderBy('votes_count', 'desc')
       .orderBy('id', 'desc')
-      .paginate(page, limit)
+
+    return query.paginate(page, limit)
   }
 
   public async myCurated ({ request, session }: HttpContextContract) {
