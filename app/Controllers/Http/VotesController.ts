@@ -49,7 +49,7 @@ export default class VotesController extends BaseController {
       votableCount
     ] = await Promise.all([
       Vote.query().where('address', address).count('id'),
-      Image.votableQuery().where('points', '>', -10).count('id'),
+      this.filterBad(Image.votableQuery()).count('id'),
     ])
 
     return {
@@ -67,7 +67,7 @@ export default class VotesController extends BaseController {
     const query = Image.votableQuery()
 
     // Filter out bad ones
-    query.where('points', '>', -10)
+    this.filterBad(query)
 
     // That we haven't voted on yet
     query.whereDoesntHave('votes', query => query.where('votes.address', address))
@@ -94,6 +94,15 @@ export default class VotesController extends BaseController {
       .preload('pfp')
       .orderBy('votes_count', 'desc')
       .paginate(page, limit)
+  }
+
+  protected filterBad (query) {
+    query.where(query => query
+      .where('points', '>', -10)
+      .orWhere('votesCount', '<', 20)
+    )
+
+    return query
   }
 
 }
