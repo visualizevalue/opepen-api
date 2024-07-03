@@ -35,6 +35,7 @@ export default class VotesController extends BaseController {
     // Calculate the new points based on the new vote
     image.points += vote.points
     image.votesCount ++
+    image.voteScore = image.points / image.votesCount
 
     await image.save()
 
