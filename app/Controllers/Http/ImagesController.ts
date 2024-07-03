@@ -2,6 +2,7 @@ import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import Image from 'App/Models/Image'
 import BaseController from './BaseController'
 import Account from 'App/Models/Account'
+import { isAdmin } from 'App/Middleware/AdminAuth'
 import { toDriveFromFileUpload } from 'App/Helpers/drive'
 import NotAuthenticated from 'App/Exceptions/NotAuthenticated'
 import InvalidInput from 'App/Exceptions/InvalidInput'
@@ -118,16 +119,21 @@ export default class ImagesController extends BaseController {
       page = 1,
       limit = 24,
       sort = '-points,-id',
+      filterAddress = null,
     } = request.qs()
 
-    const address = session.get('siwe')?.address?.toLowerCase()
-
     const query = Image.votableQuery()
-      .where('creator', address)
       .preload('creatorAccount')
       .preload('cachedSetSubmission')
       .preload('cachedOpepen')
       .preload('cachedPost')
+
+    const authAddress = session.get('siwe')?.address?.toLowerCase()
+    const address = isAdmin(session) ? filterAddress?.toLowerCase() : authAddress
+
+    if (address) {
+      query.where('creator', address)
+    }
 
     this.applySorts(query, sort)
 
