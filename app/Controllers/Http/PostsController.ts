@@ -79,7 +79,6 @@ export default class PostsController extends BaseController {
     // Filter non approved for non admins
     if (! isAdmin(session)) {
       query.whereNull('deletedAt')
-      query.whereNull('shadowedAt')
       query.where(q => {
         q.whereNotNull('approvedAt')
 
