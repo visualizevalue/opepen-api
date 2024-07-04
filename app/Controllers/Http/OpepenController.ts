@@ -104,6 +104,8 @@ export default class OpepenController extends BaseController {
 
   async gridForAccount (ctx: HttpContextContract) {
     const { params, request, response } = ctx
+    const account = await Account.byId(params.id).firstOrFail()
+
     const query = request.qs()
     const key = query.key || DateTime.now().toUnixInteger()
     const imagePath = `opepen-profile-grids/${params.id}-${key}.png`
@@ -112,7 +114,9 @@ export default class OpepenController extends BaseController {
     if (await Drive.exists(imagePath)) {
       return await ctx.response.redirect(`${Env.get('CDN_URL')}/${imagePath}`)
     } else {
-      const opepen = await this.forAccount(ctx)
+      const opepen = await Opepen.query().where('owner', account.address).preload('image')
+        .orderBy('updatedAt', 'desc')
+
       image = await OpepenGrid.make(
         opepen.map(c => c.tokenId.toString()),
         false,

@@ -9,8 +9,9 @@ export class OpepenGrid {
   public async make (ids: string[], forceSquare: boolean = true, highlighted: string[] = []) {
     const opepen = await Opepen.query()
       .preload('image')
-      .whereIn('tokenId', ids.slice(0, 81))
+      .whereIn('tokenId', ids)
       .orderBy('updatedAt', 'desc')
+      .limit(81)
 
     const count = opepen.length
     const perSide = forceSquare
