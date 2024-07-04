@@ -81,6 +81,11 @@ export default class ImagesController extends BaseController {
 
     const query = Image.query()
       .has('votes')
+      .where(query => {
+        query.whereHas('cachedPost', query => query.whereNull('shadowedAt'))
+        query.orWhereHas('cachedSetSubmission', query => query.whereNull('shadowedAt'))
+        query.orHas('cachedOpepen')
+      })
       .preload('creatorAccount')
       .preload('cachedPost')
       .preload('cachedSetSubmission')
