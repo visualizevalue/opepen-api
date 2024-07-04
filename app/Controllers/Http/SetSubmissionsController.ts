@@ -56,6 +56,14 @@ export default class SetSubmissionsController extends BaseController {
           })
           break
         }
+      case 'shadowed':
+        if (isAdmin(session)) {
+          query.withScopes(scopes => {
+            scopes.shadowed()
+          })
+          query.orderByRaw('shadowed_at desc NULLS LAST')
+        }
+        break
       case 'starred':
         query.withScopes(scopes => {
           scopes.active()
@@ -208,23 +216,23 @@ export default class SetSubmissionsController extends BaseController {
   }
 
   public async curated () {
-      const baseQuery = query => query
-        .whereNotNull('starredAt')
-        .where('starredAt', '<', DateTime.now().toISO())
-        .preload('set')
-        .preload('edition1Image')
-        .preload('edition4Image')
-        .preload('edition5Image')
-        .preload('edition10Image')
-        .preload('edition20Image')
-        .preload('edition40Image')
-        .preload('dynamicSetImages')
-        .preload('creatorAccount')
-        .preload('coCreator1Account')
-        .preload('coCreator2Account')
-        .preload('coCreator3Account')
-        .preload('coCreator4Account')
-        .preload('coCreator5Account')
+    const baseQuery = query => query
+      .whereNotNull('starredAt')
+      .where('starredAt', '<', DateTime.now().toISO())
+      .preload('set')
+      .preload('edition1Image')
+      .preload('edition4Image')
+      .preload('edition5Image')
+      .preload('edition10Image')
+      .preload('edition20Image')
+      .preload('edition40Image')
+      .preload('dynamicSetImages')
+      .preload('creatorAccount')
+      .preload('coCreator1Account')
+      .preload('coCreator2Account')
+      .preload('coCreator3Account')
+      .preload('coCreator4Account')
+      .preload('coCreator5Account')
 
     let currentOrPastSubmission = await baseQuery(SetSubmission.query())
       .where('starredAt', '>=',  DateTime.now().minus({ hours: 48 }).toISO())
@@ -466,6 +474,8 @@ export default class SetSubmissionsController extends BaseController {
 
     submission.approvedAt = null
 
+    if (submission.setId) throw new InvalidInput(`Can't unapprove a revealed set`)
+
     await submission.save()
 
     return submission
@@ -484,6 +494,19 @@ export default class SetSubmissionsController extends BaseController {
     }
 
     return submission
+  }
+
+  public async shadow (ctx: HttpContextContract) {
+    const submission = await this.show(ctx)
+    if (! submission) return ctx.response.badRequest()
+
+    submission.shadowedAt = submission.shadowedAt ? null : DateTime.now()
+
+    if (submission.shadowedAt) {
+      await this._approve(submission)
+    }
+
+    return submission.save()
   }
 
   public async delete (ctx: HttpContextContract) {

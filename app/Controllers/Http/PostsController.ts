@@ -40,6 +40,7 @@ export default class PostsController extends BaseController {
     if (! isAdmin(session)) {
       query.where(q => {
         q.whereNotNull('approvedAt')
+        q.whereNull('shadowedAt')
 
         const userAddress = session.get('siwe')?.address?.toLowerCase()
         if (userAddress) q.orWhere('address', userAddress)
@@ -78,6 +79,7 @@ export default class PostsController extends BaseController {
     // Filter non approved for non admins
     if (! isAdmin(session)) {
       query.whereNull('deletedAt')
+      query.whereNull('shadowedAt')
       query.where(q => {
         q.whereNotNull('approvedAt')
 
@@ -158,6 +160,16 @@ export default class PostsController extends BaseController {
     await post.save()
 
     return post
+  }
+
+  public async shadow (ctx: HttpContextContract) {
+    const post = await this.show(ctx)
+    if (! post) return ctx.response.badRequest()
+
+    post.shadowedAt = post.shadowedAt ? null : DateTime.now()
+    post.approvedAt = post.shadowedAt ? post.approvedAt : null
+
+    return post.save()
   }
 
   public async unapprove (ctx: HttpContextContract) {

@@ -311,7 +311,11 @@ export default class Image extends BaseModel {
     return Image.query()
       .where(query => query
         // Attached to approved single upload
-        .whereHas('cachedPost', query => query.whereNotNull('approvedAt'))
+        .whereHas('cachedPost', query => query
+            .whereNotNull('approvedAt')
+            .whereNull('shadowedAt')
+            .whereNull('deletedAt')
+        )
         // Revealed Dynamic Opepen
         .orHas('cachedOpepen')
         // Revealed Print Opepen
@@ -324,6 +328,8 @@ export default class Image extends BaseModel {
         .orWhereHas('cachedSetSubmission', query => query
           .whereNotNull('approvedAt')
           .whereNull('revealBlockNumber')
+          .whereNull('shadowedAt')
+          .whereNull('deletedAt')
         )
       )
   }

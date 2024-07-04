@@ -99,6 +99,7 @@ Route.group(() => {
     Route.post('/:id/approve',        'SetSubmissionsController.approve').middleware(['admin'])
     Route.post('/:id/unapprove',      'SetSubmissionsController.unapprove').middleware(['admin'])
     Route.post('/:id/star',           'SetSubmissionsController.star').middleware(['admin'])
+    Route.post('/:id/shadow',         'SetSubmissionsController.shadow').middleware(['admin'])
 
   }).middleware(['auth'])
 
@@ -115,6 +116,7 @@ Route.group(() => {
   Route.get('/:id',              'PostsController.show')
   Route.post('/:id/approve',     'PostsController.approve').middleware(['admin'])
   Route.post('/:id/unapprove',   'PostsController.unapprove').middleware(['admin'])
+  Route.post('/:id/shadow',      'PostsController.shadow').middleware(['admin'])
   Route.delete('/:id',           'PostsController.destroy').middleware(['auth'])
 }).prefix('/v1/posts')
 

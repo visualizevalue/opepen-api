@@ -138,6 +138,9 @@ export default class SetSubmission extends BaseModel {
   @column.dateTime()
   public archivedAt: DateTime|null
 
+  @column.dateTime()
+  public shadowedAt: DateTime|null
+
   @column()
   public setId: number
 
@@ -383,6 +386,7 @@ export default class SetSubmission extends BaseModel {
   public static active = scope((query) => {
     query.whereNull('deletedAt')
     query.whereNull('archivedAt')
+    query.whereNull('shadowedAt')
   })
 
   public static published = scope((query) => {
@@ -395,6 +399,10 @@ export default class SetSubmission extends BaseModel {
 
   public static starred = scope((query) => {
     query.whereNotNull('starredAt')
+  })
+
+  public static shadowed = scope((query) => {
+    query.whereNotNull('shadowedAt')
   })
 
   public static unstarred = scope((query) => {

@@ -48,6 +48,9 @@ export default class Post extends BaseModel {
   @column.dateTime()
   public approvedAt: DateTime|null
 
+  @column.dateTime({ serializeAs: null })
+  public shadowedAt: DateTime|null
+
   @column.dateTime()
   public deletedAt: DateTime|null
 
