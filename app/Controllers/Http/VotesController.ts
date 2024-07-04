@@ -50,7 +50,9 @@ export default class VotesController extends BaseController {
       votableCount
     ] = await Promise.all([
       Vote.query().where('address', address).count('id'),
-      this.filterBad(Image.votableQuery()).count('id'),
+      this.filterBad(Image.votableQuery())
+        .whereDoesntHave('votes', query => query.where('votes.address', address))
+        .count('id'),
     ])
 
     return {
