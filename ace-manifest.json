@@ -24,6 +24,18 @@
       "aliases": [],
       "flags": []
     },
+    "clean:dynamic_opepen_images": {
+      "settings": {
+        "loadApp": true,
+        "stayAlive": false
+      },
+      "commandPath": "./commands/CleanDynamicOpepenImages",
+      "commandName": "clean:dynamic_opepen_images",
+      "description": "",
+      "args": [],
+      "aliases": [],
+      "flags": []
+    },
     "clean:opepen_images": {
       "settings": {
         "loadApp": true,

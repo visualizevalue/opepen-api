@@ -69,7 +69,7 @@ export default class Opepen extends TokenModel {
   public setEditionId: number
 
   @column()
-  public imageId: bigint
+  public imageId: bigint | null
 
   @belongsTo(() => SetModel, {
     foreignKey: 'setId',

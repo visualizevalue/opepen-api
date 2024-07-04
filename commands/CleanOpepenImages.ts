@@ -176,6 +176,7 @@ export default class CleanOpepenImages extends BaseCommand {
       if (submission.setId) {
         const oneOfOne = await Opepen.query()
           .where('setId', submission.setId)
+          .whereJsonSuperset('data', { edition: 1 })
           .preload('image', query => query.preload('votes'))
           .first()
 
