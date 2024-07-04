@@ -160,11 +160,6 @@
           "type": "string"
         },
         {
-          "name": "missing",
-          "propertyName": "missing",
-          "type": "boolean"
-        },
-        {
           "name": "opensea",
           "propertyName": "opensea",
           "type": "boolean"

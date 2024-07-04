@@ -25,10 +25,7 @@ export default class ImportSetImages extends BaseCommand {
   public edition: string
 
   @flags.boolean()
-  public missing: boolean
-
-  @flags.boolean()
-  public opensea: boolean = false
+  public opensea: boolean = true
 
   public async run() {
     const { default: Opepen } = await import('App/Models/Opepen')
@@ -39,19 +36,18 @@ export default class ImportSetImages extends BaseCommand {
     const set = await SetModel.query().where('id', this.set).preload('submission').firstOrFail()
 
     const query = Opepen.query().where('setId', set.id)
-    if (this.missing) {
-      query.whereNull('imageId')
-    }
     if (this.edition) {
       query.whereRaw(`"data"->>'edition' = ?`, [this.edition])
     }
 
     const opepenInSet = await query
 
-    for (const opepen of opepenInSet) {
-      await OpenSea.updateMetadata(opepen.tokenId.toString())
+    if (this.opensea) {
+      for (const opepen of opepenInSet) {
+        await OpenSea.updateMetadata(opepen.tokenId.toString())
 
-      await delay(500)
+        await delay(500)
+      }
     }
   }
 }
