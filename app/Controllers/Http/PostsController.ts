@@ -167,7 +167,7 @@ export default class PostsController extends BaseController {
     if (! post) return ctx.response.badRequest()
 
     post.shadowedAt = post.shadowedAt ? null : DateTime.now()
-    post.approvedAt = post.shadowedAt ? post.approvedAt : null
+    post.approvedAt = post.shadowedAt ? post.shadowedAt : null
 
     return post.save()
   }
