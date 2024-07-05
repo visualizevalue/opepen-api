@@ -17,6 +17,8 @@ export type Stats = {
     artists: number
     curators: number
     holders: number
+    voters: number
+    voterPatrons: number
   }
   optIns: number
   revealed: {
@@ -60,6 +62,8 @@ class StatsService {
       permanentArtists,
       curators,
       holders,
+      voters,
+      voterPatrons,
       votes,
       postImages,
       revealedFloorOpepen,
@@ -67,20 +71,22 @@ class StatsService {
       emailsTotal,
       emailsVerified,
     ] = await Promise.all([
-      SetSubmission.query().count('id'),
-      SetSubmission.query().where('edition_type', 'PRINT').count('id'),
-      SubscriptionHistory.query().sum('opepen_count'),
-      SetModel.query().whereNotNull('submissionId').count('id'),
-      SetSubmission.query().whereNotNull('approved_at').countDistinct('creator'),
-      this.permanentArtistsQuery(),
-      SubscriptionHistory.query().countDistinct('address'),
-      Opepen.query().countDistinct('owner'),
-      Vote.query().where('createdAt', '>', '2024-06-28 18:30.000+00').count('id'),
-      Image.query().has('posts').count('id'),
-      Opepen.query().whereNotNull('price').whereNotNull('setId').orderBy('price').first(),
-      Opepen.query().whereNotNull('price').whereNull('setId').orderBy('price').first(),
-      Account.query().whereNotNull('email').count('address'),
-      Account.query().withScopes(scopes => scopes.receivesEmails()).count('address'),
+      /*submissions,*/          SetSubmission.query().count('id'),
+      /*printSubmissions,*/     SetSubmission.query().where('edition_type', 'PRINT').count('id'),
+      /*optIns,*/               SubscriptionHistory.query().sum('opepen_count'),
+      /*sets,*/                 SetModel.query().whereNotNull('submissionId').count('id'),
+      /*artists,*/              SetSubmission.query().whereNotNull('approved_at').countDistinct('creator'),
+      /*permanentArtists,*/     this.permanentArtistsQuery(),
+      /*curators,*/             SubscriptionHistory.query().countDistinct('address'),
+      /*holders,*/              Opepen.query().countDistinct('owner'),
+      /*voters,*/               Vote.query().countDistinct('address'),
+      /*voterPatrons,*/         Vote.query().join('opepens', 'address', 'owner').countDistinct('address'),
+      /*votes,*/                Vote.query().where('createdAt', '>', '2024-06-28 18:30.000+00').count('id'),
+      /*postImages,*/           Image.query().has('posts').count('id'),
+      /*revealedFloorOpepen,*/  Opepen.query().whereNotNull('price').whereNotNull('setId').orderBy('price').first(),
+      /*unrevealedFloorOpepen,*/Opepen.query().whereNotNull('price').whereNull('setId').orderBy('price').first(),
+      /*emailsTotal,*/          Account.query().whereNotNull('email').count('address'),
+      /*emailsVerified,*/       Account.query().withScopes(scopes => scopes.receivesEmails()).count('address'),
     ])
 
     const setsCount: number = parseInt(sets[0].$extras.count)
@@ -104,6 +110,8 @@ class StatsService {
         artists: parseInt(artists[0].$extras.count),
         curators: parseInt(curators[0].$extras.count),
         holders: parseInt(holders[0].$extras.count),
+        voters: parseInt(voters[0].$extras.count),
+        voterPatrons: parseInt(voterPatrons[0].$extras.count),
       },
       revealed: {
         opepen: setsCount * 80,
