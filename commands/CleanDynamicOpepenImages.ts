@@ -46,6 +46,8 @@ export default class CleanOpepenImages extends BaseCommand {
 
         oneOfOne.imageId = submission.edition1Image.id
         await oneOfOne.save()
+        await oneOfOne.load('image')
+        await oneOfOne.updateImage()
       }
 
       if (! oneOfOne.imageId) {
