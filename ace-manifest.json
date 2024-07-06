@@ -103,6 +103,18 @@
       "aliases": [],
       "flags": []
     },
+    "images:fix_non_static_sets": {
+      "settings": {
+        "loadApp": true,
+        "stayAlive": false
+      },
+      "commandPath": "./commands/FixNonStaticSets",
+      "commandName": "images:fix_non_static_sets",
+      "description": "",
+      "args": [],
+      "aliases": [],
+      "flags": []
+    },
     "farcaster:import-casts": {
       "settings": {
         "loadApp": true,

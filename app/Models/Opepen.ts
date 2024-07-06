@@ -127,10 +127,18 @@ export default class Opepen extends TokenModel {
 
   public async updateImage () {
     const opepen: Opepen = this
-    const response = await axios.get(`https://metadata.opepen.art/${opepen.tokenId}/image-uri`)
+    let uri: string
 
-    const { uri } = response.data
-    const gatewayURI = uri.replace('ipfs.io', Env.get('IPFS_GATEWAY'))
+    if (opepen.metadata.animation_url?.endsWith('.svg')) {
+      uri = opepen.metadata.animation_url
+    } else {
+      const response = await axios.get(`https://metadata.opepen.art/${opepen.tokenId}/image-uri`)
+
+      uri = response.data.uri as string
+    }
+    const gatewayURI = uri
+      .replace('ipfs.io', Env.get('IPFS_GATEWAY'))
+      .replace('ipfs:/', Env.get('IPFS_GATEWAY'))
 
     Logger.info(`Opepen #${opepen.tokenId} image importing from: ${gatewayURI}`)
 
