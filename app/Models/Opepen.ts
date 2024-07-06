@@ -138,7 +138,7 @@ export default class Opepen extends TokenModel {
     }
     const gatewayURI = uri
       .replace('ipfs.io', Env.get('IPFS_GATEWAY'))
-      .replace('ipfs:/', Env.get('IPFS_GATEWAY'))
+      .replace('ipfs://', Env.get('IPFS_GATEWAY') + '/ipfs/')
 
     Logger.info(`Opepen #${opepen.tokenId} image importing from: ${gatewayURI}`)
 
