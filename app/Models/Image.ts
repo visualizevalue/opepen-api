@@ -83,8 +83,13 @@ export default class Image extends BaseModel {
     return this.isVideo || ['apng', 'gif'].includes(this.type)
   }
 
+  @computed()
+  public get isWebRendered (): boolean {
+    return ['svg', 'html'].includes(this.type)
+  }
+
   public get staticType (): string {
-    return this.isAnimated || this.type === 'svg' ? 'png' : this.type
+    return this.isAnimated ? 'png' : this.type
   }
 
   public get originalURI (): string {
@@ -202,7 +207,7 @@ export default class Image extends BaseModel {
       let key = `images/${this.uuid}.${this.type}`
 
       // Generate still
-      if (this.isAnimated) {
+      if (this.isAnimated || this.isWebRendered) {
         await this.generateStill()
 
         key += '.png'
@@ -245,16 +250,20 @@ export default class Image extends BaseModel {
   }
 
   async generateStill (): Promise<void> {
-    // Download video
+    // Download asset
     const key = `images/${this.uuid}.${this.type}`
     const pngKey = `${key}.png`
     const file = await Drive.get(key)
     await Drive.use('local').put(key, file)
     const tmp = await Application.tmpPath(`uploads`)
 
-    // Generate video
+    // Generate asset still
     try {
-      await execute(`ffmpeg -i ${tmp}/${key} -frames:v 1 ${tmp}/${pngKey} -threads 4 -y`)
+      if (this.isVideo) {
+        await execute(`ffmpeg -i ${tmp}/${key} -frames:v 1 ${tmp}/${pngKey} -threads 4 -y`)
+      } else if (this.isWebRendered) {
+        await Drive.use('local').put(pngKey, await this.renderOriginal())
+      }
     } catch (e) {
       // ...
       console.log(e)
@@ -285,13 +294,17 @@ export default class Image extends BaseModel {
       }
     }
 
-    const buffer = await renderPage(this.originalURI)
+    const buffer = await this.renderOriginal()
     await this.renderToScaledVersions(buffer)
 
     return {
       contentType: 'image/png',
       buffer,
     }
+  }
+
+  public async renderOriginal () {
+    return await renderPage(this.originalURI)
   }
 
   public async updateImage (url) {

@@ -2,9 +2,9 @@ import { BaseCommand } from '@adonisjs/core/build/standalone'
 
 const setsToRelink = [
   4,
-  // 5,
-  // 10,
-  // 28,
+  5,
+  10,
+  28,
 ]
 
 export default class FixNonStaticSets extends BaseCommand {
