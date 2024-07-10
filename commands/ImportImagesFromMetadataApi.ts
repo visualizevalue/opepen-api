@@ -24,9 +24,6 @@ export default class ImportSetImages extends BaseCommand {
   @flags.string()
   public edition: string
 
-  @flags.boolean()
-  public opensea: boolean = true
-
   public async run() {
     const { default: Opepen } = await import('App/Models/Opepen')
     const { default: SetModel } = await import('App/Models/SetModel')
@@ -42,12 +39,9 @@ export default class ImportSetImages extends BaseCommand {
 
     const opepenInSet = await query
 
-    if (this.opensea) {
-      for (const opepen of opepenInSet) {
-        await OpenSea.updateMetadata(opepen.tokenId.toString())
-
-        await delay(500)
-      }
+    for (const opepen of opepenInSet) {
+      await opepen.updateImage()
+      await delay(200)
     }
   }
 }

@@ -182,11 +182,6 @@
           "name": "edition",
           "propertyName": "edition",
           "type": "string"
-        },
-        {
-          "name": "opensea",
-          "propertyName": "opensea",
-          "type": "boolean"
         }
       ]
     },
