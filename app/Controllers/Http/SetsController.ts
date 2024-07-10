@@ -21,6 +21,12 @@ export default class SetsController extends BaseController {
     return set
   }
 
+  public async stats ({ params }: HttpContextContract) {
+    return {
+      floorListing: (await Opepen.query().whereNotNull('price').where('setId', params.id).orderBy('price').first()),
+    }
+  }
+
   public async opepen ({ params }: HttpContextContract) {
     return Opepen.query()
       .where('setId', params.id)

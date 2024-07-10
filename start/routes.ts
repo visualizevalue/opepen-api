@@ -68,6 +68,7 @@ Route.group(() => {
   // Sets
   Route.get('/sets',                    'SetsController.list')
   Route.get('/sets/:id',                'SetsController.show')
+  Route.get('/sets/:id/stats',          'SetsController.stats')
   Route.get('/sets/:id/opepen',         'SetsController.opepen')
   Route.get('/sets/:id/stats/listings', 'SetStatsController.listings')
 
