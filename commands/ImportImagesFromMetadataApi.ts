@@ -1,6 +1,5 @@
 import { BaseCommand, args, flags } from '@adonisjs/core/build/standalone'
 import { delay } from 'App/Helpers/time'
-import OpenSea from 'App/Services/OpenSea'
 
 export default class ImportSetImages extends BaseCommand {
   /**
