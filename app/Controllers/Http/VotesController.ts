@@ -39,6 +39,11 @@ export default class VotesController extends BaseController {
 
     await image.save()
 
+    // Update account
+    const account = await Account.byId(address).firstOrFail()
+    account.votesCount ++
+    await account.save()
+
     return vote
   }
 
@@ -88,14 +93,13 @@ export default class VotesController extends BaseController {
   public async leaderboard ({ request }: HttpContextContract) {
     const {
       page = 1,
-      limit = 32,
+      limit = 100,
     } = request.qs()
 
     return Account.query()
       .has('votes')
-      .withCount('votes')
       .preload('pfp')
-      .orderBy('votes_count', 'desc')
+      .orderBy('votesCount', 'desc')
       .paginate(page, limit)
   }
 

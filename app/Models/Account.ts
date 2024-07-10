@@ -95,6 +95,9 @@ export default class Account extends BaseModel {
   @column()
   public profileCompletion: number
 
+  @column()
+  public votesCount: number
+
   @column({
     consume: (value: string) => typeof value === 'string' ? JSON.parse(value) : value,
     prepare: (value: any) => Array.isArray(value) ? JSON.stringify(value) : value,
@@ -339,9 +342,6 @@ export default class Account extends BaseModel {
     return {
       opepen_count: this.$extras.opepen_count
         ? parseInt(this.$extras.opepen_count)
-        : undefined,
-      votes_count: this.$extras.votes_count
-        ? parseInt(this.$extras.votes_count)
         : undefined,
     }
   }
