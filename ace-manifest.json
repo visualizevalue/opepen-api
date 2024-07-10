@@ -370,6 +370,41 @@
         }
       ]
     },
+    "images:replace_file_contents": {
+      "settings": {
+        "loadApp": true,
+        "stayAlive": false
+      },
+      "commandPath": "./commands/ReplaceImageFileContents",
+      "commandName": "images:replace_file_contents",
+      "description": "",
+      "args": [
+        {
+          "type": "string",
+          "propertyName": "set",
+          "name": "set",
+          "required": true
+        }
+      ],
+      "aliases": [],
+      "flags": [
+        {
+          "name": "find",
+          "propertyName": "find",
+          "type": "string"
+        },
+        {
+          "name": "replace",
+          "propertyName": "replace",
+          "type": "string"
+        },
+        {
+          "name": "mime",
+          "propertyName": "mime",
+          "type": "string"
+        }
+      ]
+    },
     "restore:past_valid_opt_ins": {
       "settings": {
         "loadApp": true,
