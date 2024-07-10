@@ -89,7 +89,7 @@ export default class Image extends BaseModel {
   }
 
   public get staticType (): string {
-    return this.isAnimated ? 'png' : this.type
+    return (this.isAnimated || this.isWebRendered) ? 'png' : this.type
   }
 
   public get originalURI (): string {
