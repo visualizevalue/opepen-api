@@ -11,7 +11,7 @@ export default class NotificationsController {
     for (const user of users) {
       try {
         await new NotifyGeneralEmail(user).sendLater()
-        Logger.info(`SetNotification email scheduled: ${user.email}`)
+        Logger.info(`General email scheduled: ${user.email}`)
       } catch (e) {
         console.log(e)
         Logger.warn(`Error scheduling SetNotification email: ${user.email}`)

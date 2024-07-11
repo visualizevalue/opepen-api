@@ -9,7 +9,7 @@ export default class NotifyGeneralEmail extends NotificationEmail {
 
   public async prepare(message: MessageContract) {
     return super.prepareEmail(message, {
-      subject: 'New Opepen Sets',
+      subject: 'Consensus is temporary',
       name: 'general',
       templateData: {},
     })
