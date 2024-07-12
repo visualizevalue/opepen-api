@@ -195,6 +195,7 @@ Route.group(() => {
 
 // Notifications
 Route.group(() => {
+  Route.post('/preview', 'NotificationsController.preview').middleware(['admin'])
   Route.post('/general', 'NotificationsController.general').middleware(['admin'])
 }).prefix('/v1/notifications')
 
