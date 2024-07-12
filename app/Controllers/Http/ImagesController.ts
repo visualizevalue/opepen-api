@@ -146,6 +146,7 @@ export default class ImagesController extends BaseController {
       page = 1,
       limit = 24,
       sort = '-points,-id',
+      filter = {},
       filterAddress = null,
     } = request.qs()
 
@@ -164,6 +165,7 @@ export default class ImagesController extends BaseController {
     }
 
     this.applySorts(query, sort)
+    this.applyFilters(query, filter)
 
     return query.paginate(page, limit)
   }

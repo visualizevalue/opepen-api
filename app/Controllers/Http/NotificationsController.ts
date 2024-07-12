@@ -11,14 +11,20 @@ export default class NotificationsController {
 
     const users = await Account.query().withScopes(scopes => scopes.receivesEmail('General'))
 
+    const sentEmails = new Set()
+
     for (const user of users) {
+      if (sentEmails.has(user.email)) continue
+
       try {
         await new NotifyGeneralEmail(user, subject).sendLater()
-        Logger.info(`SetNotification email scheduled: ${user.email}`)
+        Logger.info(`General email scheduled: ${user.email}`)
       } catch (e) {
         console.log(e)
         Logger.warn(`Error scheduling SetNotification email: ${user.email}`)
       }
+
+      sentEmails.add(user.email)
     }
 
     return {
