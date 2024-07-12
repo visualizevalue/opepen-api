@@ -803,13 +803,18 @@ export default class SetSubmission extends BaseModel {
 
     const Mailer = NOTIFICATIONS[scopeKey]
 
+    const sentEmails = new Set()
     for (const user of users) {
+      if (sentEmails.has(user.email)) continue
+
       try {
         await new Mailer(user, this).sendLater()
         Logger.info(`${scopeKey} email scheduled: ${user.email}`)
       } catch (e) {
         Logger.warn(`Error scheduling ${scopeKey} email: ${user.email}: ${e}`)
       }
+
+      sentEmails.add(user.email)
     }
   }
 }
