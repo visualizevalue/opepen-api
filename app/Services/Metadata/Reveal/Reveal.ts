@@ -201,6 +201,11 @@ export default class Reveal {
     opepen.setEditionId = index
     opepen.imageId = image.id
 
+    if (submission.isDynamic) { // Update image cache post reveal
+      image.opepenId = opepen.tokenId as bigint
+      await image.save()
+    }
+
     await opepen.save()
   }
 

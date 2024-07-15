@@ -12,6 +12,18 @@
       "aliases": [],
       "flags": []
     },
+    "attach:revealed_dynamics_to_cached_set_submission": {
+      "settings": {
+        "loadApp": true,
+        "stayAlive": false
+      },
+      "commandPath": "./commands/AttachRevealedDynamicsToCachedSetSubmission",
+      "commandName": "attach:revealed_dynamics_to_cached_set_submission",
+      "description": "",
+      "args": [],
+      "aliases": [],
+      "flags": []
+    },
     "cache:main_image_relations": {
       "settings": {
         "loadApp": true,

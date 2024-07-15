@@ -341,6 +341,7 @@ export default class Image extends BaseModel {
         .orWhereHas('cachedSetSubmission', query => query
           .whereNotNull('approvedAt')
           .whereNull('revealBlockNumber')
+          .whereNull('setId')
           .whereNull('shadowedAt')
           .whereNull('deletedAt')
         )
