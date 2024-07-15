@@ -23,6 +23,8 @@ export default class SetSubmissionsController extends BaseController {
       status = '',
     } = request.qs()
 
+    const customSort = sort !== '-createdAt'
+
     const query = SetSubmission.query()
       .preload('edition1Image')
       .preload('edition4Image')
@@ -61,7 +63,7 @@ export default class SetSubmissionsController extends BaseController {
           query.withScopes(scopes => {
             scopes.shadowed()
           })
-          query.orderByRaw('shadowed_at desc NULLS LAST')
+          if (! customSort) query.orderByRaw('shadowed_at desc NULLS LAST')
         }
         break
       case 'starred':
@@ -69,7 +71,7 @@ export default class SetSubmissionsController extends BaseController {
           scopes.active()
           scopes.starred()
         })
-        query.orderByRaw('starred_at desc NULLS LAST')
+        if (! customSort) query.orderByRaw('starred_at desc NULLS LAST')
         break
       case 'curated':
         query.withScopes(scopes => {
@@ -77,14 +79,14 @@ export default class SetSubmissionsController extends BaseController {
           scopes.starred()
           scopes.noTimer()
         })
-        query.orderByRaw('starred_at desc NULLS LAST')
+        if (! customSort) query.orderByRaw('starred_at desc NULLS LAST')
         break
       case 'unstarred':
         query.withScopes(scopes => {
           scopes.live()
           scopes.unstarred()
         })
-        query.orderByRaw('approved_at desc')
+        if (! customSort) query.orderByRaw('approved_at desc')
         break
       case 'deleted':
         if (isAdmin(session)) {
@@ -94,7 +96,7 @@ export default class SetSubmissionsController extends BaseController {
       case 'revealed':
         query.whereNotNull('setId')
         query.whereNotNull('revealBlockNumber')
-        query.orderBy('reveals_at', 'desc')
+        if (! customSort) query.orderBy('reveals_at', 'desc')
         break
       case 'active':
         query.withScopes(scopes => scopes.activeTimer())
