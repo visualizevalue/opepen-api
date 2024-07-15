@@ -4,6 +4,7 @@ import BaseController from './BaseController'
 import Image from 'App/Models/Image'
 import Vote from 'App/Models/Vote'
 import { Account } from 'App/Models'
+import SetSubmission from 'App/Models/SetSubmission'
 
 export default class VotesController extends BaseController {
 
@@ -43,6 +44,19 @@ export default class VotesController extends BaseController {
     const account = await Account.byId(address).firstOrFail()
     account.votesCount ++
     await account.save()
+
+    // Update submission
+    if (image.setSubmissionId) {
+      const submission = await SetSubmission.find(image.setSubmissionId)
+
+      if (submission) {
+        submission.points += vote.points
+        submission.votesCount ++
+        submission.voteScore = parseFloat((submission.points / submission.votesCount).toFixed(2))
+
+        await submission.save()
+      }
+    }
 
     return vote
   }

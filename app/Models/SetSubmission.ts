@@ -273,6 +273,15 @@ export default class SetSubmission extends BaseModel {
   })
   public artistSignature: ArtistSignature
 
+  @column()
+  public points: number
+
+  @column()
+  public votesCount: number
+
+  @column()
+  public voteScore: number
+
   @belongsTo(() => Image, { foreignKey: 'edition_1ImageId' })
   public edition1Image: BelongsTo<typeof Image>
   @belongsTo(() => Image, { foreignKey: 'edition_4ImageId' })
