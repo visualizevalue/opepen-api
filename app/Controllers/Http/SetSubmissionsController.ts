@@ -528,8 +528,14 @@ export default class SetSubmissionsController extends BaseController {
     const creator = await Account.byId(params.account).firstOrFail()
     await this.creatorOrAdmin({ creator, session })
 
-    const { page = 1, limit = 100 } = request.qs()
-    return SetSubmission.query()
+    const {
+      page = 1,
+      limit = 100,
+      filter = {},
+      sort = '-createdAt',
+    } = request.qs()
+
+    const query = SetSubmission.query()
       .where('creator', creator.address)
       .withScopes((scopes) => scopes.active())
       .preload('edition1Image')
@@ -538,7 +544,11 @@ export default class SetSubmissionsController extends BaseController {
       .preload('edition10Image')
       .preload('edition20Image')
       .preload('edition40Image')
-      .paginate(page, limit)
+
+    this.applyFilters(query, filter)
+    this.applySorts(query, sort)
+
+    return query.paginate(page, limit)
   }
 
   protected async _approve (submission: SetSubmission) {
