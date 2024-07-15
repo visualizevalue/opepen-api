@@ -9,7 +9,7 @@ export class OpepenGrid {
   public async make (ids: string[], forceSquare: boolean = true, highlighted: string[] = []) {
     const opepen = await Opepen.query()
       .preload('image')
-      .whereIn('tokenId', ids)
+      .whereIn('tokenId', Array.from(new Set(ids.concat(highlighted))))
       .orderBy('updatedAt', 'desc')
       .limit(81)
 
