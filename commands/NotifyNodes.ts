@@ -35,7 +35,7 @@ export default class NotifyNodes extends BaseCommand {
     // Make sure we have all sales imported
     await (new ImportSales()).sync()
 
-    this.logger.info(`Computing node movements since ${movementsSince.toFormat('yyyy LLL dd')}`)
+    this.logger.info(`Computing node movements since ${movementsSince.toISO()}`)
 
     const eventsPerNode = await this.getEventsPerNode(movementsSince)
     const lastEvent = await Event.query()
@@ -91,6 +91,7 @@ export default class NotifyNodes extends BaseCommand {
       this.logger.info(`Node ${account.display} sold in the meantime, skip (likely a bot)`)
       return
     }
+    this.logger.info(`Node ${account.display} has received/bought ${events.length} Opepen`)
 
     const imageURI = `https://api.opepen.art/v1/accounts/${account.address}/opepen/grid.png?key=${DateTime.now().toUnixInteger()}`
 
