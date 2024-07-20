@@ -149,7 +149,16 @@ export default class NotifyNodes extends BaseCommand {
     const xClient = await Twitter.initialize(account)
     if (! xClient) return
 
-    await xClient.tweet(txt, img)
-    await Farcaster.cast(txt, img)
+    try {
+      await xClient.tweet(txt, img)
+    } catch (e) {
+      this.logger.error(`NotifyNodes: Issue sending X post `)
+    }
+    try {
+      await Farcaster.cast(txt, img)
+    } catch (e) {
+      this.logger.error(`NotifyNodes: Issue sending Farcaster post`)
+    }
+
   }
 }
