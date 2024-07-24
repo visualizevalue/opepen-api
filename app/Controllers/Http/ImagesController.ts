@@ -19,7 +19,7 @@ export default class ImagesController extends BaseController {
     })
 
     const file = request.file('image', {
-      size: '10mb',
+      size: '15mb',
     })
 
     if (! file) throw new BadRequest(`No file provided`)
