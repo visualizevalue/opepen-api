@@ -35,6 +35,14 @@ export type Stats = {
       total?: string
       unrevealed?: string
       revealed?: string
+      unrevealedEditions?: {
+        1: string
+        4: string
+        5: string
+        10: string
+        20: string
+        40: string
+      }
     }
   }
 }
@@ -68,6 +76,12 @@ class StatsService {
       postImages,
       revealedFloorOpepen,
       unrevealedFloorOpepen,
+      unrevealedOneOfOneFloorOpepen,
+      unrevealedOneOfFourFloorOpepen,
+      unrevealedOneOfFiveFloorOpepen,
+      unrevealedOneOfTenFloorOpepen,
+      unrevealedOneOfTwentyFloorOpepen,
+      unrevealedOneOfFortyFloorOpepen,
       emailsTotal,
       emailsVerified,
     ] = await Promise.all([
@@ -85,6 +99,12 @@ class StatsService {
       /*postImages,*/           Image.query().has('posts').count('id'),
       /*revealedFloorOpepen,*/  Opepen.query().whereNotNull('price').whereNotNull('setId').orderBy('price').first(),
       /*unrevealedFloorOpepen,*/Opepen.query().whereNotNull('price').whereNull('setId').orderBy('price').first(),
+      /*unrevealedOneOfOneFloorOpepen*/    Opepen.query().whereNotNull('price').whereNull('setId').whereJsonSuperset('data', { edition: 1 }).orderBy('price').first(),
+      /*unrevealedOneOfFourFloorOpepen*/   Opepen.query().whereNotNull('price').whereNull('setId').whereJsonSuperset('data', { edition: 4 }).orderBy('price').first(),
+      /*unrevealedOneOfFiveFloorOpepen*/   Opepen.query().whereNotNull('price').whereNull('setId').whereJsonSuperset('data', { edition: 5 }).orderBy('price').first(),
+      /*unrevealedOneOfTenFloorOpepen*/    Opepen.query().whereNotNull('price').whereNull('setId').whereJsonSuperset('data', { edition: 10 }).orderBy('price').first(),
+      /*unrevealedOneOfTwentyFloorOpepen*/ Opepen.query().whereNotNull('price').whereNull('setId').whereJsonSuperset('data', { edition: 20 }).orderBy('price').first(),
+      /*unrevealedOneOfFortyFloorOpepen*/  Opepen.query().whereNotNull('price').whereNull('setId').whereJsonSuperset('data', { edition: 40 }).orderBy('price').first(),
       /*emailsTotal,*/          Account.query().whereNotNull('email').count('address'),
       /*emailsVerified,*/       Account.query().withScopes(scopes => scopes.receivesEmails()).count('address'),
     ])
@@ -129,6 +149,14 @@ class StatsService {
           total: unrevealedFloorOpepen && revealedFloorOpepen && (unrevealedFloorOpepen.price || 0n) > (revealedFloorOpepen.price || 0n)
             ? `${revealedFloorOpepen?.price}`
             : `${unrevealedFloorOpepen?.price}`,
+          unrevealedEditions: {
+            1: `${unrevealedOneOfOneFloorOpepen?.price}`,
+            4: `${unrevealedOneOfFourFloorOpepen?.price}`,
+            5: `${unrevealedOneOfFiveFloorOpepen?.price}`,
+            10: `${unrevealedOneOfTenFloorOpepen?.price}`,
+            20: `${unrevealedOneOfTwentyFloorOpepen?.price}`,
+            40: `${unrevealedOneOfFortyFloorOpepen?.price}`,
+          }
         }
       }
     }
