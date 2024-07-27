@@ -53,7 +53,7 @@ class StatsService {
 
   public async show (): Promise<Stats> {
     // If last updated longer than 10 minutes ago // 60 * 10
-    if (this.lastUpdated < (DateTime.now().toUnixInteger() - 10)) {
+    if (this.lastUpdated < (DateTime.now().toUnixInteger() - 60 * 10)) {
       await this.computeStats()
     }
 
