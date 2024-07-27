@@ -6,6 +6,7 @@ import Opepen from "App/Models/Opepen"
 import Database from "@ioc:Adonis/Lucid/Database"
 import Vote from "App/Models/Vote"
 import Image from "App/Models/Image"
+import axios from "axios"
 
 export type Stats = {
   submissions: {
@@ -45,15 +46,24 @@ export type Stats = {
       }
     }
   }
+  ethPrice?: EthPrice
+}
+
+export type EthPrice = {
+  BTC: number;
+  USD: number;
+  EUR: number;
 }
 
 class StatsService {
   private stats: Stats
+  private ethPrice: EthPrice
   private lastUpdated: number = 0
 
   public async show (): Promise<Stats> {
     // If last updated longer than 10 minutes ago // 60 * 10
     if (this.lastUpdated < (DateTime.now().toUnixInteger() - 60 * 10)) {
+      await this.fetchETHPrice()
       await this.computeStats()
     }
 
@@ -158,7 +168,8 @@ class StatsService {
             40: `${unrevealedOneOfFortyFloorOpepen?.price}`,
           }
         }
-      }
+      },
+      ethPrice: this.ethPrice,
     }
 
     this.lastUpdated = DateTime.now().toUnixInteger()
@@ -181,6 +192,27 @@ class StatsService {
           SELECT co_creator_5 FROM set_submissions WHERE co_creator_5 IS NOT NULL AND set_id IS NOT NULL
       ) AS artist_addresses;
     `)
+  }
+
+  public async trackEthPrice () {
+    await this.fetchETHPrice()
+  }
+
+  private async fetchETHPrice () {
+    try {
+      const response = await axios.get(`https://min-api.cryptocompare.com/data/price?fsym=ETH&tsyms=BTC,USD,EUR`, {
+        headers: { 'Content-Type': 'application/json' },
+      })
+
+      if (response.status !== 200) {
+        throw new Error('Issue fetching eth price data')
+      }
+
+      this.ethPrice = response.data as EthPrice
+
+      return this.ethPrice
+    } catch (e) {
+    }
   }
 
 }
