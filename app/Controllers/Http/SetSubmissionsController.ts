@@ -5,7 +5,7 @@ import BotNotifications from 'App/Services/BotNotifications'
 import BaseController from './BaseController'
 import Account from 'App/Models/Account'
 import Image from 'App/Models/Image'
-import SetSubmission, { DEFAULT_REMAINING_REVEAL_TIME } from 'App/Models/SetSubmission'
+import SetSubmission, { DEFAULT_REMAINING_REVEAL_TIME, OPT_IN_HOURS } from 'App/Models/SetSubmission'
 import { isAdmin } from 'App/Middleware/AdminAuth'
 import NotAuthenticated from 'App/Exceptions/NotAuthenticated'
 import InvalidInput from 'App/Exceptions/InvalidInput'
@@ -237,7 +237,7 @@ export default class SetSubmissionsController extends BaseController {
       .preload('coCreator5Account')
 
     let currentOrPastSubmission = await baseQuery(SetSubmission.query())
-      .where('starredAt', '>=',  DateTime.now().minus({ hours: 48 }).toISO())
+      .where('starredAt', '>=',  DateTime.now().minus({ hours: OPT_IN_HOURS }).toISO())
       .orderBy('starredAt')
       .first()
 

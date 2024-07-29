@@ -1,4 +1,5 @@
 import { BaseCommand } from '@adonisjs/core/build/standalone'
+import { OPT_IN_HOURS } from 'App/Models/SetSubmission'
 import { DateTime } from 'luxon'
 
 export default class ArchiveStaleSetSubmissions extends BaseCommand {
@@ -25,14 +26,14 @@ export default class ArchiveStaleSetSubmissions extends BaseCommand {
       .whereNull('archivedAt') // No need to touch archived items
       .whereNull('setId') // Leave revealed submissions alone
       .whereNull('revealsAt') // Leave currently running submissions alone
-      // Anything without any activity in the last 48 hours, bye bye
+      // Anything without any activity in the last 72 hours, bye bye
       .where(query => {
-        query.where('lastOptInAt', '<=', DateTime.now().minus({ hours: 48 }).toISO())
+        query.where('lastOptInAt', '<=', DateTime.now().minus({ hours: OPT_IN_HOURS }).toISO())
         query.orWhereNull('lastOptInAt')
         query.orWhereJsonPath('submission_stats', '$.holders.total', '<', 9)
       })
       // Give newly approved sets ample time...
-      .where('approvedAt', '<=', DateTime.now().minus({ hours: 48 }).toISO())
+      .where('approvedAt', '<=', DateTime.now().minus({ hours: OPT_IN_HOURS }).toISO())
 
     for (const submission of submissions) {
       await submission.clearOptIns()

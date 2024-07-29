@@ -22,6 +22,8 @@ import { timeRemaining } from 'App/Helpers/time'
 
 type Builder = ModelQueryBuilderContract<typeof SetSubmission>
 
+export const OPT_IN_HOURS = 72
+
 const NOTIFICATIONS = {
   NewSubmission: NotifyNewSubmissionEmail,
   NewCuratedSubmission: NotifyNewCuratedSubmissionEmail,
@@ -40,7 +42,7 @@ const SCOPED_NOTIFICATIONS = {
   RevealPaused: activeSubmissionScope,
 }
 
-export const DEFAULT_REMAINING_REVEAL_TIME = 48 * 60 * 60
+export const DEFAULT_REMAINING_REVEAL_TIME = OPT_IN_HOURS * 60 * 60
 
 const DEFAULT_SUBMISSION_STATS = {
   "demand": {
@@ -531,7 +533,7 @@ export default class SetSubmission extends BaseModel {
   public optInOpen () {
     return this.starredAt &&
       this.starredAt < DateTime.now() &&
-      this.starredAt.plus({ hours: 48 }) > DateTime.now()
+      this.starredAt.plus({ hours: OPT_IN_HOURS }) > DateTime.now()
   }
 
   public async creators () {
@@ -578,7 +580,7 @@ export default class SetSubmission extends BaseModel {
   public async startRevealTimer () {
     if (this.revealsAt || !this.starredAt) return
 
-    this.revealsAt = this.starredAt.plus({ hours: 48 })
+    this.revealsAt = this.starredAt.plus({ hours: OPT_IN_HOURS })
     this.remainingRevealTime = 0
     this.pausedAt = null
 
