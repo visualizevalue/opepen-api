@@ -72,8 +72,7 @@ class StatsService {
   }
 
   public async show (): Promise<Stats> {
-    // If last updated longer than 10 minutes ago // 60 * 10
-    if (! this.stats) {
+    if (! this.stats?.optIns) {
       await this.update()
     }
 
@@ -200,10 +199,6 @@ class StatsService {
           SELECT co_creator_5 FROM set_submissions WHERE co_creator_5 IS NOT NULL AND set_id IS NOT NULL
       ) AS artist_addresses;
     `)
-  }
-
-  public async trackEthPrice () {
-    await this.fetchETHPrice()
   }
 
   private async fetchETHPrice () {
