@@ -1,4 +1,3 @@
-import { DateTime } from "luxon"
 import { Account, SetModel } from "App/Models"
 import SetSubmission from "App/Models/SetSubmission"
 import SubscriptionHistory from "App/Models/SubscriptionHistory"
@@ -7,6 +6,7 @@ import Database from "@ioc:Adonis/Lucid/Database"
 import Vote from "App/Models/Vote"
 import Image from "App/Models/Image"
 import axios from "axios"
+import { delay } from "App/Helpers/time"
 
 export type Stats = {
   submissions: {
@@ -58,13 +58,23 @@ export type EthPrice = {
 class StatsService {
   private stats: Stats
   private ethPrice: EthPrice
-  private lastUpdated: number = 0
+
+  public async keepCurrent () {
+    while (true) {
+      await delay(5 * 60 * 1000)
+      await this.update()
+    }
+  }
+
+  public async update (): Promise<void> {
+    await this.fetchETHPrice()
+    await this.computeStats()
+  }
 
   public async show (): Promise<Stats> {
     // If last updated longer than 10 minutes ago // 60 * 10
-    if (this.lastUpdated < (DateTime.now().toUnixInteger() - 60 * 10)) {
-      await this.fetchETHPrice()
-      await this.computeStats()
+    if (! this.stats) {
+      await this.update()
     }
 
     return this.stats
@@ -171,8 +181,6 @@ class StatsService {
       },
       ethPrice: this.ethPrice,
     }
-
-    this.lastUpdated = DateTime.now().toUnixInteger()
   }
 
   private permanentArtistsQuery () {
@@ -217,4 +225,6 @@ class StatsService {
 
 }
 
-export default new StatsService()
+const stats = new StatsService()
+stats.keepCurrent()
+export default stats
