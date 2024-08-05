@@ -41,6 +41,8 @@ export default Env.rules({
   RESERVOIR_KEY: Env.schema.string(),
   OPEPEN_ADDRESS: Env.schema.string(),
   OPEPEN_START_BLOCK: Env.schema.number(),
+  BURNED_OPEPEN_ADDRESS: Env.schema.string(),
+  BURNED_OPEPEN_START_BLOCK: Env.schema.number(),
   UPDATE_ENS: Env.schema.boolean(),
   IPFS_GATEWAY: Env.schema.string(),
   SMTP_HOST: Env.schema.string({ format: 'host' }),

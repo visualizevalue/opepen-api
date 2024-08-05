@@ -1,4 +1,4 @@
-export type ContractType = 'OPEPEN'
+export type ContractType = 'OPEPEN'|'BURNED_OPEPEN'
 
 export type EditionSize = 1|4|5|10|20|40
 export type MaxReveal = { [K in EditionSize]?: number|null|undefined; }

@@ -7,6 +7,7 @@ import SetModel from 'App/Models/SetModel'
 import SetSubmission from 'App/Models/SetSubmission'
 import Twitter from './Twitter'
 import Farcaster from './Farcaster'
+import BurnedOpepen from 'App/Models/BurnedOpepen'
 
 export class BotNotifications {
   xClient: Twitter|undefined
@@ -103,6 +104,31 @@ export class BotNotifications {
 
     await this.xClient?.thread(posts)
     await this.fcClient?.thread(posts)
+  }
+
+  public async burn (burnedOpepen: BurnedOpepen) {
+    await this.initialize()
+
+    await burnedOpepen.load('opepen')
+    await burnedOpepen.load('image')
+
+    const lines = [
+      burnedOpepen.opepen && `Opepen #${burnedOpepen.opepen.tokenId} burned.`,
+      `${burnedOpepen.data.name}`
+    ].filter(l => !!l)
+
+    const text = lines.join(`\n\n`)
+    const image = burnedOpepen.image.staticURI || burnedOpepen.data.image.replace('ipfs://', 'https://ipfs.vv.xyz/ipfs/')
+
+    // Make sure we're sending notification in this environment
+    if (! Env.get('SEND_NOTIFICATIONS')) {
+      Logger.info(`BotNotification: ${text}`)
+      return
+    }
+
+    // Send to the networks
+    await this.xClient?.tweet(text, image)
+    await this.fcClient?.cast(text, image)
   }
 
   private async sendForSubmission (submission: SetSubmission, template: Function, images: string|string[]) {

@@ -1,4 +1,5 @@
 import { BaseCommand } from '@adonisjs/core/build/standalone'
+import BurnedOpepen from 'App/TokenStandards/BurnedOpepen'
 import OpepenEdition from 'App/TokenStandards/OpepenEdition'
 
 export default class SyncOpepen extends BaseCommand {
@@ -19,6 +20,9 @@ export default class SyncOpepen extends BaseCommand {
 
   public async run() {
     this.logger.info('Synching Opepen')
+
+    const burned = await BurnedOpepen.initialize()
+    await burned.sync()
 
     const edition = await OpepenEdition.initialize()
     await edition.sync()

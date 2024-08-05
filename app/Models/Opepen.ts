@@ -12,6 +12,7 @@ import { ContractType } from './types'
 import { TokenMetadata } from 'App/Services/Metadata/MetadataTypes'
 import SetSubmission from './SetSubmission'
 import pad from 'App/Helpers/pad'
+import BurnedOpepen from './BurnedOpepen'
 
 type SetConfig = any
 
@@ -71,6 +72,9 @@ export default class Opepen extends TokenModel {
   @column()
   public imageId: bigint | null
 
+  @column()
+  public burnedOpepenId: bigint | null
+
   @belongsTo(() => SetModel, {
     foreignKey: 'setId',
     onQuery: query => query.preload('submission')
@@ -84,6 +88,9 @@ export default class Opepen extends TokenModel {
 
   @belongsTo(() => Image)
   public image: BelongsTo<typeof Image>
+
+  @belongsTo(() => BurnedOpepen)
+  public burnedOpepen: BelongsTo<typeof BurnedOpepen>
 
   @hasMany(() => Event, {
     foreignKey: 'tokenId',
@@ -120,6 +127,7 @@ export default class Opepen extends TokenModel {
           block_number
         FROM events
         WHERE block_number::NUMERIC < ?
+        AND contract = 'OPEPEN'
         ORDER BY token_id, block_number::int desc`, [block])
 
     return new Set<string>(lastTokenOwners.rows.map(t => t.holder))
