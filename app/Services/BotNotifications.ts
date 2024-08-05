@@ -123,10 +123,8 @@ export class BotNotifications {
     const image = burnedOpepen.image.staticURI || burnedOpepen.data.image.replace('ipfs://', 'https://ipfs.vv.xyz/ipfs/')
 
     // Make sure we're sending notification in this environment
-    if (! Env.get('SEND_NOTIFICATIONS')) {
-      Logger.info(`BotNotification: ${text}`)
-      return
-    }
+    Logger.info(`BotNotification: ${text}`)
+    if (! Env.get('SEND_NOTIFICATIONS')) return;
 
     // Send to the networks
     await this.xClient?.tweet(text, image)
