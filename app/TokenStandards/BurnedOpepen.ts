@@ -101,7 +101,7 @@ export default class BurnedOpepen extends Contract {
 
     await burnedOpepen.updateImage()
 
-    BotNotifications.burn(burnedOpepen)
+    await BotNotifications.burn(burnedOpepen)
   }
 
   protected async onTransfer (event: ethers.Event) {
