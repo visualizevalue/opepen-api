@@ -14,20 +14,28 @@ export default class BaseController {
   protected async applyFilters (query, filters) {
     Object.entries(filters).forEach(([key, value]) => {
       const values = Array.isArray(value) ? value : [`${value}`]
+      const columns = key.split('.')
 
       query.where(q => {
         values.forEach((v, i) => {
           const where = i === 0 ? `where` : `orWhere`
 
           const nullQuery = ['!null', 'null'].includes(v)
+          const isNested = columns.length > 1
 
           const whereQuery = nullQuery
             ? v.startsWith('!')
               ? `${where}NotNull`
               : `${where}Null`
-            : where
+            : isNested
+              ? `whereJsonSuperset`
+              : where
 
-          q[whereQuery](`${query.model.table}.${key}`, v)
+          const isNumeric = !isNaN(v)
+          const parsedValue = isNumeric ? parseInt(v) : v
+          const filterValue = isNested ? { [columns[1]]: parsedValue } : v
+
+          q[whereQuery](`${query.model.table}.${columns[0]}`, filterValue)
         })
       })
     })
