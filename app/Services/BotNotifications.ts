@@ -111,10 +111,12 @@ export class BotNotifications {
 
     await burnedOpepen.load('opepen')
     await burnedOpepen.load('image')
+    await burnedOpepen.load('ownerAccount')
 
     const lines = [
-      burnedOpepen.opepen && `Opepen #${burnedOpepen.opepen.tokenId} burned.`,
-      `${burnedOpepen.data.name}`
+      `Opepen Opt-Out #${burnedOpepen.tokenId}`,
+      `"${burnedOpepen.data.name}" minted by ${burnedOpepen.ownerAccount.display}.`,
+      `Burned: ${(parseInt(burnedOpepen.tokenId.toString()) * 100) / 16000}%`,
     ].filter(l => !!l)
 
     const text = lines.join(`\n\n`)
