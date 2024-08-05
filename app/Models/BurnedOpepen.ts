@@ -5,11 +5,11 @@ import Event from './Event'
 import Image from './Image'
 import { ContractType } from './types'
 import Opepen from './Opepen'
+import { DateTime } from 'luxon'
 
 type BurnedOpepenData = {
   name: string,
   image: string,
-  burnedAt: string,
 }
 
 export default class BurnedOpepen extends TokenModel {
@@ -33,6 +33,9 @@ export default class BurnedOpepen extends TokenModel {
 
   @column()
   public imageId: bigint | null
+
+  @column.dateTime()
+  public burnedAt: DateTime
 
   @hasOne(() => Opepen, {
     foreignKey: 'burnedOpepenId',
@@ -74,7 +77,9 @@ export default class BurnedOpepen extends TokenModel {
     const burnedOpepen: BurnedOpepen = this
     let uri: string = this.data.image?.replace('ipfs://', 'https://ipfs.vv.xyz/ipfs/')
 
-    await burnedOpepen.load('image')
+    try {
+      await burnedOpepen.load('image')
+    } catch (e) {}
 
     if (! burnedOpepen.image) {
       const image = await Image.fromURI(uri)

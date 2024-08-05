@@ -9,12 +9,13 @@ import BurnedOpepenModel from 'App/Models/BurnedOpepen'
 import BotNotifications from 'App/Services/BotNotifications'
 import { delay } from 'App/Helpers/time'
 import Opepen from 'App/Models/Opepen'
+import { ContractType } from 'App/Models/types'
 
 const EVENTS = ['Burn', 'Transfer']
 
 export default class BurnedOpepen extends Contract {
   public address: string
-  public name: 'BURNED_OPEPEN'
+  public name: ContractType = 'BURNED_OPEPEN'
   public startBlock: number
   public interval: number
 
@@ -67,10 +68,10 @@ export default class BurnedOpepen extends Contract {
       blockNumber: event.blockNumber.toString(),
       logIndex: event.logIndex.toString(),
       contract: this.name,
-      tokenId: opepenId,
     }, {
       from: burner,
       to: constants.AddressZero,
+      tokenId: opepenId,
       timestamp: await getBlockTimestamp(event.blockNumber),
       data: { burnedId }
     });
@@ -82,13 +83,15 @@ export default class BurnedOpepen extends Contract {
     const burnedOpepen = await BurnedOpepenModel.updateOrCreate({
       tokenId: burnedId,
     }, {
+      tokenId: burnedId,
       owner: burner,
       data: {
-        burnedAt: (await getBlockTimestamp(event.blockNumber)).toISO(),
         name: metadata.name,
         image: metadata.image,
-      }
+      },
+      burnedAt: await getBlockTimestamp(event.blockNumber),
     })
+    await burnedOpepen.save()
 
     const opepen = await Opepen.find(opepenId)
     if (opepen) {
