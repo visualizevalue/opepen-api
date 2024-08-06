@@ -15,6 +15,7 @@ export default class BurnedOpepenController extends BaseController {
     const query = EventModel.query()
       .where('contract', 'BURNED_OPEPEN')
       .where('type', 'Burn')
+      .preload('fromAccount')
       .preload('opepen', q => {
         q.preload('image')
         q.preload('burnedOpepen', q => q.preload('image'))
