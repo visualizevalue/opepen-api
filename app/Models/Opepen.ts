@@ -89,7 +89,9 @@ export default class Opepen extends TokenModel {
   @belongsTo(() => Image)
   public image: BelongsTo<typeof Image>
 
-  @belongsTo(() => BurnedOpepen)
+  @belongsTo(() => BurnedOpepen, {
+    foreignKey: 'burnedOpepenId',
+  })
   public burnedOpepen: BelongsTo<typeof BurnedOpepen>
 
   @hasMany(() => Event, {
