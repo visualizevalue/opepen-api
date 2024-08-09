@@ -2,6 +2,7 @@ import { Account, SetModel } from "App/Models"
 import SetSubmission from "App/Models/SetSubmission"
 import SubscriptionHistory from "App/Models/SubscriptionHistory"
 import Opepen from "App/Models/Opepen"
+import EventModel from "App/Models/Event"
 import Database from "@ioc:Adonis/Lucid/Database"
 import Vote from "App/Models/Vote"
 import Image from "App/Models/Image"
@@ -22,6 +23,11 @@ export type Stats = {
     voterPatrons: number
   }
   optIns: number
+  optOuts: {
+    total: number
+    revealed: number
+    unrevealed: number
+  }
   revealed: {
     opepen: number
     sets: number
@@ -103,6 +109,9 @@ class StatsService {
       unrevealedOneOfFortyFloorOpepen,
       emailsTotal,
       emailsVerified,
+      optOutsTotal,
+      optOutsRevealed,
+      optOutsUnrevealed,
     ] = await Promise.all([
       /*submissions,*/          SetSubmission.query().count('id'),
       /*printSubmissions,*/     SetSubmission.query().where('edition_type', 'PRINT').count('id'),
@@ -124,8 +133,11 @@ class StatsService {
       /*unrevealedOneOfTenFloorOpepen*/    Opepen.query().whereNotNull('price').whereNull('setId').whereJsonSuperset('data', { edition: 10 }).orderBy('price').first(),
       /*unrevealedOneOfTwentyFloorOpepen*/ Opepen.query().whereNotNull('price').whereNull('setId').whereJsonSuperset('data', { edition: 20 }).orderBy('price').first(),
       /*unrevealedOneOfFortyFloorOpepen*/  Opepen.query().whereNotNull('price').whereNull('setId').whereJsonSuperset('data', { edition: 40 }).orderBy('price').first(),
-      /*emailsTotal,*/          Account.query().whereNotNull('email').count('address'),
-      /*emailsVerified,*/       Account.query().withScopes(scopes => scopes.receivesEmails()).count('address'),
+      /*emailsTotal*/           Account.query().whereNotNull('email').count('address'),
+      /*emailsVerified*/        Account.query().withScopes(scopes => scopes.receivesEmails()).count('address'),
+      /*optOutsTotal*/          EventModel.query().where('contract', 'BURNED_OPEPEN').where('type', 'Burn').count('token_id'),
+      /*optOutsRevealed*/       EventModel.query().where('contract', 'BURNED_OPEPEN').where('type', 'Burn').whereHas('opepen', query => query.whereNotNull('set_id')).count('token_id'),
+      /*optOutsUnrevealed*/     EventModel.query().where('contract', 'BURNED_OPEPEN').where('type', 'Burn').whereHas('opepen', query => query.whereNull('set_id')).count('token_id'),
     ])
 
     const setsCount: number = parseInt(sets[0].$extras.count)
@@ -144,6 +156,11 @@ class StatsService {
         images: submittedImagesCount,
       },
       optIns: parseInt(optIns[0].$extras.sum),
+      optOuts: {
+        total: parseInt(optOutsTotal[0].$extras.count),
+        revealed: parseInt(optOutsRevealed[0].$extras.count),
+        unrevealed: parseInt(optOutsUnrevealed[0].$extras.count),
+      },
       users: {
         permanentArtists: parseInt(permanentArtists.rows[0].count),
         artists: parseInt(artists[0].$extras.count),
