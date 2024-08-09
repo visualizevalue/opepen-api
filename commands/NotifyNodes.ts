@@ -39,6 +39,7 @@ export default class NotifyNodes extends BaseCommand {
 
     const eventsPerNode = await this.getEventsPerNode(movementsSince)
     const lastEvent = await Event.query()
+      .where('contract', 'OPEPEN')
       .where('from', '!=', ethers.constants.AddressZero)
       .where('to', '!=', ethers.constants.AddressZero)
       .orderBy('timestamp', 'desc')
@@ -55,6 +56,7 @@ export default class NotifyNodes extends BaseCommand {
 
   private async getEventsPerNode (movementsSince: DateTime) {
     const events = await Event.query()
+      .where('contract', 'OPEPEN')
       .where('from', '!=', ethers.constants.AddressZero)
       .where('to', '!=', ethers.constants.AddressZero)
       .where('timestamp', '>', movementsSince.toSQL())
