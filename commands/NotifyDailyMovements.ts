@@ -32,6 +32,7 @@ export default class NotifyDailyMovements extends BaseCommand {
     const start = today.minus({ day: 1 })
 
     const events = await Event.query()
+      .where('contract', 'OPEPEN')
       .preload('opepen')
       .where('timestamp', '>=', start.toISO())
       .where('timestamp', '<=', today.toISO())
