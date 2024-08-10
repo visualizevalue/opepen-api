@@ -13,6 +13,7 @@ export default class EventsController extends BaseController {
     } = request.qs()
 
     const query = EventModel.query()
+      .where('contract', 'OPEPEN')
       .where('tokenId', params.id)
       .preload('fromAccount')
       .preload('toAccount')
