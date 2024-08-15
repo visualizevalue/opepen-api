@@ -2,13 +2,11 @@ import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import SetModel from 'App/Models/SetModel'
 import BaseController from './BaseController'
 import Opepen from 'App/Models/Opepen'
+import OpepenService from 'App/Services/OpepenService'
 
 export default class SetsController extends BaseController {
   public async list () {
-    return SetModel.query()
-      .preload('submission')
-      .whereNotNull('submissionId')
-      .orderBy('id')
+    return OpepenService.listSets()
   }
 
   public async show ({ params }: HttpContextContract) {
