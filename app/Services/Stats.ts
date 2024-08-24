@@ -6,7 +6,6 @@ import EventModel from "App/Models/Event"
 import Database from "@ioc:Adonis/Lucid/Database"
 import Vote from "App/Models/Vote"
 import Image from "App/Models/Image"
-import axios from "axios"
 import { delay } from "App/Helpers/time"
 import priceOracle, { EthPrice } from "./PriceOracle"
 
