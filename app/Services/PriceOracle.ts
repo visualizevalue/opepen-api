@@ -1,7 +1,12 @@
 import { ethers } from 'ethers'
 import provider from './RPCProvider'
 
-const PRICE_FEED_ADDRESS = '0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419'
+const PRICE_FEED_ADDRESSES = {
+  'ETH/USD': '0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419',
+  'BTC/USD': '0xF4030086522a5bEEa4988F8cA5B36dbC97BeE88c',
+  'ETH/EUR': '0xb49f677943BC038e9857d61E7d053CaA2C1734C1'
+}
+
 const CHAINLINK_PRICE_FEED_ABI = [
   {
     inputs: [],
@@ -25,14 +30,20 @@ export type EthPrice = {
 }
 
 export class PriceOracle {
-  protected contract: ethers.Contract = new ethers.Contract(PRICE_FEED_ADDRESS, CHAINLINK_PRICE_FEED_ABI, provider)
+  protected ethUSDContract: ethers.Contract =
+    new ethers.Contract(PRICE_FEED_ADDRESSES['ETH/USD'], CHAINLINK_PRICE_FEED_ABI, provider)
+  protected btcUSDContract: ethers.Contract =
+    new ethers.Contract(PRICE_FEED_ADDRESSES['BTC/USD'], CHAINLINK_PRICE_FEED_ABI, provider)
+  protected ethEURContract: ethers.Contract =
+    new ethers.Contract(PRICE_FEED_ADDRESSES['ETH/EUR'], CHAINLINK_PRICE_FEED_ABI, provider)
+
   private ethUSDRaw: bigint
   public ethPrice: EthPrice
 
 
   public async update (): Promise<void> {
     try {
-      this.ethUSDRaw = (await this.contract.latestRoundData()).answer
+      this.ethUSDRaw = (await this.ethUSDContract.latestRoundData()).answer
 
       this.ethPrice = {
         BTC: 0,
