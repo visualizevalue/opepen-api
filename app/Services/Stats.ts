@@ -8,6 +8,7 @@ import Vote from "App/Models/Vote"
 import Image from "App/Models/Image"
 import axios from "axios"
 import { delay } from "App/Helpers/time"
+import priceOracle, { EthPrice } from "./PriceOracle"
 
 export type Stats = {
   submissions: {
@@ -55,15 +56,8 @@ export type Stats = {
   ethPrice?: EthPrice
 }
 
-export type EthPrice = {
-  BTC: number;
-  USD: number;
-  EUR: number;
-}
-
 class StatsService {
   private stats: Stats
-  private ethPrice: EthPrice
 
   public async keepCurrent () {
     while (true) {
@@ -73,7 +67,7 @@ class StatsService {
   }
 
   public async update (): Promise<void> {
-    await this.fetchETHPrice()
+    await priceOracle.update()
     await this.computeStats()
   }
 
@@ -195,7 +189,7 @@ class StatsService {
           }
         }
       },
-      ethPrice: this.ethPrice,
+      ethPrice: priceOracle.ethPrice,
     }
   }
 
@@ -216,23 +210,6 @@ class StatsService {
           SELECT co_creator_5 FROM set_submissions WHERE co_creator_5 IS NOT NULL AND set_id IS NOT NULL
       ) AS artist_addresses;
     `)
-  }
-
-  private async fetchETHPrice () {
-    try {
-      const response = await axios.get(`https://min-api.cryptocompare.com/data/price?fsym=ETH&tsyms=BTC,USD,EUR`, {
-        headers: { 'Content-Type': 'application/json' },
-      })
-
-      if (response.status !== 200) {
-        throw new Error('Issue fetching eth price data')
-      }
-
-      this.ethPrice = response.data as EthPrice
-
-      return this.ethPrice
-    } catch (e) {
-    }
   }
 
 }
