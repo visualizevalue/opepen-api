@@ -278,20 +278,24 @@ export default class SetSubmissionsController extends BaseController {
 
     await this.creatorOrAdmin({ creator: submission.creatorAccount, session })
 
-    const images = await Promise.all([
-      Image.findBy('uuid', request.input('edition_1_image_id', null)),
-      Image.findBy('uuid', request.input('edition_4_image_id', null)),
-      Image.findBy('uuid', request.input('edition_5_image_id', null)),
-      Image.findBy('uuid', request.input('edition_10_image_id', null)),
-      Image.findBy('uuid', request.input('edition_20_image_id', null)),
-      Image.findBy('uuid', request.input('edition_40_image_id', null)),
+    const imageUUIDs = await Promise.all([
+      request.input('edition_1_image_id', null),
+      request.input('edition_4_image_id', null),
+      request.input('edition_5_image_id', null),
+      request.input('edition_10_image_id', null),
+      request.input('edition_20_image_id', null),
+      request.input('edition_40_image_id', null),
     ])
+    const images = await Promise.all(imageUUIDs.map(uuid => Image.findBy('uuid', uuid)))
 
     // Maintain cache
     if (submission.editionType === 'PRINT') {
-      await Image.query().where('setSubmissionId', submission.id).update({
-        setSubmissionId: null,
-      })
+      await Image.query()
+        .where('setSubmissionId', submission.id)
+        .whereNotIn('uuid', imageUUIDs.filter(id => !!id))
+        .update({
+          setSubmissionId: null,
+        })
     }
     const oneOfOneImage = images[0]
     if (oneOfOneImage) {
