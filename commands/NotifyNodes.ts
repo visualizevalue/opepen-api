@@ -113,7 +113,7 @@ export default class NotifyNodes extends BaseCommand {
       await this.notify(msg, imageURI)
     }
     // Expanding node
-    else if (previouslyOwnedCount > ownedCount && ownedCount > events.length) {
+    else if (ownedCount > events.length) {
       const msg = [
         `Expanding Node ${account.display}`,
         actionString,
