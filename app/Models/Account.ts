@@ -168,6 +168,10 @@ export default class Account extends BaseModel {
   @hasMany(() => RichContentLink, {
     foreignKey: 'address',
     localKey: 'address',
+    onQuery: query => {
+      query.whereNull('setId')
+      query.whereNull('setSubmissionId')
+    }
   })
   public richContentLinks: HasMany<typeof RichContentLink>
 
