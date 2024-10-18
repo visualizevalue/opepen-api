@@ -1,6 +1,6 @@
 import { DateTime } from 'luxon'
 import { v4 as uuid } from 'uuid'
-import { BaseModel, BelongsTo, ModelQueryBuilderContract, beforeCreate, belongsTo, column, computed, scope } from '@ioc:Adonis/Lucid/Orm'
+import { BaseModel, BelongsTo, ModelQueryBuilderContract, beforeCreate, belongsTo, column, computed, scope, hasMany, HasMany } from '@ioc:Adonis/Lucid/Orm'
 import Logger from '@ioc:Adonis/Core/Logger'
 import { string } from '@ioc:Adonis/Core/Helpers'
 import BotNotifications from 'App/Services/BotNotifications'
@@ -19,6 +19,7 @@ import NotifySubmissionRevealPausedEmail from 'App/Mailers/NotifySubmissionRevea
 import NotifySubmissionRevealStartedEmail from 'App/Mailers/NotifySubmissionRevealStartedEmail'
 import Database from '@ioc:Adonis/Lucid/Database'
 import { timeRemaining } from 'App/Helpers/time'
+import RichContentLink from './RichContentLink'
 
 type Builder = ModelQueryBuilderContract<typeof SetSubmission>
 
@@ -388,11 +389,11 @@ export default class SetSubmission extends BaseModel {
   })
   public coCreator5Account: BelongsTo<typeof Account>
 
-  // @hasMany(() => RichContentLink, {
-  //   foreignKey: 'setSubmissionId',
-  //   localKey: 'id',
-  // })
-  // public richContentLinks: HasMany<typeof RichContentLink>
+  @hasMany(() => RichContentLink, {
+    foreignKey: 'setSubmissionId',
+    localKey: 'id',
+  })
+  public richContentLinks: HasMany<typeof RichContentLink>
 
   public static active = scope((query) => {
     query.whereNull('deletedAt')
