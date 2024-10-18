@@ -206,7 +206,11 @@ export default class SetSubmissionsController extends BaseController {
       .preload('coCreator3Account')
       .preload('coCreator4Account')
       .preload('coCreator5Account')
-      .preload('richContentLinks')
+      .preload('richContentLinks', query => {
+        query.preload('logo')
+        query.preload('cover')
+        query.orderBy('sortIndex')
+      })
       .firstOrFail()
       // TODO: Implement rich content links
       // .preload('richContentLinks', query => {
