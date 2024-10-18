@@ -34,6 +34,11 @@ export default class SetModel extends BaseModel {
            .preload('coCreator4Account')
            .preload('coCreator5Account')
            .preload('dynamicPreviewImage')
+           .preload('richContentLinks', query => {
+             query.preload('logo')
+             query.preload('cover')
+             query.orderBy('sortIndex')
+           })
     }
   })
   public submission: BelongsTo<typeof SetSubmission>
