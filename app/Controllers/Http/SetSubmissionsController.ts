@@ -391,28 +391,37 @@ export default class SetSubmissionsController extends BaseController {
       await submission.load('dynamicSetImages')
     }
 
-    // Clear cache
-    await Image.query()
-      .where('setSubmissionId', submission.id)
-      .whereNot('id', `${submission.edition_1ImageId ? submission.edition_1ImageId : 0n}`)
-      .update({ setSubmissionId: null })
+    // Save new
     for (const config of imageConfig) {
       if (! config.uuid) continue
 
       const image = await Image.query().where('uuid', config.uuid).firstOrFail()
 
-      // Maintain cache
-      image.setSubmissionId = submission.id
       image.creator = submission.creator
       await image.save()
 
       // Attach to submission
       submission.dynamicSetImages[`image_${config.edition}_${config.index}_id`] = image.id
     }
-
     await submission.dynamicSetImages.save()
+    await submission.load('dynamicSetImages')
 
-    return submission.load('dynamicSetImages')
+    // Clear cache
+    await Image.query()
+      .where('setSubmissionId', submission.id)
+      .whereNot('id', `${submission.edition_1ImageId ? submission.edition_1ImageId : 0n}`)
+      .update({ setSubmissionId: null })
+      .exec()
+
+    // Update cache
+    await Image.query()
+      .whereIn('uuid', submission.dynamicSetImages.images().filter(i => !!i).map(i => i.uuid))
+      .update({ setSubmissionId: submission.id })
+      .exec()
+
+    await submission.load('dynamicSetImages')
+
+    return submission
   }
 
   public async sign (ctx: HttpContextContract) {
