@@ -517,6 +517,24 @@ export default class SetSubmission extends BaseModel {
       .whereNull('setId')
   })
 
+  public async updateDynamicSetImagesCache () {
+    const submission: SetSubmission = this
+    await submission.load('dynamicSetImages')
+
+    // Clear cache
+    await Image.query()
+      .where('setSubmissionId', this.id)
+      .whereNot('id', `${this.edition_1ImageId ? this.edition_1ImageId : 0n}`)
+      .update({ setSubmissionId: null })
+      .exec()
+
+    // Update cache
+    await Image.query()
+      .whereIn('uuid', this.dynamicSetImages.images().filter(i => !!i).map(i => i.uuid))
+      .update({ setSubmissionId: this.id })
+      .exec()
+  }
+
   public remainingDuration () {
     return this.revealsAt
       ? this.revealsAt.diff(DateTime.now())
