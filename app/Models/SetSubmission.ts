@@ -523,15 +523,15 @@ export default class SetSubmission extends BaseModel {
 
     // Clear cache
     await Image.query()
-      .where('setSubmissionId', this.id)
-      .whereNot('id', `${this.edition_1ImageId ? this.edition_1ImageId : 0n}`)
+      .where('setSubmissionId', submission.id)
+      .whereNot('id', `${submission.edition_1ImageId ? submission.edition_1ImageId : 0n}`)
       .update({ setSubmissionId: null })
       .exec()
 
     // Update cache
     await Image.query()
-      .whereIn('uuid', this.dynamicSetImages.images().filter(i => !!i).map(i => i.uuid))
-      .update({ setSubmissionId: this.id })
+      .whereIn('uuid', submission.dynamicSetImages.images().filter(i => !!i).map(i => i.uuid))
+      .update({ setSubmissionId: submission.id })
       .exec()
   }
 
