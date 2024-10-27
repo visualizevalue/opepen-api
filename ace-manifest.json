@@ -527,6 +527,31 @@
       "aliases": [],
       "flags": []
     },
+    "images:update-marketplace-images": {
+      "settings": {
+        "loadApp": true,
+        "stayAlive": false
+      },
+      "commandPath": "./commands/UpdateMarketplaceImages",
+      "commandName": "images:update-marketplace-images",
+      "description": "Update third party image cache",
+      "args": [
+        {
+          "type": "string",
+          "propertyName": "set",
+          "name": "set",
+          "required": true
+        }
+      ],
+      "aliases": [],
+      "flags": [
+        {
+          "name": "edition",
+          "propertyName": "edition",
+          "type": "string"
+        }
+      ]
+    },
     "dump:rcfile": {
       "settings": {},
       "commandPath": "@adonisjs/core/build/commands/DumpRc",
