@@ -240,6 +240,11 @@ export default class SetSubmissionsController extends BaseController {
       .preload('coCreator3Account')
       .preload('coCreator4Account')
       .preload('coCreator5Account')
+      .preload('richContentLinks', query => {
+        query.preload('logo')
+        query.preload('cover')
+        query.orderBy('sortIndex')
+      })
 
     let currentOrPastSubmission = await baseQuery(SetSubmission.query())
       .where('starredAt', '>=',  DateTime.now().minus({ hours: OPT_IN_HOURS }).toISO())
