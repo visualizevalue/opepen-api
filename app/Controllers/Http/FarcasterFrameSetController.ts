@@ -16,6 +16,7 @@ import SetDetailRenderer from 'App/Frames/SetDetailRenderer'
 import SetSubmission from 'App/Models/SetSubmission'
 import SetOptStatusRenderer from 'App/Frames/SetOptStatusRenderer'
 import FarcasterData from 'App/Services/FarcasterData'
+import SetMinimalRenderer from 'App/Frames/SetMinimalRenderer'
 
 export default class FarcasterFrameSetController extends FarcasterFramesController {
 
@@ -156,6 +157,21 @@ export default class FarcasterFrameSetController extends FarcasterFramesControll
     }
 
     const png = await SetDetailRenderer.render(submission)
+
+    await this.saveImage(key, png)
+
+    return this.imageResponse(png, response)
+  }
+
+  public async minimal ({ request, params, response }: HttpContextContract) {
+    const submission = await SetSubmission.query().where('uuid', params.id).firstOrFail()
+    const key = `/submissions/${submission.uuid}-${submission.setId || 'unrevealed'}_${string.toSlug(submission.name || 'unrevealed')}_minimal.png`
+
+    if (request.method() !== 'POST' && await Drive.exists(key)) {
+      return this.imageResponse(await Drive.get(key), response)
+    }
+
+    const png = await SetMinimalRenderer.render(submission)
 
     await this.saveImage(key, png)
 

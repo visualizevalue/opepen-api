@@ -1,14 +1,16 @@
 import { DateTime } from 'luxon'
 import { BaseModel, column } from '@ioc:Adonis/Lucid/Orm'
 
-const SettingsKeys = {
+export const SETTINGS_KEYS = {
   METADATA_CONTRACT: 'metadata:contract',
   METADATA_BASE:     'metadata:base',
   METADATA_EDITIONS: 'metadata:editions',
+  NOTIFICATION_NODES: 'nodes:notification',
+  NOTIFICATION_NEW_SETS: 'new_sets:notification',
 }
 
-type SettingKey      = keyof typeof SettingsKeys
-type SettingKeyValue = typeof SettingsKeys[SettingKey]
+type SettingKey      = keyof typeof SETTINGS_KEYS
+type SettingKeyValue = typeof SETTINGS_KEYS[SettingKey]
 
 export default class Setting extends BaseModel {
   public static table = 'app_settings'
@@ -32,6 +34,6 @@ export default class Setting extends BaseModel {
    * @returns The setting model
    */
   public static async get (key: SettingKey) {
-    return await Setting.findByOrFail('key', SettingsKeys[key])
+    return await Setting.findByOrFail('key', SETTINGS_KEYS[key])
   }
 }

@@ -1,3 +1,4 @@
+import { DateTime } from 'luxon'
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import Env from '@ioc:Adonis/Core/Env'
 import Drive from '@ioc:Adonis/Core/Drive'
@@ -7,6 +8,7 @@ import pad from 'App/Helpers/pad'
 import FarcasterFramesController from './FarcasterFramesController'
 import SetOverviewRenderer from 'App/Frames/SetOverviewRenderer'
 import SetSubmission from 'App/Models/SetSubmission'
+import SubmissionsGrid from 'App/Services/SubmissionsGrid'
 
 export default class FarcasterFrameSetsController extends FarcasterFramesController {
 
@@ -26,6 +28,35 @@ export default class FarcasterFrameSetsController extends FarcasterFramesControl
     }
 
     return this.setResponse(1)
+  }
+
+  public async summary ({ request, params, response }: HttpContextContract) {
+    const [from, to] = params.date.split('_')
+    const fromDate = DateTime.fromISO(from)
+    const toDate = DateTime.fromISO(to).endOf('day')
+
+    const imagePath = `submissions-grids/${params.date}.png`
+
+    let image: Buffer
+    if (request.method() !== 'POST' && await Drive.exists(imagePath)) {
+      return response.redirect(`${Env.get('CDN_URL')}/${imagePath}`)
+    } else {
+      const submissions = await SetSubmission.query()
+        .where('approved_at', '>', fromDate.toISO())
+        .where('approved_at', '<=', toDate.toISO())
+        .orderBy('approved_at')
+
+      image = await SubmissionsGrid.make(submissions.map(submission => submission.uuid))
+
+      await Drive.put(imagePath, image, {
+        contentType: 'image/png',
+      })
+    }
+
+    return response
+      .header('Content-Type', 'image/png')
+      .header('Content-Length', Buffer.byteLength(image))
+      .send(image)
   }
 
   public async set ({ request, params, response }: HttpContextContract) {

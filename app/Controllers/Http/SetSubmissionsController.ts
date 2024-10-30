@@ -442,6 +442,8 @@ export default class SetSubmissionsController extends BaseController {
 
     await this.creatorOrAdmin({ creator: submission.creatorAccount, session })
 
+    // TODO: Regenerate preview images (!)
+
     submission.publishedAt = DateTime.now()
 
     return submission.save()

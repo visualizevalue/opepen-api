@@ -244,8 +244,10 @@ Route.group(() => {
 Route.group(() => {
   Route.get('/accounts/:id/image',                                 'FarcasterFrameAccountsController.image')
 
+  Route.route('/sets/summary/:date',         ['GET', 'POST'],      'FarcasterFrameSetsController.summary')
   Route.route('/sets/:id/og',                ['GET', 'POST'],      'FarcasterFrameSetsController.image')
   Route.route('/sets/:id/square',            ['GET', 'POST'],      'FarcasterFrameSetController.entryImage')
+  Route.route('/sets/:id/minimal',           ['GET', 'POST'],      'FarcasterFrameSetController.minimal')
   Route.route('/sets/:id/:edition/square',   ['GET', 'POST'],      'FarcasterFrameSetController.editionImage')
   Route.route('/sets/:id/opt-in-status',     ['GET', 'POST'],      'FarcasterFrameSetController.optInStatus')
 

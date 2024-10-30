@@ -9,6 +9,7 @@ import Setting from 'App/Models/Setting'
 import Twitter from 'App/Services/Twitter'
 import Farcaster from 'App/Services/Farcaster'
 import ImportSales from 'App/Services/ImportSales'
+import { SETTINGS_KEYS } from 'App/Models/Setting'
 import { formatDuration } from 'App/Helpers/dates'
 import { formatEther } from 'ethers/lib/utils'
 
@@ -29,7 +30,7 @@ export default class NotifyNodes extends BaseCommand {
   }
 
   public async run() {
-    const setting = await Setting.findByOrFail('key', 'nodes:notification')
+    const setting = await Setting.findByOrFail('key', SETTINGS_KEYS.NOTIFICATION_NODES)
     const movementsSince = DateTime.fromISO(setting.data.updatedAt)
 
     // Make sure we have all sales imported

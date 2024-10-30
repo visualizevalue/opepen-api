@@ -302,6 +302,18 @@
       "aliases": [],
       "flags": []
     },
+    "notify:new_sets": {
+      "settings": {
+        "loadApp": true,
+        "stayAlive": false
+      },
+      "commandPath": "./commands/NotifyNewSets",
+      "commandName": "notify:new_sets",
+      "description": "",
+      "args": [],
+      "aliases": [],
+      "flags": []
+    },
     "notify:nodes": {
       "settings": {
         "loadApp": true,
