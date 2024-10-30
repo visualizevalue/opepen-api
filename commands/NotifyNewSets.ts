@@ -40,7 +40,7 @@ export default class NotifyNewSets extends BaseCommand {
 
     const [setting, lastSent] = await this.getLastNotificationTime()
     const until = DateTime.utc()
-    const imageUrl = `https://api.opepen.art/v1/render/sets/summary/${lastSent.toISODate()}_${until.toISODate()}`
+    const imageUrl = `${Env.get('APP_URL')}/v1/render/sets/summary/${lastSent.toISODate()}_${until.toISODate()}`
 
     const submissions = await SetSubmission.query()
       .where('approved_at', '>', lastSent.toISO())
@@ -49,12 +49,13 @@ export default class NotifyNewSets extends BaseCommand {
     if (! submissions.length) return
 
     await this.notify([
-      `Recently added Opepen Set submissions`,
+      `Recently added Opepen Set Submissions`,
       ``,
       `Curate: https://opepen.art/curate`,
     ], imageUrl)
 
     setting.data.lastSent = until.toISO()
+    await setting.save()
   }
 
   private async notify (lines: string[], img: string) {
@@ -63,8 +64,6 @@ export default class NotifyNewSets extends BaseCommand {
     const { default: Farcaster } = await import('App/Services/Farcaster')
 
     const txt = lines.join(`\n`)
-
-    console.log(txt, img)
 
     const account = await Account.byId(Env.get('TWITTER_BOT_ACCOUNT_ADDRESS')).firstOrFail()
     const xClient = await Twitter.initialize(account)

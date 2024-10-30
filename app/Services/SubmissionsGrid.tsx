@@ -34,9 +34,16 @@ export class SubmissionsGrid {
           backgroundColor: '#101010',
           padding: `${padding}px`,
           display: 'flex',
-          flexWrap: 'wrap',
+          alignItems: 'center',
+          justifyContent: 'center',
         }}
       >
+        <div
+          style={{
+            display: 'flex',
+            flexWrap: 'wrap',
+          }}
+        >
         {
           await Promise.all(
             submissions.slice(0, perSide**2).map(async submission => {
@@ -51,6 +58,7 @@ export class SubmissionsGrid {
             })
           )
         }
+        </div>
       </div>,
       {
         width,
