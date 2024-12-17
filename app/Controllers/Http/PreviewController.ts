@@ -1,6 +1,7 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import BaseController from './BaseController'
 import Generative from 'App/Models/Generative'
+import Image from 'App/Models/Image'
 
 export default class PreviewController extends BaseController {
 
@@ -10,6 +11,10 @@ export default class PreviewController extends BaseController {
     return view.render('generative/p5', {
       code: generative.code,
     })
+  }
+
+  public async three ({ params, view }: HttpContextContract) {
+    return view.render('generative/three')
   }
 
 }

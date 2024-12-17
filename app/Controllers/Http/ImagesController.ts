@@ -23,10 +23,11 @@ export default class ImagesController extends BaseController {
     })
 
     if (! file) throw new BadRequest(`No file provided`)
+
     if (
       !file.isValid ||
       !file.subtype ||
-      !['jpeg', 'jpg', 'png', 'gif', 'webp', 'svg', 'mp4', 'webm'].includes(file.subtype?.toLowerCase())
+      !['jpeg', 'jpg', 'png', 'gif', 'webp', 'svg', 'mp4', 'webm', 'glb-json', 'gltf-binary'].includes(file.subtype?.toLowerCase())
     ) throw new InvalidInput(`Unspupported file format`)
 
     const image = await Image.create({

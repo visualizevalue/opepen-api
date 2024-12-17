@@ -240,6 +240,10 @@ Route.group(() => {
   Route.get('/preview/:id', 'PreviewController.p5')
 }).prefix('/v1/generative')
 
+Route.group(() => {
+  Route.get('/three','PreviewController.three')
+}).prefix('/v1/previews')
+
 // OpenGraph
 Route.group(() => {
   Route.get('/accounts/:id/image',                                 'FarcasterFrameAccountsController.image')

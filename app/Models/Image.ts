@@ -74,6 +74,11 @@ export default class Image extends BaseModel {
   }
 
   @computed()
+  public get is3D (): boolean {
+    return ['gbl', 'gltf', 'glb-json', 'glb-binary', 'gltf-json', 'gltf-binary'].includes(this.type)
+  }
+
+  @computed()
   public get isVideo (): boolean {
     return ['webm', 'mp4'].includes(this.type)
   }
@@ -102,6 +107,10 @@ export default class Image extends BaseModel {
     }
 
     return this.renderURI
+  }
+
+  public get threeJSPreviewPage (): string {
+    return `${Env.get('APP_URL'}/v1/previews/three?file=${this.originalURI}`
   }
 
   public get renderURI (): string {
@@ -304,6 +313,10 @@ export default class Image extends BaseModel {
   }
 
   public async renderOriginal () {
+    if (this.is3D) {
+      return await renderPage(this.threeJSPreviewPage)
+    }
+
     return await renderPage(this.originalURI)
   }
 
