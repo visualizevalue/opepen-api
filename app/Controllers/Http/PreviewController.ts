@@ -12,7 +12,7 @@ export default class PreviewController extends BaseController {
     })
   }
 
-  public async three ({ params, view }: HttpContextContract) {
+  public async three ({ view }: HttpContextContract) {
     return view.render('generative/three')
   }
 

@@ -110,7 +110,7 @@ export default class Image extends BaseModel {
   }
 
   public get threeJSPreviewPage (): string {
-    return `${Env.get('APP_URL'}/v1/previews/three?file=${this.originalURI}`
+    return `${Env.get('APP_URL')}/v1/previews/three?file=${this.originalURI}`
   }
 
   public get renderURI (): string {
