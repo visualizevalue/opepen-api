@@ -1,7 +1,6 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import BaseController from './BaseController'
 import Generative from 'App/Models/Generative'
-import Image from 'App/Models/Image'
 
 export default class PreviewController extends BaseController {
 
