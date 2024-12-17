@@ -73,7 +73,7 @@
                     const fov = camera.fov * (Math.PI / 180);
                     const cameraDistance = maxDim / (2 * Math.tan(fov / 2));
 
-                    camera.position.z = cameraDistance * 1.5; // Add some padding
+                    camera.position.z = cameraDistance * 1.618; // Add some padding
                     camera.lookAt(0, 0, 0);
 
                     scene.add(model);
