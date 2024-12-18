@@ -170,8 +170,8 @@ export default class Reveal {
       : submission[`edition${edition}Image`]
 
     opepen.metadata = {
-      image: image.isVideo ? image.staticURI : image.originalURI,
-      animation_url: image.isVideo ? image.originalURI : undefined,
+      image: image.requiresAnimationUrlMetadata ? image.staticURI : image.originalURI,
+      animation_url: image.requiresAnimationUrlMetadata ? image.originalURI : undefined,
       attributes: [
         {
           trait_type: `Artist`,

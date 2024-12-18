@@ -89,6 +89,11 @@ export default class Image extends BaseModel {
   }
 
   @computed()
+  public get requiresAnimationUrlMetadata (): boolean {
+    return this.isVideo || this.is3D
+  }
+
+  @computed()
   public get isWebRendered (): boolean {
     return ['svg', 'html'].includes(this.type)
   }
