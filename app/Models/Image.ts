@@ -76,7 +76,7 @@ export default class Image extends BaseModel {
 
   @computed()
   public get is3D (): boolean {
-    return ['gbl', 'gltf', 'glb-json', 'glb-binary', 'gltf-json', 'gltf-binary'].includes(this.type)
+    return ['glb', 'gltf', 'glb-json', 'glb-binary', 'gltf-json', 'gltf-binary'].includes(this.type)
   }
 
   @computed()

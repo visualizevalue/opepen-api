@@ -99,7 +99,7 @@ export default class OpepenMetadataController {
       url = `https://ipfs.vv.xyz/ipfs/${url.replace('ipfs://', '')}`
     }
 
-    const is3D = ['gbl', 'gltf', 'glb-json', 'glb-binary', 'gltf-json', 'gltf-binary'].includes(url.split('.').at(-1) as string)
+    const is3D = ['glb', 'gltf', 'glb-json', 'glb-binary', 'gltf-json', 'gltf-binary'].includes(url.split('.').at(-1) as string)
     if (is3D) {
       url = `${Env.get('APP_URL')}/v1/previews/three?file=${url}`
     }
