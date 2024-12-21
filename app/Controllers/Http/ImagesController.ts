@@ -52,6 +52,9 @@ export default class ImagesController extends BaseController {
   public async render ({ params, response }: HttpContextContract) {
     const image = await Image.query().where('uuid', params.id).firstOrFail()
 
+    // TODO: Refactor
+    if (image.versions?.sm) return response.redirect(image.staticURI)
+
     const { contentType, buffer } = await image.render()
 
     return response
