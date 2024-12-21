@@ -5,6 +5,7 @@ import Application from '@ioc:Adonis/Core/Application'
 import { BaseModel, BelongsTo, HasMany, ManyToMany, beforeCreate, belongsTo, column, computed, hasMany, manyToMany } from '@ioc:Adonis/Lucid/Orm'
 import Drive from '@ioc:Adonis/Core/Drive'
 import Env from '@ioc:Adonis/Core/Env'
+import Logger from '@ioc:Adonis/Core/Logger'
 import { toDriveFromURI } from 'App/Helpers/drive'
 import { execute } from 'App/Helpers/execute'
 import Account from './Account'
@@ -209,9 +210,16 @@ export default class Image extends BaseModel {
   }
 
   async fillImageFromURI (url: string): Promise<Image> {
-    const file = await toDriveFromURI(url, this.uuid)
-    this.type = file?.fileType || 'png'
-    await this.save()
+    try {
+      const file = await toDriveFromURI(url, this.uuid)
+      if (! file?.fileType) throw new Error(`Unknonw File Type ${this.uuid} ${url}`)
+
+      this.type = file?.fileType
+      await this.save()
+    } catch (e) {
+      Logger.error(e.message)
+    }
+
     return this
   }
 
