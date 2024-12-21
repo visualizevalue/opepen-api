@@ -44,7 +44,6 @@ export default class Opepen extends TokenModel {
   public data: OpepenData
 
   @column({
-    serializeAs: null,
     consume: value => {
       if (! value) return {}
 
