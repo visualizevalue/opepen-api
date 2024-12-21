@@ -2,6 +2,7 @@ import { validator, schema, rules } from '@ioc:Adonis/Core/Validator'
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import { ResponseContract } from '@ioc:Adonis/Core/Response'
 import Drive from '@ioc:Adonis/Core/Drive'
+import Env from '@ioc:Adonis/Core/Env'
 import MetadataParser from '@ioc:MetadataParser'
 import { renderPage } from 'App/Services/PageRenderer'
 
@@ -89,13 +90,18 @@ export default class OpepenMetadataController {
     await this.validate(params)
 
     let { animation_url, image } = await MetadataParser.forId(params.id)
-    let url = animation_url || image
+    let url: string = animation_url || image
     const isAnimated = image.endsWith('.gif') || image.endsWith('.svg') || animation_url
 
     if (! isAnimated) return await this.image(ctx)
 
     if (url.startsWith('ipfs://')) {
       url = `https://ipfs.vv.xyz/ipfs/${url.replace('ipfs://', '')}`
+    }
+
+    const is3D = ['gbl', 'gltf', 'glb-json', 'glb-binary', 'gltf-json', 'gltf-binary'].includes(url.split('.').at(-1) as string)
+    if (is3D) {
+      url = `${Env.get('APP_URL')}/v1/previews/three?file=${url}`
     }
 
     const rendered = await renderPage(url)
