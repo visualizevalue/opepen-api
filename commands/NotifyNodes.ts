@@ -80,6 +80,7 @@ export default class NotifyNodes extends BaseCommand {
   }
 
   private async handleNode (account: Account, events: Event[]) {
+    const currentEventBatchOpepen = await Opepen.query().whereIn('tokenId', events.map(e => e.tokenId))
     const previouslyOwnedOpepens = await Event.query().where('to', account.address).count('*', 'owned')
     const ownedOpepens = await Opepen.query().where('owner', account.address).count('*', 'owned')
 
@@ -94,6 +95,18 @@ export default class NotifyNodes extends BaseCommand {
       this.logger.info(`Node ${account.display} sold in the meantime, skip (likely a bot)`)
       return
     }
+    if (currentEventBatchOpepen.length === 0) {
+      const opepen = currentEventBatchOpepen[0]
+
+      if (
+        opepen.updatedAt !== opepen.revealedAt &&
+        opepen.updatedAt > DateTime.now().minus({ hours: 3 })
+      ) {
+        this.logger.info(`Last update for this opepen was ${opepen.updatedAt}. skip (likely a bot)`)
+        return
+      }
+    }
+
     this.logger.info(`Node ${account.display} has received/bought ${events.length} Opepen`)
 
     const imageURI = `https://api.opepen.art/v1/accounts/${account.address}/opepen/grid.png?key=${DateTime.now().toUnixInteger()}`
