@@ -80,7 +80,7 @@ export default class NotifyNodes extends BaseCommand {
   }
 
   private async handleNode (account: Account, events: Event[]) {
-    const currentEventBatchOpepen = await Opepen.query().whereIn('tokenId', events.map(e => e.tokenId))
+    const currentEventBatchOpepen = await Opepen.query().whereIn('tokenId', events.map(e => e.tokenId.toString()))
     const previouslyOwnedOpepens = await Event.query().where('to', account.address).count('*', 'owned')
     const ownedOpepens = await Opepen.query().where('owner', account.address).count('*', 'owned')
 
