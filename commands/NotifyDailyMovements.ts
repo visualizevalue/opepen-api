@@ -1,6 +1,7 @@
 import { DateTime } from 'luxon'
 import { BaseCommand } from '@adonisjs/core/build/standalone'
 import Env from '@ioc:Adonis/Core/Env'
+import { formatNumber } from '../app/Helpers/numbers'
 
 export default class NotifyDailyMovements extends BaseCommand {
   /**
@@ -21,6 +22,7 @@ export default class NotifyDailyMovements extends BaseCommand {
   public async run() {
     const { default: Account } = await import('App/Models/Account')
     const { default: Event } = await import('App/Models/Event')
+    const { default: Opepen } = await import('App/Models/Opepen')
     const { default: Vote } = await import('App/Models/Vote')
     const { default: Farcaster } = await import('App/Services/Farcaster')
     const { default: Twitter } = await import('App/Services/Twitter')
@@ -52,24 +54,30 @@ export default class NotifyDailyMovements extends BaseCommand {
       }
     }
 
-    const votes: number = (await Vote.query()
+    const votes: number = parseInt((await Vote.query()
       .where('createdAt', '>=', start.toISO())
       .where('createdAt', '<=', today.toISO())
-      .count('*', 'count'))[0].$extras.count
+      .count('*', 'count'))[0].$extras.count)
 
-    const transfers: number = (await Event.query()
+    const transfers: number = parseInt((await Event.query()
       .where('timestamp', '>=', start.toISO())
       .where('timestamp', '<=', today.toISO())
-      .count('*', 'count'))[0].$extras.count
+      .count('*', 'count'))[0].$extras.count)
+
+    const totalNodes: number = parseInt((
+      await Opepen.query().countDistinct('owner', 'count')
+    )[0].$extras.count)
 
     if (events.length < 4) return
 
+    const day = Math.abs(Math.floor(deployment.diffNow('days').as('days')))
+
     const txt = [
-      `Opepen Day ${Math.abs(Math.floor(deployment.diffNow('days').as('days')))}`,
+      `Opepen Day ${formatNumber(day)}`,
       ``,
-      `Curations: ${votes}`,
-      `New Nodes: ${newNodes.size}`,
-      `Transfers: ${transfers}`,
+      `Curations: ${formatNumber(votes)}`,
+      `New Nodes: +${formatNumber(newNodes.size)} (${formatNumber(totalNodes)})`,
+      `Transfers: ${formatNumber(transfers)}`,
     ].join('\n')
 
     const account = await Account.byId(Env.get('TWITTER_BOT_ACCOUNT_ADDRESS')).firstOrFail()
