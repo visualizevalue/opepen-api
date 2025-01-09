@@ -4,15 +4,9 @@ import satori from 'satori'
 import sharp from 'sharp'
 import Opepen from 'App/Models/Opepen'
 
-export class OpepenGrid {
+export class BaseOpepenGrid {
 
-  public async make (ids: string[], forceSquare: boolean = true, highlighted: string[] = []) {
-    const opepen = await Opepen.query()
-      .preload('image')
-      .whereIn('tokenId', Array.from(new Set(ids.concat(highlighted))))
-      .orderBy('updatedAt', 'desc')
-      .limit(81)
-
+  public async make (opepen: Opepen[], forceSquare: boolean = true, highlighted: string[] = []) {
     const count = opepen.length
     const perSide = forceSquare
       ? Math.floor(Math.sqrt(count))
@@ -37,6 +31,7 @@ export class OpepenGrid {
               const isHighlighted = highlighted.includes(o.tokenId.toString())
 
               return <img
+                key={o.tokenId.toString()}
                 src={
                   await this.urlAsBuffer(o.image
                     ? o.image.staticURI
@@ -98,4 +93,4 @@ export class OpepenGrid {
 
 }
 
-export default new OpepenGrid()
+export default new BaseOpepenGrid()

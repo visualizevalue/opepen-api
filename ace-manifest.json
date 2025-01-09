@@ -127,6 +127,18 @@
       "aliases": [],
       "flags": []
     },
+    "opepen:generate-set-064": {
+      "settings": {
+        "loadApp": true,
+        "stayAlive": false
+      },
+      "commandPath": "./commands/GenerateSet064",
+      "commandName": "opepen:generate-set-064",
+      "description": "",
+      "args": [],
+      "aliases": [],
+      "flags": []
+    },
     "farcaster:import-casts": {
       "settings": {
         "loadApp": true,

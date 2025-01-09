@@ -1,3 +1,5 @@
+import Rand from 'rand-seed'
+
 export function chunk<T>(arr: T[], size: number): T[][] {
   return Array.from(
     { length: Math.ceil(arr.length / size) },
@@ -17,3 +19,13 @@ export function takeRandom<T>(arr: Array<T>, randomNumber = Math.random()): T|nu
 
   return arr[Math.floor(randomNumber * arr.length)]
 }
+
+export function shuffle<T>(arr: Array<T>, rand = new Rand('')): T[] {
+  const shuffled = [...arr] // Create a copy to avoid mutating the original array
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(rand.next() * (i + 1)); // Get a random index
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]] // Swap elements
+  }
+  return shuffled
+}
+
