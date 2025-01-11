@@ -12,7 +12,7 @@ export default class NotifySubmissionRevealPausedEmail extends NotificationEmail
 
   public async prepare(message: MessageContract) {
     return super.prepareEmail(message, {
-      subject: `Consensus paused on "${this.submission.name}"`,
+      subject: `Consensus lost on "${this.submission.name}"`,
       name: 'reveal_paused',
       templateData: {
         setName: this.submission.name,

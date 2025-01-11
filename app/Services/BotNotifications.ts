@@ -55,7 +55,7 @@ export class BotNotifications {
 
   public async consensusPaused (submission: SetSubmission) {
     const template = ({ creators }) => [
-      `Consensus Paused`,
+      `Consensus Lost`,
       `"${submission.name}" by ${creators}`,
     ]
 
