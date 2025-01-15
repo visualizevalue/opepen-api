@@ -59,6 +59,7 @@ export default class AccountsController extends BaseController {
         query.preload('cover')
         query.orderBy('sortIndex')
       })
+      .withCount('opepen')
       .first()
 
     if (! account) {
