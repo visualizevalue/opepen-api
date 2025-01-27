@@ -74,6 +74,8 @@ Route.group(() => {
 
   // Burned
   Route.get('/burned',                  'BurnedOpepenController.list')
+  Route.get('/burned/:id',              'BurnedOpepenController.show')
+  Route.get('/burned/:id/events',       'EventsController.forBurnedToken')
   Route.get('/summary/:date',           'OpepenController.summary')
 
   // Opepen
@@ -177,6 +179,7 @@ Route.group(() => {
   Route.put('/:id',                     'AccountsController.update')
   Route.get('/:id/opepen',              'OpepenController.forAccount')
   Route.get('/:id/opepen/grid.png',     'OpepenController.gridForAccount')
+  Route.get('/:id/burned',              'BurnedOpepenController.forAccount')
 
   Route.post('/:id/mail/test',          'NotificationsController.testMail').middleware(['admin'])
 
@@ -256,4 +259,5 @@ Route.group(() => {
   Route.route('/sets/:id/opt-in-status',     ['GET', 'POST'],      'FarcasterFrameSetController.optInStatus')
 
   Route.route('/opepen/:id/og',              ['GET', 'POST'],      'OpepenController.og')
+  Route.route('/burned/:id/og',              ['GET', 'POST'],      'BurnedOpepenController.og')
 }).prefix('/v1/render')
