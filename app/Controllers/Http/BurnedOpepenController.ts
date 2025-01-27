@@ -1,9 +1,9 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
-import BaseController from './BaseController'
+import BurnedOpepenRenderer from 'App/Frames/BurnedOpepenRenderer'
 import Account from 'App/Models/Account'
 import BurnedOpepen from 'App/Models/BurnedOpepen'
-import BurnedOpepenRenderer from 'App/Frames/BurnedOpepenRenderer'
 import EventModel from 'App/Models/Event'
+import BaseController from './BaseController'
 
 export default class BurnedOpepenController extends BaseController {
 
