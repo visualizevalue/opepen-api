@@ -1,9 +1,9 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import BaseController from './BaseController'
-import EventModel from 'App/Models/Event'
+import Account from 'App/Models/Account'
 import BurnedOpepen from 'App/Models/BurnedOpepen'
-import { Account } from 'App/Models'
 import BurnedOpepenRenderer from 'App/Frames/BurnedOpepenRenderer'
+import EventModel from 'App/Models/Event'
 
 export default class BurnedOpepenController extends BaseController {
 
@@ -66,7 +66,7 @@ export default class BurnedOpepenController extends BaseController {
       .preload('lastEvent')
       .preload('image')
       .firstOrFail()
-  
+
     return { ...opepen.toJSON() }
   }
 
