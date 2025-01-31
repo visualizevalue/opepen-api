@@ -230,7 +230,7 @@ export default class Image extends BaseModel {
 
       // Generate still
       if (this.isAnimated || this.isWebRendered) {
-        await this.generateStill()
+        await this.enerateStill()
 
         key += '.png'
       }
@@ -246,7 +246,7 @@ export default class Image extends BaseModel {
   async renderToScaledVersions (image: Buffer) {
     const imageProcessor = await sharp(image)
     const metadata = await imageProcessor.metadata()
-    const distType = this.isAnimated || this.type === 'svg' ? 'png' : this.type
+    const distType = this.isAnimated || this.isWebRendered || this.type === 'svg' ? 'png' : this.type
 
     if (! metadata.width || !['png', 'jpeg', 'webp'].includes(distType)) return
 
@@ -271,7 +271,7 @@ export default class Image extends BaseModel {
     await this.save()
   }
 
-  async generateStill (): Promise<void> {
+  async enerateStill (): Promise<void> {
     // Download asset
     const key = `images/${this.uuid}.${this.type}`
     const pngKey = `${key}.png`
