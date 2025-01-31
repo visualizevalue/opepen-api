@@ -96,7 +96,7 @@ export default class Image extends BaseModel {
 
   @computed()
   public get isWebRendered (): boolean {
-    return ['svg', 'html'].includes(this.type)
+    return ['svg', 'html'].includes(this.type) || this.is3D
   }
 
   public get staticType (): string {
