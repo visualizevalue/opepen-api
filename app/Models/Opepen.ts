@@ -56,7 +56,7 @@ export default class Opepen extends TokenModel {
   public get name () {
     return this.revealedAt
       ? `Set ${pad(this.setId, 3)}, 1/${this.data.edition} (#${this.tokenId})`
-      : `Unrevealed, 1/${this.data.edition} (#${this.tokenId})`
+      : `1/${this.data.edition} (#${this.tokenId})`
   }
 
   @column()
