@@ -354,6 +354,9 @@ export default class Account extends BaseModel {
       opepen_count: this.$extras.opepen_count
         ? parseInt(this.$extras.opepen_count)
         : undefined,
+      burned_opepen_count: this.$extras.burnedOpepen_count
+        ? parseInt(this.$extras.burnedOpepen_count)
+        : undefined,
     }
   }
 
