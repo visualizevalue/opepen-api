@@ -7,6 +7,7 @@ import provider from 'App/Services/RPCProvider'
 import Image from 'App/Models/Image'
 import RichContentLink from 'App/Models/RichContentLink'
 import { ArtistSocials, FarcasterData, OauthData } from './types'
+import BurnedOpepen from './BurnedOpepen'
 import Opepen from './Opepen'
 import Event from './Event'
 import Subscription from './Subscription'
@@ -140,6 +141,12 @@ export default class Account extends BaseModel {
     localKey: 'address',
   })
   public opepen: HasMany<typeof Opepen>
+
+  @hasMany(() => BurnedOpepen, {
+    foreignKey: 'owner',
+    localKey: 'address',
+  })
+  public burnedOpepen: HasMany<typeof BurnedOpepen>
 
   @hasMany(() => SetSubmission, {
     foreignKey: 'creator',

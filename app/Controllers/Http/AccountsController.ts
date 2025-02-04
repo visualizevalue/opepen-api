@@ -60,6 +60,7 @@ export default class AccountsController extends BaseController {
         query.orderBy('sortIndex')
       })
       .withCount('opepen')
+      .withCount('burnedOpepen')
       .first()
 
     if (! account) {
