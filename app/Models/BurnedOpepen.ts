@@ -1,6 +1,6 @@
 import Env from '@ioc:Adonis/Core/Env'
 import { beforeSave, BelongsTo, belongsTo, column, computed, HasMany, hasMany, hasOne, HasOne } from '@ioc:Adonis/Lucid/Orm'
-import TokenModel from './TokenModel'
+import TokenModel from 'App/Models/TokenModel'
 import Event from './Event'
 import Image from './Image'
 import { ContractType } from './types'
