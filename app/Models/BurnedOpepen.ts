@@ -17,12 +17,7 @@ export default class BurnedOpepen extends TokenModel {
   public contractAddress: string = Env.get('BURNED_OPEPEN_ADDRESS')
 
   @column({
-    serialize: (value: BurnedOpepenData) => {
-      return {
-        ...value,
-        setConfig: undefined,
-      }
-    }
+    serializeAs: 'metadata',
   })
   public data: BurnedOpepenData
 
