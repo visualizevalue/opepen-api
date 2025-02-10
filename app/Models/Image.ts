@@ -229,8 +229,8 @@ export default class Image extends BaseModel {
       let key = `images/${this.uuid}.${this.type}`
 
       // Generate still
-      if (this.isAnimated || this.isWebRendered) {
-        await this.enerateStill()
+      if (this.isVideo || this.isWebRendered) {
+        await this.generateStill()
 
         key += '.png'
       }
@@ -271,7 +271,7 @@ export default class Image extends BaseModel {
     await this.save()
   }
 
-  async enerateStill (): Promise<void> {
+  async generateStill (): Promise<void> {
     // Download asset
     const key = `images/${this.uuid}.${this.type}`
     const pngKey = `${key}.png`
