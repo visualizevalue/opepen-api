@@ -146,9 +146,25 @@ export default class SetSubscriptionsController extends BaseController {
   public async forAccount ({ params }: HttpContextContract) {
     const submission = await SetSubmission.findByOrFail('uuid', params.id)
 
-    return Subscription.query()
+    const subscription = await Subscription.query()
       .where('address', params.account.toLowerCase())
       .where('submissionId', submission.id)
       .firstOrFail()
+
+    const opepen = await Opepen.query().whereIn('tokenId', subscription.opepenIds)
+    const perEdition = opepen.reduce((acc, token) => {
+      if (! acc[token.data.edition]) {
+        acc[token.data.edition] = 0
+      }
+
+      acc[token.data.edition] += 1
+
+      return acc
+    }, {})
+
+    return {
+      ...(await subscription.toJSON()),
+      per_edition: perEdition,
+    }
   }
 }
