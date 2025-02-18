@@ -107,9 +107,10 @@ Route.group(() => {
     Route.post('/:id/star',           'SetSubmissionsController.star').middleware(['admin'])
     Route.post('/:id/shadow',         'SetSubmissionsController.shadow').middleware(['admin'])
 
+    Route.post('/:id/discard',        'SetSubscriptionsController.discard')
+    Route.post('/:id/subscribe',      'SetSubscriptionsController.subscribe')
   }).middleware(['auth'])
 
-  Route.post('/:id/subscribe',      'SetSubscriptionsController.subscribe')
   Route.get('/:id/subscribers',     'SetSubscriptionsController.listSubscribers')
   Route.get('/:id/history',         'SetSubscriptionsController.history')
 }).prefix('/v1/set-submissions')

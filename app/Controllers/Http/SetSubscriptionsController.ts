@@ -11,6 +11,25 @@ import Opepen from 'App/Models/Opepen'
 import TimelineUpdate from 'App/Models/TimelineUpdate'
 
 export default class SetSubscriptionsController extends BaseController {
+  public async discard ({ params, session }: HttpContextContract) {
+    const address = session.get('siwe')?.address?.toLowerCase()
+
+    const submission = await SetSubmission.findByOrFail('uuid', params.id)
+    const existingSubscription = await Subscription.query().where({
+      submission_id: submission.id,
+      address,
+    }).first()
+
+    if (existingSubscription) throw new Error(`Please opt out manually`)
+
+    return Subscription.create({
+      address,
+      submissionId: submission.id,
+      message: 'DISCARD',
+      opepenIds: [],
+    })
+  }
+
   public async subscribe ({ params, request }: HttpContextContract) {
     const submission = await SetSubmission.findByOrFail('uuid', params.id)
 
