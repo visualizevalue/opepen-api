@@ -397,7 +397,6 @@ export default class SetSubmission extends BaseModel {
 
   public static active = scope((query) => {
     query.whereNull('deletedAt')
-    query.whereNull('archivedAt')
     query.whereNull('shadowedAt')
   })
 
