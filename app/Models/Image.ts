@@ -365,7 +365,6 @@ export default class Image extends BaseModel {
         )
         // Unrevealed Submissions
         .orWhereHas('cachedSetSubmission', query => query
-          .whereNotNull('approvedAt')
           .whereNull('revealBlockNumber')
           .whereNull('setId')
           .whereNull('shadowedAt')

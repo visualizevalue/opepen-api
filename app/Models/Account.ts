@@ -279,8 +279,7 @@ export default class Account extends BaseModel {
               .orWhere('coCreator_5', this.address)
         })
         .withScopes(scopes => {
-          scopes.approved()
-          scopes.published()
+          scopes.live()
         })
 
     const submissionsCount = await artistFor.clone().count('id')

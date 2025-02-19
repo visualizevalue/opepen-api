@@ -110,7 +110,7 @@ class StatsService {
       /*printSubmissions,*/     SetSubmission.query().where('edition_type', 'PRINT').count('id'),
       /*optIns,*/               SubscriptionHistory.query().sum('opepen_count'),
       /*sets,*/                 SetModel.query().whereNotNull('submissionId').count('id'),
-      /*artists,*/              SetSubmission.query().whereNotNull('approved_at').countDistinct('creator'),
+      /*artists,*/              SetSubmission.query().withScopes(scopes => scopes.live()).countDistinct('creator'),
       /*permanentArtists,*/     this.permanentArtistsQuery(),
       /*curators,*/             SubscriptionHistory.query().countDistinct('address'),
       /*holders,*/              Opepen.query().countDistinct('owner'),

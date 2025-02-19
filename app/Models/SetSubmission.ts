@@ -127,9 +127,6 @@ export default class SetSubmission extends BaseModel {
   public publishedAt: DateTime|null
 
   @column.dateTime()
-  public approvedAt: DateTime|null
-
-  @column.dateTime()
   public starredAt: DateTime|null
 
   @column.dateTime()
@@ -395,6 +392,7 @@ export default class SetSubmission extends BaseModel {
   })
   public richContentLinks: HasMany<typeof RichContentLink>
 
+  // TODO: rename to visible (?)
   public static active = scope((query) => {
     query.whereNull('deletedAt')
     query.whereNull('shadowedAt')
@@ -418,14 +416,6 @@ export default class SetSubmission extends BaseModel {
 
   public static unstarred = scope((query) => {
     query.whereNull('starredAt')
-  })
-
-  public static approved = scope((query) => {
-    query.whereNotNull('approvedAt')
-  })
-
-  public static unapproved = scope((query) => {
-    query.whereNull('approvedAt')
   })
 
   public static archived = scope((query) => {
@@ -453,7 +443,6 @@ export default class SetSubmission extends BaseModel {
     query.withScopes(scopes => {
       scopes.active()
       scopes.published()
-      scopes.approved()
     })
   })
 

@@ -93,8 +93,7 @@ export default class AccountsController extends BaseController {
              .orWhere('coCreator_5', account.address)
       })
       .withScopes(scopes => {
-        scopes.approved()
-        scopes.published()
+        scopes.live()
       })
       .orderBy('created_at', 'desc')
 
