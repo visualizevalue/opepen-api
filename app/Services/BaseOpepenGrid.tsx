@@ -2,12 +2,11 @@ import React from 'react'
 import axios from 'axios'
 import satori from 'satori'
 import sharp from 'sharp'
-import Opepen from 'App/Models/Opepen'
+import { GridItem } from 'App/Services/GridItem'
 
 export class BaseOpepenGrid {
-
-  public async make (opepen: Opepen[], forceSquare: boolean = true, highlighted: string[] = []) {
-    const count = opepen.length
+  public async make(items: GridItem[], forceSquare: boolean = true, highlighted: string[] = []) {
+    const count = items.length
     const perSide = forceSquare
       ? Math.floor(Math.sqrt(count))
       : Math.ceil(Math.sqrt(count))
@@ -27,22 +26,21 @@ export class BaseOpepenGrid {
       >
         {
           await Promise.all(
-            opepen.slice(0, perSide**2).map(async o => {
-              const isHighlighted = highlighted.includes(o.tokenId.toString())
+            items.slice(0, perSide**2).map(async (item) => {
+              const isHighlighted = item.type === 'opepen' && highlighted.includes(item.tokenId) // for now highlight only opepen, not burned opepen
+              const imageUrl = item.image?.staticURI || `https://api.opepen.art/${item.tokenId}/image`
 
-              return <img
-                key={o.tokenId.toString()}
-                src={
-                  await this.urlAsBuffer(o.image
-                    ? o.image.staticURI
-                    : `https://api.opepen.art/${o.tokenId}/image`)
-                }
-                style={{
-                  border: isHighlighted ? '3px solid grey' : 'none',
-                }}
-                width={dimension}
-                height={dimension}
-              />
+              return (
+                <img
+                  key={item.tokenId}
+                  src={await this.urlAsBuffer(imageUrl)}
+                  style={{
+                    border: isHighlighted ? '3px solid grey' : 'none',
+                  }}
+                  width={dimension}
+                  height={dimension}
+                />
+              )
             })
           )
         }
