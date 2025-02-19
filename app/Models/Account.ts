@@ -97,7 +97,7 @@ export default class Account extends BaseModel {
   public profileCompletion: number
 
   @column()
-  public votesCount: number
+  public optInCount: number
 
   @column({
     consume: (value: string) => typeof value === 'string' ? JSON.parse(value) : value,
@@ -265,6 +265,14 @@ export default class Account extends BaseModel {
     if (account.richContentLinks?.length) completion ++
 
     this.profileCompletion = completion
+    await this.save()
+  }
+
+  public async updateOptInCount () {
+    const account: Account = this
+    await account.loadCount('subscriptions')
+
+    this.optInCount = parseInt(account.$extras.subscriptions_count)
     await this.save()
   }
 

@@ -22,6 +22,9 @@ export default class SetSubscriptionsController extends BaseController {
 
     if (existingSubscription) throw new Error(`Please opt out manually`)
 
+    const account = await Account.updateOrCreate({ address }, {})
+    await account.updateOptInCount()
+
     return Subscription.create({
       address,
       submissionId: submission.id,
@@ -45,6 +48,7 @@ export default class SetSubscriptionsController extends BaseController {
 
     const account = await Account.updateOrCreate({ address }, {})
     account.updateNames()
+    account.updateOptInCount()
 
     const subscription = await Subscription.firstOrCreate({
       submissionId: submission.id,
