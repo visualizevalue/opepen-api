@@ -88,6 +88,9 @@ export default class Account extends BaseModel {
   public bio: string
 
   @column()
+  public featured: number
+
+  @column()
   public setSubmissionsCount: number
 
   @column()

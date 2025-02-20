@@ -145,6 +145,9 @@ export default class SetSubmission extends BaseModel {
   public setId: number
 
   @column()
+  public featured: number
+
+  @column()
   public editionType: EditionType = 'PRINT'
 
   @computed({ serializeAs: 'is_dynamic' })
