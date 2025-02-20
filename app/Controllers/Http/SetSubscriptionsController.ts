@@ -1,7 +1,6 @@
 import { ethers } from 'ethers'
 import { DateTime } from 'luxon'
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
-import Database from '@ioc:Adonis/Lucid/Database'
 import Account from 'App/Models/Account'
 import SetSubmission from 'App/Models/SetSubmission'
 import Subscription from 'App/Models/Subscription'
@@ -84,17 +83,18 @@ export default class SetSubscriptionsController extends BaseController {
     await subscription.save()
 
     // Clear other opt ins for these opepen
-    const optedOpepenStr = subscription.opepenIds.join(',')
-    await Database.rawQuery(`
-      UPDATE set_subscriptions
-      SET opepen_ids = opepen_ids - '{${optedOpepenStr}}'::text[]
-      WHERE opepen_ids \\?| '{${optedOpepenStr}}'::text[]
-      AND (
-        submission_id != ${submission.id}
-        OR address != '${subscription.address}'
-      )
-      AND submission_id NOT IN (SELECT submission_id FROM sets WHERE submission_id IS NOT NULL)
-    `)
+    // FIXME: Rework this now - this has to become part of the reveal process.
+    // const optedOpepenStr = subscription.opepenIds.join(',')
+    // await Database.rawQuery(`
+    //   UPDATE set_subscriptions
+    //   SET opepen_ids = opepen_ids - '{${optedOpepenStr}}'::text[]
+    //   WHERE opepen_ids \\?| '{${optedOpepenStr}}'::text[]
+    //   AND (
+    //     submission_id != ${submission.id}
+    //     OR address != '${subscription.address}'
+    //   )
+    //   AND submission_id NOT IN (SELECT submission_id FROM sets WHERE submission_id IS NOT NULL)
+    // `)
 
     // Save history
     const history = await SubscriptionHistory.saveFor(subscription)
