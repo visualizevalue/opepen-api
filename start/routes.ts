@@ -107,9 +107,10 @@ Route.group(() => {
     Route.post('/:id/star',           'SetSubmissionsController.star').middleware(['admin'])
     Route.post('/:id/shadow',         'SetSubmissionsController.shadow').middleware(['admin'])
 
+    Route.post('/:id/discard',        'SetSubscriptionsController.discard')
+    Route.post('/:id/subscribe',      'SetSubscriptionsController.subscribe')
   }).middleware(['auth'])
 
-  Route.post('/:id/subscribe',      'SetSubscriptionsController.subscribe')
   Route.get('/:id/subscribers',     'SetSubscriptionsController.listSubscribers')
   Route.get('/:id/history',         'SetSubscriptionsController.history')
 }).prefix('/v1/set-submissions')
@@ -158,12 +159,9 @@ Route.group(() => {
     Route.group(() => {
       Route.get('/',        'AccountSettingsController.showMe')
       Route.post('/',       'AccountSettingsController.updateMe')
-    }).middleware(['auth'])
-
-    Route.group(() => {
       Route.get('/:account',        'AccountSettingsController.show')
       Route.post('/:account',       'AccountSettingsController.update')
-    }).middleware(['admin'])
+    }).middleware(['auth'])
 
     Route.post('/:account/send-verify-email', 'AccountSettingsController.sendVerifyEmail')
     Route.get('/:account/verify-email', 'AccountSettingsController.verifyEmail')

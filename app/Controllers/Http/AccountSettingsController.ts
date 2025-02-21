@@ -8,6 +8,7 @@ import Image from 'App/Models/Image'
 import BadRequest from 'App/Exceptions/BadRequest'
 import { isAdmin } from 'App/Middleware/AdminAuth'
 import NotAuthenticated from 'App/Exceptions/NotAuthenticated'
+import NotAuthorized from 'App/Exceptions/NotAuthorized'
 
 export default class AccountSettingsController extends BaseController {
 
@@ -16,7 +17,14 @@ export default class AccountSettingsController extends BaseController {
   }
 
   public async show (config: HttpContextContract) {
-    return this.transform(await this.get(config.params.account))
+    const account = await this.get(config.params.account)
+    const me = await this.me(config)
+
+    if (! isAdmin(config.session) && account.address !== me.address) {
+      throw new NotAuthorized(`Not allowed to view this user`)
+    }
+
+    return this.transform(account)
   }
 
   public async updateMe (config: HttpContextContract) {
@@ -27,6 +35,11 @@ export default class AccountSettingsController extends BaseController {
 
   public async update (config: HttpContextContract) {
     const account = await this.get(config.params.account)
+    const me = await this.me(config)
+
+    if (! isAdmin(config.session) && account.address !== me.address) {
+      throw new NotAuthorized(`Not allowed to update this user`)
+    }
 
     return await this.updateAccount(account, config.request)
   }
@@ -138,6 +151,7 @@ export default class AccountSettingsController extends BaseController {
 
   private transform (account: Account) {
     return {
+      address: account.address,
       name: account.name,
       email: account.email,
       email_verified: !! account.emailVerifiedAt,

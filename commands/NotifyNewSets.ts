@@ -43,8 +43,8 @@ export default class NotifyNewSets extends BaseCommand {
     const imageUrl = `${Env.get('APP_URL')}/v1/render/sets/summary/${lastSent.toISODate()}_${until.toISODate()}`
 
     const submissions = await SetSubmission.query()
-      .where('approved_at', '>', lastSent.toISO())
-      .orderBy('approved_at', 'desc')
+      .where('published_at', '>', lastSent.toISO())
+      .orderBy('published_at', 'desc')
 
     if (! submissions.length) return
 

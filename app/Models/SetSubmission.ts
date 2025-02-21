@@ -127,9 +127,6 @@ export default class SetSubmission extends BaseModel {
   public publishedAt: DateTime|null
 
   @column.dateTime()
-  public approvedAt: DateTime|null
-
-  @column.dateTime()
   public starredAt: DateTime|null
 
   @column.dateTime()
@@ -146,6 +143,9 @@ export default class SetSubmission extends BaseModel {
 
   @column()
   public setId: number
+
+  @column()
+  public featured: number
 
   @column()
   public editionType: EditionType = 'PRINT'
@@ -395,9 +395,9 @@ export default class SetSubmission extends BaseModel {
   })
   public richContentLinks: HasMany<typeof RichContentLink>
 
+  // TODO: rename to visible (?)
   public static active = scope((query) => {
     query.whereNull('deletedAt')
-    query.whereNull('archivedAt')
     query.whereNull('shadowedAt')
   })
 
@@ -419,14 +419,6 @@ export default class SetSubmission extends BaseModel {
 
   public static unstarred = scope((query) => {
     query.whereNull('starredAt')
-  })
-
-  public static approved = scope((query) => {
-    query.whereNotNull('approvedAt')
-  })
-
-  public static unapproved = scope((query) => {
-    query.whereNull('approvedAt')
   })
 
   public static archived = scope((query) => {
@@ -454,7 +446,6 @@ export default class SetSubmission extends BaseModel {
     query.withScopes(scopes => {
       scopes.active()
       scopes.published()
-      scopes.approved()
     })
   })
 
@@ -550,9 +541,12 @@ export default class SetSubmission extends BaseModel {
   }
 
   public optInOpen () {
-    return this.starredAt &&
-      this.starredAt < DateTime.now() &&
-      this.starredAt.plus({ hours: OPT_IN_HOURS }) > DateTime.now()
+    if (this.starredAt) {
+      return this.starredAt < DateTime.now() &&
+        this.starredAt.plus({ hours: OPT_IN_HOURS }) > DateTime.now()
+    }
+
+    return ! this.revealsAt
   }
 
   public async creators () {
