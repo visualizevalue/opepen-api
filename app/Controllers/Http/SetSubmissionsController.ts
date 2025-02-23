@@ -96,7 +96,8 @@ export default class SetSubmissionsController extends BaseController {
         break
       case 'demand':
         query.withScopes(scopes => scopes.live())
-        query.whereJsonPath('submission_stats', '$.demand.total', '>=', 1)
+        query.whereJsonPath('submission_stats', '$.demand.total', '>=', 6)
+        query.whereJsonPath('submission_stats', '$.holders.total', '>=', 3)
         query.whereNull('setId')
         break
       default:
