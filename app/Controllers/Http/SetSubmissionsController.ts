@@ -20,6 +20,7 @@ export default class SetSubmissionsController extends BaseController {
       limit = 10,
       filter = {},
       sort = '-createdAt',
+      search = '',
       status = '',
     } = request.qs()
 
@@ -107,6 +108,7 @@ export default class SetSubmissionsController extends BaseController {
 
     await this.applyFilters(query, filter)
     await this.applySorts(query, sort)
+    await this.applySearch(query, search)
 
     return query
       .orderBy('createdAt', 'desc') // Default sort to prevent randomisation when paginating
@@ -311,6 +313,7 @@ export default class SetSubmissionsController extends BaseController {
     }
 
     await submission.merge(updateData).save()
+    await submission.updateSearchString()
 
     return this.show(ctx)
   }

@@ -127,6 +127,18 @@
       "aliases": [],
       "flags": []
     },
+    "generate:submission_search_strings": {
+      "settings": {
+        "loadApp": true,
+        "stayAlive": false
+      },
+      "commandPath": "./commands/GenerateSubmissionSearchStrings",
+      "commandName": "generate:submission_search_strings",
+      "description": "",
+      "args": [],
+      "aliases": [],
+      "flags": []
+    },
     "farcaster:import-casts": {
       "settings": {
         "loadApp": true,

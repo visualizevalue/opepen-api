@@ -65,6 +65,37 @@ export default class BaseController {
     }
   }
 
+  protected async applySearch (query, search, column: string = 'search') {
+    if (! search.trim()) return
+
+    // Function to escape special characters in search terms for 'ilike'
+    // Escapes '!', '%', and '_' by prefixing with '!' (our chosen escape character)
+    const escapeLike = (term: string) => term.replace(/[!%_]/g, '!$&')
+
+    // Parse the search string:
+    // - Split by '||' for OR conditions
+    // - For each OR group, split by '&&' for AND conditions
+    // - Trim whitespace from each term and filter out empty terms
+    // - Filter out empty AND groups
+    const orAndQueries = search.split('||').map((orGroup: string) =>
+      orGroup.split('&&').map(term => term.trim()).filter(term => term.length > 0)
+    ).filter((andGroup: string) => andGroup.length > 0)
+
+    query.where(q => {
+      // Iterate over OR groups
+      for (const searchOr of orAndQueries) {
+        q.orWhere(iq => {
+          // Add where conditions for each AND term in this OR group
+          for (const searchAnd of searchOr) {
+            const escapedTerm = escapeLike(searchAnd)
+            // Use whereRaw to specify the ESCAPE clause for proper escaping
+            iq.whereRaw(`${column} ilike '%' || ? || '%' ESCAPE '!'`, [escapedTerm])
+          }
+        })
+      }
+    })
+  }
+
   protected async setRandomSeed () {
     const now = DateTime.now()
     const day = now.ordinal
