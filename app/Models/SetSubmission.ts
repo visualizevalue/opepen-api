@@ -596,13 +596,13 @@ export default class SetSubmission extends BaseModel {
   public async updateSearchString () {
     this.search = [
       this.name,
-      this.description,
-      this.edition_1Name,
-      this.edition_4Name,
-      this.edition_5Name,
-      this.edition_10Name,
-      this.edition_20Name,
-      this.edition_40Name,
+      // this.description,
+      // this.edition_1Name,
+      // this.edition_4Name,
+      // this.edition_5Name,
+      // this.edition_10Name,
+      // this.edition_20Name,
+      // this.edition_40Name,
       ...(
         (await this.creators()).map(c => [c.display, c.address, c.ens]
           .filter(i => !!i)
