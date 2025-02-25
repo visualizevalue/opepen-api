@@ -1,16 +1,22 @@
 import BaseOpepenGrid from './BaseOpepenGrid'
 import Opepen from 'App/Models/Opepen'
+import { GridItem } from './GridItem'
 
 export class OpepenGrid {
 
   public async make (ids: string[], forceSquare: boolean = true, highlighted: string[] = []) {
-    const opepen = await Opepen.query()
+    const uniqueIds = Array.from(new Set(ids.concat(highlighted)))
+    const opepenRecords = await Opepen.query()
       .preload('image')
-      .whereIn('tokenId', Array.from(new Set(ids.concat(highlighted))))
+      .whereIn('tokenId', uniqueIds)
       .orderBy('updatedAt', 'desc')
       .limit(81)
 
-    return BaseOpepenGrid.make(opepen, forceSquare, highlighted)
+    const gridItems = opepenRecords.map((rec) => {
+      return new GridItem(rec, 'opepen')
+    })
+
+    return BaseOpepenGrid.make(gridItems, forceSquare, highlighted)
   }
 }
 
