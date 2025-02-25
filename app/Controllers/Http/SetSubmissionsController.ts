@@ -1,7 +1,6 @@
 import { DateTime } from 'luxon'
 import { isAddress } from 'ethers/lib/utils'
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
-import BotNotifications from 'App/Services/BotNotifications'
 import BaseController from './BaseController'
 import Account from 'App/Models/Account'
 import Image from 'App/Models/Image'
@@ -412,22 +411,6 @@ export default class SetSubmissionsController extends BaseController {
     await submission.clearOptIns()
 
     return submission.save()
-  }
-
-  public async star (ctx: HttpContextContract) {
-    const submission = await this.show(ctx)
-    if (! submission) return ctx.response.badRequest()
-
-    // FIXME: This shouldn't be possible manually // or at least if there is another starred set
-
-    submission.starredAt = submission.starredAt ? null : DateTime.now()
-
-    if (submission.starredAt) {
-      await submission.notify('NewCuratedSubmission')
-      BotNotifications?.newCuratedSubmission(submission)
-    }
-
-    return submission
   }
 
   public async shadow (ctx: HttpContextContract) {

@@ -104,7 +104,6 @@ Route.group(() => {
     Route.post('/:id/unpublish',      'SetSubmissionsController.unpublish')
     Route.post('/:id/approve',        'SetSubmissionsController.approve').middleware(['admin'])
     Route.post('/:id/unapprove',      'SetSubmissionsController.unapprove').middleware(['admin'])
-    Route.post('/:id/star',           'SetSubmissionsController.star').middleware(['admin'])
     Route.post('/:id/shadow',         'SetSubmissionsController.shadow').middleware(['admin'])
 
     Route.post('/:id/discard',        'SetSubscriptionsController.discard')
