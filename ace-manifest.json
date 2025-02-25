@@ -465,25 +465,6 @@
       "aliases": [],
       "flags": []
     },
-    "bot:curated": {
-      "settings": {
-        "loadApp": true,
-        "stayAlive": false
-      },
-      "commandPath": "./commands/SendBotNotification",
-      "commandName": "bot:curated",
-      "description": "",
-      "args": [
-        {
-          "type": "string",
-          "propertyName": "uuid",
-          "name": "uuid",
-          "required": true
-        }
-      ],
-      "aliases": [],
-      "flags": []
-    },
     "reveal:update-images": {
       "settings": {
         "loadApp": true,
@@ -500,6 +481,18 @@
           "required": true
         }
       ],
+      "aliases": [],
+      "flags": []
+    },
+    "stage:set": {
+      "settings": {
+        "loadApp": true,
+        "stayAlive": false
+      },
+      "commandPath": "./commands/StageSet",
+      "commandName": "stage:set",
+      "description": "",
+      "args": [],
       "aliases": [],
       "flags": []
     },

@@ -838,7 +838,7 @@ export default class SetSubmission extends BaseModel {
     }
   }
 
-  public async notify (scopeKey: keyof typeof NOTIFICATIONS) {
+  public async notify (scopeKey: keyof typeof NOTIFICATIONS, sendNow: boolean = false) {
     Logger.info(`SetSubmission.notify(): ${scopeKey}`)
     const query = Account.query().withScopes(scopes => scopes.receivesEmail(scopeKey))
 
@@ -856,7 +856,11 @@ export default class SetSubmission extends BaseModel {
       if (sentEmails.has(user.email)) continue
 
       try {
-        await new Mailer(user, this).sendLater()
+        if (sendNow) {
+          await new Mailer(user, this).send()
+        } else {
+          await new Mailer(user, this).sendLater()
+        }
         Logger.info(`${scopeKey} email scheduled: ${user.email}`)
       } catch (e) {
         Logger.warn(`Error scheduling ${scopeKey} email: ${user.email}: ${e}`)
