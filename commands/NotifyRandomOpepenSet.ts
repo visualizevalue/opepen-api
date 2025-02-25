@@ -39,7 +39,7 @@ export default class NotifyRandomOpepenSet extends BaseCommand {
 
     const lines = [
       `Featured Set ${pad(setId, 3)}: ${name}${creatorNames ? ` by ${creatorNames}` : ''}`,
-      `https://opepen.art/set/${setId}`,
+      `https://opepen.art/sets/${pad(setId, 3)}`,
     ]
 
     await this.notify(lines, img)
