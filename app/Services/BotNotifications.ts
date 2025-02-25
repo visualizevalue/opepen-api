@@ -31,9 +31,9 @@ export class BotNotifications {
     await this.sendForSubmission(submission, template, img)
   }
 
-  public async newCuratedSubmission (submission: SetSubmission) {
+  public async newStagedSubmission (submission: SetSubmission) {
     const template = ({ creators }) => [
-      `New Curated Set: "${submission.name}"`,
+      `New Staged Set: "${submission.name}"`,
       `${string.capitalCase(submission.editionType)} Editions by ${creators}`,
     ]
 

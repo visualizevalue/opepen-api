@@ -1,7 +1,6 @@
 import { ethers } from 'ethers'
 import { DateTime } from 'luxon'
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
-import Database from '@ioc:Adonis/Lucid/Database'
 import Account from 'App/Models/Account'
 import SetSubmission from 'App/Models/SetSubmission'
 import Subscription from 'App/Models/Subscription'
@@ -11,6 +10,28 @@ import Opepen from 'App/Models/Opepen'
 import TimelineUpdate from 'App/Models/TimelineUpdate'
 
 export default class SetSubscriptionsController extends BaseController {
+  public async discard ({ params, session }: HttpContextContract) {
+    const address = session.get('siwe')?.address?.toLowerCase()
+
+    const submission = await SetSubmission.findByOrFail('uuid', params.id)
+    const existingSubscription = await Subscription.query().where({
+      submission_id: submission.id,
+      address,
+    }).first()
+
+    if (existingSubscription) throw new Error(`Please opt out manually`)
+
+    const account = await Account.updateOrCreate({ address }, {})
+    await account.updateOptInCount()
+
+    return Subscription.create({
+      address,
+      submissionId: submission.id,
+      message: 'DISCARD',
+      opepenIds: [],
+    })
+  }
+
   public async subscribe ({ params, request }: HttpContextContract) {
     const submission = await SetSubmission.findByOrFail('uuid', params.id)
 
@@ -26,6 +47,7 @@ export default class SetSubscriptionsController extends BaseController {
 
     const account = await Account.updateOrCreate({ address }, {})
     account.updateNames()
+    account.updateOptInCount()
 
     const subscription = await Subscription.firstOrCreate({
       submissionId: submission.id,
@@ -61,17 +83,18 @@ export default class SetSubscriptionsController extends BaseController {
     await subscription.save()
 
     // Clear other opt ins for these opepen
-    const optedOpepenStr = subscription.opepenIds.join(',')
-    await Database.rawQuery(`
-      UPDATE set_subscriptions
-      SET opepen_ids = opepen_ids - '{${optedOpepenStr}}'::text[]
-      WHERE opepen_ids \\?| '{${optedOpepenStr}}'::text[]
-      AND (
-        submission_id != ${submission.id}
-        OR address != '${subscription.address}'
-      )
-      AND submission_id NOT IN (SELECT submission_id FROM sets WHERE submission_id IS NOT NULL)
-    `)
+    // FIXME: Rework this now - this has to become part of the reveal process.
+    // const optedOpepenStr = subscription.opepenIds.join(',')
+    // await Database.rawQuery(`
+    //   UPDATE set_subscriptions
+    //   SET opepen_ids = opepen_ids - '{${optedOpepenStr}}'::text[]
+    //   WHERE opepen_ids \\?| '{${optedOpepenStr}}'::text[]
+    //   AND (
+    //     submission_id != ${submission.id}
+    //     OR address != '${subscription.address}'
+    //   )
+    //   AND submission_id NOT IN (SELECT submission_id FROM sets WHERE submission_id IS NOT NULL)
+    // `)
 
     // Save history
     const history = await SubscriptionHistory.saveFor(subscription)
@@ -146,9 +169,25 @@ export default class SetSubscriptionsController extends BaseController {
   public async forAccount ({ params }: HttpContextContract) {
     const submission = await SetSubmission.findByOrFail('uuid', params.id)
 
-    return Subscription.query()
+    const subscription = await Subscription.query()
       .where('address', params.account.toLowerCase())
       .where('submissionId', submission.id)
       .firstOrFail()
+
+    const opepen = await Opepen.query().whereIn('tokenId', subscription.opepenIds)
+    const perEdition = opepen.reduce((acc, token) => {
+      if (! acc[token.data.edition]) {
+        acc[token.data.edition] = 0
+      }
+
+      acc[token.data.edition] += 1
+
+      return acc
+    }, {})
+
+    return {
+      ...(await subscription.toJSON()),
+      per_edition: perEdition,
+    }
   }
 }

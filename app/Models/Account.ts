@@ -3,16 +3,17 @@ import Logger from '@ioc:Adonis/Core/Logger'
 import Env from '@ioc:Adonis/Core/Env'
 import { afterSave, BaseModel, beforeSave, BelongsTo, belongsTo, column, computed, HasMany, hasMany, ModelQueryBuilderContract, scope } from '@ioc:Adonis/Lucid/Orm'
 import Address from 'App/Helpers/Address'
-import provider from 'App/Services/RPCProvider'
+import BurnedOpepen from 'App/Models/BurnedOpepen'
+import Event from 'App/Models/Event'
 import Image from 'App/Models/Image'
+import Opepen from 'App/Models/Opepen'
 import RichContentLink from 'App/Models/RichContentLink'
+import Subscription from 'App/Models/Subscription'
+import SubscriptionHistory from 'App/Models/SubscriptionHistory'
+import SetSubmission from 'App/Models/SetSubmission'
+import Vote from 'App/Models/Vote'
+import provider from 'App/Services/RPCProvider'
 import { ArtistSocials, FarcasterData, OauthData } from './types'
-import Opepen from './Opepen'
-import Event from './Event'
-import Subscription from './Subscription'
-import SubscriptionHistory from './SubscriptionHistory'
-import SetSubmission from './SetSubmission'
-import Vote from './Vote'
 
 type Builder = ModelQueryBuilderContract<typeof Account>
 
@@ -87,6 +88,9 @@ export default class Account extends BaseModel {
   public bio: string
 
   @column()
+  public featured: number
+
+  @column()
   public setSubmissionsCount: number
 
   @column()
@@ -96,7 +100,7 @@ export default class Account extends BaseModel {
   public profileCompletion: number
 
   @column()
-  public votesCount: number
+  public optInCount: number
 
   @column({
     consume: (value: string) => typeof value === 'string' ? JSON.parse(value) : value,
@@ -140,6 +144,12 @@ export default class Account extends BaseModel {
     localKey: 'address',
   })
   public opepen: HasMany<typeof Opepen>
+
+  @hasMany(() => BurnedOpepen, {
+    foreignKey: 'owner',
+    localKey: 'address',
+  })
+  public burnedOpepen: HasMany<typeof BurnedOpepen>
 
   @hasMany(() => SetSubmission, {
     foreignKey: 'creator',
@@ -261,6 +271,14 @@ export default class Account extends BaseModel {
     await this.save()
   }
 
+  public async updateOptInCount () {
+    const account: Account = this
+    await account.loadCount('subscriptions')
+
+    this.optInCount = parseInt(account.$extras.subscriptions_count)
+    await this.save()
+  }
+
   public async updateSetSubmissionsCount () {
     const artistFor = SetSubmission.query()
         .where((query) => {
@@ -272,8 +290,7 @@ export default class Account extends BaseModel {
               .orWhere('coCreator_5', this.address)
         })
         .withScopes(scopes => {
-          scopes.approved()
-          scopes.published()
+          scopes.live()
         })
 
     const submissionsCount = await artistFor.clone().count('id')
@@ -346,6 +363,9 @@ export default class Account extends BaseModel {
     return {
       opepen_count: this.$extras.opepen_count
         ? parseInt(this.$extras.opepen_count)
+        : undefined,
+      burned_opepen_count: this.$extras.burnedOpepen_count
+        ? parseInt(this.$extras.burnedOpepen_count)
         : undefined,
     }
   }

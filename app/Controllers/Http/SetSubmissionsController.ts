@@ -1,7 +1,6 @@
 import { DateTime } from 'luxon'
 import { isAddress } from 'ethers/lib/utils'
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
-import BotNotifications from 'App/Services/BotNotifications'
 import BaseController from './BaseController'
 import Account from 'App/Models/Account'
 import Image from 'App/Models/Image'
@@ -20,6 +19,7 @@ export default class SetSubmissionsController extends BaseController {
       limit = 10,
       filter = {},
       sort = '-createdAt',
+      search = '',
       status = '',
     } = request.qs()
 
@@ -41,16 +41,6 @@ export default class SetSubmissionsController extends BaseController {
 
     // Handle status filter
     switch (status) {
-      case 'unapproved':
-        if (isAdmin(session)) {
-          query.withScopes(scopes => {
-            query.whereNull('deletedAt')
-            scopes.published()
-            scopes.unapproved()
-            scopes.unstarred()
-          })
-          break
-        }
       case 'all':
         if (isAdmin(session)) {
           query.withScopes(scopes => {
@@ -73,20 +63,12 @@ export default class SetSubmissionsController extends BaseController {
         })
         if (! customSort) query.orderByRaw('starred_at desc NULLS LAST')
         break
-      case 'curated':
-        query.withScopes(scopes => {
-          scopes.active()
-          scopes.starred()
-          scopes.noTimer()
-        })
-        if (! customSort) query.orderByRaw('starred_at desc NULLS LAST')
-        break
       case 'unstarred':
         query.withScopes(scopes => {
           scopes.live()
           scopes.unstarred()
         })
-        if (! customSort) query.orderByRaw('approved_at desc')
+        if (! customSort) query.orderByRaw('published_at desc')
         break
       case 'deleted':
         if (isAdmin(session)) {
@@ -110,13 +92,11 @@ export default class SetSubmissionsController extends BaseController {
       case 'public-unrevealed':
         query.whereNull('deletedAt')
         query.whereNull('setId')
-        query.withScopes(scopes => {
-          scopes.published()
-          scopes.approved()
-        })
+        query.withScopes(scopes => scopes.live())
         break
       case 'demand':
         query.withScopes(scopes => scopes.live())
+        query.whereJsonPath('submission_stats', '$.demand.total', '>=', 6)
         query.whereJsonPath('submission_stats', '$.holders.total', '>=', 3)
         query.whereNull('setId')
         break
@@ -127,6 +107,7 @@ export default class SetSubmissionsController extends BaseController {
 
     await this.applyFilters(query, filter)
     await this.applySorts(query, sort)
+    await this.applySearch(query, search)
 
     return query
       .orderBy('createdAt', 'desc') // Default sort to prevent randomisation when paginating
@@ -138,53 +119,10 @@ export default class SetSubmissionsController extends BaseController {
       address: session.get('siwe')?.address?.toLowerCase()
     })
 
-    const images = await Promise.all([
-      Image.findBy('uuid', request.input('edition_1_image_id', null)),
-      Image.findBy('uuid', request.input('edition_4_image_id', null)),
-      Image.findBy('uuid', request.input('edition_5_image_id', null)),
-      Image.findBy('uuid', request.input('edition_10_image_id', null)),
-      Image.findBy('uuid', request.input('edition_20_image_id', null)),
-      Image.findBy('uuid', request.input('edition_40_image_id', null)),
-    ])
-
-    const submission = await SetSubmission.create({
+    const submission = await SetSubmission.firstOrCreate({
       creator: creator.address,
-      name: request.input('name'),
-      artist: request.input('artist'),
-      description: request.input('description'),
-      editionType: request.input('edition_type', 'PRINT'),
-      edition_1Name: request.input('edition_1_name'),
-      edition_4Name: request.input('edition_4_name'),
-      edition_5Name: request.input('edition_5_name'),
-      edition_10Name: request.input('edition_10_name'),
-      edition_20Name: request.input('edition_20_name'),
-      edition_40Name: request.input('edition_40_name'),
-      edition_1ImageId: images[0]?.id,
-      edition_4ImageId: images[1]?.id,
-      edition_5ImageId: images[2]?.id,
-      edition_10ImageId: images[3]?.id,
-      edition_20ImageId: images[4]?.id,
-      edition_40ImageId: images[5]?.id,
+      name: request.input('name', ''),
     })
-
-    // Maintain cache
-    const oneOfOneImage = images[0]
-    if (oneOfOneImage) {
-      oneOfOneImage.setSubmissionId = submission.id
-      oneOfOneImage.creator = creator.address
-      await oneOfOneImage.save()
-    }
-    const editionImages = images.slice(1)
-    for (const image of editionImages) {
-      if (! image) continue
-
-      if (submission.editionType === 'PRINT') {
-        image.setSubmissionId = submission.id
-      }
-      image.setSubmissionId = submission.id
-      image.creator = creator.address
-      await image.save()
-    }
 
     return submission
   }
@@ -360,11 +298,11 @@ export default class SetSubmissionsController extends BaseController {
       edition_10ImageId: images[3]?.id,
       edition_20ImageId: images[4]?.id,
       edition_40ImageId: images[5]?.id,
-      co_creator_1: co_creator_1?.address,
-      co_creator_2: co_creator_2?.address,
-      co_creator_3: co_creator_3?.address,
-      co_creator_4: co_creator_4?.address,
-      co_creator_5: co_creator_5?.address,
+      co_creator_1: co_creator_1?.address || null,
+      co_creator_2: co_creator_2?.address || null,
+      co_creator_3: co_creator_3?.address || null,
+      co_creator_4: co_creator_4?.address || null,
+      co_creator_5: co_creator_5?.address || null,
     }
 
     if (isAdmin(ctx.session)) {
@@ -374,6 +312,7 @@ export default class SetSubmissionsController extends BaseController {
     }
 
     await submission.merge(updateData).save()
+    await submission.updateSearchString()
 
     return this.show(ctx)
   }
@@ -442,11 +381,14 @@ export default class SetSubmissionsController extends BaseController {
 
     await this.creatorOrAdmin({ creator: submission.creatorAccount, session })
 
+    submission.publishedAt = DateTime.now()
+    await submission.save()
+
+    TimelineUpdate.createFor(submission)
+
     // TODO: Regenerate preview images (!)
 
-    submission.publishedAt = DateTime.now()
-
-    return submission.save()
+    return submission
   }
 
   public async unpublish ({ params, session }: HttpContextContract) {
@@ -463,7 +405,6 @@ export default class SetSubmissionsController extends BaseController {
 
     // Update submission
     submission.publishedAt = null
-    submission.approvedAt = null
     submission.revealsAt = null
     submission.remainingRevealTime = DEFAULT_REMAINING_REVEAL_TIME
 
@@ -472,52 +413,11 @@ export default class SetSubmissionsController extends BaseController {
     return submission.save()
   }
 
-  public async approve (ctx: HttpContextContract) {
-    const submission = await this.show(ctx)
-    if (! submission || submission.approvedAt) return ctx.response.badRequest()
-
-    await this._approve(submission)
-
-    return submission
-  }
-
-  public async unapprove (ctx: HttpContextContract) {
-    const submission = await this.show(ctx)
-    if (! submission) return ctx.response.badRequest()
-
-    submission.approvedAt = null
-
-    if (submission.setId) throw new InvalidInput(`Can't unapprove a revealed set`)
-
-    await submission.save()
-
-    return submission
-  }
-
-  public async star (ctx: HttpContextContract) {
-    const submission = await this.show(ctx)
-    if (! submission) return ctx.response.badRequest()
-
-    submission.starredAt = submission.starredAt ? null : DateTime.now()
-    await this._approve(submission)
-
-    if (submission.starredAt) {
-      await submission.notify('NewCuratedSubmission')
-      BotNotifications?.newCuratedSubmission(submission)
-    }
-
-    return submission
-  }
-
   public async shadow (ctx: HttpContextContract) {
     const submission = await this.show(ctx)
     if (! submission) return ctx.response.badRequest()
 
     submission.shadowedAt = submission.shadowedAt ? null : DateTime.now()
-
-    if (submission.shadowedAt) {
-      await this._approve(submission)
-    }
 
     return submission.save()
   }
@@ -562,25 +462,6 @@ export default class SetSubmissionsController extends BaseController {
     this.applySorts(query, sort)
 
     return query.paginate(page, limit)
-  }
-
-  protected async _approve (submission: SetSubmission) {
-    const wasApproved = !!submission.approvedAt
-
-    // Approve and publish
-    submission.approvedAt = DateTime.now()
-    submission.publishedAt = submission.publishedAt ?? submission.approvedAt
-    await submission.save()
-
-    // Add submission to creator count
-    if (! wasApproved) {
-      submission.creatorAccount.setSubmissionsCount += 1
-      await submission.creatorAccount.save()
-
-      await TimelineUpdate.createFor(submission)
-    }
-
-    return submission
   }
 
   protected async creatorOrAdmin({ creator, session }) {

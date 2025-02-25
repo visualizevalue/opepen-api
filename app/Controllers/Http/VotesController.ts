@@ -40,11 +40,6 @@ export default class VotesController extends BaseController {
 
     await image.save()
 
-    // Update account
-    const account = await Account.byId(address).firstOrFail()
-    account.votesCount ++
-    await account.save()
-
     // Update submission
     if (image.setSubmissionId) {
       const submission = await SetSubmission.find(image.setSubmissionId)

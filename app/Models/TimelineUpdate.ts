@@ -109,7 +109,7 @@ export default class TimelineUpdate extends BaseModel {
       update.type = 'POST:FARCASTER'
     } else if (model instanceof SetSubmission) {
       update.address = model.creator
-      update.createdAt = model.approvedAt as DateTime
+      update.createdAt = model.publishedAt as DateTime
       update.submissionId = model.id
       update.type = 'SET_SUBMISSION:PUBLISH'
     } else if (model instanceof SubscriptionHistory) {

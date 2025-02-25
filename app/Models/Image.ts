@@ -229,7 +229,7 @@ export default class Image extends BaseModel {
       let key = `images/${this.uuid}.${this.type}`
 
       // Generate still
-      if (this.isAnimated || this.isWebRendered) {
+      if (this.isVideo || this.isWebRendered) {
         await this.generateStill()
 
         key += '.png'
@@ -246,7 +246,7 @@ export default class Image extends BaseModel {
   async renderToScaledVersions (image: Buffer) {
     const imageProcessor = await sharp(image)
     const metadata = await imageProcessor.metadata()
-    const distType = this.isAnimated || this.type === 'svg' ? 'png' : this.type
+    const distType = this.isAnimated || this.isWebRendered || this.type === 'svg' ? 'png' : this.type
 
     if (! metadata.width || !['png', 'jpeg', 'webp'].includes(distType)) return
 
@@ -365,7 +365,6 @@ export default class Image extends BaseModel {
         )
         // Unrevealed Submissions
         .orWhereHas('cachedSetSubmission', query => query
-          .whereNotNull('approvedAt')
           .whereNull('revealBlockNumber')
           .whereNull('setId')
           .whereNull('shadowedAt')

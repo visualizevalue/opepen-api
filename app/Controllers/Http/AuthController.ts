@@ -1,4 +1,5 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
+import { isAdminAddress } from 'App/Middleware/AdminAuth'
 import { SiweMessage, generateNonce } from 'siwe'
 
 export default class AuthController {
@@ -40,7 +41,12 @@ export default class AuthController {
   public async me ({ session, response }: HttpContextContract) {
     if (! session.has('siwe')) return response.unauthorized('No valid session')
 
-    return session.get('siwe')
+    const data = session.get('siwe')
+
+    return {
+      is_admin: isAdminAddress(data.address),
+      ...data,
+    }
   }
 
   public async clear ({ session, response }: HttpContextContract) {

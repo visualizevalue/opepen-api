@@ -23,7 +23,7 @@ export default class NotifyDailyMovements extends BaseCommand {
     const { default: Account } = await import('App/Models/Account')
     const { default: Event } = await import('App/Models/Event')
     const { default: Opepen } = await import('App/Models/Opepen')
-    const { default: Vote } = await import('App/Models/Vote')
+    const { default: SubscriptionHistory } = await import('App/Models/SubscriptionHistory')
     const { default: Farcaster } = await import('App/Services/Farcaster')
     const { default: Twitter } = await import('App/Services/Twitter')
 
@@ -54,7 +54,7 @@ export default class NotifyDailyMovements extends BaseCommand {
       }
     }
 
-    const votes: number = parseInt((await Vote.query()
+    const curations: number = parseInt((await SubscriptionHistory.query()
       .where('createdAt', '>=', start.toISO())
       .where('createdAt', '<=', today.toISO())
       .count('*', 'count'))[0].$extras.count)
@@ -75,7 +75,7 @@ export default class NotifyDailyMovements extends BaseCommand {
     const txt = [
       `Opepen Day ${formatNumber(day)}`,
       ``,
-      `Curations: ${formatNumber(votes)}`,
+      `Curations: ${formatNumber(curations)}`,
       `New Nodes: +${formatNumber(newNodes.size)} (${formatNumber(totalNodes)})`,
       `Transfers: ${formatNumber(transfers)}`,
     ].join('\n')

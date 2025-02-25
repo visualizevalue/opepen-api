@@ -51,6 +51,10 @@ export type Stats = {
         40: string
       }
     }
+    history: {
+      totalUSD?: number
+      totalETH?: number
+    }
   }
   ethPrice?: EthPrice
 }
@@ -105,12 +109,13 @@ class StatsService {
       optOutsTotal,
       optOutsRevealed,
       optOutsUnrevealed,
+      marketVolume,
     ] = await Promise.all([
       /*submissions,*/          SetSubmission.query().count('id'),
       /*printSubmissions,*/     SetSubmission.query().where('edition_type', 'PRINT').count('id'),
       /*optIns,*/               SubscriptionHistory.query().sum('opepen_count'),
       /*sets,*/                 SetModel.query().whereNotNull('submissionId').count('id'),
-      /*artists,*/              SetSubmission.query().whereNotNull('approved_at').countDistinct('creator'),
+      /*artists,*/              SetSubmission.query().withScopes(scopes => scopes.live()).countDistinct('creator'),
       /*permanentArtists,*/     this.permanentArtistsQuery(),
       /*curators,*/             SubscriptionHistory.query().countDistinct('address'),
       /*holders,*/              Opepen.query().countDistinct('owner'),
@@ -131,6 +136,7 @@ class StatsService {
       /*optOutsTotal*/          EventModel.query().where('contract', 'BURNED_OPEPEN').where('type', 'Burn').count('token_id'),
       /*optOutsRevealed*/       EventModel.query().where('contract', 'BURNED_OPEPEN').where('type', 'Burn').whereHas('opepen', query => query.whereNotNull('set_id')).count('token_id'),
       /*optOutsUnrevealed*/     EventModel.query().where('contract', 'BURNED_OPEPEN').where('type', 'Burn').whereHas('opepen', query => query.whereNull('set_id')).count('token_id'),
+      /*market*/                this.marketVolume(),
     ])
 
     const setsCount: number = parseInt(sets[0].$extras.count)
@@ -142,6 +148,8 @@ class StatsService {
     const submittedImagesCount: number = dynamicSubmissionsCount * 80 + printSubmissionsCount * 6 + postImagesCount
     const emailsTotalCount: number = parseInt(emailsTotal[0].$extras.count)
     const emailsVerifiedCount: number = parseInt(emailsVerified[0].$extras.count)
+    const totalETH: number = parseInt(marketVolume.rows[0].total_native)
+    const totalUSD: number = parseInt(marketVolume.rows[0].total_usd)
 
     this.stats = {
       submissions: {
@@ -186,6 +194,10 @@ class StatsService {
             20: `${unrevealedOneOfTwentyFloorOpepen?.price}`,
             40: `${unrevealedOneOfFortyFloorOpepen?.price}`,
           }
+        },
+        history: {
+          totalUSD,
+          totalETH,
         }
       },
       ethPrice: priceOracle.ethPrice,
@@ -208,6 +220,16 @@ class StatsService {
           UNION
           SELECT co_creator_5 FROM set_submissions WHERE co_creator_5 IS NOT NULL AND set_id IS NOT NULL
       ) AS artist_addresses;
+    `)
+  }
+
+  private marketVolume () {
+    return Database.rawQuery(`
+      SELECT
+        SUM(COALESCE((data->'price'->'amount'->>'native')::numeric, 0)) AS total_native,
+        SUM(COALESCE((data->'price'->'amount'->>'usd')::numeric, 0)) AS total_usd
+      FROM events
+      WHERE data IS NOT NULL;
     `)
   }
 

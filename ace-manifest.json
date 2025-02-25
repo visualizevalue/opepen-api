@@ -1,17 +1,5 @@
 {
   "commands": {
-    "submissions:archive_stale": {
-      "settings": {
-        "loadApp": true,
-        "stayAlive": false
-      },
-      "commandPath": "./commands/ArchiveStaleSetSubmissions",
-      "commandName": "submissions:archive_stale",
-      "description": "",
-      "args": [],
-      "aliases": [],
-      "flags": []
-    },
     "attach:revealed_dynamics_to_cached_set_submission": {
       "settings": {
         "loadApp": true,
@@ -134,6 +122,18 @@
       },
       "commandPath": "./commands/GenerateSet064",
       "commandName": "opepen:generate-set-064",
+      "description": "",
+      "args": [],
+      "aliases": [],
+      "flags": []
+    },
+    "generate:submission_search_strings": {
+      "settings": {
+        "loadApp": true,
+        "stayAlive": false
+      },
+      "commandPath": "./commands/GenerateSubmissionSearchStrings",
+      "commandName": "generate:submission_search_strings",
       "description": "",
       "args": [],
       "aliases": [],
@@ -350,6 +350,18 @@
       "aliases": [],
       "flags": []
     },
+    "notify:random_opepen_set": {
+      "settings": {
+        "loadApp": true,
+        "stayAlive": false
+      },
+      "commandPath": "./commands/NotifyRandomOpepenSet",
+      "commandName": "notify:random_opepen_set",
+      "description": "",
+      "args": [],
+      "aliases": [],
+      "flags": []
+    },
     "opepen:import-metadata": {
       "settings": {
         "loadApp": true,
@@ -465,25 +477,6 @@
       "aliases": [],
       "flags": []
     },
-    "bot:curated": {
-      "settings": {
-        "loadApp": true,
-        "stayAlive": false
-      },
-      "commandPath": "./commands/SendBotNotification",
-      "commandName": "bot:curated",
-      "description": "",
-      "args": [
-        {
-          "type": "string",
-          "propertyName": "uuid",
-          "name": "uuid",
-          "required": true
-        }
-      ],
-      "aliases": [],
-      "flags": []
-    },
     "reveal:update-images": {
       "settings": {
         "loadApp": true,
@@ -500,6 +493,18 @@
           "required": true
         }
       ],
+      "aliases": [],
+      "flags": []
+    },
+    "stage:set": {
+      "settings": {
+        "loadApp": true,
+        "stayAlive": false
+      },
+      "commandPath": "./commands/StageSet",
+      "commandName": "stage:set",
+      "description": "",
+      "args": [],
       "aliases": [],
       "flags": []
     },

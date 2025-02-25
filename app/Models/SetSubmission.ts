@@ -115,6 +115,9 @@ export default class SetSubmission extends BaseModel {
   public description: string
 
   @column()
+  public search: string
+
+  @column()
   public status: string
 
   @column.dateTime({ autoUpdate: true })
@@ -125,9 +128,6 @@ export default class SetSubmission extends BaseModel {
 
   @column.dateTime()
   public publishedAt: DateTime|null
-
-  @column.dateTime()
-  public approvedAt: DateTime|null
 
   @column.dateTime()
   public starredAt: DateTime|null
@@ -146,6 +146,9 @@ export default class SetSubmission extends BaseModel {
 
   @column()
   public setId: number
+
+  @column()
+  public featured: number
 
   @column()
   public editionType: EditionType = 'PRINT'
@@ -395,9 +398,9 @@ export default class SetSubmission extends BaseModel {
   })
   public richContentLinks: HasMany<typeof RichContentLink>
 
+  // TODO: rename to visible (?)
   public static active = scope((query) => {
     query.whereNull('deletedAt')
-    query.whereNull('archivedAt')
     query.whereNull('shadowedAt')
   })
 
@@ -419,14 +422,6 @@ export default class SetSubmission extends BaseModel {
 
   public static unstarred = scope((query) => {
     query.whereNull('starredAt')
-  })
-
-  public static approved = scope((query) => {
-    query.whereNotNull('approvedAt')
-  })
-
-  public static unapproved = scope((query) => {
-    query.whereNull('approvedAt')
   })
 
   public static archived = scope((query) => {
@@ -454,7 +449,6 @@ export default class SetSubmission extends BaseModel {
     query.withScopes(scopes => {
       scopes.active()
       scopes.published()
-      scopes.approved()
     })
   })
 
@@ -550,9 +544,12 @@ export default class SetSubmission extends BaseModel {
   }
 
   public optInOpen () {
-    return this.starredAt &&
-      this.starredAt < DateTime.now() &&
-      this.starredAt.plus({ hours: OPT_IN_HOURS }) > DateTime.now()
+    if (this.starredAt) {
+      return this.starredAt < DateTime.now() &&
+        this.starredAt.plus({ hours: OPT_IN_HOURS }) > DateTime.now()
+    }
+
+    return ! this.revealsAt
   }
 
   public async creators () {
@@ -594,6 +591,27 @@ export default class SetSubmission extends BaseModel {
 
   public async creatorNamesForXStr () {
     return string.toSentence(await this.creatorNamesForX())
+  }
+
+  public async updateSearchString () {
+    this.search = [
+      this.name,
+      // this.description,
+      // this.edition_1Name,
+      // this.edition_4Name,
+      // this.edition_5Name,
+      // this.edition_10Name,
+      // this.edition_20Name,
+      // this.edition_40Name,
+      ...(
+        (await this.creators()).map(c => [c.display, c.address, c.ens]
+          .filter(i => !!i)
+          .join(' ')
+        )
+      ),
+    ].join(' ')
+
+    await this.save()
   }
 
   public async startRevealTimer () {
@@ -820,7 +838,7 @@ export default class SetSubmission extends BaseModel {
     }
   }
 
-  public async notify (scopeKey: keyof typeof NOTIFICATIONS) {
+  public async notify (scopeKey: keyof typeof NOTIFICATIONS, sendNow: boolean = false) {
     Logger.info(`SetSubmission.notify(): ${scopeKey}`)
     const query = Account.query().withScopes(scopes => scopes.receivesEmail(scopeKey))
 
@@ -838,7 +856,11 @@ export default class SetSubmission extends BaseModel {
       if (sentEmails.has(user.email)) continue
 
       try {
-        await new Mailer(user, this).sendLater()
+        if (sendNow) {
+          await new Mailer(user, this).send()
+        } else {
+          await new Mailer(user, this).sendLater()
+        }
         Logger.info(`${scopeKey} email scheduled: ${user.email}`)
       } catch (e) {
         Logger.warn(`Error scheduling ${scopeKey} email: ${user.email}: ${e}`)

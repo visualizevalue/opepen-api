@@ -1,6 +1,6 @@
 import Env from '@ioc:Adonis/Core/Env'
 import { beforeSave, BelongsTo, belongsTo, column, computed, HasMany, hasMany, hasOne, HasOne } from '@ioc:Adonis/Lucid/Orm'
-import TokenModel from './TokenModel'
+import TokenModel from 'App/Models/TokenModel'
 import Event from './Event'
 import Image from './Image'
 import { ContractType } from './types'
@@ -17,12 +17,7 @@ export default class BurnedOpepen extends TokenModel {
   public contractAddress: string = Env.get('BURNED_OPEPEN_ADDRESS')
 
   @column({
-    serialize: (value: BurnedOpepenData) => {
-      return {
-        ...value,
-        setConfig: undefined,
-      }
-    }
+    serializeAs: 'metadata',
   })
   public data: BurnedOpepenData
 
