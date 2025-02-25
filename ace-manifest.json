@@ -350,6 +350,18 @@
       "aliases": [],
       "flags": []
     },
+    "notify:random_opepen_set": {
+      "settings": {
+        "loadApp": true,
+        "stayAlive": false
+      },
+      "commandPath": "./commands/NotifyRandomOpepenSet",
+      "commandName": "notify:random_opepen_set",
+      "description": "",
+      "args": [],
+      "aliases": [],
+      "flags": []
+    },
     "opepen:import-metadata": {
       "settings": {
         "loadApp": true,
