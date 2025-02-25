@@ -24,7 +24,7 @@ export default class TokenController extends BaseController {
         const normal = await Opepen.query().where('owner', account.address).preload('image')
         const burned = await BurnedOpepen.query().where('owner', account.address).preload('image')
 
-        let allOpepen = [...normal, ...burned]
+        const allOpepen = [...normal, ...burned]
 
         allOpepen.sort((a, b) => b.updatedAt.toMillis() - a.updatedAt.toMillis())
 
