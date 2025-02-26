@@ -2,6 +2,7 @@ import fs from 'fs'
 import Rand from 'rand-seed'
 import { chunk, shuffle } from '../app/Helpers/arrays'
 import { pad } from '../app/Helpers/numbers'
+import { GridItem } from 'App/Services/GridItem'
 
 import { BaseCommand } from '@adonisjs/core/build/standalone'
 
@@ -32,7 +33,7 @@ export default class GenerateSet064 extends BaseCommand {
       .whereNotNull('setId')
       .whereJsonSuperset('data', { edition: 1 })
       .orderBy('setId')
-    fs.writeFileSync('./sets/064/dist/01.png', await BaseOpepenGrid.make(oneOfOnes))
+    fs.writeFileSync('./sets/064/dist/01.png', await BaseOpepenGrid.make(oneOfOnes.map(o => new GridItem(o, 'opepen'))))
 
     await this.makeGridForEdition(4)
     await this.makeGridForEdition(5)
@@ -60,7 +61,7 @@ export default class GenerateSet064 extends BaseCommand {
       const shuffled = shuffle(chunk, rand)
       fs.writeFileSync(
         `./sets/064/dist/${pad(edition)}-${pad(idx)}.png`,
-        await BaseOpepenGrid.make(shuffled)
+        await BaseOpepenGrid.make(shuffled.map(o => new GridItem(o, 'opepen')))
       )
     }
   }
