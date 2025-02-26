@@ -12,6 +12,7 @@ import ImportSales from 'App/Services/ImportSales'
 import { SETTINGS_KEYS } from 'App/Models/Setting'
 import { formatDuration } from 'App/Helpers/dates'
 import { formatEther } from 'ethers/lib/utils'
+import BurnedOpepen from 'App/Models/BurnedOpepen'
 
 export default class NotifyNodes extends BaseCommand {
   /**
@@ -81,11 +82,12 @@ export default class NotifyNodes extends BaseCommand {
 
   private async handleNode (account: Account, events: Event[]) {
     const currentEventBatchOpepen = await Opepen.query().whereIn('tokenId', events.map(e => e.tokenId.toString()))
-    const previouslyOwnedOpepens = await Event.query().where('to', account.address).count('*', 'owned')
-    const ownedOpepens = await Opepen.query().where('owner', account.address).count('*', 'owned')
+    const previouslyOwnedOpepen = await Event.query().where('to', account.address).count('*', 'owned')
+    const ownedOpepen = await Opepen.query().where('owner', account.address).count('*', 'owned')
+    const ownedBurnedOpepen = await BurnedOpepen.query().where('owner', account.address).count('*', 'owned')
 
-    const previouslyOwnedCount = parseInt(previouslyOwnedOpepens[0].$extras.owned)
-    const ownedCount = parseInt(ownedOpepens[0].$extras.owned)
+    const previouslyOwnedCount = parseInt(previouslyOwnedOpepen[0].$extras.owned)
+    const ownedCount = parseInt(ownedOpepen[0].$extras.owned) + parseInt(ownedBurnedOpepen[0].$extras.owned)
 
     if (ownedCount === 0) {
       this.logger.info(`Node ${account.display} sold everything in the meantime`)
