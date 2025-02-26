@@ -3,6 +3,7 @@ import { DateTime } from 'luxon'
 import { BaseCommand } from '@adonisjs/core/build/standalone'
 import Env from '@ioc:Adonis/Core/Env'
 import Account from 'App/Models/Account'
+import BurnedOpepen from 'App/Models/BurnedOpepen'
 import Opepen from 'App/Models/Opepen'
 import Event from 'App/Models/Event'
 import Setting from 'App/Models/Setting'
@@ -12,7 +13,6 @@ import ImportSales from 'App/Services/ImportSales'
 import { SETTINGS_KEYS } from 'App/Models/Setting'
 import { formatDuration } from 'App/Helpers/dates'
 import { formatEther } from 'ethers/lib/utils'
-import BurnedOpepen from 'App/Models/BurnedOpepen'
 
 export default class NotifyNodes extends BaseCommand {
   /**
@@ -81,10 +81,12 @@ export default class NotifyNodes extends BaseCommand {
   }
 
   private async handleNode (account: Account, events: Event[]) {
-    const currentEventBatchOpepen = await Opepen.query().whereIn('tokenId', events.map(e => e.tokenId.toString()))
-    const previouslyOwnedOpepen = await Event.query().where('to', account.address).count('*', 'owned')
-    const ownedOpepen = await Opepen.query().where('owner', account.address).count('*', 'owned')
-    const ownedBurnedOpepen = await BurnedOpepen.query().where('owner', account.address).count('*', 'owned')
+    const [currentEventBatchOpepen, previouslyOwnedOpepen, ownedOpepen, ownedBurnedOpepen] = await Promise.all([
+      Opepen.query().whereIn('tokenId', events.map(e => e.tokenId.toString())),
+      Event.query().where('to', account.address).count('*', 'owned'),
+      Opepen.query().where('owner', account.address).count('*', 'owned'),
+      BurnedOpepen.query().where('owner', account.address).count('*', 'owned')
+    ])
 
     const previouslyOwnedCount = parseInt(previouslyOwnedOpepen[0].$extras.owned)
     const ownedCount = parseInt(ownedOpepen[0].$extras.owned) + parseInt(ownedBurnedOpepen[0].$extras.owned)
