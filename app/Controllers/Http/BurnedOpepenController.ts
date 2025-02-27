@@ -15,8 +15,9 @@ export default class BurnedOpepenController extends BaseController {
     } = request.qs()
 
     const query = BurnedOpepen.query()
-      .preload('ownerAccount')
       .preload('opepen')
+      .preload('ownerAccount')
+      .preload('image')
 
     await this.applyFilters(query, filter)
     await this.applySorts(query, sort)
