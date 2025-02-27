@@ -2,7 +2,6 @@ import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import BurnedOpepenRenderer from 'App/Frames/BurnedOpepenRenderer'
 import Account from 'App/Models/Account'
 import BurnedOpepen from 'App/Models/BurnedOpepen'
-import EventModel from 'App/Models/Event'
 import BaseController from './BaseController'
 
 export default class BurnedOpepenController extends BaseController {
@@ -15,22 +14,14 @@ export default class BurnedOpepenController extends BaseController {
       sort = ''
     } = request.qs()
 
-    const query = EventModel.query()
-      .where('contract', 'BURNED_OPEPEN')
-      .where('type', 'Burn')
-      .preload('fromAccount', q => q.preload('pfp'))
-      .preload('opepen', q => {
-        q.preload('image')
-        q.preload('burnedOpepen', q => q.preload('image'))
-      })
+    const query = BurnedOpepen.query()
+      .preload('ownerAccount')
+      .preload('opepen')
 
     await this.applyFilters(query, filter)
     await this.applySorts(query, sort)
 
-    return query
-      .orderByRaw('block_number::int desc')
-      .orderByRaw('log_index::int desc')
-      .paginate(page, limit)
+    return query.paginate(page, limit)
   }
 
   public async forAccount ({ params, request }: HttpContextContract) {

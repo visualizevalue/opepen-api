@@ -1,11 +1,11 @@
+import { DateTime } from 'luxon'
 import Env from '@ioc:Adonis/Core/Env'
 import { beforeSave, BelongsTo, belongsTo, column, computed, HasMany, hasMany, hasOne, HasOne } from '@ioc:Adonis/Lucid/Orm'
+import Event from 'App/Models/Event'
+import Image from 'App/Models/Image'
+import Opepen from 'App/Models/Opepen'
 import TokenModel from 'App/Models/TokenModel'
-import Event from './Event'
-import Image from './Image'
 import { ContractType } from './types'
-import Opepen from './Opepen'
-import { DateTime } from 'luxon'
 
 type BurnedOpepenData = {
   name: string,
@@ -34,6 +34,7 @@ export default class BurnedOpepen extends TokenModel {
 
   @hasOne(() => Opepen, {
     foreignKey: 'burnedOpepenId',
+    onQuery: query => query.preload('image'),
   })
   public opepen: HasOne<typeof Opepen>
 

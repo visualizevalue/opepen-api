@@ -3,8 +3,8 @@ import { DateTime } from 'luxon'
 import { BaseModel, BelongsTo, belongsTo, column, computed, HasMany, hasMany } from '@ioc:Adonis/Lucid/Orm'
 import abi from 'App/TokenStandards/abis/ERC721.json'
 import provider from 'App/Services/RPCProvider'
-import Account from './Account'
-import Event from './Event'
+import Account from 'App/Models/Account'
+import Event from 'App/Models/Event'
 import { ContractType } from './types'
 
 export type Attribute = {
@@ -84,6 +84,7 @@ export default abstract class TokenModel extends BaseModel {
   @belongsTo(() => Account, {
     foreignKey: 'owner',
     localKey: 'address',
+    onQuery: query => query.preload('pfp')
   })
   public ownerAccount: BelongsTo<typeof Account>
 
