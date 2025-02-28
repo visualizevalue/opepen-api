@@ -8,6 +8,7 @@ import BaseController from './BaseController'
 import SubscriptionHistory from 'App/Models/SubscriptionHistory'
 import Opepen from 'App/Models/Opepen'
 import TimelineUpdate from 'App/Models/TimelineUpdate'
+import Database from '@ioc:Adonis/Lucid/Database'
 
 export default class SetSubscriptionsController extends BaseController {
   public async discard ({ params, session }: HttpContextContract) {
@@ -43,7 +44,7 @@ export default class SetSubscriptionsController extends BaseController {
     if (submission.revealBlockNumber) throw new Error(`Submission past timeout`)
     if (! submission.optInOpen()) throw new Error(`Submission not open for opt in`)
     if (! message) throw new Error(`Needs a message`)
-    if (address !== verifiedAddress.toLowerCase()) throw new Error(`Address needs to be accurate`)
+    if (address !== verifiedAddress.toLowerCase()) throw new Error(`Address must match`)
 
     const account = await Account.updateOrCreate({ address }, {})
     account.updateNames()
@@ -82,19 +83,14 @@ export default class SetSubscriptionsController extends BaseController {
     subscription.createdAt = DateTime.now()
     await subscription.save()
 
-    // Clear other opt ins for these opepen
-    // FIXME: Rework this now - this has to become part of the reveal process.
-    // const optedOpepenStr = subscription.opepenIds.join(',')
-    // await Database.rawQuery(`
-    //   UPDATE set_subscriptions
-    //   SET opepen_ids = opepen_ids - '{${optedOpepenStr}}'::text[]
-    //   WHERE opepen_ids \\?| '{${optedOpepenStr}}'::text[]
-    //   AND (
-    //     submission_id != ${submission.id}
-    //     OR address != '${subscription.address}'
-    //   )
-    //   AND submission_id NOT IN (SELECT submission_id FROM sets WHERE submission_id IS NOT NULL)
-    // `)
+    // Clear opt ins for these opepen from other accounts
+    const optedOpepenStr = subscription.opepenIds.join(',')
+    await Database.rawQuery(`
+      UPDATE set_subscriptions
+      SET opepen_ids = opepen_ids - '{${optedOpepenStr}}'::text[]
+      WHERE opepen_ids \\?| '{${optedOpepenStr}}'::text[]
+      AND address != '${subscription.address}'
+    `)
 
     // Save history
     const history = await SubscriptionHistory.saveFor(subscription)

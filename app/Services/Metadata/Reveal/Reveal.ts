@@ -12,6 +12,7 @@ import Subscription from 'App/Models/Subscription'
 import CID from 'App/Services/CID'
 import provider from 'App/Services/RPCProvider'
 import pad from 'App/Helpers/pad'
+import Database from '@ioc:Adonis/Lucid/Database'
 
 const EDITION_VOCAB = {
   "1": "One",
@@ -54,6 +55,7 @@ export default class Reveal {
       .where('submissionId', submission.id)
       .orderBy('createdAt', 'desc')
 
+    const addedTokens: { [key: string]: boolean } = {}
     const opepens: any[] = []
     const maxReveals: { [key: string]: MaxReveal } = {}
 
@@ -75,12 +77,18 @@ export default class Reveal {
           continue
         }
 
+        if (addedTokens[tokenId]) {
+          Logger.info(`Token #${opepen.tokenId} already added`)
+          continue
+        }
+
         opepens.push({
           tokenId,
           signer: optIn.address,
           holder: opepen.owner,
           edition: opepen.data.edition.toString(),
         })
+        addedTokens[tokenId] = true
       }
 
       // Save the set max reveal per edition size
@@ -158,6 +166,15 @@ export default class Reveal {
         index ++
       }
     }
+
+    // Clear other opt ins for the revealed Opepen
+    const revealedOpepenIds = Object.values(submission.revealSubmissionsOutput).flat().join(',')
+    await Database.rawQuery(`
+      UPDATE set_subscriptions
+      SET opepen_ids = opepen_ids - '{${revealedOpepenIds}}'::text[]
+      WHERE opepen_ids \\?| '{${revealedOpepenIds}}'::text[]
+      AND submission_id != ${submission.id}
+    `)
   }
 
   public async generateMetadataFor (tokenId: number, index: number, submission: SetSubmission, set: SetModel) {
@@ -220,3 +237,4 @@ export default class Reveal {
     return path.join(__dirname, `results/${submissionId}.json`)
   }
 }
+
