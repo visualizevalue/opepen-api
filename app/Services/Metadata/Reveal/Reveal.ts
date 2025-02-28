@@ -50,15 +50,15 @@ export default class Reveal {
   }
 
   private async prepareData (submission: SetSubmission) {
-    const submissions = await Subscription.query()
+    const optIns = await Subscription.query()
       .where('submissionId', submission.id)
       .orderBy('createdAt', 'desc')
 
     const opepens: any[] = []
     const maxReveals: { [key: string]: MaxReveal } = {}
 
-    for (const submission of submissions) {
-      for (const tokenId of submission.opepenIds) {
+    for (const optIn of optIns) {
+      for (const tokenId of optIn.opepenIds) {
         const opepen = await Opepen.findOrFail(tokenId)
 
         if (opepen.revealedAt) {
@@ -66,8 +66,8 @@ export default class Reveal {
           continue
         }
 
-        const signer = submission.address.toLowerCase()
-        const delegators = submission.delegatedBy ? submission.delegatedBy.split(',').map(a => a.toLowerCase()) : []
+        const signer = optIn.address.toLowerCase()
+        const delegators = optIn.delegatedBy ? optIn.delegatedBy.split(',').map(a => a.toLowerCase()) : []
         const allowedOwners = [signer, ...delegators]
 
         if (! allowedOwners.includes(opepen.owner)) {
@@ -77,29 +77,29 @@ export default class Reveal {
 
         opepens.push({
           tokenId,
-          signer: submission.address,
+          signer: optIn.address,
           holder: opepen.owner,
           edition: opepen.data.edition.toString(),
         })
       }
 
       // Save the set max reveal per edition size
-      const hasMaxReveals = submission.maxReveals && (
-        submission.maxReveals['1'] ||
-        submission.maxReveals['4'] ||
-        submission.maxReveals['5'] ||
-        submission.maxReveals['10'] ||
-        submission.maxReveals['20'] ||
-        submission.maxReveals['40']
+      const hasMaxReveals = optIn.maxReveals && (
+        optIn.maxReveals['1'] ||
+        optIn.maxReveals['4'] ||
+        optIn.maxReveals['5'] ||
+        optIn.maxReveals['10'] ||
+        optIn.maxReveals['20'] ||
+        optIn.maxReveals['40']
       )
       if (hasMaxReveals) {
-        maxReveals[submission.address] = {
-          '1':  submission.maxReveals['1'] ? submission.maxReveals['1'] : undefined,
-          '4':  submission.maxReveals['4'] ? submission.maxReveals['4'] : undefined,
-          '5':  submission.maxReveals['5'] ? submission.maxReveals['5'] : undefined,
-          '10': submission.maxReveals['10'] ? submission.maxReveals['10'] : undefined,
-          '20': submission.maxReveals['20'] ? submission.maxReveals['20'] : undefined,
-          '40': submission.maxReveals['40'] ? submission.maxReveals['40'] : undefined,
+        maxReveals[optIn.address] = {
+          '1':  optIn.maxReveals['1'] ? optIn.maxReveals['1'] : undefined,
+          '4':  optIn.maxReveals['4'] ? optIn.maxReveals['4'] : undefined,
+          '5':  optIn.maxReveals['5'] ? optIn.maxReveals['5'] : undefined,
+          '10': optIn.maxReveals['10'] ? optIn.maxReveals['10'] : undefined,
+          '20': optIn.maxReveals['20'] ? optIn.maxReveals['20'] : undefined,
+          '40': optIn.maxReveals['40'] ? optIn.maxReveals['40'] : undefined,
         }
       }
     }
