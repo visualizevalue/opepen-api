@@ -1,13 +1,13 @@
 import { DateTime } from 'luxon'
 import { BaseCommand } from '@adonisjs/core/build/standalone'
 
-const STAGE_BUFFER = 3
+const STAGE_BUFFER_MINUTES = 10
 
 export default class StageSet extends BaseCommand {
   /**
    * Command name is used to run the command
    */
-  public static commandName = 'stage:set'
+  public static commandName = 'set:stage'
 
   /**
    * Command description is displayed in the "help" output
@@ -30,7 +30,7 @@ export default class StageSet extends BaseCommand {
     Router.commit()
 
     const currentlyStaged = await SetSubmission.query()
-      .where('starredAt', '>=',  DateTime.now().minus({ hours: OPT_IN_HOURS + STAGE_BUFFER }).toISO())
+      .where('starredAt', '>=',  DateTime.now().minus({ hours: OPT_IN_HOURS, minutes: STAGE_BUFFER_MINUTES }).toISO())
       .orderBy('starredAt')
       .first()
 

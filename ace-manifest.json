@@ -496,13 +496,13 @@
       "aliases": [],
       "flags": []
     },
-    "stage:set": {
+    "set:stage": {
       "settings": {
         "loadApp": true,
         "stayAlive": false
       },
       "commandPath": "./commands/StageSet",
-      "commandName": "stage:set",
+      "commandName": "set:stage",
       "description": "",
       "args": [],
       "aliases": [],
