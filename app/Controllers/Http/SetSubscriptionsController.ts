@@ -55,22 +55,10 @@ export default class SetSubscriptionsController extends BaseController {
       address,
     })
 
-    // Remove opted out opepen
-    if (subscription.opepenIds?.length) {
-      await Opepen.query().whereIn('tokenId', subscription.opepenIds).update({
-        submissionId: null,
-      })
-    }
-
     // Add opted in opepen
     const newOptIns = request.input('opepen')
     if (newOptIns?.length) {
-      await Opepen.query().whereIn('tokenId', newOptIns).update({
-        submissionId: submission.id,
-      })
-
       submission.lastOptInAt = DateTime.now()
-      submission.archivedAt = null
       await submission.save()
     }
 
