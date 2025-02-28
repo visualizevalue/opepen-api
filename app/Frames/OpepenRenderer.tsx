@@ -9,7 +9,7 @@ import { formatDate } from 'App/Helpers/dates'
 export default class OpepenRenderer extends Renderer {
 
   public static async render (opepen: Opepen, force: boolean = false) {
-    const submission = opepen.submission
+    const submission = opepen.set.submission
     const lastEvent = opepen.events[0]
 
     const key = `opepen/${opepen.tokenId}_${submission?.uuid}_${lastEvent.blockNumber}_v2.png`

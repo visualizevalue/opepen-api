@@ -137,7 +137,7 @@ export default class OpepenController extends BaseController {
   public async og ({ request, params, response }: HttpContextContract) {
     const opepen = await Opepen.query()
       .where('tokenId', params.id)
-      .preload('submission')
+      .preload('set', query => query.preload('submission'))
       .preload('ownerAccount')
       .preload('events')
       .preload('image')
