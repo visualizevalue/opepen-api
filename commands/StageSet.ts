@@ -1,7 +1,7 @@
 import { DateTime } from 'luxon'
 import { BaseCommand } from '@adonisjs/core/build/standalone'
 
-const STAGE_BUFFER_MINUTES = 10
+const STAGE_BUFFER_MINUTES = 20
 
 export default class StageSet extends BaseCommand {
   /**
@@ -31,7 +31,7 @@ export default class StageSet extends BaseCommand {
 
     const currentlyStaged = await SetSubmission.query()
       .where('starredAt', '>=',  DateTime.now().minus({ hours: OPT_IN_HOURS, minutes: STAGE_BUFFER_MINUTES }).toISO())
-      .orderBy('starredAt')
+      .orderBy('starredAt', 'desc')
       .first()
 
     if (currentlyStaged) {
