@@ -96,6 +96,10 @@ export default class SetSubmissionsController extends BaseController {
         break
       case 'demand':
         query.withScopes(scopes => scopes.live())
+        query.where(query => {
+          query.where('starredAt', '>=', DateTime.now().minus({ hours: OPT_IN_HOURS }).toISO())
+               .orWhereNull('starredAt')
+        })
         query.whereJsonPath('submission_stats', '$.demand.total', '>=', 1)
         query.whereNull('setId')
         break
