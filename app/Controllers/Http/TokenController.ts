@@ -21,14 +21,14 @@ export default class TokenController extends BaseController {
             return response.redirect(`${Env.get('CDN_URL')}/${imagePath}`)
         }
 
-        const normal = await Opepen.query().where('owner', account.address).preload('image')
+        const highlightTokens = query.highlight ? query.highlight.split(',') : []
+
+        const normal = await Opepen.query().where('owner', account.address).orWhereIn('tokenId', highlightTokens).preload('image')
         const burned = await BurnedOpepen.query().where('owner', account.address).preload('image')
 
         const allOpepen = [...normal, ...burned]
 
         allOpepen.sort((a, b) => b.updatedAt.toMillis() - a.updatedAt.toMillis())
-
-        const highlightTokens = query.highlight ? query.highlight.split(',') : []
 
         const imageBuffer = await OpepenGridGenerator.make(allOpepen, false, highlightTokens)
 
