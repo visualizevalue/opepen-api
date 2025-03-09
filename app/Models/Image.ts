@@ -119,6 +119,12 @@ export default class Image extends BaseModel {
     return `${Env.get('APP_URL')}/v1/previews/three?file=${this.originalURI}`
   }
 
+  public get renderedURI (): string {
+    return this.versions?.sm
+      ? this.staticURI
+      : `${Env.get('APP_URL')}/v1/opepen/images/${this.uuid}/render`
+  }
+
   public get renderURI (): string {
     return `${Env.get('APP_URL')}/v1/opepen/images/${this.uuid}/render`
   }

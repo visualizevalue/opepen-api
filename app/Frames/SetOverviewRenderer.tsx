@@ -71,7 +71,7 @@ export default class SetOverviewRenderer extends Renderer {
               borderRadius: '4px 16px 16px 16px',
               position: 'absolute',
             }}
-            src={await this.urlAsBuffer(submission.edition1Image?.renderURI)}
+            src={await this.urlAsBuffer(submission.edition1Image?.renderedURI)}
             width={imageWidth * 2 + imagePadding}
             height={imageWidth * 2 + imagePadding}
           />
@@ -82,7 +82,7 @@ export default class SetOverviewRenderer extends Renderer {
               position: 'absolute',
               left: imageWidth * 2 + imagePadding * 2 + 'px',
             }}
-            src={await this.urlAsBuffer(submission.edition4Image?.renderURI)}
+            src={await this.urlAsBuffer(submission.edition4Image?.renderedURI)}
             width={imageWidth}
             height={imageWidth}
           />
@@ -94,7 +94,7 @@ export default class SetOverviewRenderer extends Renderer {
               top: imageWidth + imagePadding + 'px',
               left: imageWidth * 2 + imagePadding * 2 + 'px',
             }}
-            src={await this.urlAsBuffer(submission.edition5Image?.renderURI)}
+            src={await this.urlAsBuffer(submission.edition5Image?.renderedURI)}
             width={imageWidth}
             height={imageWidth}
           />
@@ -105,7 +105,7 @@ export default class SetOverviewRenderer extends Renderer {
               position: 'absolute',
               top: imageWidth * 2 + imagePadding * 2 + 'px',
             }}
-            src={await this.urlAsBuffer(submission.edition10Image?.renderURI)}
+            src={await this.urlAsBuffer(submission.edition10Image?.renderedURI)}
             width={imageWidth}
             height={imageWidth}
           />
@@ -117,7 +117,7 @@ export default class SetOverviewRenderer extends Renderer {
               top: imageWidth * 2 + imagePadding * 2 + 'px',
               left: imageWidth + imagePadding + 'px',
             }}
-            src={await this.urlAsBuffer(submission.edition20Image?.renderURI)}
+            src={await this.urlAsBuffer(submission.edition20Image?.renderedURI)}
             width={imageWidth}
             height={imageWidth}
           />
@@ -129,7 +129,7 @@ export default class SetOverviewRenderer extends Renderer {
               top: imageWidth * 2 + imagePadding * 2 + 'px',
               left: imageWidth * 2 + imagePadding * 2 + 'px',
             }}
-            src={await this.urlAsBuffer(submission.edition40Image?.renderURI)}
+            src={await this.urlAsBuffer(submission.edition40Image?.renderedURI)}
             width={imageWidth}
             height={imageWidth}
           />
