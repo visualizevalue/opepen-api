@@ -18,7 +18,7 @@ export default class NotifySubmissionRevealPausedEmail extends NotificationEmail
         setName: this.submission.name,
         artist: await this.submission.creatorNamesStr(),
         timeRemaining: timeRemaining(Duration.fromObject({ seconds: this.submission.remainingRevealTime })),
-        setUrl: `https://opepen.art/sets/${this.submission.uuid}`,
+        setUrl: `https://opepen.art/submissions/${this.submission.uuid}`,
       },
     })
   }

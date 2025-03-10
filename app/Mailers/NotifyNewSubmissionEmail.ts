@@ -17,7 +17,7 @@ export default class NotifyNewSubmissionEmail extends NotificationEmail {
         setName: this.submission.name,
         artist: await this.submission.creatorNamesStr(),
         type: string.capitalCase(this.submission.editionType),
-        setUrl: `https://opepen.art/sets/${this.submission.uuid}`,
+        setUrl: `https://opepen.art/submissions/${this.submission.uuid}`,
       },
     })
   }

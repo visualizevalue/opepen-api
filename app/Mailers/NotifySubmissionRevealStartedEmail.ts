@@ -19,7 +19,7 @@ export default class NotifySubmissionRevealStartedEmail extends NotificationEmai
         actionVerb,
         artist: await this.submission.creatorNamesStr(),
         timeRemaining: this.submission.timeRemainigStr(),
-        setUrl: `https://opepen.art/sets/${this.submission.uuid}`,
+        setUrl: `https://opepen.art/submissions/${this.submission.uuid}`,
       },
     })
   }
