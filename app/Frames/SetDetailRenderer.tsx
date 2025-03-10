@@ -41,7 +41,7 @@ export default class SetDetailRenderer extends Renderer {
           <img
             style={{
               border: '1px solid #363636',
-              borderRadius: '4px 16px 16px 16px',
+              borderRadius: '12px',
               position: 'absolute',
             }}
             src={await this.urlAsBuffer(submission.edition1Image?.renderURI)}
@@ -51,7 +51,7 @@ export default class SetDetailRenderer extends Renderer {
           <img
             style={{
               border: '1px solid #363636',
-              borderRadius: '4px 16px 16px 16px',
+              borderRadius: '12px',
               position: 'absolute',
               left: imageWidth * 2 + imagePadding * 2 + 'px',
             }}
@@ -62,7 +62,7 @@ export default class SetDetailRenderer extends Renderer {
           <img
             style={{
               border: '1px solid #363636',
-              borderRadius: '4px 16px 16px 16px',
+              borderRadius: '12px',
               position: 'absolute',
               top: imageWidth + imagePadding + 'px',
               left: imageWidth * 2 + imagePadding * 2 + 'px',
@@ -74,7 +74,7 @@ export default class SetDetailRenderer extends Renderer {
           <img
             style={{
               border: '1px solid #363636',
-              borderRadius: '4px 16px 16px 16px',
+              borderRadius: '12px',
               position: 'absolute',
               top: imageWidth * 2 + imagePadding * 2 + 'px',
             }}
@@ -85,7 +85,7 @@ export default class SetDetailRenderer extends Renderer {
           <img
             style={{
               border: '1px solid #363636',
-              borderRadius: '4px 16px 16px 16px',
+              borderRadius: '12px',
               position: 'absolute',
               top: imageWidth * 2 + imagePadding * 2 + 'px',
               left: imageWidth + imagePadding + 'px',
@@ -97,7 +97,7 @@ export default class SetDetailRenderer extends Renderer {
           <img
             style={{
               border: '1px solid #363636',
-              borderRadius: '4px 16px 16px 16px',
+              borderRadius: '12px',
               position: 'absolute',
               top: imageWidth * 2 + imagePadding * 2 + 'px',
               left: imageWidth * 2 + imagePadding * 2 + 'px',

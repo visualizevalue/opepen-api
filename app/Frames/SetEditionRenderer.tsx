@@ -34,7 +34,7 @@ export default class SetEditionRenderer extends Renderer {
         <img
           style={{
             border: '1px solid #363636',
-            borderRadius: '4px 16px 16px 16px',
+            borderRadius: '12px',
             width: '100%',
           }}
           src={await this.urlAsBuffer(image?.staticURI)}

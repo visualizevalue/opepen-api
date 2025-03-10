@@ -20,7 +20,7 @@ export default class OpePollRenderer extends Renderer {
       <img
         style={{
           border: '1px solid #363636',
-          borderRadius: '4px 16px 16px 16px',
+          borderRadius: '12px',
         }}
         src={await this.urlAsBuffer(leftImage.staticURI)}
         width="350"
@@ -30,7 +30,7 @@ export default class OpePollRenderer extends Renderer {
       <img
         style={{
           border: '1px solid #363636',
-          borderRadius: '4px 16px 16px 16px',
+          borderRadius: '12px',
         }}
         src={await this.urlAsBuffer(rightImage.staticURI)}
         width="350"
