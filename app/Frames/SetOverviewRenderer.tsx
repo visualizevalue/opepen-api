@@ -69,7 +69,6 @@ export default class SetOverviewRenderer extends Renderer {
             style={{
               border: '1px solid #363636',
               borderRadius: '4px 16px 16px 16px',
-              position: 'absolute',
             }}
             src={await this.urlAsBuffer(submission.edition1Image?.renderedURI)}
             width={imageWidth * 2 + imagePadding}
