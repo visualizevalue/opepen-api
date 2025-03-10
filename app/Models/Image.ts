@@ -1,6 +1,6 @@
 import { DateTime } from 'luxon'
 import { v4 as uuid } from 'uuid'
-import sharp from 'sharp'
+import sharp, { type FormatEnum } from 'sharp'
 import Application from '@ioc:Adonis/Core/Application'
 import { BaseModel, BelongsTo, HasMany, ManyToMany, beforeCreate, belongsTo, column, computed, hasMany, manyToMany } from '@ioc:Adonis/Lucid/Orm'
 import Drive from '@ioc:Adonis/Core/Drive'
@@ -250,9 +250,10 @@ export default class Image extends BaseModel {
   }
 
   async renderToScaledVersions (image: Buffer) {
-    const imageProcessor = await sharp(image)
+    const imageProcessor = sharp(image)
     const metadata = await imageProcessor.metadata()
     const distType = this.isAnimated || this.isWebRendered || this.type === 'svg' ? 'png' : this.type
+    imageProcessor.toFormat(distType as keyof FormatEnum)
 
     if (! metadata.width || !['png', 'jpeg', 'webp'].includes(distType)) return
 
