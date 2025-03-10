@@ -67,6 +67,20 @@ export class BotNotifications {
     await this.sendForSubmission(submission, template, imgs)
   }
 
+  public async consensusFailed (submission: SetSubmission) {
+    const template = ({ creators }) => [
+      `Consensus Failed`,
+      `"${submission.name}" by ${creators}`,
+    ]
+
+    const imgs = [
+      `${Env.get('APP_URL')}/v1/render/sets/${submission.uuid}/square`,
+      `${Env.get('APP_URL')}/v1/render/sets/${submission.uuid}/opt-in-status`,
+    ]
+
+    await this.sendForSubmission(submission, template, imgs)
+  }
+
   // TODO: Closing Soon
   // “Title” by @artist
   // 3,463% demand
