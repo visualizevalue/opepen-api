@@ -658,7 +658,11 @@ export default class SetSubmission extends BaseModel {
     const submission: SetSubmission = this
     const set = setId
       ? await SetModel.findOrFail(setId)
-      : await SetModel.query().whereNull('submissionId').orderBy('id').firstOrFail()
+      : await SetModel.query()
+                      .whereNull('submissionId')
+                      .whereNot('id', 69)
+                      .orderBy('id')
+                      .firstOrFail()
 
     const currentBlock = await provider.getBlockNumber()
     const revealBlock = Number(this.revealBlockNumber)
