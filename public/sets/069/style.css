@@ -7,7 +7,7 @@
 
 body {
   margin: 0;
-  background: red;
+  background: rgb(10, 10, 10);
   overflow: hidden;
   color: white;
 }
