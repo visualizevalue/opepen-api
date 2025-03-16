@@ -1,0 +1,110 @@
+:root {
+  --dimension: min(100vw, 100vh);
+  --tile: calc(min(100vw, 100vh) / 8);
+  --font-size: 1.4vh;
+  --line-gap: 1.6vh;
+}
+
+body {
+  margin: 0;
+  background: red;
+  overflow: hidden;
+  color: white;
+}
+
+#opepen {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: 10vh 1fr 10vh;
+  padding: calc(var(--dimension) * 0.12);
+  width: calc(var(--dimension) * 0.76);
+  height: calc(var(--dimension) * 0.76);
+  background: black;
+}
+
+svg {
+  height: var(--font-size);
+}
+
+section,
+header {
+  display: grid;
+  gap: 1vh;
+}
+
+header {
+  height: calc(var(--font-size)*3 + var(--line-gap)*2);
+}
+.opepen-edition {
+  height: calc(var(--font-size)*3 + var(--line-gap)*2);
+  justify-self: flex-end;
+}
+
+.intro,
+.progress header,
+.progress {
+  grid-column: 1/-1;
+  display: grid;
+  gap: var(--line-gap);
+  align-self: center;
+}
+
+.intro {
+  height: calc(var(--font-size)*2 + var(--line-gap));
+}
+
+.progress {
+  display: grid;
+  gap: 2vh;
+  align-self: flex-end;
+
+  & > header {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    height: var(--font-size);
+
+    & > svg:last-child {
+      justify-self: flex-end;
+      color: rgb(56, 56, 56);
+    }
+  }
+
+  & > .bar {
+    height: 0.5vh;
+    background-color: rgb(80, 80, 80);
+    position: relative;
+
+    > * {
+      height: 0.5vh;
+      position: absolute;
+    }
+
+    & > *:first-child {
+      background-color: #58E700;
+    }
+
+    & > *:last-child {
+      background-color: #FB0F0F;
+      right: 0;
+    }
+  }
+
+  & > div:last-child {
+    position: relative;
+    width: 2.7vw;
+    transform: translateX(-50%);
+    padding-top: 2vh;
+
+    &:before {
+      content: '';
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 21 13' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M3.51996 12.08L0.839964 9.28L9.55996 -4.93065e-07L12.12 -3.81163e-07L20.84 9.28L18.16 12.08L10.76 4.2C10.7066 4.30667 10.08 5.01333 8.87996 6.32C7.67996 7.65333 6.4933 8.94667 5.31996 10.2L3.51996 12.08Z' fill='white'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      position: absolute;
+      top: -0vh;
+      left: 0.8vw;
+      width: 1vh;
+      height: 100%;
+    }
+  }
+}
+
