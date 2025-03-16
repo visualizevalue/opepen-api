@@ -3,6 +3,16 @@
   --tile: calc(min(100vw, 100vh) / 8);
   --font-size: 1.4vh;
   --line-gap: 1.6vh;
+
+  --d-0_5: calc(var(--dimension) * 0.005);
+  --d-0_8: calc(var(--dimension) * 0.008);
+  --d-1: calc(var(--dimension) * 0.01);
+  --d-2: calc(var(--dimension) * 0.02);
+  --d-2_5: calc(var(--dimension) * 0.025);
+  --d-2_7: calc(var(--dimension) * 0.027);
+  --d-10: calc(var(--dimension) * 0.1);
+  --d-12: calc(var(--dimension) * 0.12);
+  --d-76: calc(var(--dimension) * 0.76);
 }
 
 body {
@@ -16,10 +26,10 @@ body {
   position: relative;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  grid-template-rows: 10vh 1fr 10vh;
-  padding: calc(var(--dimension) * 0.12);
-  width: calc(var(--dimension) * 0.76);
-  height: calc(var(--dimension) * 0.76);
+  grid-template-rows: var(--d-10) 1fr var(--d-10);
+  padding: var(--d-12);
+  width: var(--d-76);
+  height: var(--d-76);
   background: black;
 }
 
@@ -30,7 +40,7 @@ svg {
 section,
 header {
   display: grid;
-  gap: 1vh;
+  gap: var(--d-1);
 }
 
 header {
@@ -56,7 +66,7 @@ header {
 
 .progress {
   display: grid;
-  gap: 2vh;
+  gap: var(--d-2);
   align-self: flex-end;
 
   & > header {
@@ -70,12 +80,12 @@ header {
   }
 
   & > .bar {
-    height: 0.5vh;
+    height: var(--d-0_5);
     background-color: rgb(80, 80, 80);
     position: relative;
 
     > * {
-      height: 0.5vh;
+      height: var(--d-0_5);
       position: absolute;
     }
 
@@ -91,9 +101,12 @@ header {
 
   & > div:last-child {
     position: relative;
-    width: 2.7vw;
+    width: var(--d-2_7);
     transform: translateX(-50%);
-    padding-top: 2vh;
+    margin-top: var(--d-0_5);
+    padding-top: var(--d-2_5);
+    display: flex;
+    justify-content: center;
 
     &:before {
       content: '';
@@ -101,8 +114,8 @@ header {
       background-repeat: no-repeat;
       position: absolute;
       top: -0vh;
-      left: 0.8vw;
-      width: 1vh;
+      left: var(--d-0_8);
+      width: var(--d-1);
       height: 100%;
     }
   }
