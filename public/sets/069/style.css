@@ -1,23 +1,25 @@
 :root {
   --dimension: min(100vw, 100vh);
-  --tile: calc(min(100vw, 100vh) / 8);
-  --font-size: 1.4vh;
-  --line-gap: 1.6vh;
 
   --d-0_5: calc(var(--dimension) * 0.005);
   --d-0_8: calc(var(--dimension) * 0.008);
   --d-1: calc(var(--dimension) * 0.01);
+  --d-1_4: calc(var(--dimension) * 0.014);
+  --d-1_6: calc(var(--dimension) * 0.016);
   --d-2: calc(var(--dimension) * 0.02);
   --d-2_5: calc(var(--dimension) * 0.025);
   --d-2_7: calc(var(--dimension) * 0.027);
   --d-10: calc(var(--dimension) * 0.1);
   --d-12: calc(var(--dimension) * 0.12);
   --d-76: calc(var(--dimension) * 0.76);
+
+  --font-size: var(--d-1_4);
+  --line-gap: var(--d-1_6);
 }
 
 body {
   margin: 0;
-  background: rgb(10, 10, 10);
+  background: rgb(50, 50, 50);
   overflow: hidden;
   color: white;
 }
