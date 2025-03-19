@@ -129,6 +129,10 @@ export default class Account extends BaseModel {
     return Address.short(this.address)
   }
 
+  public get nameForX () {
+    return this.twitterHandle ? `@${this.twitterHandle}` : this.display
+  }
+
   @belongsTo(() => Image, {
     foreignKey: 'pfpImageId',
   })

@@ -92,11 +92,11 @@ export default class NotifyNodes extends BaseCommand {
     const ownedCount = parseInt(ownedOpepen[0].$extras.owned) + parseInt(ownedBurnedOpepen[0].$extras.owned)
 
     if (ownedCount === 0) {
-      this.logger.info(`Node ${account.display} sold everything in the meantime`)
+      this.logger.info(`Node ${account.nameForX} sold everything in the meantime`)
       return
     }
     if (events.length > ownedCount) {
-      this.logger.info(`Node ${account.display} sold in the meantime, skip (likely a bot)`)
+      this.logger.info(`Node ${account.nameForX} sold in the meantime, skip (likely a bot)`)
       return
     }
     if (currentEventBatchOpepen.length === 0) {
@@ -111,7 +111,7 @@ export default class NotifyNodes extends BaseCommand {
       }
     }
 
-    this.logger.info(`Node ${account.display} has received/bought ${events.length} Opepen`)
+    this.logger.info(`Node ${account.nameForX} has received/bought ${events.length} Opepen`)
 
     const imageURI = `https://api.opepen.art/v1/accounts/${account.address}/opepen/grid.png?key=${DateTime.now().toUnixInteger()}`
 
@@ -125,7 +125,7 @@ export default class NotifyNodes extends BaseCommand {
     // New node
     if (previouslyOwnedCount === ownedCount && ownedCount === events.length) {
       const msg = [
-        `New Node ${account.display}`,
+        `New Node ${account.nameForX}`,
         actionString,
       ]
       await this.notify(msg, imageURI)
@@ -133,7 +133,7 @@ export default class NotifyNodes extends BaseCommand {
     // Expanding node
     else if (ownedCount > events.length) {
       const msg = [
-        `Expanding Node ${account.display}`,
+        `Expanding Node ${account.nameForX}`,
         actionString,
         `Owns ${ownedCount} Opepen`,
       ]
@@ -151,7 +151,7 @@ export default class NotifyNodes extends BaseCommand {
       if (diff.days < 30) return
 
       const msg = [
-        `Returning Node ${account.display}`,
+        `Returning Node ${account.nameForX}`,
         actionString,
       ]
 

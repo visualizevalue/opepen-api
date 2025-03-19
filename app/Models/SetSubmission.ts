@@ -582,7 +582,7 @@ export default class SetSubmission extends BaseModel {
   public async creatorNamesForX () {
     const creators = await this.creators()
 
-    return creators.map(c => c.twitterHandle ? `@${c.twitterHandle}` : c.display)
+    return creators.map(c => c.nameForX)
   }
 
   public async creatorNamesStr () {
