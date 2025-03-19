@@ -8,6 +8,7 @@ import SetSubmission from 'App/Models/SetSubmission'
 import Twitter from './Twitter'
 import Farcaster from './Farcaster'
 import BurnedOpepen from 'App/Models/BurnedOpepen'
+import { formatNumber } from 'App/Helpers/numbers'
 
 export class BotNotifications {
   xClient: Twitter|undefined
@@ -46,6 +47,19 @@ export class BotNotifications {
     const template = ({ creators }) => [
       `Consensus Reached`,
       `"${submission.name}" by ${creators}`,
+    ]
+
+    const img = `${Env.get('APP_URL')}/v1/render/sets/${submission.uuid}/square`
+
+    await this.sendForSubmission(submission, template, img)
+  }
+
+  public async consensusMultiple (submission: SetSubmission) {
+    const percentage = Math.round((submission.submissionStats?.demand.total || 0) / 80 * 100)
+    const times = Math.round(percentage / 100)
+    const template = ({ creators }) => [
+      `${times}x Consensus`,
+      `"${submission.name}" by ${creators} has ${formatNumber(percentage)}% overall consensus!`,
     ]
 
     const img = `${Env.get('APP_URL')}/v1/render/sets/${submission.uuid}/square`

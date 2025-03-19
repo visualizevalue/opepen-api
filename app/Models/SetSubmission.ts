@@ -715,8 +715,23 @@ export default class SetSubmission extends BaseModel {
   }
 
   public async updateAndValidateOpepensInSet () {
+    const demandBefore = this.submissionStats?.demand.total || 0
+
     await this.cleanSubscriptionsAndStats()
     await this.maybeStartOrStopTimer()
+    await this.maybeSendDemandMultipleNotification(demandBefore)
+
+  }
+
+  public async maybeSendDemandMultipleNotification (demandBefore: number) {
+    const demandAfter = this.submissionStats?.demand.total || 0
+
+    const beforeMultiple = Math.floor(demandBefore / 80)
+    const afterMultiple = Math.floor(demandAfter / 80)
+
+    if (beforeMultiple < afterMultiple && afterMultiple >= 2) {
+      await BotNotifications.consensusMultiple(this)
+    }
   }
 
   public async clearOptIns () {
