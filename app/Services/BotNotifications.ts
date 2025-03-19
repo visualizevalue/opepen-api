@@ -55,11 +55,15 @@ export class BotNotifications {
   }
 
   public async consensusMultiple (submission: SetSubmission) {
-    const percentage = Math.round((submission.submissionStats?.demand.total || 0) / 80 * 100)
-    const times = Math.round(percentage / 100)
+    const holders = submission.submissionStats?.holders.total || 0
+    const total = submission.submissionStats?.demand.total || 0
+    const times = Math.round(total / 80)
+
     const template = ({ creators }) => [
+      `Demand Increase`,
+      `"${submission.name}" by ${creators}`,
       `${times}x Consensus`,
-      `"${submission.name}" by ${creators} has ${formatNumber(percentage)}% of required Opt-Ins!`,
+      `${formatNumber(total)}% Opt-ins from ${formatNumber(holders)} Holders`,
     ]
 
     const img = `${Env.get('APP_URL')}/v1/render/sets/${submission.uuid}/square`
