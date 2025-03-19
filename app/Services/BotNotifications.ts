@@ -59,7 +59,7 @@ export class BotNotifications {
     const times = Math.round(percentage / 100)
     const template = ({ creators }) => [
       `${times}x Consensus`,
-      `"${submission.name}" by ${creators} has ${formatNumber(percentage)}% overall consensus!`,
+      `"${submission.name}" by ${creators} has ${formatNumber(percentage)}% overall demand!`,
     ]
 
     const img = `${Env.get('APP_URL')}/v1/render/sets/${submission.uuid}/square`
