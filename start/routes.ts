@@ -133,6 +133,13 @@ Route.group(() => {
   Route.delete('/:id',           'CastsController.destroy').middleware(['auth'])
 }).prefix('/v1/casts')
 
+// Tweets
+Route.group(() => {
+  Route.get('/',                  'CuratedTweetsController.index')
+  Route.post('/',                 'CuratedTweetsController.store').middleware(['admin'])
+  Route.delete('/:id',            'CuratedTweetsController.destroy').middleware(['admin'])
+}).prefix('/v1/curated-tweets')
+
 // Timeline
 Route.group(() => {
   Route.get('/',                 'TimelineController.list')
