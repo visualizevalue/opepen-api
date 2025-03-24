@@ -9,6 +9,7 @@ import SubscriptionHistory from 'App/Models/SubscriptionHistory'
 import Opepen from 'App/Models/Opepen'
 import TimelineUpdate from 'App/Models/TimelineUpdate'
 import Database from '@ioc:Adonis/Lucid/Database'
+import { useDelegation } from 'App/Services/Delegate'
 
 export default class SetSubscriptionsController extends BaseController {
   public async discard ({ params, session }: HttpContextContract) {
@@ -46,6 +47,15 @@ export default class SetSubscriptionsController extends BaseController {
     if (! message) throw new Error(`Needs a message`)
     if (address !== verifiedAddress.toLowerCase()) throw new Error(`Address must match`)
 
+    const newOptIns = request.input('opepen')
+
+    // Validate whether we're allowed to opt in for the given opepen
+    const { addresses: allowedAddresses } = await useDelegation(address)
+    const opepen = await Opepen.query().whereIn('tokenId', newOptIns)
+    if (opepen.find(o => ! [address, ...allowedAddresses].includes(o.owner))) {
+      throw new Error(`You're not allowed to opt in for other users`)
+    }
+
     const account = await Account.updateOrCreate({ address }, {})
     account.updateNames()
     account.updateOptInCount()
@@ -56,7 +66,6 @@ export default class SetSubscriptionsController extends BaseController {
     })
 
     // Add opted in opepen
-    const newOptIns = request.input('opepen')
     if (newOptIns?.length) {
       submission.lastOptInAt = DateTime.now()
       await submission.save()
