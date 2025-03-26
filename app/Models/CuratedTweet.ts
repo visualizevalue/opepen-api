@@ -1,5 +1,6 @@
 import { DateTime } from 'luxon'
 import { BaseModel, column } from '@ioc:Adonis/Lucid/Orm'
+import { MediaItem } from './types'
 
 export default class CuratedTweet extends BaseModel {
   @column({ isPrimary: true })
@@ -26,8 +27,10 @@ export default class CuratedTweet extends BaseModel {
   @column.dateTime()
   public tweetCreatedAt: DateTime | null
 
-  @column()
-  public mediaUrl: string | null
+  @column({
+    prepare: (value: MediaItem[] | null) => (value ? JSON.stringify(value) : null),
+  })
+  public mediaUrls: MediaItem[] | null
 
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime
