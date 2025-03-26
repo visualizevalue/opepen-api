@@ -36,15 +36,22 @@ export default class CuratedTweetsController extends BaseController {
     const results: CuratedTweet[] = [];
     for (const tweet of twitterResponse.data) {
       const user = tweet.author_id ? usersById[tweet.author_id] : null;
-      let mediaUrl: string | null = null;
-
+      
+      let mediaUrls: any[] = [];
       if (tweet.attachments?.media_keys?.length) {
-        const firstKey = tweet.attachments.media_keys[0];
-        const media = mediaByKey[firstKey];
-        if (media) {
-          mediaUrl = media.url || media.preview_image_url || null;
+        for (const key of tweet.attachments.media_keys) {
+          const mediaObj = mediaByKey[key];
+          if (mediaObj) {
+            mediaUrls.push({
+              type: mediaObj.type,
+              url: mediaObj.url || mediaObj.preview_image_url || null,
+              variants: mediaObj.variants || null,
+            });
+          }
         }
       }
+
+      const mediaJson = JSON.stringify(mediaUrls);
 
       const curatedTweet = await CuratedTweet.firstOrCreate(
         { tweetId: tweet.id },
@@ -57,7 +64,7 @@ export default class CuratedTweetsController extends BaseController {
           tweetCreatedAt: tweet.created_at
             ? DateTime.fromISO(tweet.created_at)
             : null,
-          mediaUrl,
+          mediaUrls: mediaJson,
         }
       );
 

@@ -27,7 +27,7 @@ export default class CuratedTweet extends BaseModel {
   public tweetCreatedAt: DateTime | null
 
   @column()
-  public mediaUrl: string | null
+  public mediaUrls: string | null
 
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime

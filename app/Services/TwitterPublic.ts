@@ -20,7 +20,7 @@ export default class TwitterPublic {
       const response = await this.client.v2.tweets(tweetIds, {
         expansions: ["author_id", "attachments.media_keys"],
         "tweet.fields": ["author_id", "text", "created_at"],
-        "media.fields": ["type", "url", "preview_image_url"],
+        "media.fields": ["type", "url", "preview_image_url", "variants"],
         "user.fields": ["name", "username", "profile_image_url"],
       });
       console.log(response)
