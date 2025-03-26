@@ -51,8 +51,6 @@ export default class CuratedTweetsController extends BaseController {
         }
       }
 
-      const mediaJson = JSON.stringify(mediaUrls);
-
       const curatedTweet = await CuratedTweet.firstOrCreate(
         { tweetId: tweet.id },
         {
@@ -64,7 +62,7 @@ export default class CuratedTweetsController extends BaseController {
           tweetCreatedAt: tweet.created_at
             ? DateTime.fromISO(tweet.created_at)
             : null,
-          mediaUrls: mediaJson,
+          mediaUrls,
         }
       );
 

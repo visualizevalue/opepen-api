@@ -94,3 +94,9 @@ export type OauthData = {
     username: string
   }|undefined
 }
+
+export type MediaItem = {
+  type: string
+  url: string | null
+  variants: any | null
+}
