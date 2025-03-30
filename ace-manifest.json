@@ -362,6 +362,18 @@
       "aliases": [],
       "flags": []
     },
+    "notify:test": {
+      "settings": {
+        "loadApp": true,
+        "stayAlive": false
+      },
+      "commandPath": "./commands/NotifyTest",
+      "commandName": "notify:test",
+      "description": "",
+      "args": [],
+      "aliases": [],
+      "flags": []
+    },
     "opepen:import-metadata": {
       "settings": {
         "loadApp": true,

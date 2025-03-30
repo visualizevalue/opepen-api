@@ -91,7 +91,7 @@ export default class Twitter {
     const withMedia: { text?: string, media?: { media_ids: Media } }[] = []
     for (const config of tweets) {
       const media_ids: string[] = []
-      const addMedia = async (url) => {
+      const addMedia = async (url: string) => {
         const media = await this.uploadMedia(url)
 
         if (media) media_ids.push(media)
@@ -116,18 +116,13 @@ export default class Twitter {
     }
   }
 
-  public async media (imageUrl: string) {
-    const media = await this.uploadMedia(imageUrl)
-
-    return media
-  }
-
   private async uploadMedia (url?: string): Promise<string|null> {
     if (! url) return null
 
     const { contentType, buffer } = await this.loadImage(url)
 
     try {
+      Logger.info(`Attempting media upload: ${contentType} (${url})`)
       const mediaId = await this.userClient.v2.uploadMedia(buffer, { media_type: contentType })
 
       return mediaId
