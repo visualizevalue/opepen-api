@@ -79,19 +79,15 @@ export default class AccountsController extends BaseController {
       .preload('edition20Image')
       .preload('edition40Image')
       .preload('creatorAccount')
-      .preload('coCreator1Account')
-      .preload('coCreator2Account')
-      .preload('coCreator3Account')
-      .preload('coCreator4Account')
-      .preload('coCreator5Account')
+      .preload('coCreators', (query) => query.preload('account'))
       .where((query) => {
-        query.where('creator', account.address)
-             .orWhere('coCreator_1', account.address)
-             .orWhere('coCreator_2', account.address)
-             .orWhere('coCreator_3', account.address)
-             .orWhere('coCreator_4', account.address)
-             .orWhere('coCreator_5', account.address)
-      })
+        query.where('creator', account.address).orWhereExists((subquery) => {
+          subquery
+            .from('co_creators')
+            .whereRaw('set_submissions.id = co_creators.set_submission_id')
+            .andWhere('co_creators.account_id', account.id)
+        })
+      })      
       .withScopes(scopes => {
         scopes.live()
       })
