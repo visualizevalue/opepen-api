@@ -26,15 +26,11 @@ export default class UpdateAccountSetCounts extends BaseCommand {
         FROM (
             SELECT creator as address FROM set_submissions WHERE shadowed_at IS NULL
             UNION
-            SELECT co_creator_1 FROM set_submissions WHERE co_creator_1 IS NOT NULL AND shadowed_at IS NULL
-            UNION
-            SELECT co_creator_2 FROM set_submissions WHERE co_creator_2 IS NOT NULL AND shadowed_at IS NULL
-            UNION
-            SELECT co_creator_3 FROM set_submissions WHERE co_creator_3 IS NOT NULL AND shadowed_at IS NULL
-            UNION
-            SELECT co_creator_4 FROM set_submissions WHERE co_creator_4 IS NOT NULL AND shadowed_at IS NULL
-            UNION
-            SELECT co_creator_5 FROM set_submissions WHERE co_creator_5 IS NOT NULL AND shadowed_at IS NULL
+            SELECT a.address
+            FROM set_submissions s
+            JOIN co_creators c ON s.id = c.set_submission_id
+            JOIN accounts a ON a.id = c.account_id
+            WHERE s.shadowed_at IS NULL
         ) AS artist_addresses
       `))
 
