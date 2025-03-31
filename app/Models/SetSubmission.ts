@@ -674,10 +674,7 @@ export default class SetSubmission extends BaseModel {
   }
 
   public async clearOptIns () {
-    await Promise.all([
-      Subscription.query().where('submissionId', this.id).update({ submissionId: null }),
-      Opepen.query().where('submissionId', this.id).update({ submissionId: null }),
-    ])
+    await Subscription.query().where('submissionId', this.id).update({ submissionId: null })
 
     this.submissionStats = DEFAULT_SUBMISSION_STATS
     await this.cleanSubscriptionsAndStats()

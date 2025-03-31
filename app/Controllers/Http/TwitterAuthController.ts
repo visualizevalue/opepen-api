@@ -18,7 +18,7 @@ export default class TwitterAuthController {
     } = request.qs()
 
     const scopes = scope === 'write'
-      ? ['tweet.read', 'tweet.write', 'users.read', 'offline.access']
+      ? ['tweet.read', 'tweet.write', 'media.write', 'users.read', 'offline.access']
       : ['tweet.read', 'users.read']
 
     const { url, codeVerifier, state } = this.client.generateOAuth2AuthLink(this.callbackURI, {

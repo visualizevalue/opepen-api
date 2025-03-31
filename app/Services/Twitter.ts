@@ -5,30 +5,23 @@ import Logger from '@ioc:Adonis/Core/Logger'
 import { DateTime } from 'luxon'
 import Account from 'App/Models/Account'
 
+type Media = [string]|[string,string]|[string,string,string]|[string,string,string,string]|undefined
+
 export default class Twitter {
-  private appClient: TwitterApi
   private userClient: TwitterApi
+  // @ts-ignore
   private account: Account
 
   constructor (config: {
-    appClient: TwitterApi,
     userClient: TwitterApi,
     account: Account
   }) {
-    this.appClient = config.appClient
     this.userClient = config.userClient
     this.account = config.account
   }
 
   static async initialize (account: Account) {
     if (! account.oauth.accessToken || ! account.oauth.refreshToken) return
-
-    const appClient = new TwitterApi({
-      appKey: Env.get('TWITTER_API_KEY'),
-      appSecret: Env.get('TWITTER_API_SECRET'),
-      accessToken: Env.get('TWITTER_ACCESS_TOKEN'),
-      accessSecret: Env.get('TWITTER_ACCESS_TOKEN_SECRET'),
-    })
 
     let userAccessToken: string = account.oauth.accessToken
 
@@ -65,7 +58,7 @@ export default class Twitter {
 
     const userClient = new TwitterApi(userAccessToken)
 
-    return new Twitter({ appClient, userClient, account })
+    return new Twitter({ userClient, account })
   }
 
   public async tweet (text: string, imageUrls?: string|string[]) {
@@ -77,7 +70,7 @@ export default class Twitter {
 
       Logger.info(`Uploaded media: ${media}`)
 
-      const config = { media: media?.length ? { media_ids: media } : undefined }
+      const config = { media: media?.length ? { media_ids: media as Media } : undefined }
 
       Logger.info(`Tweet txt: "${text}"`)
       Logger.info(`Tweet config: ${JSON.stringify(config)}`)
@@ -95,10 +88,10 @@ export default class Twitter {
 
   public async thread(tweets: { text: string, images?: string|string[] }[]) {
     // Upload media items and prepare data
-    const withMedia: { text?: string, media?: { media_ids: string[] } }[] = []
+    const withMedia: { text?: string, media?: { media_ids: Media } }[] = []
     for (const config of tweets) {
       const media_ids: string[] = []
-      const addMedia = async (url) => {
+      const addMedia = async (url: string) => {
         const media = await this.uploadMedia(url)
 
         if (media) media_ids.push(media)
@@ -112,7 +105,7 @@ export default class Twitter {
         await addMedia(config.images)
       }
 
-      withMedia.push({ text: config.text, media: media_ids.length ? { media_ids } : undefined })
+      withMedia.push({ text: config.text, media: media_ids.length ? { media_ids: media_ids as Media } : undefined })
     }
 
     // Send it
@@ -123,22 +116,14 @@ export default class Twitter {
     }
   }
 
-  public async media (imageUrl: string) {
-    const media = await this.uploadMedia(imageUrl)
-
-    return media
-  }
-
   private async uploadMedia (url?: string): Promise<string|null> {
     if (! url) return null
 
     const { contentType, buffer } = await this.loadImage(url)
 
     try {
-      const mediaId = await this.appClient.v1.uploadMedia(buffer, {
-        mimeType: contentType,
-        additionalOwners: [this.account.oauth?.twitterUser?.id as string]
-      })
+      Logger.info(`Attempting media upload: ${contentType} (${url})`)
+      const mediaId = await this.userClient.v2.uploadMedia(buffer, { media_type: contentType })
 
       return mediaId
     } catch (e) {
