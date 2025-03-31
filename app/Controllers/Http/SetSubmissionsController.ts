@@ -33,11 +33,7 @@ export default class SetSubmissionsController extends BaseController {
       .preload('edition20Image')
       .preload('edition40Image')
       .preload('creatorAccount')
-      .preload('coCreator1Account')
-      .preload('coCreator2Account')
-      .preload('coCreator3Account')
-      .preload('coCreator4Account')
-      .preload('coCreator5Account')
+      .preload('coCreators', (query) => query.preload('account'))
 
     // Handle status filter
     switch (status) {
@@ -142,11 +138,7 @@ export default class SetSubmissionsController extends BaseController {
       .preload('edition40Image')
       .preload('dynamicSetImages')
       .preload('creatorAccount')
-      .preload('coCreator1Account')
-      .preload('coCreator2Account')
-      .preload('coCreator3Account')
-      .preload('coCreator4Account')
-      .preload('coCreator5Account')
+      .preload('coCreators', (query) => query.preload('account'))
       .preload('richContentLinks', query => {
         query.preload('logo')
         query.preload('cover')
@@ -176,11 +168,7 @@ export default class SetSubmissionsController extends BaseController {
       .preload('edition40Image')
       .preload('dynamicSetImages')
       .preload('creatorAccount')
-      .preload('coCreator1Account')
-      .preload('coCreator2Account')
-      .preload('coCreator3Account')
-      .preload('coCreator4Account')
-      .preload('coCreator5Account')
+      .preload('coCreators', (query) => query.preload('account'))
       .preload('richContentLinks', query => {
         query.preload('logo')
         query.preload('cover')
@@ -265,24 +253,16 @@ export default class SetSubmissionsController extends BaseController {
       await image.save()
     }
 
-    const [
-      co_creator_1,
-      co_creator_2,
-      co_creator_3,
-      co_creator_4,
-      co_creator_5,
-    ] = await Promise.all(
-      [
-        request.input('co_creator_1', null),
-        request.input('co_creator_2', null),
-        request.input('co_creator_3', null),
-        request.input('co_creator_4', null),
-        request.input('co_creator_5', null),
-      ]
-      .filter(address => isAddress(address))
-      .map(address => address.toLowerCase())
-      .map(address => Account.firstOrCreate({ address }))
-    )
+    const coCreatorAddresses: string[] = (request.input('co_creators') || [])
+      .filter((address: string) => isAddress(address))
+      .map((address: string) => address.toLowerCase())
+
+    await submission.related('coCreators').query().delete()
+
+    for (const address of coCreatorAddresses) {
+      const account = await Account.firstOrCreate({ address })
+      await submission.related('coCreators').create({ accountId: account.id })
+    }
 
     const updateData: any = {
       name: request.input('name'),
@@ -301,11 +281,6 @@ export default class SetSubmissionsController extends BaseController {
       edition_10ImageId: images[3]?.id,
       edition_20ImageId: images[4]?.id,
       edition_40ImageId: images[5]?.id,
-      co_creator_1: co_creator_1?.address || null,
-      co_creator_2: co_creator_2?.address || null,
-      co_creator_3: co_creator_3?.address || null,
-      co_creator_4: co_creator_4?.address || null,
-      co_creator_5: co_creator_5?.address || null,
     }
 
     if (isAdmin(ctx.session)) {

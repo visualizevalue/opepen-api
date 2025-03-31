@@ -28,11 +28,7 @@ export default class SetModel extends BaseModel {
            .preload('edition20Image')
            .preload('edition40Image')
            .preload('creatorAccount')
-           .preload('coCreator1Account')
-           .preload('coCreator2Account')
-           .preload('coCreator3Account')
-           .preload('coCreator4Account')
-           .preload('coCreator5Account')
+           .preload('coCreators', (query) => query.preload('account'))
            .preload('dynamicPreviewImage')
            .preload('richContentLinks', query => {
              query.preload('logo')
@@ -53,6 +49,7 @@ export default class SetModel extends BaseModel {
            .preload('edition20Image')
            .preload('edition40Image')
            .preload('creatorAccount')
+           .preload('coCreators', (query) => query.preload('account'))
     }
   })
   public replacedSubmission: BelongsTo<typeof SetSubmission>

@@ -11,6 +11,7 @@ import Image from './Image'
 import DynamicSetImages from './DynamicSetImages'
 import Subscription from './Subscription'
 import Opepen from './Opepen'
+import CoCreator from './CoCreator'
 import provider from 'App/Services/RPCProvider'
 import Reveal from 'App/Services/Metadata/Reveal/Reveal'
 import NotifyNewCuratedSubmissionEmail from 'App/Mailers/NotifyNewCuratedSubmissionEmail'
@@ -96,20 +97,10 @@ export default class SetSubmission extends BaseModel {
   @column()
   public creator: string
 
-  @column()
-  public coCreator_1: string
-
-  @column()
-  public coCreator_2: string
-
-  @column()
-  public coCreator_3: string
-
-  @column()
-  public coCreator_4: string
-
-  @column()
-  public coCreator_5: string
+  @hasMany(() => CoCreator, {
+    foreignKey: 'setSubmissionId',
+  })
+  public coCreators: HasMany<typeof CoCreator>
 
   @column()
   public description: string
@@ -347,51 +338,6 @@ export default class SetSubmission extends BaseModel {
   })
   public creatorAccount: BelongsTo<typeof Account>
 
-  @belongsTo(() => Account, {
-    foreignKey: 'coCreator_1',
-    localKey: 'address',
-    onQuery: query => {
-      query.preload('pfp')
-    },
-  })
-  public coCreator1Account: BelongsTo<typeof Account>
-
-  @belongsTo(() => Account, {
-    foreignKey: 'coCreator_2',
-    localKey: 'address',
-    onQuery: query => {
-      query.preload('pfp')
-    },
-  })
-  public coCreator2Account: BelongsTo<typeof Account>
-
-  @belongsTo(() => Account, {
-    foreignKey: 'coCreator_3',
-    localKey: 'address',
-    onQuery: query => {
-      query.preload('pfp')
-    },
-  })
-  public coCreator3Account: BelongsTo<typeof Account>
-
-  @belongsTo(() => Account, {
-    foreignKey: 'coCreator_4',
-    localKey: 'address',
-    onQuery: query => {
-      query.preload('pfp')
-    },
-  })
-  public coCreator4Account: BelongsTo<typeof Account>
-
-  @belongsTo(() => Account, {
-    foreignKey: 'coCreator_5',
-    localKey: 'address',
-    onQuery: query => {
-      query.preload('pfp')
-    },
-  })
-  public coCreator5Account: BelongsTo<typeof Account>
-
   @hasMany(() => RichContentLink, {
     foreignKey: 'setSubmissionId',
     localKey: 'id',
@@ -555,22 +501,15 @@ export default class SetSubmission extends BaseModel {
   public async creators () {
     const sub: SetSubmission = this
     await sub.load((loader) => {
-      loader.load('creatorAccount')
-            .load('coCreator1Account')
-            .load('coCreator2Account')
-            .load('coCreator3Account')
-            .load('coCreator4Account')
-            .load('coCreator5Account')
+      loader
+        .load('creatorAccount')
+        .load('coCreators', (query) => query.preload('account'))
     })
 
     return [
-      sub.creatorAccount,
-      sub.coCreator1Account,
-      sub.coCreator2Account,
-      sub.coCreator3Account,
-      sub.coCreator4Account,
-      sub.coCreator5Account,
-    ].filter(c => !!c)
+      this.creatorAccount,
+      ...this.coCreators.map(c => c.account)
+    ]
   }
 
   public async creatorNames () {
