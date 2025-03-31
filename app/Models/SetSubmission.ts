@@ -508,7 +508,7 @@ export default class SetSubmission extends BaseModel {
 
     return [
       this.creatorAccount,
-      ...this.coCreators.map(c => c.account).filter(Boolean),
+      ...this.coCreators.map(c => c.account)
     ]
   }
 
