@@ -286,12 +286,12 @@ export default class Account extends BaseModel {
   public async updateSetSubmissionsCount () {
     const artistFor = SetSubmission.query()
       .withScopes((scopes) => scopes.live())
-      .where('creator', this.address)
-      .orWhereExists((subquery) => {
-        subquery
-          .from('co_creators')
-          .whereRaw('set_submissions.id = co_creators.set_submission_id')
-          .where('co_creators.account_id', this.id)
+      .where((query) => {
+        query
+          .where('creator', this.address)
+          .orWhereHas('coCreators', (subquery) => {
+            subquery.where('co_creators.account_id', this.id)
+          })
       })
 
     const submissionsCount = await artistFor.clone().count('id')
