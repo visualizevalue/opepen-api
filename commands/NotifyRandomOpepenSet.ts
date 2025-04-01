@@ -27,7 +27,7 @@ export default class NotifyRandomOpepenSet extends BaseCommand {
 
     const minResult = await SetSubmission.query()
       .whereNotNull('setId')
-      .min('featured as min_count')
+      .min('bot_featured_count as min_count')
       .first()
 
     if (!minResult || typeof minResult.$extras.min_count === 'undefined') return
@@ -36,7 +36,7 @@ export default class NotifyRandomOpepenSet extends BaseCommand {
 
     const submission = await SetSubmission.query()
       .whereNotNull('setId')
-      .where('featured', minCount)
+      .where('bot_featured_count', minCount)
       .orderByRaw('random()')
       .first()
 
