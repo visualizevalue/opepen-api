@@ -1,6 +1,7 @@
 import { BaseCommand } from '@adonisjs/core/build/standalone'
 import Env from '@ioc:Adonis/Core/Env'
 import pad from 'App/Helpers/pad'
+import SetSubmission from 'App/Models/SetSubmission'
 
 export default class NotifyRandomOpepenSet extends BaseCommand {
   /**
@@ -24,12 +25,25 @@ export default class NotifyRandomOpepenSet extends BaseCommand {
       return
     }
 
-    const { default: SetSubmission } = await import('App/Models/SetSubmission')
+    const minResult = await SetSubmission.query()
+      .whereNotNull('setId')
+      .min('featured as min_count')
+      .first()
+
+    if (!minResult || typeof minResult.$extras.min_count === 'undefined') return
+
+    const minCount = minResult.$extras.min_count
 
     const submission = await SetSubmission.query()
       .whereNotNull('setId')
+      .where('featured', minCount)
       .orderByRaw('random()')
-      .firstOrFail()
+      .first()
+
+    if (!submission) return
+    
+    submission.featured++
+    await submission.save()
 
     const img = `${Env.get('APP_URL')}/v1/render/sets/${submission.uuid}/square`
 
