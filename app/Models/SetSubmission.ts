@@ -142,6 +142,9 @@ export default class SetSubmission extends BaseModel {
   public featured: number
 
   @column()
+  public botFeaturedCount: number
+
+  @column()
   public editionType: EditionType = 'PRINT'
 
   @computed({ serializeAs: 'is_dynamic' })

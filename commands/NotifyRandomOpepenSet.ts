@@ -26,10 +26,25 @@ export default class NotifyRandomOpepenSet extends BaseCommand {
 
     const { default: SetSubmission } = await import('App/Models/SetSubmission')
 
+    const minResult = await SetSubmission.query()
+      .whereNotNull('setId')
+      .min('botFeaturedCount as min_count')
+      .first()
+
+    if (!minResult || typeof minResult.$extras.min_count === 'undefined') return
+
+    const minCount = minResult.$extras.min_count
+
     const submission = await SetSubmission.query()
       .whereNotNull('setId')
+      .where('botFeaturedCount', minCount)
       .orderByRaw('random()')
-      .firstOrFail()
+      .first()
+
+    if (!submission) return
+    
+    submission.botFeaturedCount++
+    await submission.save()
 
     const img = `${Env.get('APP_URL')}/v1/render/sets/${submission.uuid}/square`
 
