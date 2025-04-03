@@ -1,6 +1,14 @@
 import { ethers } from 'ethers'
 import { DateTime } from 'luxon'
-import { BaseModel, BelongsTo, belongsTo, column, computed, HasMany, hasMany } from '@ioc:Adonis/Lucid/Orm'
+import {
+  BaseModel,
+  BelongsTo,
+  belongsTo,
+  column,
+  computed,
+  HasMany,
+  hasMany,
+} from '@ioc:Adonis/Lucid/Orm'
 import abi from 'App/TokenStandards/abis/ERC721.json'
 import provider from 'App/Services/RPCProvider'
 import Account from 'App/Models/Account'
@@ -8,8 +16,8 @@ import Event from 'App/Models/Event'
 import { ContractType } from './types'
 
 export type Attribute = {
-  trait_type: string,
-  value: string|number,
+  trait_type: string
+  value: string | number
 }
 
 export default abstract class TokenModel extends BaseModel {
@@ -26,28 +34,28 @@ export default abstract class TokenModel extends BaseModel {
   public attributeCount: number
 
   @column({
-    prepare (value) {
+    prepare(value) {
       return JSON.stringify(value, null, 4)
-    }
+    },
   })
   public attributes: Array<Attribute>
 
   @column({
-    consume (price: any) {
-      if (! price) return null
+    consume(price: any) {
+      if (!price) return null
 
       return BigInt(price)
     },
 
-    prepare (price: BigInt) {
-      if (! price) return null
+    prepare(price: BigInt) {
+      if (!price) return null
 
       return price.toString()
     },
   })
-  public price: BigInt|null
+  public price: BigInt | null
 
-  public get priceInEth () {
+  public get priceInEth() {
     if (!this.price) return '0'
     return ethers.utils.formatEther(this.price.toString())
   }
@@ -59,7 +67,7 @@ export default abstract class TokenModel extends BaseModel {
   public data: object
 
   @column()
-  public rarityRank: number|null
+  public rarityRank: number | null
 
   @column({
     serializeAs: null,
@@ -73,29 +81,29 @@ export default abstract class TokenModel extends BaseModel {
   public updatedAt: DateTime
 
   @computed()
-  public get name () {
+  public get name() {
     return `${this.tokenId}`
   }
 
-  public get isBurned () {
+  public get isBurned() {
     return this.owner === ethers.constants.AddressZero
   }
 
   @belongsTo(() => Account, {
     foreignKey: 'owner',
     localKey: 'address',
-    onQuery: query => query.preload('pfp')
+    onQuery: (query) => query.preload('pfp'),
   })
   public ownerAccount: BelongsTo<typeof Account>
 
   @hasMany(() => Event, {
     foreignKey: 'tokenId',
     localKey: 'tokenId',
-    onQuery: query => {
+    onQuery: (query) => {
       query.where('contract', 'NAME')
       query.orderBy('blockNumber', 'desc')
       query.orderBy('logIndex', 'desc')
-    }
+    },
   })
   public abstract events: HasMany<typeof Event>
 
@@ -103,7 +111,7 @@ export default abstract class TokenModel extends BaseModel {
     model.owner = model.owner?.toLowerCase()
   }
 
-  public async syncOwnerFromLastEvent () {
+  public async syncOwnerFromLastEvent() {
     const lastTransfer = await Event.query()
       .where('contract', this.contractName)
       .where('type', 'Transfer')
@@ -118,9 +126,13 @@ export default abstract class TokenModel extends BaseModel {
     await (await this.updateSearchString()).save()
   }
 
-  public async syncOwnerFromChain () {
+  public async syncOwnerFromChain() {
     try {
-      const contract = await new ethers.Contract(this.contractAddress, Array.from(abi), provider)
+      const contract = await new ethers.Contract(
+        this.contractAddress,
+        Array.from(abi),
+        provider,
+      )
       const owner = (await contract.ownerOf(this.tokenId)).toLowerCase()
       this.owner = owner
     } catch (e) {
@@ -131,19 +143,17 @@ export default abstract class TokenModel extends BaseModel {
     await this.save()
   }
 
-  public async updateSearchString () {
+  public async updateSearchString() {
     const account = await this.loadOwner()
 
-    this.searchString = [
-      `#${this.tokenId}`,
-      this.owner,
-      account.display,
-    ].join(' ').toLowerCase()
+    this.searchString = [`#${this.tokenId}`, this.owner, account.display]
+      .join(' ')
+      .toLowerCase()
 
     return this
   }
 
-  public async loadOwner (force = false) {
+  public async loadOwner(force = false) {
     if (force) {
       await this.syncOwnerFromChain()
     }

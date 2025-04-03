@@ -3,14 +3,14 @@ import BaseSchema from '@ioc:Adonis/Lucid/Schema'
 export default class extends BaseSchema {
   protected tableName = 'set_submissions'
 
-  public async up () {
-    this.schema.alterTable(this.tableName, table => {
+  public async up() {
+    this.schema.alterTable(this.tableName, (table) => {
       table.integer('points').index()
       table.integer('votes_count').index()
       table.float('vote_score', 2).index()
     })
 
-    this.defer(async db => {
+    this.defer(async (db) => {
       const submissions = await db.from('set_submissions').whereNotNull('approved_at')
 
       for (const submission of submissions) {
@@ -20,11 +20,12 @@ export default class extends BaseSchema {
         let votesCount = 0
 
         for (const image of images) {
-          points += (image.points || 0)
-          votesCount += (image.votes_count || 0)
+          points += image.points || 0
+          votesCount += image.votes_count || 0
         }
 
-        await db.from('set_submissions')
+        await db
+          .from('set_submissions')
           .where('id', submission.id)
           .update({
             points: points,
@@ -35,8 +36,8 @@ export default class extends BaseSchema {
     })
   }
 
-  public async down () {
-    this.schema.alterTable(this.tableName, table => {
+  public async down() {
+    this.schema.alterTable(this.tableName, (table) => {
       table.dropColumn('points')
       table.dropColumn('votes_count')
       table.dropColumn('vote_score')

@@ -6,19 +6,17 @@ import BaseController from './BaseController'
 import HandshakeAuction from 'App/Models/HandshakeAuction'
 
 export default class AccountsController extends BaseController {
-
-  public async list () {
+  public async list() {
     const auctions = await HandshakeAuction.query().orderBy('id', 'desc')
 
-    const bidData = (await Promise.all(auctions.map(a => this.getBidData(a))))
-      .map(b => ({
-        highestBid: b.highestBid,
-      }))
+    const bidData = (await Promise.all(auctions.map((a) => this.getBidData(a)))).map((b) => ({
+      highestBid: b.highestBid,
+    }))
 
-    return auctions.map((a, index) => ({...a.toJSON(), ...bidData[index]}))
+    return auctions.map((a, index) => ({ ...a.toJSON(), ...bidData[index] }))
   }
 
-  public async show ({ params }: HttpContextContract) {
+  public async show({ params }: HttpContextContract) {
     const auction = await HandshakeAuction.query().where('slug', params.id).firstOrFail()
 
     const bidData = await this.getBidData(auction)
@@ -29,25 +27,27 @@ export default class AccountsController extends BaseController {
     }
   }
 
-  private async getBidData (auction: HandshakeAuction) {
+  private async getBidData(auction: HandshakeAuction) {
     const { data: bids } = await axios.get(Env.get('SIGNATURE_API_BASE') + `/signatures`, {
       params: {
         'filters[schema]': auction.schemaId,
-        'limit': '1000',
-      }
+        limit: '1000',
+      },
     })
 
     const totalBids = bids.meta.total
     const earliestBid = bids.data[bids.data.length - 1]
     const latestBid = bids.data[0]
 
-    const bidders = new Set(bids.data.map(b => b.signer))
-    const bidderAccounts = await Account.query().preload('pfp').whereIn('address', Array.from(bidders) as string[])
+    const bidders = new Set(bids.data.map((b) => b.signer))
+    const bidderAccounts = await Account.query()
+      .preload('pfp')
+      .whereIn('address', Array.from(bidders) as string[])
 
     const parsedBids = bids.data
-      .map(b => {
+      .map((b) => {
         return {
-          account: bidderAccounts.find(a => a.address === b.signer),
+          account: bidderAccounts.find((a) => a.address === b.signer),
           bidCount: parseInt(JSON.parse(b.object).Opepen.split(' ')[0]),
           id: b.id,
           createdAt: b.created_at,

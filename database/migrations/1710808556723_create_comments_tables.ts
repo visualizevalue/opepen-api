@@ -3,7 +3,7 @@ import BaseSchema from '@ioc:Adonis/Lucid/Schema'
 export default class extends BaseSchema {
   protected tableName = 'comments'
 
-  public async up () {
+  public async up() {
     this.schema.createTable(this.tableName, (table) => {
       table.bigIncrements('id')
 
@@ -20,7 +20,7 @@ export default class extends BaseSchema {
       table.timestamp('updated_at', { useTz: true })
     })
 
-    this.defer(async db => {
+    this.defer(async (db) => {
       await db.rawQuery(`
         INSERT INTO comments (address, submission_id, body, created_at, updated_at)
         SELECT address, submission_id, comment, created_at, created_at
@@ -31,7 +31,7 @@ export default class extends BaseSchema {
     })
   }
 
-  public async down () {
+  public async down() {
     this.schema.dropTable(this.tableName)
   }
 }

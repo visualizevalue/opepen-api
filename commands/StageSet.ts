@@ -26,18 +26,22 @@ export default class StageSet extends BaseCommand {
   }
 
   // Commit routes before we can read them
-  private async setup () {
+  private async setup() {
     const Router = this.application.container.use('Adonis/Core/Route')
     Router.commit()
   }
 
   // We stage a new set if one with sufficient demand is available
-  private async stageNew () {
+  private async stageNew() {
     const { default: SetSubmission, OPT_IN_HOURS } = await import('App/Models/SetSubmission')
     const { default: BotNotifications } = await import('App/Services/BotNotifications')
 
     const currentlyStaged = await SetSubmission.query()
-      .where('starredAt', '>=',  DateTime.now().minus({ hours: OPT_IN_HOURS, minutes: STAGE_BUFFER_MINUTES }).toISO())
+      .where(
+        'starredAt',
+        '>=',
+        DateTime.now().minus({ hours: OPT_IN_HOURS, minutes: STAGE_BUFFER_MINUTES }).toISO(),
+      )
       .orderBy('starredAt', 'desc')
       .first()
 
@@ -47,7 +51,7 @@ export default class StageSet extends BaseCommand {
     }
 
     const toStage = await SetSubmission.query()
-      .withScopes(scopes => scopes.live())
+      .withScopes((scopes) => scopes.live())
       .whereNull('setId')
       .whereNull('starredAt')
       .whereNull('archivedAt')
@@ -55,12 +59,14 @@ export default class StageSet extends BaseCommand {
       .orderByRaw(`"submission_stats" -> 'demand' -> 'total' DESC NULLS LAST`)
       .first()
 
-    if (! toStage) {
+    if (!toStage) {
       this.logger.info(`No set to stage.`)
       return
     }
 
-    this.logger.info(`Staging ${toStage.name} with ${toStage.submissionStats.demand.total} demand`)
+    this.logger.info(
+      `Staging ${toStage.name} with ${toStage.submissionStats.demand.total} demand`,
+    )
 
     toStage.starredAt = DateTime.now()
     await toStage.save()
@@ -70,19 +76,19 @@ export default class StageSet extends BaseCommand {
   }
 
   // We stage a new set if one with sufficient demand is available
-  private async archiveFailed () {
+  private async archiveFailed() {
     const { default: SetSubmission, OPT_IN_HOURS } = await import('App/Models/SetSubmission')
     const { default: BotNotifications } = await import('App/Services/BotNotifications')
 
     const previouslyStaged = await SetSubmission.query()
       .whereNotNull('starredAt')
-      .where('starredAt', '<',  DateTime.now().minus({ hours: OPT_IN_HOURS }).toISO())
+      .where('starredAt', '<', DateTime.now().minus({ hours: OPT_IN_HOURS }).toISO())
       .whereNull('revealsAt')
       .whereNull('archivedAt')
       .orderBy('starredAt', 'desc')
       .first()
 
-    if (! previouslyStaged) {
+    if (!previouslyStaged) {
       this.logger.info(`No set to destage.`)
       return
     }
@@ -95,4 +101,3 @@ export default class StageSet extends BaseCommand {
     await BotNotifications?.consensusFailed(previouslyStaged)
   }
 }
-

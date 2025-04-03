@@ -9,7 +9,8 @@ export default class CacheMainImageRelations extends BaseCommand {
   /**
    * Command description is displayed in the "help" output
    */
-  public static description = 'Connect images to their main parent (artist, posts, set_submission, opepen) for easy querying.'
+  public static description =
+    'Connect images to their main parent (artist, posts, set_submission, opepen) for easy querying.'
 
   public static settings = {
     loadApp: true,
@@ -23,7 +24,7 @@ export default class CacheMainImageRelations extends BaseCommand {
     await this.attachSetImages()
   }
 
-  protected async detatchAll () {
+  protected async detatchAll() {
     const { default: Image } = await import('App/Models/Image')
 
     await Image.query().update({
@@ -36,7 +37,7 @@ export default class CacheMainImageRelations extends BaseCommand {
     this.logger.info(`Detatched main relations`)
   }
 
-  protected async attachPostImages () {
+  protected async attachPostImages() {
     this.logger.info(`Attaching images to posts`)
 
     const { default: Image } = await import('App/Models/Image')
@@ -52,12 +53,16 @@ export default class CacheMainImageRelations extends BaseCommand {
     this.logger.info(`Attached ${images.length} images to posts`)
   }
 
-  protected async attachOpepenImages () {
+  protected async attachOpepenImages() {
     this.logger.info(`Attaching images to opepen`)
 
     const { default: Opepen } = await import('App/Models/Opepen')
 
-    const opepen = await Opepen.query().whereNotNull('setId').whereNotNull('imageId').preload('image').preload('set')
+    const opepen = await Opepen.query()
+      .whereNotNull('setId')
+      .whereNotNull('imageId')
+      .preload('image')
+      .preload('set')
 
     let skippedPrintCount = 0
     let count = 0
@@ -74,10 +79,12 @@ export default class CacheMainImageRelations extends BaseCommand {
       count++
     }
 
-    this.logger.info(`Attached ${count} images to opepen (skipped ${skippedPrintCount} for prints)`)
+    this.logger.info(
+      `Attached ${count} images to opepen (skipped ${skippedPrintCount} for prints)`,
+    )
   }
 
-  protected async attachSetImages () {
+  protected async attachSetImages() {
     const { default: SetSubmission } = await import('App/Models/SetSubmission')
 
     this.logger.info(`Attaching images to sets`)
@@ -101,8 +108,8 @@ export default class CacheMainImageRelations extends BaseCommand {
         submission.edition10Image,
         submission.edition20Image,
         submission.edition40Image,
-        ...(await submission.dynamicSetImages?.images() || []),
-      ].filter(image => !! image)
+        ...((await submission.dynamicSetImages?.images()) || []),
+      ].filter((image) => !!image)
 
       for (const image of images) {
         image.setSubmissionId = submission.id
@@ -114,5 +121,4 @@ export default class CacheMainImageRelations extends BaseCommand {
 
     this.logger.info(`Attached ${count} images to sets`)
   }
-
 }

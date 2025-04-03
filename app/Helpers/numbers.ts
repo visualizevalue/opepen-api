@@ -5,4 +5,3 @@ export const pad = (num: number = 0, size: number = 2) => {
   while (padded.length < size) padded = '0' + padded
   return padded
 }
-

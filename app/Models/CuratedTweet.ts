@@ -5,7 +5,7 @@ import { MediaItem } from './types'
 export default class CuratedTweet extends BaseModel {
   @column({ isPrimary: true })
   public id: number
-  
+
   @column()
   public tweetId: string
 

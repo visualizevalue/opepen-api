@@ -20,8 +20,9 @@ export default class UpdateAccountSetCounts extends BaseCommand {
   public async run() {
     const { default: Account } = await import('App/Models/Account')
 
-    const accounts = await Account.query()
-      .whereIn('address', Database.rawQuery(`
+    const accounts = await Account.query().whereIn(
+      'address',
+      Database.rawQuery(`
         SELECT address
         FROM (
             SELECT creator as address FROM set_submissions WHERE shadowed_at IS NULL
@@ -32,7 +33,8 @@ export default class UpdateAccountSetCounts extends BaseCommand {
             JOIN accounts a ON a.id = c.account_id
             WHERE s.shadowed_at IS NULL
         ) AS artist_addresses
-      `))
+      `),
+    )
 
     this.logger.info(`To update: ${accounts.length}`)
 
@@ -40,7 +42,7 @@ export default class UpdateAccountSetCounts extends BaseCommand {
     for (const account of accounts) {
       await account.updateSetSubmissionsCount()
 
-      count ++
+      count++
       if (count % 50 === 0) {
         this.logger.info(`Updated: ${count}`)
       }

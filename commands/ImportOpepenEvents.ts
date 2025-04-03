@@ -28,10 +28,10 @@ export default class ImportOpepenEvents extends BaseCommand {
 
     const records = parse(fs.readFileSync(this.path), {
       columns: true,
-      skip_empty_lines: true
+      skip_empty_lines: true,
     })
 
-    const events = records.map(row => ({
+    const events = records.map((row) => ({
       token_id: row.token_id,
       type: row.type,
       from: row.from,
@@ -43,8 +43,11 @@ export default class ImportOpepenEvents extends BaseCommand {
       contract: 'OPEPEN',
     }))
 
-    const holders = new Set<string>([...events.map(d => d.to), ...events.map(d => d.from)])
-    const chunkedHolders = chunk(Array.from(holders.values()).map(address => ({ address })), 1000)
+    const holders = new Set<string>([...events.map((d) => d.to), ...events.map((d) => d.from)])
+    const chunkedHolders = chunk(
+      Array.from(holders.values()).map((address) => ({ address })),
+      1000,
+    )
     for (const chunk of chunkedHolders) {
       await Account.updateOrCreateMany('address', chunk)
       this.logger.info(`Imported 1000 accounts`)

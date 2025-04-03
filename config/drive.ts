@@ -102,8 +102,8 @@ export default driveConfig({
       bucket: Env.get('S3_BUCKET'),
       endpoint: Env.get('S3_ENDPOINT'),
 
-     // For minio to work
-     // forcePathStyle: true,
+      // For minio to work
+      // forcePathStyle: true,
     },
 
     /*
@@ -125,7 +125,7 @@ export default driveConfig({
     //   keyFilename: Env.get('GCS_KEY_FILENAME'),
     //   bucket: Env.get('GCS_BUCKET'),
 
-      /*
+    /*
       |--------------------------------------------------------------------------
       | Uniform ACL - Google cloud storage only
       |--------------------------------------------------------------------------

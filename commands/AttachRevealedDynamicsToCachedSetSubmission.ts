@@ -22,10 +22,12 @@ export default class AttachRevealedDynamicsToCachedSetSubmission extends BaseCom
     const images = await Image.query()
       .whereNotNull('opepenId')
       .whereNull('setSubmissionId')
-      .preload('cachedOpepen', query => query.preload('set'))
+      .preload('cachedOpepen', (query) => query.preload('set'))
 
     for (const image of images) {
-      this.logger.info(`Opepen #${image.cachedOpepen.tokenId} - submission ${image.cachedOpepen.set.submission.uuid} ${image.cachedOpepen.set.submission.name}`)
+      this.logger.info(
+        `Opepen #${image.cachedOpepen.tokenId} - submission ${image.cachedOpepen.set.submission.uuid} ${image.cachedOpepen.set.submission.name}`,
+      )
       image.setSubmissionId = image.cachedOpepen.set.submission.id
       await image.save()
     }

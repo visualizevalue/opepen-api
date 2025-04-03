@@ -1,7 +1,13 @@
 import { BaseCommand } from '@adonisjs/core/build/standalone'
 import { Wallet } from 'ethers'
 
-type Seed = { mnemonic: string, timestamp: number, privk: string, pubk: string, opepen?: number }
+type Seed = {
+  mnemonic: string
+  timestamp: number
+  privk: string
+  pubk: string
+  opepen?: number
+}
 
 export default class ExportSet26Seeds extends BaseCommand {
   /**
@@ -33,15 +39,15 @@ export default class ExportSet26Seeds extends BaseCommand {
 
       const seeds = this.getSeeds(history)
 
-      seeds.forEach(s => globalSeeds.push({ ...s, opepen: Number(o.tokenId) }))
+      seeds.forEach((s) => globalSeeds.push({ ...s, opepen: Number(o.tokenId) }))
     }
 
-    globalSeeds = globalSeeds.sort((a, b) => a.timestamp > b.timestamp ? 1 : -1)
+    globalSeeds = globalSeeds.sort((a, b) => (a.timestamp > b.timestamp ? 1 : -1))
 
     console.log(globalSeedCount, globalSeeds.length, globalSeeds)
   }
 
-  private getSeeds (history) {
+  private getSeeds(history) {
     if (history.length < 12) return []
 
     const seeds: Seed[] = []
@@ -49,7 +55,10 @@ export default class ExportSet26Seeds extends BaseCommand {
     let start = history.length - 13
 
     while (start >= 0) {
-      const mnemonic = history.slice(start, start + 12).map(({ word }) => word).join(' ')
+      const mnemonic = history
+        .slice(start, start + 12)
+        .map(({ word }) => word)
+        .join(' ')
       const timestamp = history[start].timestamp
 
       try {
@@ -65,7 +74,7 @@ export default class ExportSet26Seeds extends BaseCommand {
         // Invalid seed
       }
 
-      start --
+      start--
     }
 
     return seeds

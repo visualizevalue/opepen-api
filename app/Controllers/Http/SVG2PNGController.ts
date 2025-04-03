@@ -1,5 +1,8 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
-import { generateOpepenConfig, generateOpepenPNG } from 'App/Services/OpepenSVG/OpepenGenerator'
+import {
+  generateOpepenConfig,
+  generateOpepenPNG,
+} from 'App/Services/OpepenSVG/OpepenGenerator'
 
 export default class SVG2PNGController {
   public async handle({ request, response }: HttpContextContract) {

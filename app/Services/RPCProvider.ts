@@ -8,7 +8,7 @@ const provider = new ethers.providers.StaticJsonRpcProvider(Env.get('RPC_PROVIDE
 
 const BLOCK_CACHE = {}
 
-export const getBlockTimestamp = async block => {
+export const getBlockTimestamp = async (block) => {
   if (BLOCK_CACHE[block]) return DateTime.fromSeconds(BLOCK_CACHE[block])
 
   const timestamp = (await provider.getBlock(block)).timestamp

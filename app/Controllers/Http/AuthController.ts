@@ -3,11 +3,10 @@ import { isAdminAddress } from 'App/Middleware/AdminAuth'
 import { SiweMessage, generateNonce } from 'siwe'
 
 export default class AuthController {
-
-  public async nonce ({ session }: HttpContextContract) {
+  public async nonce({ session }: HttpContextContract) {
     if (session.has('nonce')) {
       return {
-        nonce: session.get('nonce')
+        nonce: session.get('nonce'),
       }
     }
 
@@ -18,8 +17,8 @@ export default class AuthController {
     return { nonce }
   }
 
-  public async verify ({ session, request, response }: HttpContextContract) {
-    if (! session.has('nonce')) return response.unauthorized('No valid session')
+  public async verify({ session, request, response }: HttpContextContract) {
+    if (!session.has('nonce')) return response.unauthorized('No valid session')
 
     const message = request.input('message')
     const signature = request.input('signature')
@@ -38,8 +37,8 @@ export default class AuthController {
     return siwe.data
   }
 
-  public async me ({ session, response }: HttpContextContract) {
-    if (! session.has('siwe')) return response.unauthorized('No valid session')
+  public async me({ session, response }: HttpContextContract) {
+    if (!session.has('siwe')) return response.unauthorized('No valid session')
 
     const data = session.get('siwe')
 
@@ -49,10 +48,9 @@ export default class AuthController {
     }
   }
 
-  public async clear ({ session, response }: HttpContextContract) {
+  public async clear({ session, response }: HttpContextContract) {
     session.clear()
 
     return response.ok('Session cleared')
   }
-
 }

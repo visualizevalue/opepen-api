@@ -21,23 +21,16 @@ export class Farcaster {
 
   initiated: boolean = false
 
-  constructor () {
+  constructor() {
     this.init()
   }
 
-  private async init () {
+  private async init() {
     if (this.initiated) return
 
     const [
-      {
-        NobleEd25519Signer,
-        getInsecureHubRpcClient,
-        makeCastAdd,
-      },
-      {
-        bytesToHex,
-        hexToBytes,
-      }
+      { NobleEd25519Signer, getInsecureHubRpcClient, makeCastAdd },
+      { bytesToHex, hexToBytes },
     ] = await Promise.all([
       // FIXME: Proper ESM imports
       await eval(`import('@farcaster/hub-nodejs')`),
@@ -53,24 +46,30 @@ export class Farcaster {
     this.initiated = true
   }
 
-  public async cast (
+  public async cast(
     text: string,
-    imageUrl?: string|string[],
-    parentCastId?: {
-      fid?: number;
-      hash?: Uint8Array;
-    } | undefined,
+    imageUrl?: string | string[],
+    parentCastId?:
+      | {
+          fid?: number
+          hash?: Uint8Array
+        }
+      | undefined,
     parentUrl: string = `chain://eip155:1/erc721:0x6339e5e072086621540d0362c4e3cea0d643e114`,
   ) {
     await this.init()
-    if (! Application.inProduction) return Logger.debug(`Not sending casts in development`)
+    if (!Application.inProduction) return Logger.debug(`Not sending casts in development`)
 
     try {
       const cast = await this.submitMessage(
         this.makeCastAdd(
           {
             text,
-            embeds: imageUrl ? Array.isArray(imageUrl) ? imageUrl.map(url => ({ url })) : [{ url: imageUrl }] : [],
+            embeds: imageUrl
+              ? Array.isArray(imageUrl)
+                ? imageUrl.map((url) => ({ url }))
+                : [{ url: imageUrl }]
+              : [],
             embedsDeprecated: [],
             mentions: [],
             mentionsPositions: [],
@@ -79,7 +78,7 @@ export class Farcaster {
           },
           this.DATA_OPTIONS,
           this.ed25519Signer,
-        )
+        ),
       )
 
       Logger.info(`New cast: ${this.bytesToHex(cast.value.hash)}`)
@@ -90,7 +89,7 @@ export class Farcaster {
     }
   }
 
-  public async thread(casts: { text: string, images?: string|string[] }[]) {
+  public async thread(casts: { text: string; images?: string | string[] }[]) {
     let parentCastId
 
     for (const cast of casts) {
@@ -105,7 +104,7 @@ export class Farcaster {
     }
   }
 
-  private async submitMessage (resultPromise) {
+  private async submitMessage(resultPromise) {
     const result = await resultPromise
     if (result.isErr()) {
       throw new Error(`Error creating message: ${result.error}`)
@@ -119,7 +118,13 @@ export class Farcaster {
     return messageSubmitResult
   }
 
-  public async verifyMessage ({ untrustedData, trustedData }: { untrustedData: any, trustedData: any }): Promise<boolean> {
+  public async verifyMessage({
+    untrustedData,
+    trustedData,
+  }: {
+    untrustedData: any
+    trustedData: any
+  }): Promise<boolean> {
     const url = `${this.HUB_HTTP_URL}/v1/validateMessage`
 
     try {
@@ -129,9 +134,12 @@ export class Farcaster {
         },
       })
 
-      if (! response.data.valid) return false
+      if (!response.data.valid) return false
 
-      const signedURL = Buffer.from(response.data.message?.data.frameActionBody.url, 'base64').toString('utf8')
+      const signedURL = Buffer.from(
+        response.data.message?.data.frameActionBody.url,
+        'base64',
+      ).toString('utf8')
       if (signedURL !== untrustedData.url) return false
     } catch (e) {
       return false

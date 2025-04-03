@@ -37,10 +37,9 @@ export default class RecomputeVotes extends BaseCommand {
     if (this.scores) {
       await this.recomputeScores()
     }
-
   }
 
-  protected async findAndRemoveDuplicates () {
+  protected async findAndRemoveDuplicates() {
     const { default: Vote } = await import('App/Models/Vote')
 
     this.logger.info('Find duplicate votes')
@@ -70,7 +69,7 @@ export default class RecomputeVotes extends BaseCommand {
     }
   }
 
-  protected async recomputePoints () {
+  protected async recomputePoints() {
     const { default: Image } = await import('App/Models/Image')
 
     await Image.query().doesntHave('votes').update({ points: 0, votesCount: 0 })
@@ -84,14 +83,14 @@ export default class RecomputeVotes extends BaseCommand {
 
       for (const vote of image.votes) {
         image.points += vote.points
-        image.votesCount ++
+        image.votesCount++
       }
 
       await image.save()
     }
   }
 
-  protected async recomputeScores () {
+  protected async recomputeScores() {
     const { default: Image } = await import('App/Models/Image')
 
     const images = await Image.query().where('votesCount', '>', 0)

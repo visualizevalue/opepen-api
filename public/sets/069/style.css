@@ -46,10 +46,10 @@ header {
 }
 
 header {
-  height: calc(var(--font-size)*3 + var(--line-gap)*2);
+  height: calc(var(--font-size) * 3 + var(--line-gap) * 2);
 }
 .opepen-edition {
-  height: calc(var(--font-size)*3 + var(--line-gap)*2);
+  height: calc(var(--font-size) * 3 + var(--line-gap) * 2);
   justify-self: flex-end;
 }
 
@@ -63,7 +63,7 @@ header {
 }
 
 .intro {
-  height: calc(var(--font-size)*2 + var(--line-gap));
+  height: calc(var(--font-size) * 2 + var(--line-gap));
 }
 
 .progress {
@@ -92,11 +92,11 @@ header {
     }
 
     & > *:first-child {
-      background-color: #58E700;
+      background-color: #58e700;
     }
 
     & > *:last-child {
-      background-color: #FB0F0F;
+      background-color: #fb0f0f;
       right: 0;
     }
   }
@@ -122,4 +122,3 @@ header {
     }
   }
 }
-

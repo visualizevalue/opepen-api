@@ -6,11 +6,10 @@ import { DateTime } from 'luxon'
 import EventModel from 'App/Models/Event'
 
 export class DailyOpepen {
-
-  public async render (date: DateTime) {
+  public async render(date: DateTime) {
     date.set({ hour: 13, minute: 21 })
     const events = await EventModel.query()
-      .preload('opepen', query => query.preload('image'))
+      .preload('opepen', (query) => query.preload('image'))
       .where('timestamp', '>=', date.minus({ day: 1 }).toSQL())
       .where('timestamp', '<=', date.toSQL())
       .distinct('tokenId')
@@ -30,52 +29,49 @@ export class DailyOpepen {
           flexWrap: 'wrap',
         }}
       >
-        {
-          await Promise.all(
-            events.slice(0, perSide**2).map(async e =>
+        {await Promise.all(
+          events
+            .slice(0, perSide ** 2)
+            .map(async (e) => (
               <img
-                src={
-                  await this.urlAsBuffer(e.opepen.image
+                src={await this.urlAsBuffer(
+                  e.opepen.image
                     ? e.opepen.image.staticURI
-                    : `https://api.opepen.art/${e.tokenId}/image`)
-                }
+                    : `https://api.opepen.art/${e.tokenId}/image`,
+                )}
                 width={dimension}
                 height={dimension}
               />
-            )
-          )
-        }
-      </div>
+            )),
+        )}
+      </div>,
     )
 
     return await this.png(svg)
   }
 
-  protected async svg (svg) {
-    return satori(
-      svg,
-      {
-        width: 1920,
-        height: 1920,
-        fonts: [],
-      }
-    )
+  protected async svg(svg) {
+    return satori(svg, {
+      width: 1920,
+      height: 1920,
+      fonts: [],
+    })
   }
 
-  protected async png (svg) {
-    return await sharp(Buffer.from(svg))
-      .toFormat('png')
-      .toBuffer()
+  protected async png(svg) {
+    return await sharp(Buffer.from(svg)).toFormat('png').toBuffer()
   }
 
-  protected async urlAsBuffer (url: string = 'https://opepenai.nyc3.cdn.digitaloceanspaces.com/images/base.png') {
+  protected async urlAsBuffer(
+    url: string = 'https://opepenai.nyc3.cdn.digitaloceanspaces.com/images/base.png',
+  ) {
     try {
-      const response = await axios.get(url,  { responseType: 'arraybuffer' })
+      const response = await axios.get(url, { responseType: 'arraybuffer' })
 
       let contentType = response.headers['content-type']
       let buffer = Buffer.from(response.data, 'utf-8')
 
-      if (! ['image/png', 'image/jpeg'].includes(contentType)) {
+      if (!['image/png', 'image/jpeg'].includes(contentType)) {
         buffer = await sharp(buffer).toFormat('png').toBuffer()
         contentType = 'image/png'
       }
@@ -85,7 +81,6 @@ export class DailyOpepen {
       return 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=='
     }
   }
-
 }
 
 export default new DailyOpepen()

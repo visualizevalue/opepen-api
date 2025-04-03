@@ -21,7 +21,7 @@ export default class SubscriptionHistory extends BaseModel {
   public address: string
 
   @column({
-    prepare: value => JSON.stringify(value),
+    prepare: (value) => JSON.stringify(value),
   })
   public opepenIds: string[]
 
@@ -29,12 +29,12 @@ export default class SubscriptionHistory extends BaseModel {
   public opepenCount: number
 
   @column({
-    prepare: value => JSON.stringify(value),
+    prepare: (value) => JSON.stringify(value),
   })
   public maxReveals: MaxReveal
 
   @column({
-    prepare: value => JSON.stringify(value),
+    prepare: (value) => JSON.stringify(value),
   })
   public previousOpepenIds: string[]
 
@@ -42,9 +42,9 @@ export default class SubscriptionHistory extends BaseModel {
   public previousOpepenCount: number
 
   @computed({
-    serializeAs: 'is_opt_in'
+    serializeAs: 'is_opt_in',
   })
-  public get isOptIn (): boolean {
+  public get isOptIn(): boolean {
     return this.opepenCount > this.previousOpepenCount && this.opepenCount > 0
   }
 
@@ -62,7 +62,7 @@ export default class SubscriptionHistory extends BaseModel {
   })
   public account: BelongsTo<typeof Account>
 
-  public static saveFor (subscription: Subscription) {
+  public static saveFor(subscription: Subscription) {
     return SubscriptionHistory.create({
       submissionId: subscription.submissionId,
       subscriptionId: subscription.id,

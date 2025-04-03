@@ -3,7 +3,7 @@ import BaseSchema from '@ioc:Adonis/Lucid/Schema'
 export default class extends BaseSchema {
   protected tableName = 'sets'
 
-  public async up () {
+  public async up() {
     this.schema.alterTable(this.tableName, (table) => {
       table.integer('submission_id').references('id').inTable('set_submissions').nullable()
 
@@ -43,14 +43,14 @@ export default class extends BaseSchema {
 
       for (const submission of submissions) {
         const set = await db.from('sets').where('id', submission.set_id).first()
-        if (! set) continue
+        if (!set) continue
 
         await db.from('sets').where('id', set.id).update({ submission_id: submission.id })
       }
     })
   }
 
-  public async down () {
+  public async down() {
     this.schema.alterTable(this.tableName, (table) => {
       table.dropColumn('submission_id')
 

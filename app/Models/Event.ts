@@ -27,21 +27,21 @@ export default class Event extends BaseModel {
   public to: string
 
   @column({
-    consume (value: any) {
-      if (! value) return null
+    consume(value: any) {
+      if (!value) return null
 
       return BigInt(value)
     },
 
-    prepare (value: BigInt) {
-      if (! value) return null
+    prepare(value: BigInt) {
+      if (!value) return null
 
       return value.toString()
     },
   })
   public value: bigint
 
-  get price () {
+  get price() {
     return ethers.utils.formatEther(this.value.toString())
   }
 
@@ -78,7 +78,7 @@ export default class Event extends BaseModel {
   })
   public opepen: BelongsTo<typeof Opepen>
 
-  public static async getLastOfType (type: string, contract: ContractType) {
+  public static async getLastOfType(type: string, contract: ContractType) {
     try {
       return Event.query()
         .where('type', type)

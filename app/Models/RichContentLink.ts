@@ -7,16 +7,16 @@ export default class RichContentLink extends BaseModel {
   public id: bigint
 
   @column()
-  public sortIndex: number|null
+  public sortIndex: number | null
 
   @column()
-  public address: string|null
+  public address: string | null
 
   @column()
-  public setId: number|null
+  public setId: number | null
 
   @column()
-  public setSubmissionId: number|null
+  public setSubmissionId: number | null
 
   @column()
   public url: string
@@ -28,10 +28,10 @@ export default class RichContentLink extends BaseModel {
   public description: string
 
   @column()
-  public logoImageId: bigint|null
+  public logoImageId: bigint | null
 
   @column()
-  public coverImageId: bigint|null
+  public coverImageId: bigint | null
 
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime

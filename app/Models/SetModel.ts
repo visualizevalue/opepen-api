@@ -1,5 +1,12 @@
 import Logger from '@ioc:Adonis/Core/Logger'
-import { BaseModel, BelongsTo, HasMany, belongsTo, column, hasMany } from '@ioc:Adonis/Lucid/Orm'
+import {
+  BaseModel,
+  BelongsTo,
+  HasMany,
+  belongsTo,
+  column,
+  hasMany,
+} from '@ioc:Adonis/Lucid/Orm'
 import NotifyNewSetEmail from 'App/Mailers/NotifyNewSetEmail'
 import Account from 'App/Models/Account'
 import Opepen from 'App/Models/Opepen'
@@ -20,37 +27,39 @@ export default class SetModel extends BaseModel {
 
   @belongsTo(() => SetSubmission, {
     foreignKey: 'submissionId',
-    onQuery: query => {
-      query.preload('edition1Image')
-           .preload('edition4Image')
-           .preload('edition5Image')
-           .preload('edition10Image')
-           .preload('edition20Image')
-           .preload('edition40Image')
-           .preload('creatorAccount')
-           .preload('coCreators', (query) => query.preload('account'))
-           .preload('dynamicPreviewImage')
-           .preload('richContentLinks', query => {
-             query.preload('logo')
-             query.preload('cover')
-             query.orderBy('sortIndex')
-           })
-    }
+    onQuery: (query) => {
+      query
+        .preload('edition1Image')
+        .preload('edition4Image')
+        .preload('edition5Image')
+        .preload('edition10Image')
+        .preload('edition20Image')
+        .preload('edition40Image')
+        .preload('creatorAccount')
+        .preload('coCreators', (query) => query.preload('account'))
+        .preload('dynamicPreviewImage')
+        .preload('richContentLinks', (query) => {
+          query.preload('logo')
+          query.preload('cover')
+          query.orderBy('sortIndex')
+        })
+    },
   })
   public submission: BelongsTo<typeof SetSubmission>
 
   @belongsTo(() => SetSubmission, {
     foreignKey: 'replacedSubmissionId',
-    onQuery: query => {
-      query.preload('edition1Image')
-           .preload('edition4Image')
-           .preload('edition5Image')
-           .preload('edition10Image')
-           .preload('edition20Image')
-           .preload('edition40Image')
-           .preload('creatorAccount')
-           .preload('coCreators', (query) => query.preload('account'))
-    }
+    onQuery: (query) => {
+      query
+        .preload('edition1Image')
+        .preload('edition4Image')
+        .preload('edition5Image')
+        .preload('edition10Image')
+        .preload('edition20Image')
+        .preload('edition40Image')
+        .preload('creatorAccount')
+        .preload('coCreators', (query) => query.preload('account'))
+    },
   })
   public replacedSubmission: BelongsTo<typeof SetSubmission>
 
@@ -60,8 +69,8 @@ export default class SetModel extends BaseModel {
   })
   public opepen: HasMany<typeof Opepen>
 
-  public async notifyPublished () {
-    const users = await Account.query().withScopes(scopes => scopes.receivesEmail('NewSet'))
+  public async notifyPublished() {
+    const users = await Account.query().withScopes((scopes) => scopes.receivesEmail('NewSet'))
 
     for (const user of users) {
       try {

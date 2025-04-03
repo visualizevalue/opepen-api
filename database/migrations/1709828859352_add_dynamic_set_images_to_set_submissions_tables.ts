@@ -1,7 +1,7 @@
 import BaseSchema from '@ioc:Adonis/Lucid/Schema'
 
 export default class extends BaseSchema {
-  public async up () {
+  public async up() {
     this.schema.alterTable('set_submissions', (table) => {
       table.integer('dynamic_set_images_id').references('id').inTable('dynamic_set_images')
     })
@@ -10,7 +10,7 @@ export default class extends BaseSchema {
     })
   }
 
-  public async down () {
+  public async down() {
     this.schema.alterTable('set_submissions', (table) => {
       table.dropColumn('dynamic_set_images_id')
     })

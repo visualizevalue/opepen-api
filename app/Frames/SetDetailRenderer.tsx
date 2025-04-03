@@ -4,7 +4,7 @@ import Renderer from './Renderer'
 import SetSubmission from 'App/Models/SetSubmission'
 
 export default class SetDetailRenderer extends Renderer {
-  public static async render (submission: SetSubmission) {
+  public static async render(submission: SetSubmission) {
     await Promise.all([
       submission.load('edition1Image'),
       submission.load('edition4Image'),
@@ -15,9 +15,9 @@ export default class SetDetailRenderer extends Renderer {
     ])
 
     const paddingY = 32
-    const paddingX = paddingY*3
+    const paddingX = paddingY * 3
     const imagePadding = 10
-    const imageWidth = (this.ASPECT_RATIOS.SQUARE.WIDTH - imagePadding * 2 - paddingX*2) / 3
+    const imageWidth = (this.ASPECT_RATIOS.SQUARE.WIDTH - imagePadding * 2 - paddingX * 2) / 3
 
     const svg = await this.svg(
       <div
@@ -32,12 +32,14 @@ export default class SetDetailRenderer extends Renderer {
           padding: `${paddingY}px ${paddingX}px`,
         }}
       >
-        <div style={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          width: '100%',
-          position: 'relative',
-        }}>
+        <div
+          style={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            width: '100%',
+            position: 'relative',
+          }}
+        >
           <img
             style={{
               border: '1px solid #363636',
@@ -108,30 +110,38 @@ export default class SetDetailRenderer extends Renderer {
           />
         </div>
 
-        <aside style={{
-          position: 'absolute',
-          bottom: 0,
-          left: 0,
-          right: 0,
-          padding: `${paddingY}px ${paddingX}px`,
-          display: 'flex',
-          flexDirection: 'column',
-          margin: 'auto 0 0 0',
-          justifyContent: 'flex-end',
-          backgroundImage: 'linear-gradient(to top, rgba(0,0,0,0.69) 0%, rgba(0,0,0,0) 100%)',
-        }}>
-          <p style={{
-            textTransform: 'uppercase',
-            display: 'block',
-            color: '#696969',
-            margin: '0 0 0.25em',
-            fontFamily: 'SpaceGrotesk-Bold',
+        <aside
+          style={{
+            position: 'absolute',
+            bottom: 0,
+            left: 0,
+            right: 0,
+            padding: `${paddingY}px ${paddingX}px`,
+            display: 'flex',
+            flexDirection: 'column',
+            margin: 'auto 0 0 0',
+            justifyContent: 'flex-end',
+            backgroundImage:
+              'linear-gradient(to top, rgba(0,0,0,0.69) 0%, rgba(0,0,0,0) 100%)',
           }}
-          >{ submission.setId ? `Set ${pad(submission.setId, 3)}` : `Set Submission` }</p>
-          <h1 style={{ fontWeight: 500, margin: '0', lineHeight: '1.1', }}>{submission.name || 'Unrevealed'}</h1>
+        >
+          <p
+            style={{
+              textTransform: 'uppercase',
+              display: 'block',
+              color: '#696969',
+              margin: '0 0 0.25em',
+              fontFamily: 'SpaceGrotesk-Bold',
+            }}
+          >
+            {submission.setId ? `Set ${pad(submission.setId, 3)}` : `Set Submission`}
+          </p>
+          <h1 style={{ fontWeight: 500, margin: '0', lineHeight: '1.1' }}>
+            {submission.name || 'Unrevealed'}
+          </h1>
         </aside>
       </div>,
-      'SQUARE'
+      'SQUARE',
     )
 
     return this.png(svg)

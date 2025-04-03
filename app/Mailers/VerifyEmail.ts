@@ -6,7 +6,7 @@ import View from '@ioc:Adonis/Core/View'
 import Account from 'App/Models/Account'
 
 export default class VerifyEmail extends BaseMailer {
-  constructor (private account: Account) {
+  constructor(private account: Account) {
     super()
   }
 
@@ -16,8 +16,8 @@ export default class VerifyEmail extends BaseMailer {
       url: Route.makeSignedUrl(
         'verifyEmail',
         { account: this.account.address },
-        { prefixUrl: Env.get('APP_URL') }
-      )
+        { prefixUrl: Env.get('APP_URL') },
+      ),
     }
     const html = mjml2html(await View.render('emails/verify@mjml', data)).html
 

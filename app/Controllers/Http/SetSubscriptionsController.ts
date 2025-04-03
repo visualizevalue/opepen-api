@@ -12,14 +12,16 @@ import Database from '@ioc:Adonis/Lucid/Database'
 import { useDelegation } from 'App/Services/Delegate'
 
 export default class SetSubscriptionsController extends BaseController {
-  public async discard ({ params, session }: HttpContextContract) {
+  public async discard({ params, session }: HttpContextContract) {
     const address = session.get('siwe')?.address?.toLowerCase()
 
     const submission = await SetSubmission.findByOrFail('uuid', params.id)
-    const existingSubscription = await Subscription.query().where({
-      submission_id: submission.id,
-      address,
-    }).first()
+    const existingSubscription = await Subscription.query()
+      .where({
+        submission_id: submission.id,
+        address,
+      })
+      .first()
 
     if (existingSubscription) throw new Error(`Please opt out manually`)
 
@@ -34,7 +36,7 @@ export default class SetSubscriptionsController extends BaseController {
     })
   }
 
-  public async subscribe ({ params, request }: HttpContextContract) {
+  public async subscribe({ params, request }: HttpContextContract) {
     const submission = await SetSubmission.findByOrFail('uuid', params.id)
 
     const address = request.input('address')?.toLowerCase()
@@ -43,8 +45,8 @@ export default class SetSubscriptionsController extends BaseController {
     const verifiedAddress = ethers.utils.verifyMessage(message, signature)
 
     if (submission.revealBlockNumber) throw new Error(`Submission past timeout`)
-    if (! submission.optInOpen()) throw new Error(`Submission not open for opt in`)
-    if (! message) throw new Error(`Needs a message`)
+    if (!submission.optInOpen()) throw new Error(`Submission not open for opt in`)
+    if (!message) throw new Error(`Needs a message`)
     if (address !== verifiedAddress.toLowerCase()) throw new Error(`Address must match`)
 
     const newOptIns = request.input('opepen')
@@ -52,7 +54,7 @@ export default class SetSubscriptionsController extends BaseController {
     // Validate whether we're allowed to opt in for the given opepen
     const { addresses: allowedAddresses } = await useDelegation(address)
     const opepen = await Opepen.query().whereIn('tokenId', newOptIns)
-    if (opepen.find(o => ! [address, ...allowedAddresses].includes(o.owner))) {
+    if (opepen.find((o) => ![address, ...allowedAddresses].includes(o.owner))) {
       throw new Error(`You're not allowed to opt in for other users`)
     }
 
@@ -101,13 +103,8 @@ export default class SetSubscriptionsController extends BaseController {
     return subscription
   }
 
-  public async listSubscribers ({ params, request }: HttpContextContract) {
-    const {
-      page = 1,
-      limit = 50,
-      filter = {},
-      sort = ''
-    } = request.qs()
+  public async listSubscribers({ params, request }: HttpContextContract) {
+    const { page = 1, limit = 50, filter = {}, sort = '' } = request.qs()
 
     const submission = await SetSubmission.findByOrFail('uuid', params.id)
     const query = Subscription.query().where('submissionId', submission.id)
@@ -115,38 +112,27 @@ export default class SetSubscriptionsController extends BaseController {
     await this.applyFilters(query, filter)
     await this.applySorts(query, sort)
 
-    return query.orderBy('createdAt', 'desc')
-      .preload('account')
-      .paginate(page, limit)
+    return query.orderBy('createdAt', 'desc').preload('account').paginate(page, limit)
   }
 
-  public async globalHistory ({ request }: HttpContextContract) {
-    const {
-      page = 1,
-      limit = 20,
-      filter = {},
-      sort = ''
-    } = request.qs()
+  public async globalHistory({ request }: HttpContextContract) {
+    const { page = 1, limit = 20, filter = {}, sort = '' } = request.qs()
 
     const query = SubscriptionHistory.query()
 
     await this.applyFilters(query, filter)
     await this.applySorts(query, sort)
 
-    return query.orderBy('createdAt', 'desc')
-      .preload('account', query => query.preload('pfp'))
+    return query
+      .orderBy('createdAt', 'desc')
+      .preload('account', (query) => query.preload('pfp'))
       .preload('submission')
       .whereNotNull('submissionId')
       .paginate(page, limit)
   }
 
-  public async history ({ params, request }: HttpContextContract) {
-    const {
-      page = 1,
-      limit = 20,
-      filter = {},
-      sort = ''
-    } = request.qs()
+  public async history({ params, request }: HttpContextContract) {
+    const { page = 1, limit = 20, filter = {}, sort = '' } = request.qs()
 
     const submission = await SetSubmission.findByOrFail('uuid', params.id)
     const query = SubscriptionHistory.query().where('submissionId', submission.id)
@@ -154,12 +140,13 @@ export default class SetSubscriptionsController extends BaseController {
     await this.applyFilters(query, filter)
     await this.applySorts(query, sort)
 
-    return query.orderBy('createdAt', 'desc')
-      .preload('account', query => query.preload('pfp'))
+    return query
+      .orderBy('createdAt', 'desc')
+      .preload('account', (query) => query.preload('pfp'))
       .paginate(page, limit)
   }
 
-  public async forAccount ({ params }: HttpContextContract) {
+  public async forAccount({ params }: HttpContextContract) {
     const submission = await SetSubmission.findByOrFail('uuid', params.id)
 
     const subscription = await Subscription.query()
@@ -169,7 +156,7 @@ export default class SetSubscriptionsController extends BaseController {
 
     const opepen = await Opepen.query().whereIn('tokenId', subscription.opepenIds)
     const perEdition = opepen.reduce((acc, token) => {
-      if (! acc[token.data.edition]) {
+      if (!acc[token.data.edition]) {
         acc[token.data.edition] = 0
       }
 

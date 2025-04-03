@@ -1,13 +1,13 @@
-import { Account, SetModel } from "App/Models"
-import SetSubmission from "App/Models/SetSubmission"
-import SubscriptionHistory from "App/Models/SubscriptionHistory"
-import Opepen from "App/Models/Opepen"
-import EventModel from "App/Models/Event"
-import Database from "@ioc:Adonis/Lucid/Database"
-import Vote from "App/Models/Vote"
-import Image from "App/Models/Image"
-import { delay } from "App/Helpers/time"
-import priceOracle, { EthPrice } from "./PriceOracle"
+import { Account, SetModel } from 'App/Models'
+import SetSubmission from 'App/Models/SetSubmission'
+import SubscriptionHistory from 'App/Models/SubscriptionHistory'
+import Opepen from 'App/Models/Opepen'
+import EventModel from 'App/Models/Event'
+import Database from '@ioc:Adonis/Lucid/Database'
+import Vote from 'App/Models/Vote'
+import Image from 'App/Models/Image'
+import { delay } from 'App/Helpers/time'
+import priceOracle, { EthPrice } from './PriceOracle'
 
 export type Stats = {
   submissions: {
@@ -62,27 +62,27 @@ export type Stats = {
 class StatsService {
   private stats: Stats
 
-  public async keepCurrent () {
+  public async keepCurrent() {
     while (true) {
       await delay(5 * 60 * 1000)
       await this.update()
     }
   }
 
-  public async update (): Promise<void> {
+  public async update(): Promise<void> {
     await priceOracle.update()
     await this.computeStats()
   }
 
-  public async show (): Promise<Stats> {
-    if (! this.stats?.optIns) {
+  public async show(): Promise<Stats> {
+    if (!this.stats?.optIns) {
       await this.update()
     }
 
     return this.stats
   }
 
-  private async computeStats () {
+  private async computeStats() {
     const [
       submissions,
       printSubmissions,
@@ -111,32 +111,87 @@ class StatsService {
       optOutsUnrevealed,
       marketVolume,
     ] = await Promise.all([
-      /*submissions,*/          SetSubmission.query().count('id'),
-      /*printSubmissions,*/     SetSubmission.query().where('edition_type', 'PRINT').count('id'),
-      /*optIns,*/               SubscriptionHistory.query().sum('opepen_count'),
-      /*sets,*/                 SetModel.query().whereNotNull('submissionId').count('id'),
-      /*artists,*/              SetSubmission.query().withScopes(scopes => scopes.live()).countDistinct('creator'),
-      /*permanentArtists,*/     this.permanentArtistsQuery(),
-      /*curators,*/             SubscriptionHistory.query().countDistinct('address'),
-      /*holders,*/              Opepen.query().countDistinct('owner'),
-      /*voters,*/               Vote.query().countDistinct('address'),
-      /*voterPatrons,*/         Vote.query().join('opepens', 'address', 'owner').countDistinct('address'),
-      /*votes,*/                Vote.query().where('createdAt', '>', '2024-06-28 18:30.000+00').count('id'),
-      /*postImages,*/           Image.query().has('posts').count('id'),
-      /*revealedFloorOpepen,*/  Opepen.query().whereNotNull('price').whereNotNull('setId').orderBy('price').first(),
-      /*unrevealedFloorOpepen,*/Opepen.query().whereNotNull('price').whereNull('setId').orderBy('price').first(),
-      /*unrevealedOneOfOneFloorOpepen*/    Opepen.query().whereNotNull('price').whereNull('setId').whereJsonSuperset('data', { edition: 1 }).orderBy('price').first(),
-      /*unrevealedOneOfFourFloorOpepen*/   Opepen.query().whereNotNull('price').whereNull('setId').whereJsonSuperset('data', { edition: 4 }).orderBy('price').first(),
-      /*unrevealedOneOfFiveFloorOpepen*/   Opepen.query().whereNotNull('price').whereNull('setId').whereJsonSuperset('data', { edition: 5 }).orderBy('price').first(),
-      /*unrevealedOneOfTenFloorOpepen*/    Opepen.query().whereNotNull('price').whereNull('setId').whereJsonSuperset('data', { edition: 10 }).orderBy('price').first(),
-      /*unrevealedOneOfTwentyFloorOpepen*/ Opepen.query().whereNotNull('price').whereNull('setId').whereJsonSuperset('data', { edition: 20 }).orderBy('price').first(),
-      /*unrevealedOneOfFortyFloorOpepen*/  Opepen.query().whereNotNull('price').whereNull('setId').whereJsonSuperset('data', { edition: 40 }).orderBy('price').first(),
-      /*emailsTotal*/           Account.query().whereNotNull('email').count('address'),
-      /*emailsVerified*/        Account.query().withScopes(scopes => scopes.receivesEmails()).count('address'),
-      /*optOutsTotal*/          EventModel.query().where('contract', 'BURNED_OPEPEN').where('type', 'Burn').count('token_id'),
-      /*optOutsRevealed*/       EventModel.query().where('contract', 'BURNED_OPEPEN').where('type', 'Burn').whereHas('opepen', query => query.whereNotNull('set_id')).count('token_id'),
-      /*optOutsUnrevealed*/     EventModel.query().where('contract', 'BURNED_OPEPEN').where('type', 'Burn').whereHas('opepen', query => query.whereNull('set_id')).count('token_id'),
-      /*market*/                this.marketVolume(),
+      /*submissions,*/ SetSubmission.query().count('id'),
+      /*printSubmissions,*/ SetSubmission.query().where('edition_type', 'PRINT').count('id'),
+      /*optIns,*/ SubscriptionHistory.query().sum('opepen_count'),
+      /*sets,*/ SetModel.query().whereNotNull('submissionId').count('id'),
+      /*artists,*/ SetSubmission.query()
+        .withScopes((scopes) => scopes.live())
+        .countDistinct('creator'),
+      /*permanentArtists,*/ this.permanentArtistsQuery(),
+      /*curators,*/ SubscriptionHistory.query().countDistinct('address'),
+      /*holders,*/ Opepen.query().countDistinct('owner'),
+      /*voters,*/ Vote.query().countDistinct('address'),
+      /*voterPatrons,*/ Vote.query()
+        .join('opepens', 'address', 'owner')
+        .countDistinct('address'),
+      /*votes,*/ Vote.query().where('createdAt', '>', '2024-06-28 18:30.000+00').count('id'),
+      /*postImages,*/ Image.query().has('posts').count('id'),
+      /*revealedFloorOpepen,*/ Opepen.query()
+        .whereNotNull('price')
+        .whereNotNull('setId')
+        .orderBy('price')
+        .first(),
+      /*unrevealedFloorOpepen,*/ Opepen.query()
+        .whereNotNull('price')
+        .whereNull('setId')
+        .orderBy('price')
+        .first(),
+      /*unrevealedOneOfOneFloorOpepen*/ Opepen.query()
+        .whereNotNull('price')
+        .whereNull('setId')
+        .whereJsonSuperset('data', { edition: 1 })
+        .orderBy('price')
+        .first(),
+      /*unrevealedOneOfFourFloorOpepen*/ Opepen.query()
+        .whereNotNull('price')
+        .whereNull('setId')
+        .whereJsonSuperset('data', { edition: 4 })
+        .orderBy('price')
+        .first(),
+      /*unrevealedOneOfFiveFloorOpepen*/ Opepen.query()
+        .whereNotNull('price')
+        .whereNull('setId')
+        .whereJsonSuperset('data', { edition: 5 })
+        .orderBy('price')
+        .first(),
+      /*unrevealedOneOfTenFloorOpepen*/ Opepen.query()
+        .whereNotNull('price')
+        .whereNull('setId')
+        .whereJsonSuperset('data', { edition: 10 })
+        .orderBy('price')
+        .first(),
+      /*unrevealedOneOfTwentyFloorOpepen*/ Opepen.query()
+        .whereNotNull('price')
+        .whereNull('setId')
+        .whereJsonSuperset('data', { edition: 20 })
+        .orderBy('price')
+        .first(),
+      /*unrevealedOneOfFortyFloorOpepen*/ Opepen.query()
+        .whereNotNull('price')
+        .whereNull('setId')
+        .whereJsonSuperset('data', { edition: 40 })
+        .orderBy('price')
+        .first(),
+      /*emailsTotal*/ Account.query().whereNotNull('email').count('address'),
+      /*emailsVerified*/ Account.query()
+        .withScopes((scopes) => scopes.receivesEmails())
+        .count('address'),
+      /*optOutsTotal*/ EventModel.query()
+        .where('contract', 'BURNED_OPEPEN')
+        .where('type', 'Burn')
+        .count('token_id'),
+      /*optOutsRevealed*/ EventModel.query()
+        .where('contract', 'BURNED_OPEPEN')
+        .where('type', 'Burn')
+        .whereHas('opepen', (query) => query.whereNotNull('set_id'))
+        .count('token_id'),
+      /*optOutsUnrevealed*/ EventModel.query()
+        .where('contract', 'BURNED_OPEPEN')
+        .where('type', 'Burn')
+        .whereHas('opepen', (query) => query.whereNull('set_id'))
+        .count('token_id'),
+      /*market*/ this.marketVolume(),
     ])
 
     const setsCount: number = parseInt(sets[0].$extras.count)
@@ -145,7 +200,8 @@ class StatsService {
     const printSubmissionsCount: number = parseInt(printSubmissions[0].$extras.count)
     const dynamicSubmissionsCount: number = submissionsCount - printSubmissionsCount
     const postImagesCount: number = parseInt(postImages[0].$extras.count)
-    const submittedImagesCount: number = dynamicSubmissionsCount * 80 + printSubmissionsCount * 6 + postImagesCount
+    const submittedImagesCount: number =
+      dynamicSubmissionsCount * 80 + printSubmissionsCount * 6 + postImagesCount
     const emailsTotalCount: number = parseInt(emailsTotal[0].$extras.count)
     const emailsVerifiedCount: number = parseInt(emailsVerified[0].$extras.count)
     const totalETH: number = parseInt(marketVolume.rows[0].total_native)
@@ -183,9 +239,12 @@ class StatsService {
         floor: {
           unrevealed: `${unrevealedFloorOpepen?.price}`,
           revealed: `${revealedFloorOpepen?.price}`,
-          total: unrevealedFloorOpepen && revealedFloorOpepen && (unrevealedFloorOpepen.price || 0n) > (revealedFloorOpepen.price || 0n)
-            ? `${revealedFloorOpepen?.price}`
-            : `${unrevealedFloorOpepen?.price}`,
+          total:
+            unrevealedFloorOpepen &&
+            revealedFloorOpepen &&
+            (unrevealedFloorOpepen.price || 0n) > (revealedFloorOpepen.price || 0n)
+              ? `${revealedFloorOpepen?.price}`
+              : `${unrevealedFloorOpepen?.price}`,
           unrevealedEditions: {
             1: `${unrevealedOneOfOneFloorOpepen?.price}`,
             4: `${unrevealedOneOfFourFloorOpepen?.price}`,
@@ -193,18 +252,18 @@ class StatsService {
             10: `${unrevealedOneOfTenFloorOpepen?.price}`,
             20: `${unrevealedOneOfTwentyFloorOpepen?.price}`,
             40: `${unrevealedOneOfFortyFloorOpepen?.price}`,
-          }
+          },
         },
         history: {
           totalUSD,
           totalETH,
-        }
+        },
       },
       ethPrice: priceOracle.ethPrice,
     }
   }
 
-  private permanentArtistsQuery () {
+  private permanentArtistsQuery() {
     return Database.rawQuery(`
       SELECT COUNT(*) AS count
       FROM (
@@ -219,7 +278,7 @@ class StatsService {
     `)
   }
 
-  private marketVolume () {
+  private marketVolume() {
     return Database.rawQuery(`
       SELECT
         SUM(COALESCE((data->'price'->'amount'->>'native')::numeric, 0)) AS total_native,
@@ -228,7 +287,6 @@ class StatsService {
       WHERE data IS NOT NULL;
     `)
   }
-
 }
 
 const stats = new StatsService()

@@ -2,7 +2,7 @@ import { generateSvg } from './opepen-svg.js'
 import { vvrite } from './vv0.js'
 
 const container = document.getElementById('opepen')
-const config  = new URLSearchParams(window.location.search)
+const config = new URLSearchParams(window.location.search)
 const edition = parseInt(config.get('edition'))
 const set = 31
 
@@ -13,17 +13,17 @@ const render = async () => {
     const response = await fetch(`https://api.opepen.art/v1/opepen/sets/${set}/stats/listings`)
     const data = await response.json()
 
-    if (! data.totals) throw Error('Faulty response')
+    if (!data.totals) throw Error('Faulty response')
 
     totals = data.totals
   } catch (e) {
     totals = {
-      "1": 1,
-      "4": 4,
-      "5": 5,
-      "10": 10,
-      "20": 20,
-      "40": 40,
+      1: 1,
+      4: 4,
+      5: 5,
+      10: 10,
+      20: 20,
+      40: 40,
     }
   }
 
@@ -37,17 +37,20 @@ const render = async () => {
   const positionIndicator = edition !== 1
   const dimension = Math.min(window.innerWidth, window.innerHeight)
 
-  container.innerHTML = generateSvg({
-    dimension,
-    bg,
-    fill,
-    fillEyes,
-    position, // 0 - 1
-    lookingLeft,
-    positionIndicator,
-  }) + vvrite(edition.toString(), fill)
+  container.innerHTML =
+    generateSvg({
+      dimension,
+      bg,
+      fill,
+      fillEyes,
+      position, // 0 - 1
+      lookingLeft,
+      positionIndicator,
+    }) + vvrite(edition.toString(), fill)
 
-  console.log(`Within Set ${set} Edition ${edition}, there are ${listingCount} Opepen listings (${parseInt((1 - position) * 100)}%)`)
+  console.log(
+    `Within Set ${set} Edition ${edition}, there are ${listingCount} Opepen listings (${parseInt((1 - position) * 100)}%)`,
+  )
 
   RENDERED = true
 }

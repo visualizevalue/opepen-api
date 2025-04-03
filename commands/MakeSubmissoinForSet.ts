@@ -25,7 +25,10 @@ export default class MakeSubmissoinForSet extends BaseCommand {
     const { default: SetSubmission } = await import('App/Models/SetSubmission')
 
     console.log(this.set)
-    const existingSubmission = await SetSubmission.query().where('set_id', this.set).orderBy('created_at', 'desc').first()
+    const existingSubmission = await SetSubmission.query()
+      .where('set_id', this.set)
+      .orderBy('created_at', 'desc')
+      .first()
     const set = await Database.query().from('sets').where('id', this.set).first()
 
     if (existingSubmission) {

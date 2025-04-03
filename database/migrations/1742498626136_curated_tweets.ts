@@ -3,10 +3,10 @@ import BaseSchema from '@ioc:Adonis/Lucid/Schema'
 export default class CuratedTweets extends BaseSchema {
   protected tableName = 'curated_tweets'
 
-  public async up () {
+  public async up() {
     this.schema.createTable(this.tableName, (table) => {
       table.increments('id')
-      
+
       table.string('tweet_id').notNullable().unique()
       table.string('author_id').notNullable()
       table.string('username').nullable()
@@ -22,7 +22,7 @@ export default class CuratedTweets extends BaseSchema {
     })
   }
 
-  public async down () {
+  public async down() {
     this.schema.dropTable(this.tableName)
   }
 }

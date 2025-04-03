@@ -4,7 +4,7 @@ import Renderer from './Renderer'
 import SetSubmission from 'App/Models/SetSubmission'
 
 export default class SetOverviewRenderer extends Renderer {
-  public static async render (submission: SetSubmission) {
+  public static async render(submission: SetSubmission) {
     await Promise.all([
       submission.load('edition1Image'),
       submission.load('edition4Image'),
@@ -15,7 +15,8 @@ export default class SetOverviewRenderer extends Renderer {
     ])
 
     const imagePadding = 10
-    const imageWidth = (this.ASPECT_RATIOS.WIDE.HEIGHT - imagePadding * 2 - this.PADDING*2) / 3
+    const imageWidth =
+      (this.ASPECT_RATIOS.WIDE.HEIGHT - imagePadding * 2 - this.PADDING * 2) / 3
 
     const svg = await this.svg(
       <div
@@ -30,41 +31,63 @@ export default class SetOverviewRenderer extends Renderer {
           padding: '4rem',
         }}
       >
-        <div style={{
-          display: 'flex',
-          flexDirection: 'column',
-          width: '50%',
-        }}>
-          <img width="32px" height="32px" src={await this.urlAsBuffer('https://opepen.nyc3.cdn.digitaloceanspaces.com/opepen-icon-white.png')} />
-
-          <aside style={{
+        <div
+          style={{
             display: 'flex',
             flexDirection: 'column',
-            margin: 'auto 0 0 0',
-            justifyContent: 'flex-end',
-          }}>
-            {
-              submission.setId && <p style={{
-                textTransform: 'uppercase',
-                display: 'block',
-                color: '#696969',
-                margin: '0 0 0.5em',
-                fontFamily: 'SpaceGrotesk-Bold',
-              }}
-              >Set {pad(submission.setId, 3)}</p>
-            }
-            <h1 style={{ fontWeight: 500, margin: '0', lineHeight: '1.1', }}>{submission.name || 'Unrevealed'}</h1>
+            width: '50%',
+          }}
+        >
+          <img
+            width="32px"
+            height="32px"
+            src={await this.urlAsBuffer(
+              'https://opepen.nyc3.cdn.digitaloceanspaces.com/opepen-icon-white.png',
+            )}
+          />
+
+          <aside
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              margin: 'auto 0 0 0',
+              justifyContent: 'flex-end',
+            }}
+          >
+            {submission.setId && (
+              <p
+                style={{
+                  textTransform: 'uppercase',
+                  display: 'block',
+                  color: '#696969',
+                  margin: '0 0 0.5em',
+                  fontFamily: 'SpaceGrotesk-Bold',
+                }}
+              >
+                Set {pad(submission.setId, 3)}
+              </p>
+            )}
+            <h1 style={{ fontWeight: 500, margin: '0', lineHeight: '1.1' }}>
+              {submission.name || 'Unrevealed'}
+            </h1>
           </aside>
         </div>
 
-        <div style={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          gap: '10px',
-          width: '50%',
-          position: 'relative',
-          left: this.ASPECT_RATIOS.WIDE.WIDTH/2 - imageWidth*3 - imagePadding*2 - this.PADDING + 'px',
-        }}>
+        <div
+          style={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: '10px',
+            width: '50%',
+            position: 'relative',
+            left:
+              this.ASPECT_RATIOS.WIDE.WIDTH / 2 -
+              imageWidth * 3 -
+              imagePadding * 2 -
+              this.PADDING +
+              'px',
+          }}
+        >
           <img
             style={{
               border: '1px solid #363636',
@@ -133,7 +156,7 @@ export default class SetOverviewRenderer extends Renderer {
             height={imageWidth}
           />
         </div>
-      </div>
+      </div>,
     )
 
     return this.png(svg)

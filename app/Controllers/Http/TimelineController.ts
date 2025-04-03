@@ -4,16 +4,10 @@ import BaseController from './BaseController'
 import TimelineUpdate from 'App/Models/TimelineUpdate'
 
 export default class TimelineController extends BaseController {
-
-  public async list ({ request, session }: HttpContextContract) {
+  public async list({ request, session }: HttpContextContract) {
     const admin = isAdmin(session)
     const userAddress = session.get('siwe')?.address?.toLowerCase() || ''
-    const {
-      page = 1,
-      limit = 10,
-      filter = {},
-      sort = '-createdAt',
-    } = request.qs()
+    const { page = 1, limit = 10, filter = {}, sort = '-createdAt' } = request.qs()
 
     const query = TimelineUpdate.query()
       // Main relationship...
@@ -29,40 +23,38 @@ export default class TimelineController extends BaseController {
     query.whereNotNull('createdAt')
 
     // Restrict items
-    query.where(query => {
+    query.where((query) => {
       // POSTS
-      query.where(query => {
+      query.where((query) => {
         query.where('type', 'POST:INTERNAL')
-        query.whereHas('post', query => {
+        query.whereHas('post', (query) => {
           // Filter out comments // FIXME: maybe not do this and display comments nicely?
           query.whereNull('parentPostId')
 
           // Filter out deleted comments
           query.whereNull('deletedAt')
 
-          if (! admin) {
-            query.where(query => {
-              query.whereNotNull('approvedAt')
-                  .orWhere('address', userAddress)
+          if (!admin) {
+            query.where((query) => {
+              query.whereNotNull('approvedAt').orWhere('address', userAddress)
             })
           }
         })
       })
 
       // CASTS
-      query.orWhere(query => {
+      query.orWhere((query) => {
         query.where('type', 'POST:FARCASTER')
-        query.whereHas('cast', query => {
+        query.whereHas('cast', (query) => {
           // Filter out deleted casts
           query.whereNull('deletedAt')
 
           // Filter out bot
           query.whereNot('address', '0xed029061b6e3d873057eeefd3be91121e103ea44')
 
-          if (! admin) {
-            query.where(query => {
-              query.whereNotNull('approvedAt')
-                  .orWhere('address', userAddress)
+          if (!admin) {
+            query.where((query) => {
+              query.whereNotNull('approvedAt').orWhere('address', userAddress)
             })
           }
         })
@@ -79,10 +71,11 @@ export default class TimelineController extends BaseController {
     await this.applyFilters(query, filter)
     await this.applySorts(query, sort)
 
-    return query
-      // Fix sort pagination
-      .orderBy('id')
-      .paginate(page, limit)
+    return (
+      query
+        // Fix sort pagination
+        .orderBy('id')
+        .paginate(page, limit)
+    )
   }
-
 }

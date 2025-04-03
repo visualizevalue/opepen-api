@@ -1,20 +1,19 @@
 import { SetModel } from 'App/Models'
 
 export class OpepenService {
-
   private CACHE: {
-    setsCount: number,
-    sets: SetModel[],
+    setsCount: number
+    sets: SetModel[]
   } = {
     setsCount: 0,
     sets: [],
   }
 
-  public async listSets (force: boolean = false) {
+  public async listSets(force: boolean = false) {
     const countSetsResult = await SetModel.query().whereNotNull('submissionId').count('id')
     const setsCount = countSetsResult[0].$extras.count
 
-    if (! force && setsCount === this.CACHE.setsCount) {
+    if (!force && setsCount === this.CACHE.setsCount) {
       return this.CACHE.sets
     }
 
@@ -28,7 +27,6 @@ export class OpepenService {
 
     return this.CACHE.sets
   }
-
 }
 
 export default new OpepenService()

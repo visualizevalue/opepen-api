@@ -9,7 +9,8 @@ export default class ComputeOptIns extends BaseCommand {
   /**
    * Command description is displayed in the "help" output
    */
-  public static description = 'Update & validate the statistics of a set submission (opt ins, demand)'
+  public static description =
+    'Update & validate the statistics of a set submission (opt ins, demand)'
 
   public static settings = {
     loadApp: true,
@@ -33,7 +34,7 @@ export default class ComputeOptIns extends BaseCommand {
     }
   }
 
-  private async compute (submission) {
+  private async compute(submission) {
     await submission.updateAndValidateOpepensInSet()
 
     console.log(`submission #${submission.name} counts:`, submission.submissionStats)

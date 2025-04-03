@@ -19,6 +19,6 @@ export default class ImportSales extends BaseCommand {
   public async run() {
     const { default: ImportSales } = await import('App/Services/ImportSales')
 
-    await (new ImportSales()).sync()
+    await new ImportSales().sync()
   }
 }

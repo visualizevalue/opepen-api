@@ -3,8 +3,8 @@ import BaseSchema from '@ioc:Adonis/Lucid/Schema'
 export default class extends BaseSchema {
   protected tableName = 'rich_content_links'
 
-  public async up () {
-    this.schema.createTable(this.tableName, table => {
+  public async up() {
+    this.schema.createTable(this.tableName, (table) => {
       table.bigIncrements('id')
 
       table.string('address').references('address').inTable('accounts').nullable()
@@ -25,10 +25,10 @@ export default class extends BaseSchema {
     this.schema.dropTable('portfolio_items')
   }
 
-  public async down () {
+  public async down() {
     this.schema.dropTable(this.tableName)
 
-    this.schema.createTable('portfolio_items', table => {
+    this.schema.createTable('portfolio_items', (table) => {
       table.bigIncrements('id')
       table.string('address').references('address').inTable('accounts')
       table.integer('sort_index')

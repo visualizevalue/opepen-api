@@ -4,7 +4,10 @@ import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import BaseController from './BaseController'
 import Account from 'App/Models/Account'
 import Image from 'App/Models/Image'
-import SetSubmission, { DEFAULT_REMAINING_REVEAL_TIME, OPT_IN_HOURS } from 'App/Models/SetSubmission'
+import SetSubmission, {
+  DEFAULT_REMAINING_REVEAL_TIME,
+  OPT_IN_HOURS,
+} from 'App/Models/SetSubmission'
 import { isAdmin } from 'App/Middleware/AdminAuth'
 import NotAuthenticated from 'App/Exceptions/NotAuthenticated'
 import InvalidInput from 'App/Exceptions/InvalidInput'
@@ -12,8 +15,7 @@ import DynamicSetImages from 'App/Models/DynamicSetImages'
 import TimelineUpdate from 'App/Models/TimelineUpdate'
 
 export default class SetSubmissionsController extends BaseController {
-
-  public async list ({ request, session }: HttpContextContract) {
+  public async list({ request, session }: HttpContextContract) {
     const {
       page = 1,
       limit = 10,
@@ -39,32 +41,32 @@ export default class SetSubmissionsController extends BaseController {
     switch (status) {
       case 'all':
         if (isAdmin(session)) {
-          query.withScopes(scopes => {
+          query.withScopes((scopes) => {
             scopes.complete()
           })
           break
         }
       case 'shadowed':
         if (isAdmin(session)) {
-          query.withScopes(scopes => {
+          query.withScopes((scopes) => {
             scopes.shadowed()
           })
-          if (! customSort) query.orderByRaw('shadowed_at desc NULLS LAST')
+          if (!customSort) query.orderByRaw('shadowed_at desc NULLS LAST')
         }
         break
       case 'starred':
-        query.withScopes(scopes => {
+        query.withScopes((scopes) => {
           scopes.active()
           scopes.starred()
         })
-        if (! customSort) query.orderByRaw('starred_at desc NULLS LAST')
+        if (!customSort) query.orderByRaw('starred_at desc NULLS LAST')
         break
       case 'unstarred':
-        query.withScopes(scopes => {
+        query.withScopes((scopes) => {
           scopes.live()
           scopes.unstarred()
         })
-        if (! customSort) query.orderByRaw('published_at desc')
+        if (!customSort) query.orderByRaw('published_at desc')
         break
       case 'deleted':
         if (isAdmin(session)) {
@@ -74,33 +76,34 @@ export default class SetSubmissionsController extends BaseController {
       case 'revealed':
         query.whereNotNull('setId')
         query.whereNotNull('revealBlockNumber')
-        if (! customSort) query.orderBy('reveals_at', 'desc')
+        if (!customSort) query.orderBy('reveals_at', 'desc')
         break
       case 'active':
-        query.withScopes(scopes => scopes.activeTimer())
+        query.withScopes((scopes) => scopes.activeTimer())
         break
       case 'paused':
-        query.withScopes(scopes => scopes.pausedTimer())
+        query.withScopes((scopes) => scopes.pausedTimer())
         break
       case 'prereveal':
-        query.withScopes(scopes => scopes.prereveal())
+        query.withScopes((scopes) => scopes.prereveal())
         break
       case 'public-unrevealed':
         query.whereNull('deletedAt')
         query.whereNull('setId')
-        query.withScopes(scopes => scopes.live())
+        query.withScopes((scopes) => scopes.live())
         break
       case 'demand':
-        query.withScopes(scopes => scopes.live())
-        query.where(query => {
-          query.where('starredAt', '>=', DateTime.now().minus({ hours: OPT_IN_HOURS }).toISO())
-               .orWhereNull('starredAt')
+        query.withScopes((scopes) => scopes.live())
+        query.where((query) => {
+          query
+            .where('starredAt', '>=', DateTime.now().minus({ hours: OPT_IN_HOURS }).toISO())
+            .orWhereNull('starredAt')
         })
         query.whereJsonPath('submission_stats', '$.demand.total', '>=', 1)
         query.whereNull('setId')
         break
       default:
-        query.withScopes(scopes => scopes.live())
+        query.withScopes((scopes) => scopes.live())
         query.whereNull('setId')
     }
 
@@ -113,9 +116,9 @@ export default class SetSubmissionsController extends BaseController {
       .paginate(page, limit)
   }
 
-  public async create ({ session, request }: HttpContextContract) {
+  public async create({ session, request }: HttpContextContract) {
     const creator = await Account.firstOrCreate({
-      address: session.get('siwe')?.address?.toLowerCase()
+      address: session.get('siwe')?.address?.toLowerCase(),
     })
 
     const submission = await SetSubmission.firstOrCreate({
@@ -126,7 +129,7 @@ export default class SetSubmissionsController extends BaseController {
     return submission
   }
 
-  public async show ({ params }: HttpContextContract) {
+  public async show({ params }: HttpContextContract) {
     const submission = await SetSubmission.query()
       .where('uuid', params.id)
       .preload('set')
@@ -139,48 +142,49 @@ export default class SetSubmissionsController extends BaseController {
       .preload('dynamicSetImages')
       .preload('creatorAccount')
       .preload('coCreators', (query) => query.preload('account'))
-      .preload('richContentLinks', query => {
+      .preload('richContentLinks', (query) => {
         query.preload('logo')
         query.preload('cover')
         query.orderBy('sortIndex')
       })
       .firstOrFail()
-      // TODO: Implement rich content links
-      // .preload('richContentLinks', query => {
-      //   query.preload('logo')
-      //   query.preload('cover')
-      //   query.orderBy('sortIndex')
-      // })
+    // TODO: Implement rich content links
+    // .preload('richContentLinks', query => {
+    //   query.preload('logo')
+    //   query.preload('cover')
+    //   query.orderBy('sortIndex')
+    // })
 
     return submission
   }
 
-  public async curated () {
-    const baseQuery = query => query
-      .whereNotNull('starredAt')
-      .where('starredAt', '<', DateTime.now().toISO())
-      .preload('set')
-      .preload('edition1Image')
-      .preload('edition4Image')
-      .preload('edition5Image')
-      .preload('edition10Image')
-      .preload('edition20Image')
-      .preload('edition40Image')
-      .preload('dynamicSetImages')
-      .preload('creatorAccount')
-      .preload('coCreators', (query) => query.preload('account'))
-      .preload('richContentLinks', query => {
-        query.preload('logo')
-        query.preload('cover')
-        query.orderBy('sortIndex')
-      })
+  public async curated() {
+    const baseQuery = (query) =>
+      query
+        .whereNotNull('starredAt')
+        .where('starredAt', '<', DateTime.now().toISO())
+        .preload('set')
+        .preload('edition1Image')
+        .preload('edition4Image')
+        .preload('edition5Image')
+        .preload('edition10Image')
+        .preload('edition20Image')
+        .preload('edition40Image')
+        .preload('dynamicSetImages')
+        .preload('creatorAccount')
+        .preload('coCreators', (query) => query.preload('account'))
+        .preload('richContentLinks', (query) => {
+          query.preload('logo')
+          query.preload('cover')
+          query.orderBy('sortIndex')
+        })
 
     let currentOrPastSubmission = await baseQuery(SetSubmission.query())
-      .where('starredAt', '>=',  DateTime.now().minus({ hours: OPT_IN_HOURS }).toISO())
+      .where('starredAt', '>=', DateTime.now().minus({ hours: OPT_IN_HOURS }).toISO())
       .orderBy('starredAt')
       .first()
 
-    if (! currentOrPastSubmission) {
+    if (!currentOrPastSubmission) {
       currentOrPastSubmission = await baseQuery(SetSubmission.query())
         .orderBy('starredAt', 'desc')
         .firstOrFail()
@@ -198,15 +202,15 @@ export default class SetSubmissionsController extends BaseController {
     }
   }
 
-  public async curationStats ({ params }: HttpContextContract) {
+  public async curationStats({ params }: HttpContextContract) {
     const submission = await SetSubmission.query().where('uuid', params.id).firstOrFail()
 
     return submission.curationStats
   }
 
-  public async update (ctx: HttpContextContract) {
+  public async update(ctx: HttpContextContract) {
     const submission = await this.show(ctx)
-    if (! submission) return ctx.response.badRequest()
+    if (!submission) return ctx.response.badRequest()
 
     // Don't allow updates on published submissions
     if (submission.publishedAt && !isAdmin(ctx.session)) {
@@ -225,13 +229,16 @@ export default class SetSubmissionsController extends BaseController {
       request.input('edition_20_image_id', null),
       request.input('edition_40_image_id', null),
     ])
-    const images = await Promise.all(imageUUIDs.map(uuid => Image.findBy('uuid', uuid)))
+    const images = await Promise.all(imageUUIDs.map((uuid) => Image.findBy('uuid', uuid)))
 
     // Maintain cache
     if (submission.editionType === 'PRINT') {
       await Image.query()
         .where('setSubmissionId', submission.id)
-        .whereNotIn('uuid', imageUUIDs.filter(id => !!id))
+        .whereNotIn(
+          'uuid',
+          imageUUIDs.filter((id) => !!id),
+        )
         .update({
           setSubmissionId: null,
         })
@@ -244,7 +251,7 @@ export default class SetSubmissionsController extends BaseController {
     }
     const editionImages = images.slice(1)
     for (const image of editionImages) {
-      if (! image) continue
+      if (!image) continue
 
       if (submission.editionType === 'PRINT') {
         image.setSubmissionId = submission.id
@@ -295,7 +302,7 @@ export default class SetSubmissionsController extends BaseController {
     return this.show(ctx)
   }
 
-  public async updateDynamicSetImages ({ params, request, session }: HttpContextContract) {
+  public async updateDynamicSetImages({ params, request, session }: HttpContextContract) {
     const submission = await SetSubmission.query()
       .where('uuid', params.id)
       .preload('creatorAccount')
@@ -304,9 +311,10 @@ export default class SetSubmissionsController extends BaseController {
 
     await this.creatorOrAdmin({ creator: submission.creatorAccount, session })
 
-    const imageConfig: { edition: number, index: number, uuid: string }[] = request.input('images')
+    const imageConfig: { edition: number; index: number; uuid: string }[] =
+      request.input('images')
 
-    if (! submission.dynamicSetImages) {
+    if (!submission.dynamicSetImages) {
       const setImages = await DynamicSetImages.create({})
       submission.dynamicSetImagesId = setImages.id
       await submission.save()
@@ -315,7 +323,7 @@ export default class SetSubmissionsController extends BaseController {
 
     // Save new
     for (const config of imageConfig) {
-      if (! config.uuid) continue
+      if (!config.uuid) continue
 
       const image = await Image.query().where('uuid', config.uuid).firstOrFail()
 
@@ -332,13 +340,13 @@ export default class SetSubmissionsController extends BaseController {
     return submission
   }
 
-  public async sign (ctx: HttpContextContract) {
+  public async sign(ctx: HttpContextContract) {
     const { session, request, response } = ctx
 
     // Fetch our assets
     const submission = await this.show(ctx)
     const user = await Account.firstOrCreate({
-      address: session.get('siwe')?.address?.toLowerCase()
+      address: session.get('siwe')?.address?.toLowerCase(),
     })
 
     // Only the creator may sign
@@ -350,10 +358,10 @@ export default class SetSubmissionsController extends BaseController {
     return submission.save()
   }
 
-  public async publish ({ params, session }: HttpContextContract) {
+  public async publish({ params, session }: HttpContextContract) {
     const submission = await SetSubmission.query()
       .where('uuid', params.id)
-      .withScopes(scopes => scopes.complete())
+      .withScopes((scopes) => scopes.complete())
       .preload('creatorAccount')
       .firstOrFail()
 
@@ -369,7 +377,7 @@ export default class SetSubmissionsController extends BaseController {
     return submission
   }
 
-  public async unpublish ({ params, session }: HttpContextContract) {
+  public async unpublish({ params, session }: HttpContextContract) {
     const submission = await SetSubmission.query()
       .where('uuid', params.id)
       .whereNull('setId')
@@ -391,18 +399,18 @@ export default class SetSubmissionsController extends BaseController {
     return submission.save()
   }
 
-  public async shadow (ctx: HttpContextContract) {
+  public async shadow(ctx: HttpContextContract) {
     const submission = await this.show(ctx)
-    if (! submission) return ctx.response.badRequest()
+    if (!submission) return ctx.response.badRequest()
 
     submission.shadowedAt = submission.shadowedAt ? null : DateTime.now()
 
     return submission.save()
   }
 
-  public async delete (ctx: HttpContextContract) {
+  public async delete(ctx: HttpContextContract) {
     const submission = await this.show(ctx)
-    if (! submission) return ctx.response.badRequest()
+    if (!submission) return ctx.response.badRequest()
 
     const { session } = ctx
     await this.creatorOrAdmin({ creator: submission.creatorAccount, session })
@@ -415,16 +423,11 @@ export default class SetSubmissionsController extends BaseController {
     return ctx.response.ok('')
   }
 
-  public async forAccount ({ params, session, request }: HttpContextContract) {
+  public async forAccount({ params, session, request }: HttpContextContract) {
     const creator = await Account.byId(params.account).firstOrFail()
     await this.creatorOrAdmin({ creator, session })
 
-    const {
-      page = 1,
-      limit = 100,
-      filter = {},
-      sort = '-createdAt',
-    } = request.qs()
+    const { page = 1, limit = 100, filter = {}, sort = '-createdAt' } = request.qs()
 
     const query = SetSubmission.query()
       .where('creator', creator.address)
@@ -445,10 +448,10 @@ export default class SetSubmissionsController extends BaseController {
   protected async creatorOrAdmin({ creator, session }) {
     const currentUserAddress = session.get('siwe')?.address?.toLowerCase()
 
-    if (! currentUserAddress) throw new NotAuthenticated()
+    if (!currentUserAddress) throw new NotAuthenticated()
 
     const user = await Account.firstOrCreate({
-      address: currentUserAddress
+      address: currentUserAddress,
     })
 
     // Make sure we're admin or creator
@@ -458,5 +461,4 @@ export default class SetSubmissionsController extends BaseController {
 
     return { user }
   }
-
 }

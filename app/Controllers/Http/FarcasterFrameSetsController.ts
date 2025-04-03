@@ -11,12 +11,11 @@ import SetSubmission from 'App/Models/SetSubmission'
 import SubmissionsGrid from 'App/Services/SubmissionsGrid'
 
 export default class FarcasterFrameSetsController extends FarcasterFramesController {
-
-  public async setsEntry (_: HttpContextContract) {
+  public async setsEntry(_: HttpContextContract) {
     return this.setOverview()
   }
 
-  public async sets ({ request, response }: HttpContextContract) {
+  public async sets({ request, response }: HttpContextContract) {
     const data = request.body().untrustedData
     const buttonIndex = parseInt(data.buttonIndex)
 
@@ -30,7 +29,7 @@ export default class FarcasterFrameSetsController extends FarcasterFramesControl
     return this.setResponse(1)
   }
 
-  public async summary ({ request, params, response }: HttpContextContract) {
+  public async summary({ request, params, response }: HttpContextContract) {
     const [from, to] = params.date.split('_')
     const fromDate = DateTime.fromISO(from)
     const toDate = DateTime.fromISO(to).endOf('day')
@@ -38,7 +37,7 @@ export default class FarcasterFrameSetsController extends FarcasterFramesControl
     const imagePath = `submissions-grids/${params.date}.png`
 
     let image: Buffer
-    if (request.method() !== 'POST' && await Drive.exists(imagePath)) {
+    if (request.method() !== 'POST' && (await Drive.exists(imagePath))) {
       return response.redirect(`${Env.get('CDN_URL')}/${imagePath}`)
     } else {
       const submissions = await SetSubmission.query()
@@ -46,7 +45,7 @@ export default class FarcasterFrameSetsController extends FarcasterFramesControl
         .where('approved_at', '<=', toDate.toISO())
         .orderBy('approved_at')
 
-      image = await SubmissionsGrid.make(submissions.map(submission => submission.uuid))
+      image = await SubmissionsGrid.make(submissions.map((submission) => submission.uuid))
 
       await Drive.put(imagePath, image, {
         contentType: 'image/png',
@@ -59,7 +58,7 @@ export default class FarcasterFrameSetsController extends FarcasterFramesControl
       .send(image)
   }
 
-  public async set ({ request, params, response }: HttpContextContract) {
+  public async set({ request, params, response }: HttpContextContract) {
     const data = request.body().untrustedData
     const buttonIndex = parseInt(data.buttonIndex)
     const set = parseInt(params.id)
@@ -78,11 +77,11 @@ export default class FarcasterFrameSetsController extends FarcasterFramesControl
     return this.setResponse(newSetId)
   }
 
-  public async image ({ request, params, response }: HttpContextContract) {
+  public async image({ request, params, response }: HttpContextContract) {
     const submission = await SetSubmission.query().where('uuid', params.id).firstOrFail()
     const key = `og/sets/${submission.uuid}_${submission.name ? string.toSlug(submission.name) : 'unrevealed'}.png`
 
-    if (request.method() !== 'POST' && await Drive.exists(key)) {
+    if (request.method() !== 'POST' && (await Drive.exists(key))) {
       return this.imageResponse(await Drive.get(key), response)
     }
 
@@ -93,18 +92,15 @@ export default class FarcasterFrameSetsController extends FarcasterFramesControl
     return this.imageResponse(image, response)
   }
 
-  private setOverview () {
+  private setOverview() {
     return this.response({
       imageUrl: `https://opepen.nyc3.cdn.digitaloceanspaces.com/OG/sets@frame.png`,
       postUrl: `${Env.get('APP_URL')}/v1/frames/sets`,
-      actions: [
-        { text: 'View Website', action: 'post_redirect' },
-        'Browse Sets',
-      ],
+      actions: [{ text: 'View Website', action: 'post_redirect' }, 'Browse Sets'],
     })
   }
 
-  private setResponse (id) {
+  private setResponse(id) {
     return this.response({
       imageUrl: `${Env.get('APP_URL')}/v1/render/sets/${id}/og`,
       postUrl: `${Env.get('APP_URL')}/v1/frames/sets/${id}`,
@@ -112,7 +108,7 @@ export default class FarcasterFrameSetsController extends FarcasterFramesControl
         id <= 1 ? '← Overview' : `← Previous`,
         { text: `View Set #${pad(id, 3)}`, action: 'post_redirect' },
         id >= 200 ? '↺ Overview' : `Next →`,
-      ]
+      ],
     })
   }
 }

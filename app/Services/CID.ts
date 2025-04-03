@@ -4,14 +4,10 @@ class CID {
   public jsonCodec: any
   public sha256: any
 
-  async setup (): Promise<void> {
+  async setup(): Promise<void> {
     if (this._setup) return
 
-    const [
-      { CID },
-      jsonCodec,
-      { sha256 },
-    ] = await Promise.all([
+    const [{ CID }, jsonCodec, { sha256 }] = await Promise.all([
       // FIXME: Proper ESM imports
       await eval(`import('multiformats/cid')`),
       await eval(`import('multiformats/codecs/json')`),
@@ -26,7 +22,7 @@ class CID {
     this._setup = true
   }
 
-  async getJsonCID (data: any): Promise<CID> {
+  async getJsonCID(data: any): Promise<CID> {
     await this.setup()
 
     const buf = this.jsonCodec.encode(data)

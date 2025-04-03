@@ -3,14 +3,8 @@ import BaseController from './BaseController'
 import EventModel from 'App/Models/Event'
 
 export default class EventsController extends BaseController {
-
-  public async forToken ({ params, request }: HttpContextContract) {
-    const {
-      page = 1,
-      limit = 40,
-      filter = {},
-      sort = ''
-    } = request.qs()
+  public async forToken({ params, request }: HttpContextContract) {
+    const { page = 1, limit = 40, filter = {}, sort = '' } = request.qs()
 
     const query = EventModel.query()
       .where('contract', 'OPEPEN')
@@ -27,13 +21,8 @@ export default class EventsController extends BaseController {
       .paginate(page, limit)
   }
 
-  public async forBurnedToken ({ params, request }: HttpContextContract) {
-    const {
-      page = 1,
-      limit = 40,
-      filter = {},
-      sort = ''
-    } = request.qs()
+  public async forBurnedToken({ params, request }: HttpContextContract) {
+    const { page = 1, limit = 40, filter = {}, sort = '' } = request.qs()
 
     const query = EventModel.query()
       .where('contract', 'BURNED_OPEPEN')
@@ -49,5 +38,4 @@ export default class EventsController extends BaseController {
       .orderByRaw('log_index::int desc')
       .paginate(page, limit)
   }
-
 }

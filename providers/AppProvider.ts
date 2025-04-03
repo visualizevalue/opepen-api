@@ -1,14 +1,13 @@
 import type { ApplicationContract } from '@ioc:Adonis/Core/Application'
 
 export default class AppProvider {
-  constructor (protected app: ApplicationContract) {
-  }
+  constructor(protected app: ApplicationContract) {}
 
-  public register () {
+  public register() {
     // Register your own bindings
   }
 
-  public async boot () {
+  public async boot() {
     // IoC container is ready
     const { default: MetadataParser } = await import('App/Services/Metadata/MetadataParser')
     this.app.container.singleton('MetadataParser', () => new MetadataParser())
@@ -20,7 +19,7 @@ export default class AppProvider {
     }
   }
 
-  public async shutdown () {
+  public async shutdown() {
     // Cleanup, since app is going down
   }
 }

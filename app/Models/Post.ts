@@ -1,6 +1,16 @@
 import { DateTime } from 'luxon'
 import { v4 as uuid } from 'uuid'
-import { BaseModel, BelongsTo, HasMany, ManyToMany, beforeCreate, belongsTo, column, hasMany, manyToMany } from '@ioc:Adonis/Lucid/Orm'
+import {
+  BaseModel,
+  BelongsTo,
+  HasMany,
+  ManyToMany,
+  beforeCreate,
+  belongsTo,
+  column,
+  hasMany,
+  manyToMany,
+} from '@ioc:Adonis/Lucid/Orm'
 import Image from './Image'
 import SetSubmission from './SetSubmission'
 import Opepen from './Opepen'
@@ -14,7 +24,7 @@ export default class Post extends BaseModel {
   public uuid: string
 
   @beforeCreate()
-  public static async createUUID (model: Image) {
+  public static async createUUID(model: Image) {
     model.uuid = uuid()
   }
 
@@ -28,7 +38,7 @@ export default class Post extends BaseModel {
   public signature: string
 
   @column()
-  public submissionId: number|null
+  public submissionId: number | null
 
   @column()
   public opepenId: bigint
@@ -46,18 +56,18 @@ export default class Post extends BaseModel {
   public updatedAt: DateTime
 
   @column.dateTime()
-  public approvedAt: DateTime|null
+  public approvedAt: DateTime | null
 
   @column.dateTime()
-  public shadowedAt: DateTime|null
+  public shadowedAt: DateTime | null
 
   @column.dateTime()
-  public deletedAt: DateTime|null
+  public deletedAt: DateTime | null
 
   @belongsTo(() => Account, {
     foreignKey: 'address',
     localKey: 'address',
-    onQuery: query => {
+    onQuery: (query) => {
       query.preload('pfp')
     },
   })
@@ -89,17 +99,16 @@ export default class Post extends BaseModel {
 
   @hasMany(() => Post, {
     foreignKey: 'parentPostId',
-    onQuery: query => {
+    onQuery: (query) => {
       query.whereNull('deletedAt')
       query.whereNotNull('approvedAt')
     },
   })
   public commentsCount: HasMany<typeof Post>
 
-
   @hasMany(() => Post, {
     foreignKey: 'parentPostId',
-    onQuery: query => {
+    onQuery: (query) => {
       query.whereNull('deletedAt')
       query.whereNotNull('approvedAt')
       query.orderBy('createdAt')
@@ -108,13 +117,13 @@ export default class Post extends BaseModel {
   public comments: HasMany<typeof Post>
   @hasMany(() => Post, {
     foreignKey: 'parentPostId',
-    onQuery: query => {
+    onQuery: (query) => {
       query.whereNull('deletedAt')
       query.whereNotNull('approvedAt')
       query.orderBy('createdAt', 'desc')
       query.preload('account')
       query.limit(3)
-    }
+    },
   })
   public latestComments: HasMany<typeof Post>
 

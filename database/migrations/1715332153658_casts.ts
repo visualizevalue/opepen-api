@@ -3,8 +3,8 @@ import BaseSchema from '@ioc:Adonis/Lucid/Schema'
 export default class extends BaseSchema {
   protected tableName = 'casts'
 
-  public async up () {
-    this.schema.alterTable('accounts', table => {
+  public async up() {
+    this.schema.alterTable('accounts', (table) => {
       table.jsonb('farcaster')
     })
 
@@ -25,10 +25,10 @@ export default class extends BaseSchema {
     })
   }
 
-  public async down () {
+  public async down() {
     this.schema.dropTable(this.tableName)
 
-    this.schema.alterTable('accounts', table => {
+    this.schema.alterTable('accounts', (table) => {
       table.dropColumn('farcaster')
     })
   }

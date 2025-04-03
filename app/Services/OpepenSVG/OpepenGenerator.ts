@@ -1,46 +1,47 @@
 import sharp from 'sharp'
 import { randomBetween } from 'App/Helpers/random'
 
-type ShapeForm = 'rounded'|'square'
+type ShapeForm = 'rounded' | 'square'
 
 export type OpepenOptions = {
-  bg?: string,
-  fill?: string,
+  bg?: string
+  fill?: string
   stroke?: {
-    width?: number,
-    color?: string,
-  },
-  noise?: boolean,
-  blur?: boolean,
+    width?: number
+    color?: string
+  }
+  noise?: boolean
+  blur?: boolean
 
   // TODO: Make these more dynamic with fill colors etc.
-  leftEye?: number,
-  rightEye?: number,
+  leftEye?: number
+  rightEye?: number
   mouth?: {
-    form?: ShapeForm,
-    variation?: number,
-  },
+    form?: ShapeForm
+    variation?: number
+  }
   torso?: {
-    form?: ShapeForm,
-    variation?: number,
-  },
+    form?: ShapeForm
+    variation?: number
+  }
 }
 
 export const generateOpepenConfig = (options: OpepenOptions): OpepenOptions => {
   const bg = options.bg || (Math.random() > 0.5 ? '#fff' : '#ddd')
 
   const fillRandomizer = Math.random()
-  const fill = options.fill || (
-    fillRandomizer < 0.3 ? 'transparent'
-      : fillRandomizer > 0.7 ? 'black'
-      : '#696969'
-  )
+  const fill =
+    options.fill ||
+    (fillRandomizer < 0.3 ? 'transparent' : fillRandomizer > 0.7 ? 'black' : '#696969')
 
   const stroke = options.stroke || {
-    width: Math.random() > 0.5 || fill === 'transparent'
-      ? Math.random() > 0.5 ? randomBetween(1, 3) : randomBetween(1, 20)
-      : 0,
-    color: 'black'
+    width:
+      Math.random() > 0.5 || fill === 'transparent'
+        ? Math.random() > 0.5
+          ? randomBetween(1, 3)
+          : randomBetween(1, 20)
+        : 0,
+    color: 'black',
   }
 
   const leftEye = options.leftEye || randomBetween(1, 5)
@@ -79,11 +80,7 @@ export const generateOpepenSVG = (options: OpepenOptions) => {
       <!-- Background -->
       <rect width="512" height="512" fill="${options.bg || `#ddd`}" />
 
-      ${
-        options.noise
-          ? `<rect width="512" height="512" filter="url(#noise)" />`
-          : ``
-      }
+      ${options.noise ? `<rect width="512" height="512" filter="url(#noise)" />` : ``}
 
       <!-- Opepen -->
       <g
@@ -91,7 +88,7 @@ export const generateOpepenSVG = (options: OpepenOptions) => {
         stroke="${options.stroke?.color || `#111`}"
         stroke-width="${strokeWidth}"
         ${options.blur ? `filter="url(#blur)"` : ``}
-        transform="translate(0, -${strokeWidth/2})"
+        transform="translate(0, -${strokeWidth / 2})"
       >
         <!-- Left Eye -->
         <g transform="translate(128, 128)" id="left-eye">
@@ -111,13 +108,15 @@ export const generateOpepenSVG = (options: OpepenOptions) => {
 
           <!-- Torso -->
           ${
-            options.torso ? `
+            options.torso
+              ? `
               <g transform="translate(128, 448)">
                 <use href="#torso-${options.torso?.form || `rounded`}-${options.torso?.variation || 1}" />
 
                 <use id="body-extension" x="0" y="64" href="#4x1" />
               </g>
-            ` : ``
+            `
+              : ``
           }
       </g>
 

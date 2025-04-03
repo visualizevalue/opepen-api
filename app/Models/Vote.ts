@@ -22,7 +22,7 @@ export default class Vote extends BaseModel {
   @belongsTo(() => Account, {
     foreignKey: 'address',
     localKey: 'address',
-    onQuery: query => {
+    onQuery: (query) => {
       query.preload('pfp')
     },
   })
@@ -30,5 +30,4 @@ export default class Vote extends BaseModel {
 
   @belongsTo(() => Image)
   public image: BelongsTo<typeof Image>
-
 }

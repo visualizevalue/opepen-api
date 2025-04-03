@@ -19,13 +19,12 @@ import FarcasterData from 'App/Services/FarcasterData'
 import SetMinimalRenderer from 'App/Frames/SetMinimalRenderer'
 
 export default class FarcasterFrameSetController extends FarcasterFramesController {
-
   EDITIONS = [1, 4, 5, 10, 20, 40]
 
   /**
    * The entry point to our frame
    */
-  public async set ({ request, params }: HttpContextContract) {
+  public async set({ request, params }: HttpContextContract) {
     if (request.method() === 'GET') return this.setOverviewResponse(params.id)
 
     const data = request.body().untrustedData
@@ -48,7 +47,7 @@ export default class FarcasterFrameSetController extends FarcasterFramesControll
   /**
    * The edition overview for our frame
    */
-  public async edition ({ request, params }: HttpContextContract) {
+  public async edition({ request, params }: HttpContextContract) {
     const data = request.body().untrustedData
     const buttonIndex = parseInt(data.buttonIndex)
 
@@ -65,7 +64,8 @@ export default class FarcasterFrameSetController extends FarcasterFramesControll
     if (toOverview) return this.setOverviewResponse(params.id)
 
     // Go next
-    if (next) return this.editionResponse(params.id, this.getNextEdition(params.edition), data.fid)
+    if (next)
+      return this.editionResponse(params.id, this.getNextEdition(params.edition), data.fid)
 
     // Default view current edition
     return this.editionResponse(params.id, params.edition, data.fid)
@@ -74,10 +74,7 @@ export default class FarcasterFrameSetController extends FarcasterFramesControll
   public async optInStatus({ response, params }: HttpContextContract) {
     const submission = await SetSubmission.findByOrFail('uuid', params.id)
 
-    return this.imageResponse(
-      await SetOptStatusRenderer.render({ submission }),
-      response
-    )
+    return this.imageResponse(await SetOptStatusRenderer.render({ submission }), response)
   }
 
   /**
@@ -94,11 +91,12 @@ export default class FarcasterFrameSetController extends FarcasterFramesControll
     const { untrustedData, trustedData } = request.body()
 
     // Verify user input
-    if (! await Farcaster.verifyMessage({ untrustedData, trustedData })) return this.setOverviewResponse(params.id)
+    if (!(await Farcaster.verifyMessage({ untrustedData, trustedData })))
+      return this.setOverviewResponse(params.id)
 
     // Get Opepen
     const opepen = await this.getOwnedOpepen(untrustedData.fid, params.edition)
-    if (! opepen.length) return this.optInResponse(opepen, params.id, params.edition)
+    if (!opepen.length) return this.optInResponse(opepen, params.id, params.edition)
 
     // Opt In
     const subscription = await Subscription.firstOrCreate({
@@ -108,8 +106,8 @@ export default class FarcasterFrameSetController extends FarcasterFramesControll
 
     // Update FC subscription data
     subscription.signature = 'farcaster' // Signature has max length as it expects and eth signature
-    subscription.message = JSON.stringify({untrustedData, trustedData})
-    subscription.opepenIds = opepen.map(o => o.tokenId.toString())
+    subscription.message = JSON.stringify({ untrustedData, trustedData })
+    subscription.opepenIds = opepen.map((o) => o.tokenId.toString())
     subscription.createdAt = DateTime.now()
 
     await subscription.save()
@@ -117,7 +115,7 @@ export default class FarcasterFrameSetController extends FarcasterFramesControll
     return this.optInResponse(opepen, params.id, params.edition)
   }
 
-  public async optInImage ({ request, params, response }: HttpContextContract) {
+  public async optInImage({ request, params, response }: HttpContextContract) {
     const set = await SetModel.findOrFail(params.id)
     const { opepen, edition } = request.qs()
 
@@ -129,15 +127,15 @@ export default class FarcasterFrameSetController extends FarcasterFramesControll
         edition,
         count,
       }),
-      response
+      response,
     )
   }
 
-  public async editionImage ({ request, params, response }: HttpContextContract) {
+  public async editionImage({ request, params, response }: HttpContextContract) {
     const submission = await SetSubmission.query().where('uuid', params.id).firstOrFail()
     const key = `frames/submissions/${submission.uuid}_${submission.name ? string.toSlug(submission.name) : 'unrevealed'}_${params.edition}.png`
 
-    if (request.method() !== 'POST' && await Drive.exists(key)) {
+    if (request.method() !== 'POST' && (await Drive.exists(key))) {
       return this.imageResponse(await Drive.get(key), response)
     }
 
@@ -148,11 +146,11 @@ export default class FarcasterFrameSetController extends FarcasterFramesControll
     return this.imageResponse(png, response)
   }
 
-  public async entryImage ({ request, params, response }: HttpContextContract) {
+  public async entryImage({ request, params, response }: HttpContextContract) {
     const submission = await SetSubmission.query().where('uuid', params.id).firstOrFail()
     const key = `/submissions/${submission.uuid}-${submission.setId || 'unrevealed'}_${string.toSlug(submission.name || 'unrevealed')}_overview.png`
 
-    if (request.method() !== 'POST' && await Drive.exists(key)) {
+    if (request.method() !== 'POST' && (await Drive.exists(key))) {
       return this.imageResponse(await Drive.get(key), response)
     }
 
@@ -163,11 +161,11 @@ export default class FarcasterFrameSetController extends FarcasterFramesControll
     return this.imageResponse(png, response)
   }
 
-  public async minimal ({ request, params, response }: HttpContextContract) {
+  public async minimal({ request, params, response }: HttpContextContract) {
     const submission = await SetSubmission.query().where('uuid', params.id).firstOrFail()
     const key = `/submissions/${submission.uuid}-${submission.setId || 'unrevealed'}_${string.toSlug(submission.name || 'unrevealed')}_minimal.png`
 
-    if (request.method() !== 'POST' && await Drive.exists(key)) {
+    if (request.method() !== 'POST' && (await Drive.exists(key))) {
       return this.imageResponse(await Drive.get(key), response)
     }
 
@@ -178,8 +176,8 @@ export default class FarcasterFrameSetController extends FarcasterFramesControll
     return this.imageResponse(png, response)
   }
 
-  private getNextEdition (edition) {
-    const editionIdx = this.EDITIONS.findIndex(e => e == edition)
+  private getNextEdition(edition) {
+    const editionIdx = this.EDITIONS.findIndex((e) => e == edition)
     return this.EDITIONS[(editionIdx + 1) % 6]
   }
 
@@ -193,7 +191,10 @@ export default class FarcasterFrameSetController extends FarcasterFramesControll
 
     // Get Opepen
     const opepenQuery = Opepen.query()
-      .whereIn('owner', accounts.map(a => a.address))
+      .whereIn(
+        'owner',
+        accounts.map((a) => a.address),
+      )
       .whereNull('revealedAt')
 
     if (edition) {
@@ -203,7 +204,7 @@ export default class FarcasterFrameSetController extends FarcasterFramesControll
     return await opepenQuery
   }
 
-  private async setOverviewResponse (id) {
+  private async setOverviewResponse(id) {
     const set = await SetModel.findOrFail(id)
     await set.load('submission')
 
@@ -213,14 +214,18 @@ export default class FarcasterFrameSetController extends FarcasterFramesControll
       actions: [
         set.submission.optInOpen()
           ? 'Opt In'
-          : { text: `Set #${pad(id, 3)} on Opepen.art`, action: 'link', target: `https://opepen.art/sets/${set.id}` },
+          : {
+              text: `Set #${pad(id, 3)} on Opepen.art`,
+              action: 'link',
+              target: `https://opepen.art/sets/${set.id}`,
+            },
         'View 1/1 →',
       ],
       imageRatio: '1:1',
     })
   }
 
-  private async editionResponse (id, edition, fid: number) {
+  private async editionResponse(id, edition, fid: number) {
     const set = await SetModel.findOrFail(id)
     await set.load('submission')
     const opepen = await this.getOwnedOpepen(fid, edition)
@@ -228,24 +233,32 @@ export default class FarcasterFrameSetController extends FarcasterFramesControll
     const nextEdition = this.getNextEdition(edition)
     const actions: Action[] = [
       set.submission.optInOpen()
-          ? `${opepen?.length ? `${opepen.length}x ` : ''}Opt In 1/${edition}`
-          : { text: `Set #${pad(id, 3)} on Opepen.art`, action: 'link', target: `https://opepen.art/sets/${set.id}` },
+        ? `${opepen?.length ? `${opepen.length}x ` : ''}Opt In 1/${edition}`
+        : {
+            text: `Set #${pad(id, 3)} on Opepen.art`,
+            action: 'link',
+            target: `https://opepen.art/sets/${set.id}`,
+          },
       nextEdition === 1 ? `↺ Overview` : `View 1/${nextEdition} →`,
     ]
 
     if (nextEdition === 1) {
-      actions.push({ text: `Set #${pad(id, 3)}`, action: 'link', target: `https://opepen.art/sets/${id}` })
+      actions.push({
+        text: `Set #${pad(id, 3)}`,
+        action: 'link',
+        target: `https://opepen.art/sets/${id}`,
+      })
     }
 
     return this.response({
       imageUrl: `${Env.get('APP_URL')}/v1/render/sets/${id}/${edition}/square`,
       imageRatio: '1:1',
       postUrl: `${Env.get('APP_URL')}/v1/frames/sets/${id}/detail/${edition}`,
-      actions
+      actions,
     })
   }
 
-  private optInResponse (opepen: Opepen[], set, edition) {
+  private optInResponse(opepen: Opepen[], set, edition) {
     const imageParams = new URLSearchParams({ opepen: opepen.length.toString() })
     if (edition) imageParams.append('edition', edition)
 
@@ -254,8 +267,12 @@ export default class FarcasterFrameSetController extends FarcasterFramesControll
       imageRatio: '1:1',
       postUrl: `${Env.get('APP_URL')}/v1/frames/sets/${set}/detail`,
       actions: [
-        { text: `Set #${pad(set, 3)} on Opepen.art`, action: 'link', target: `https://opepen.art/sets/${set}` }
-      ]
+        {
+          text: `Set #${pad(set, 3)} on Opepen.art`,
+          action: 'link',
+          target: `https://opepen.art/sets/${set}`,
+        },
+      ],
     })
   }
 }

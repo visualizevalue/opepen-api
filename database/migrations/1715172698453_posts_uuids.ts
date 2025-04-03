@@ -4,23 +4,23 @@ import BaseSchema from '@ioc:Adonis/Lucid/Schema'
 export default class extends BaseSchema {
   protected tableName = 'posts'
 
-  public async up () {
+  public async up() {
     this.schema.alterTable(this.tableName, (table) => {
       table.uuid('uuid').unique()
     })
 
-    this.defer(async db => {
+    this.defer(async (db) => {
       const posts = await db.table('posts')
 
       for (const post of posts) {
         await db.query().from('posts').where('id', post.id).update({
-          uuid: uuid()
+          uuid: uuid(),
         })
       }
     })
   }
 
-  public async down () {
+  public async down() {
     this.schema.alterTable(this.tableName, (table) => {
       table.dropColumn('uuid')
     })

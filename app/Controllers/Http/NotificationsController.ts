@@ -6,13 +6,12 @@ import Account from 'App/Models/Account'
 import NotificationEmail from 'App/Mailers/NotificationEmail'
 
 export default class NotificationsController {
-
-  public async preview ({ session, request }: HttpContextContract) {
+  public async preview({ session, request }: HttpContextContract) {
     const currentAddress = session.get('siwe')?.address?.toLowerCase()
     const user = await Account.byId(currentAddress).firstOrFail()
     const mail = new NotificationEmail(user)
 
-    const users = await Account.query().withScopes(scopes => scopes.receivesEmail('General'))
+    const users = await Account.query().withScopes((scopes) => scopes.receivesEmail('General'))
 
     return {
       rendered: await mail.renderTemplate({
@@ -24,7 +23,7 @@ export default class NotificationsController {
     }
   }
 
-  public async general ({ session, request }: HttpContextContract) {
+  public async general({ session, request }: HttpContextContract) {
     const subject = request.input('subject')
     const template = request.input('template')
     const test = request.input('test', true)
@@ -34,7 +33,7 @@ export default class NotificationsController {
 
     const users = test
       ? [user]
-      : await Account.query().withScopes(scopes => scopes.receivesEmail('General'))
+      : await Account.query().withScopes((scopes) => scopes.receivesEmail('General'))
 
     const sentEmails = new Set()
 
@@ -42,11 +41,7 @@ export default class NotificationsController {
       if (sentEmails.has(user.email)) continue
 
       try {
-        await new NotifyGeneralEmail(
-          user,
-          subject,
-          template,
-        ).sendLater()
+        await new NotifyGeneralEmail(user, subject, template).sendLater()
         Logger.info(`General email scheduled: ${user.email}`)
       } catch (e) {
         console.log(e)
@@ -57,18 +52,19 @@ export default class NotificationsController {
     }
 
     return {
-      success: true
+      success: true,
     }
   }
 
-  public async testMail ({ params, response }: HttpContextContract) {
-    const account = await Account.byId(decodeURIComponent(params.id.toLowerCase())).firstOrFail()
+  public async testMail({ params, response }: HttpContextContract) {
+    const account = await Account.byId(
+      decodeURIComponent(params.id.toLowerCase()),
+    ).firstOrFail()
 
-    if (! account.email) {
+    if (!account.email) {
       return response.badRequest(`User doesn't have an email.`)
     }
 
     return await new TestEmail(account).sendLater()
   }
-
 }

@@ -37,22 +37,25 @@ export default class ImportCollection {
     // Save Tokens
     for (const { token } of tokens) {
       const owner = await Account.updateOrCreate({ address: token.owner?.toLowerCase() }, {})
-      await ModelClass.updateOrCreate({
-        tokenId: token.tokenId,
-      }, {
-        owner: owner.address,
-      })
+      await ModelClass.updateOrCreate(
+        {
+          tokenId: token.tokenId,
+        },
+        {
+          owner: owner.address,
+        },
+      )
       Logger.info(`Saved token ${token.tokenId}`)
     }
   }
 
-  private async fetchBatch (contract: string, continuation?: string) {
+  private async fetchBatch(contract: string, continuation?: string) {
     const query: {
-      contract: string,
-      limit: string,
-      accept: string,
-      continuation?: string,
-      startTimestamp?: number,
+      contract: string
+      limit: string
+      accept: string
+      continuation?: string
+      startTimestamp?: number
     } = {
       contract,
       limit: '100',

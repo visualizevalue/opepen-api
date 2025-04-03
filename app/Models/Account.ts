@@ -1,7 +1,19 @@
 import { DateTime, Duration } from 'luxon'
 import Logger from '@ioc:Adonis/Core/Logger'
 import Env from '@ioc:Adonis/Core/Env'
-import { afterSave, BaseModel, beforeSave, BelongsTo, belongsTo, column, computed, HasMany, hasMany, ModelQueryBuilderContract, scope } from '@ioc:Adonis/Lucid/Orm'
+import {
+  afterSave,
+  BaseModel,
+  beforeSave,
+  BelongsTo,
+  belongsTo,
+  column,
+  computed,
+  HasMany,
+  hasMany,
+  ModelQueryBuilderContract,
+  scope,
+} from '@ioc:Adonis/Lucid/Orm'
 import Address from 'App/Helpers/Address'
 import BurnedOpepen from 'App/Models/BurnedOpepen'
 import Event from 'App/Models/Event'
@@ -34,11 +46,11 @@ export default class Account extends BaseModel {
   public data: object
 
   @column({
-    consume: value => {
-      if (! value) return {}
+    consume: (value) => {
+      if (!value) return {}
 
       return value
-    }
+    },
   })
   public farcaster: FarcasterData
 
@@ -49,7 +61,7 @@ export default class Account extends BaseModel {
   public email: string
 
   @column.dateTime({ serializeAs: null })
-  public emailVerifiedAt: DateTime|null
+  public emailVerifiedAt: DateTime | null
 
   @column.dateTime()
   public notificationsReadUntil: DateTime
@@ -73,10 +85,10 @@ export default class Account extends BaseModel {
   public notificationRevealPaused: boolean
 
   @column()
-  public pfpImageId: bigint|null
+  public pfpImageId: bigint | null
 
   @column()
-  public coverImageId: bigint|null
+  public coverImageId: bigint | null
 
   @column()
   public tagline: string
@@ -103,8 +115,8 @@ export default class Account extends BaseModel {
   public optInCount: number
 
   @column({
-    consume: (value: string) => typeof value === 'string' ? JSON.parse(value) : value,
-    prepare: (value: any) => Array.isArray(value) ? JSON.stringify(value) : value,
+    consume: (value: string) => (typeof value === 'string' ? JSON.parse(value) : value),
+    prepare: (value: any) => (Array.isArray(value) ? JSON.stringify(value) : value),
   })
   public socials: ArtistSocials
 
@@ -112,12 +124,12 @@ export default class Account extends BaseModel {
   public updatedAt: DateTime
 
   @computed()
-  public get twitterHandle () {
+  public get twitterHandle() {
     return this.oauth?.twitterUser?.username
   }
 
   @computed()
-  public get display () {
+  public get display() {
     if (this.name) return this.name
     if (this.ens) {
       if (this.ens.endsWith('.eth')) return this.ens.slice(0, -4)
@@ -129,7 +141,7 @@ export default class Account extends BaseModel {
     return Address.short(this.address)
   }
 
-  public get nameForX () {
+  public get nameForX() {
     return this.twitterHandle ? `@${this.twitterHandle}` : this.display
   }
 
@@ -182,10 +194,10 @@ export default class Account extends BaseModel {
   @hasMany(() => RichContentLink, {
     foreignKey: 'address',
     localKey: 'address',
-    onQuery: query => {
+    onQuery: (query) => {
       query.whereNull('setId')
       query.whereNull('setSubmissionId')
-    }
+    },
   })
   public richContentLinks: HasMany<typeof RichContentLink>
 
@@ -193,13 +205,20 @@ export default class Account extends BaseModel {
     query.whereNotNull('email').whereNotNull('emailVerifiedAt')
   })
 
-  public static receivesEmail = scope((
-    query: Builder,
-    key: 'General'|'NewSet'|'NewSubmission'|'NewCuratedSubmission'|'RevealStarted'|'RevealPaused'
-  ) => {
-    query.withScopes(scopes => scopes.receivesEmails())
-         .where(`notification${key}`, true)
-  })
+  public static receivesEmail = scope(
+    (
+      query: Builder,
+      key:
+        | 'General'
+        | 'NewSet'
+        | 'NewSubmission'
+        | 'NewCuratedSubmission'
+        | 'RevealStarted'
+        | 'RevealPaused',
+    ) => {
+      query.withScopes((scopes) => scopes.receivesEmails()).where(`notification${key}`, true)
+    },
+  )
 
   @beforeSave()
   public static async lowerCaseAddress(account: Account) {
@@ -207,14 +226,12 @@ export default class Account extends BaseModel {
   }
 
   @afterSave()
-  public static async saveNames (account: Account) {
-    if (! Env.get('UPDATE_ENS')) {
+  public static async saveNames(account: Account) {
+    if (!Env.get('UPDATE_ENS')) {
       return
     }
 
-    await Promise.all([
-      account.updateENS(),
-    ])
+    await Promise.all([account.updateENS()])
 
     try {
       await account.save()
@@ -223,16 +240,17 @@ export default class Account extends BaseModel {
     }
   }
 
-  public async updateNames () {
+  public async updateNames() {
     const timeAgo = Math.floor((Date.now() - +this.updatedAt) / 1000)
-    if (timeAgo < 60 * 10) { // wait for 10 minutes between updates
-      Logger.info(`Don't update names for ${this.address}, as we've updated them ${timeAgo} seconds ago`)
+    if (timeAgo < 60 * 10) {
+      // wait for 10 minutes between updates
+      Logger.info(
+        `Don't update names for ${this.address}, as we've updated them ${timeAgo} seconds ago`,
+      )
       return
     }
 
-    await Promise.all([
-      this.updateENS(),
-    ])
+    await Promise.all([this.updateENS()])
 
     // Force update updatedAt
     this.updatedAt = DateTime.now()
@@ -246,9 +264,9 @@ export default class Account extends BaseModel {
     return this
   }
 
-  public async updateENS () {
+  public async updateENS() {
     try {
-      this.ens = await provider.lookupAddress(this.address) || ''
+      this.ens = (await provider.lookupAddress(this.address)) || ''
 
       if (this.ens) Logger.info(`ENS for ${this.ens} updated`)
     } catch (e) {
@@ -256,26 +274,26 @@ export default class Account extends BaseModel {
     }
   }
 
-  public async updateProfileCompletion () {
+  public async updateProfileCompletion() {
     const account: Account = this
     await account.load('richContentLinks')
 
     let completion = 0
-    if (account.name || account.ens) completion ++
-    if (account.pfpImageId) completion ++
-    if (account.coverImageId) completion ++
-    if (account.tagline) completion ++
-    if (account.quote) completion ++
-    if (account.bio) completion ++
-    if (account.twitterHandle) completion ++
-    if (account.socials?.length) completion ++
-    if (account.richContentLinks?.length) completion ++
+    if (account.name || account.ens) completion++
+    if (account.pfpImageId) completion++
+    if (account.coverImageId) completion++
+    if (account.tagline) completion++
+    if (account.quote) completion++
+    if (account.bio) completion++
+    if (account.twitterHandle) completion++
+    if (account.socials?.length) completion++
+    if (account.richContentLinks?.length) completion++
 
     this.profileCompletion = completion
     await this.save()
   }
 
-  public async updateOptInCount () {
+  public async updateOptInCount() {
     const account: Account = this
     await account.loadCount('subscriptions')
 
@@ -283,15 +301,13 @@ export default class Account extends BaseModel {
     await this.save()
   }
 
-  public async updateSetSubmissionsCount () {
+  public async updateSetSubmissionsCount() {
     const artistFor = SetSubmission.query()
       .withScopes((scopes) => scopes.live())
       .where((query) => {
-        query
-          .where('creator', this.address)
-          .orWhereHas('coCreators', (subquery) => {
-            subquery.where('co_creators.account_id', this.id)
-          })
+        query.where('creator', this.address).orWhereHas('coCreators', (subquery) => {
+          subquery.where('co_creators.account_id', this.id)
+        })
       })
 
     const submissionsCount = await artistFor.clone().count('id')
@@ -303,10 +319,10 @@ export default class Account extends BaseModel {
     await this.save()
   }
 
-  public async holdDurations () {
+  public async holdDurations() {
     const events = await Event.query()
       .where('type', 'Transfer')
-      .where(query => {
+      .where((query) => {
         query.where('to', this.address)
         query.orWhere('from', this.address)
       })
@@ -324,14 +340,14 @@ export default class Account extends BaseModel {
       }
 
       if (isIncoming) {
-        currentAmountHeld ++
+        currentAmountHeld++
       } else {
-        currentAmountHeld --
+        currentAmountHeld--
       }
 
       if (
         // stopped holding
-        ! currentAmountHeld ||
+        !currentAmountHeld ||
         // last event
         index === events.length - 1
       ) {
@@ -346,18 +362,17 @@ export default class Account extends BaseModel {
     return holdDurations
   }
 
-  public async timeHeld (offset = 0) {
-    const uptimes = (await this.holdDurations())
+  public async timeHeld(offset = 0) {
+    const uptimes = await this.holdDurations()
 
     return uptimes[uptimes.length - 1 - offset]
   }
 
-  public async totalTimeHeld () {
-    return (await this.holdDurations())
-      .reduce(
-        (total, duration) => total.plus(duration),
-        Duration.fromObject({ seconds: 0 })
-      )
+  public async totalTimeHeld() {
+    return (await this.holdDurations()).reduce(
+      (total, duration) => total.plus(duration),
+      Duration.fromObject({ seconds: 0 }),
+    )
   }
 
   public serializeExtras() {
@@ -371,7 +386,7 @@ export default class Account extends BaseModel {
     }
   }
 
-  static byId (id) {
+  static byId(id) {
     const value = id?.toLowerCase()
 
     return this.query()

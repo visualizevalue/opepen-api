@@ -2,7 +2,7 @@ import Renderer from './Renderer'
 import SetSubmission from 'App/Models/SetSubmission'
 
 export default class SetOptStatusRenderer extends Renderer {
-  public static async render ({ submission, }: { submission: SetSubmission, }) {
+  public static async render({ submission }: { submission: SetSubmission }) {
     const c = (edition: number) => {
       const percent = submission.submissionStats.demand[edition] / edition
 

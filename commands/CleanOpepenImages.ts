@@ -26,7 +26,7 @@ export default class CleanOpepenImages extends BaseCommand {
     await this.kernel.exec('votes:recompute', [])
   }
 
-  protected async normalizePrintSubmissionOpepen () {
+  protected async normalizePrintSubmissionOpepen() {
     const { default: SetSubmission } = await import('App/Models/SetSubmission')
     const { default: Opepen } = await import('App/Models/Opepen')
 
@@ -34,12 +34,12 @@ export default class CleanOpepenImages extends BaseCommand {
       .whereNotNull('setId')
       .whereNotNull('revealBlockNumber')
       .where('editionType', 'PRINT')
-      .preload('edition1Image', query => query.preload('votes'))
-      .preload('edition4Image', query => query.preload('votes'))
-      .preload('edition5Image', query => query.preload('votes'))
-      .preload('edition10Image', query => query.preload('votes'))
-      .preload('edition20Image', query => query.preload('votes'))
-      .preload('edition40Image', query => query.preload('votes'))
+      .preload('edition1Image', (query) => query.preload('votes'))
+      .preload('edition4Image', (query) => query.preload('votes'))
+      .preload('edition5Image', (query) => query.preload('votes'))
+      .preload('edition10Image', (query) => query.preload('votes'))
+      .preload('edition20Image', (query) => query.preload('votes'))
+      .preload('edition40Image', (query) => query.preload('votes'))
 
     let submissionsCount = 0
     let imagesCount = 0
@@ -47,17 +47,21 @@ export default class CleanOpepenImages extends BaseCommand {
     for (const submission of revealedPrintSubmissions) {
       const opepen = await Opepen.query()
         .where('setId', submission.setId)
-        .preload('image', query => query.preload('votes'))
+        .preload('image', (query) => query.preload('votes'))
 
       for (const token of opepen) {
         const image = submission[`edition${token.data.edition}Image`]
 
         if (token.tokenId == 3750n) {
-          this.logger.info(`006 1/1: ${token.imageId}:${submission[`edition${token.data.edition}Image`].id}`)
+          this.logger.info(
+            `006 1/1: ${token.imageId}:${submission[`edition${token.data.edition}Image`].id}`,
+          )
         }
 
         if (token.imageId !== submission[`edition${token.data.edition}Image`].id) {
-          this.logger.info(`${submission.name}: ${token.data.edition} (${token.imageId}:${submission[`edition${token.data.edition}Image`].id})`)
+          this.logger.info(
+            `${submission.name}: ${token.data.edition} (${token.imageId}:${submission[`edition${token.data.edition}Image`].id})`,
+          )
 
           // Clear old cached non normalized relations and computed points
           token.image.points = 0
@@ -93,10 +97,12 @@ export default class CleanOpepenImages extends BaseCommand {
       submissionsCount++
     }
 
-    this.logger.info(`Cleaned mapping for ${submissionsCount} print submissions (updated ${imagesCount} images)`)
+    this.logger.info(
+      `Cleaned mapping for ${submissionsCount} print submissions (updated ${imagesCount} images)`,
+    )
   }
 
-  protected async normalizeNumberedPrintSubmissionOpepen () {
+  protected async normalizeNumberedPrintSubmissionOpepen() {
     const { default: SetSubmission } = await import('App/Models/SetSubmission')
     const { default: Opepen } = await import('App/Models/Opepen')
     const EDITIONS = [1, 4, 5, 10, 20, 40]
@@ -105,12 +111,12 @@ export default class CleanOpepenImages extends BaseCommand {
       .whereNotNull('setId')
       .whereNotNull('revealBlockNumber')
       .where('editionType', 'NUMBERED_PRINT')
-      .preload('edition1Image', query => query.preload('votes'))
-      .preload('edition4Image', query => query.preload('votes'))
-      .preload('edition5Image', query => query.preload('votes'))
-      .preload('edition10Image', query => query.preload('votes'))
-      .preload('edition20Image', query => query.preload('votes'))
-      .preload('edition40Image', query => query.preload('votes'))
+      .preload('edition1Image', (query) => query.preload('votes'))
+      .preload('edition4Image', (query) => query.preload('votes'))
+      .preload('edition5Image', (query) => query.preload('votes'))
+      .preload('edition10Image', (query) => query.preload('votes'))
+      .preload('edition20Image', (query) => query.preload('votes'))
+      .preload('edition40Image', (query) => query.preload('votes'))
 
     let submissionsCount = 0
 
@@ -120,7 +126,7 @@ export default class CleanOpepenImages extends BaseCommand {
         const opepen = await Opepen.query()
           .where('setId', submission.setId)
           .whereJsonSuperset('data', { edition })
-          .preload('image', query => query.preload('votes'))
+          .preload('image', (query) => query.preload('votes'))
 
         for (const token of opepen) {
           await token.image.clearCashed()
@@ -138,18 +144,18 @@ export default class CleanOpepenImages extends BaseCommand {
     this.logger.info(`Cleaned mapping for ${submissionsCount} numbered print submissions`)
   }
 
-  protected async normalizeDynamicSubmissionOpepen () {
+  protected async normalizeDynamicSubmissionOpepen() {
     const { default: SetSubmission } = await import('App/Models/SetSubmission')
     const { default: Opepen } = await import('App/Models/Opepen')
 
     const dynamicSubmissions = await SetSubmission.query()
       .where('editionType', 'DYNAMIC')
-      .preload('edition1Image', query => query.preload('votes'))
-      .preload('edition4Image', query => query.preload('votes'))
-      .preload('edition5Image', query => query.preload('votes'))
-      .preload('edition10Image', query => query.preload('votes'))
-      .preload('edition20Image', query => query.preload('votes'))
-      .preload('edition40Image', query => query.preload('votes'))
+      .preload('edition1Image', (query) => query.preload('votes'))
+      .preload('edition4Image', (query) => query.preload('votes'))
+      .preload('edition5Image', (query) => query.preload('votes'))
+      .preload('edition10Image', (query) => query.preload('votes'))
+      .preload('edition20Image', (query) => query.preload('votes'))
+      .preload('edition40Image', (query) => query.preload('votes'))
 
     let submissionsCount = 0
 
@@ -160,7 +166,7 @@ export default class CleanOpepenImages extends BaseCommand {
         submission.edition10Image,
         submission.edition20Image,
         submission.edition40Image,
-      ].filter(i => !!i)
+      ].filter((i) => !!i)
 
       for (const previewImage of previewImages) {
         previewImage.setSubmissionId = null
@@ -177,10 +183,10 @@ export default class CleanOpepenImages extends BaseCommand {
         const oneOfOne = await Opepen.query()
           .where('setId', submission.setId)
           .whereJsonSuperset('data', { edition: 1 })
-          .preload('image', query => query.preload('votes'))
+          .preload('image', (query) => query.preload('votes'))
           .first()
 
-        if (! oneOfOne) continue
+        if (!oneOfOne) continue
 
         if (submission.edition1Image.id !== oneOfOne.image.id) {
           oneOfOne.image.points = 0

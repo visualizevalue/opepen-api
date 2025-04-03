@@ -2046,7 +2046,7 @@ const WORDS = [
   'zebra',
   'zero',
   'zone',
-  'zoo'
+  'zoo',
 ]
 
 // Edition -> Letter Count
@@ -2060,7 +2060,7 @@ export const LETTER_COUNTS_PER_EDITION = {
 }
 
 export const BY_LETTER_COUNTS = WORDS.reduce((bag, curr) => {
-  if (! bag[curr.length]) {
+  if (!bag[curr.length]) {
     bag[curr.length] = []
   }
 

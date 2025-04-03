@@ -56,12 +56,14 @@ export default class ClearMultiOptIns extends BaseCommand {
       this.logger.info(`Cleared all opt ins for ${opt.id} except to set ${opt.submission_id}`)
     }
 
-    const activeSets = await SetSubmission.query().withScopes(scopes => scopes.prereveal())
+    const activeSets = await SetSubmission.query().withScopes((scopes) => scopes.prereveal())
 
     for (const set of activeSets) {
       await set.updateAndValidateOpepensInSet()
 
-      this.logger.info(`Recomputed current stats on ${set.name}; reveals at: ${set.revealsAt}; remaining time: ${set.remainingRevealTime}`)
+      this.logger.info(
+        `Recomputed current stats on ${set.name}; reveals at: ${set.revealsAt}; remaining time: ${set.remainingRevealTime}`,
+      )
     }
   }
 }

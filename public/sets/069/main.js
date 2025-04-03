@@ -2,7 +2,7 @@ import { vvrite } from './vv0.js'
 import { editionSVG } from './edition-svg.js'
 
 const container = document.getElementById('opepen')
-const config  = new URLSearchParams(window.location.search)
+const config = new URLSearchParams(window.location.search)
 const edition = parseInt(config.get('edition'))
 const set = 69
 const pad = (num = 0) => {
@@ -28,25 +28,25 @@ const render = async () => {
 
   container.innerHTML = [
     `<header>`,
-      vvrite(`opepen secret`),
-      vvrite(`set ${pad(set)}`),
-      vvrite(`edition 1/${edition}`),
+    vvrite(`opepen secret`),
+    vvrite(`set ${pad(set)}`),
+    vvrite(`edition 1/${edition}`),
     `</header>`,
     editionSVG({ edition }),
     `<section class="intro">`,
-      vvrite(`artist and artwork revealed`),
-      vvrite(`upon release of the final opepen set.`),
+    vvrite(`artist and artwork revealed`),
+    vvrite(`upon release of the final opepen set.`),
     `</section>`,
     `<section class="progress">`,
-      `<header>`,
-        vvrite(`progress`),
-        vvrite(`inactive / burned`),
-      `</header>`,
-      `<div class="bar">`,
-        `<div style="width: ${set/200*100}%"></div>`,
-        `<div style="width: ${burned/80/200*100}%"></div>`,
-      `</div>`,
-      `<div style="left: ${set/200*100}%">${vvrite(`${pad(revealedSets)}`)}</div>`,
+    `<header>`,
+    vvrite(`progress`),
+    vvrite(`inactive / burned`),
+    `</header>`,
+    `<div class="bar">`,
+    `<div style="width: ${(set / 200) * 100}%"></div>`,
+    `<div style="width: ${(burned / 80 / 200) * 100}%"></div>`,
+    `</div>`,
+    `<div style="left: ${(set / 200) * 100}%">${vvrite(`${pad(revealedSets)}`)}</div>`,
     `</section>`,
   ].join('')
 

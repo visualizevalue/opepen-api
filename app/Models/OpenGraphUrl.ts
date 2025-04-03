@@ -25,5 +25,4 @@ export default class OpenGraphUrl extends BaseModel {
 
   @column.dateTime({ autoUpdate: true })
   public updatedAt: DateTime
-
 }

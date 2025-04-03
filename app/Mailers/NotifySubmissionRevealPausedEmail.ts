@@ -6,7 +6,10 @@ import NotificationEmail from './NotificationEmail'
 import { timeRemaining } from 'App/Helpers/time'
 
 export default class NotifySubmissionRevealPausedEmail extends NotificationEmail {
-  constructor (protected account: Account, private submission: SetSubmission) {
+  constructor(
+    protected account: Account,
+    private submission: SetSubmission,
+  ) {
     super(account)
   }
 
@@ -17,7 +20,9 @@ export default class NotifySubmissionRevealPausedEmail extends NotificationEmail
       templateData: {
         setName: this.submission.name,
         artist: await this.submission.creatorNamesStr(),
-        timeRemaining: timeRemaining(Duration.fromObject({ seconds: this.submission.remainingRevealTime })),
+        timeRemaining: timeRemaining(
+          Duration.fromObject({ seconds: this.submission.remainingRevealTime }),
+        ),
         setUrl: `https://opepen.art/submissions/${this.submission.uuid}`,
       },
     })

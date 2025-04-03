@@ -2,7 +2,18 @@ import { DateTime } from 'luxon'
 import { v4 as uuid } from 'uuid'
 import sharp, { type FormatEnum } from 'sharp'
 import Application from '@ioc:Adonis/Core/Application'
-import { BaseModel, BelongsTo, HasMany, ManyToMany, beforeCreate, belongsTo, column, computed, hasMany, manyToMany } from '@ioc:Adonis/Lucid/Orm'
+import {
+  BaseModel,
+  BelongsTo,
+  HasMany,
+  ManyToMany,
+  beforeCreate,
+  belongsTo,
+  column,
+  computed,
+  hasMany,
+  manyToMany,
+} from '@ioc:Adonis/Lucid/Orm'
 import Drive from '@ioc:Adonis/Core/Drive'
 import Env from '@ioc:Adonis/Core/Env'
 import Logger from '@ioc:Adonis/Core/Logger'
@@ -18,9 +29,9 @@ import SetSubmission from './SetSubmission'
 import Opepen from './Opepen'
 
 type ImageVersions = {
-  sm?: boolean, // 512
-  lg?: boolean, // 1024
-  xl?: boolean, // 2048
+  sm?: boolean // 512
+  lg?: boolean // 1024
+  xl?: boolean // 2048
 }
 
 export default class Image extends BaseModel {
@@ -31,7 +42,7 @@ export default class Image extends BaseModel {
   public uuid: string
 
   @beforeCreate()
-  public static async createUUID (model: Image) {
+  public static async createUUID(model: Image) {
     model.uuid = uuid()
   }
 
@@ -39,7 +50,7 @@ export default class Image extends BaseModel {
   public type: string
 
   @column({
-    consume: value => value || {},
+    consume: (value) => value || {},
   })
   public versions: ImageVersions
 
@@ -65,49 +76,51 @@ export default class Image extends BaseModel {
   public aspectRatio: number
 
   @computed()
-  public get cdn (): string {
+  public get cdn(): string {
     return Env.get('CDN_URL')
   }
 
   @computed()
-  public get path (): string {
+  public get path(): string {
     return `images`
   }
 
   @computed()
-  public get is3D (): boolean {
-    return ['glb', 'gltf', 'glb-json', 'glb-binary', 'gltf-json', 'gltf-binary'].includes(this.type)
+  public get is3D(): boolean {
+    return ['glb', 'gltf', 'glb-json', 'glb-binary', 'gltf-json', 'gltf-binary'].includes(
+      this.type,
+    )
   }
 
   @computed()
-  public get isVideo (): boolean {
+  public get isVideo(): boolean {
     return ['webm', 'mp4'].includes(this.type)
   }
 
   @computed()
-  public get isAnimated (): boolean {
+  public get isAnimated(): boolean {
     return this.isVideo || ['apng', 'gif'].includes(this.type)
   }
 
   @computed()
-  public get requiresAnimationUrlMetadata (): boolean {
+  public get requiresAnimationUrlMetadata(): boolean {
     return this.isVideo || this.is3D
   }
 
   @computed()
-  public get isWebRendered (): boolean {
+  public get isWebRendered(): boolean {
     return ['svg', 'html'].includes(this.type) || this.is3D
   }
 
-  public get staticType (): string {
-    return (this.isAnimated || this.isWebRendered || this.is3D) ? 'png' : this.type
+  public get staticType(): string {
+    return this.isAnimated || this.isWebRendered || this.is3D ? 'png' : this.type
   }
 
-  public get originalURI (): string {
+  public get originalURI(): string {
     return `${this.cdn}/${this.path}/${this.uuid}.${this.type}`
   }
 
-  public get staticURI (): string {
+  public get staticURI(): string {
     if (this.versions.sm) {
       return `${this.cdn}/${this.path}/${this.uuid}@sm.${this.staticType}`
     }
@@ -115,30 +128,30 @@ export default class Image extends BaseModel {
     return this.renderURI
   }
 
-  public get threeJSPreviewPage (): string {
+  public get threeJSPreviewPage(): string {
     return `${Env.get('APP_URL')}/v1/previews/three?file=${this.originalURI}`
   }
 
-  public get renderedURI (): string {
+  public get renderedURI(): string {
     return this.versions?.sm
       ? this.staticURI
       : `${Env.get('APP_URL')}/v1/opepen/images/${this.uuid}/render`
   }
 
-  public get renderURI (): string {
+  public get renderURI(): string {
     return `${Env.get('APP_URL')}/v1/opepen/images/${this.uuid}/render`
   }
 
-  public uri (size: keyof ImageVersions = 'sm'): string {
+  public uri(size: keyof ImageVersions = 'sm'): string {
     return `${this.cdn}/${this.path}/${this.uuid}@${size}.${this.staticType}`
   }
 
   @belongsTo(() => Account, {
     foreignKey: 'creator',
     localKey: 'address',
-    onQuery: query => {
+    onQuery: (query) => {
       query.preload('pfp')
-    }
+    },
   })
   public creatorAccount: BelongsTo<typeof Account>
 
@@ -155,7 +168,7 @@ export default class Image extends BaseModel {
    */
 
   @column({ serializeAs: null })
-  public postId: bigint|null
+  public postId: bigint | null
 
   @belongsTo(() => Post, {
     foreignKey: 'postId',
@@ -163,7 +176,7 @@ export default class Image extends BaseModel {
   public cachedPost: BelongsTo<typeof Post>
 
   @column({ serializeAs: null })
-  public castId: bigint|null
+  public castId: bigint | null
 
   @belongsTo(() => Cast, {
     foreignKey: 'castId',
@@ -171,24 +184,25 @@ export default class Image extends BaseModel {
   public cachedCast: BelongsTo<typeof Cast>
 
   @column({ serializeAs: null })
-  public setSubmissionId: number|null
+  public setSubmissionId: number | null
 
   @belongsTo(() => SetSubmission, {
     foreignKey: 'setSubmissionId',
-    onQuery: query => {
-      query.preload('edition1Image')
-           .preload('edition4Image')
-           .preload('edition5Image')
-           .preload('edition10Image')
-           .preload('edition20Image')
-           .preload('edition40Image')
-           .preload('creatorAccount')
-    }
+    onQuery: (query) => {
+      query
+        .preload('edition1Image')
+        .preload('edition4Image')
+        .preload('edition5Image')
+        .preload('edition10Image')
+        .preload('edition20Image')
+        .preload('edition40Image')
+        .preload('creatorAccount')
+    },
   })
   public cachedSetSubmission: BelongsTo<typeof SetSubmission>
 
   @column({ serializeAs: null })
-  public opepenId: bigint|null
+  public opepenId: bigint | null
 
   @belongsTo(() => Opepen, {
     localKey: 'tokenId',
@@ -196,7 +210,7 @@ export default class Image extends BaseModel {
   })
   public cachedOpepen: BelongsTo<typeof Opepen>
 
-  async clearCashed () {
+  async clearCashed() {
     this.opepenId = null
     this.setSubmissionId = null
     this.castId = null
@@ -205,7 +219,7 @@ export default class Image extends BaseModel {
     await this.save()
   }
 
-  async calculatePoints () {
+  async calculatePoints() {
     const image: Image = this
 
     await image.load('votes')
@@ -215,10 +229,10 @@ export default class Image extends BaseModel {
     await image.save()
   }
 
-  async fillImageFromURI (url: string): Promise<Image> {
+  async fillImageFromURI(url: string): Promise<Image> {
     try {
       const file = await toDriveFromURI(url, this.uuid)
-      if (! file?.fileType) throw new Error(`Unknonw File Type ${this.uuid} ${url}`)
+      if (!file?.fileType) throw new Error(`Unknonw File Type ${this.uuid} ${url}`)
 
       this.type = file?.fileType
       await this.save()
@@ -229,7 +243,7 @@ export default class Image extends BaseModel {
     return this
   }
 
-  async generateScaledVersions (): Promise<void> {
+  async generateScaledVersions(): Promise<void> {
     try {
       console.log(`GENERATING SCALED VERSION`)
       let key = `images/${this.uuid}.${this.type}`
@@ -249,36 +263,43 @@ export default class Image extends BaseModel {
     }
   }
 
-  async renderToScaledVersions (image: Buffer) {
+  async renderToScaledVersions(image: Buffer) {
     const imageProcessor = sharp(image)
     const metadata = await imageProcessor.metadata()
-    const distType = this.isAnimated || this.isWebRendered || this.type === 'svg' ? 'png' : this.type
+    const distType =
+      this.isAnimated || this.isWebRendered || this.type === 'svg' ? 'png' : this.type
     imageProcessor.toFormat(distType as keyof FormatEnum)
 
-    if (! metadata.width || !['png', 'jpeg', 'webp'].includes(distType)) return
+    if (!metadata.width || !['png', 'jpeg', 'webp'].includes(distType)) return
 
     this.aspectRatio = metadata.width / (metadata.height || metadata.width)
 
     if (metadata.width > 2048) {
       const v2048 = await imageProcessor.resize({ width: 2048 }).toBuffer()
-      await Drive.put(`images/${this.uuid}@xl.${distType}`, v2048, { contentType: `image/${distType}` })
+      await Drive.put(`images/${this.uuid}@xl.${distType}`, v2048, {
+        contentType: `image/${distType}`,
+      })
       this.versions.xl = true
     }
 
     if (metadata.width > 1024) {
       const v1024 = await imageProcessor.resize({ width: 1024 }).toBuffer()
-      await Drive.put(`images/${this.uuid}@lg.${distType}`, v1024, { contentType: `image/${distType}` })
+      await Drive.put(`images/${this.uuid}@lg.${distType}`, v1024, {
+        contentType: `image/${distType}`,
+      })
       this.versions.lg = true
     }
 
     const v512 = await imageProcessor.resize({ width: 512 }).toBuffer()
-    await Drive.put(`images/${this.uuid}@sm.${distType}`, v512, { contentType: `image/${distType}` })
+    await Drive.put(`images/${this.uuid}@sm.${distType}`, v512, {
+      contentType: `image/${distType}`,
+    })
     this.versions.sm = true
 
     await this.save()
   }
 
-  async generateStill (): Promise<void> {
+  async generateStill(): Promise<void> {
     // Download asset
     const key = `images/${this.uuid}.${this.type}`
     const pngKey = `${key}.png`
@@ -302,14 +323,11 @@ export default class Image extends BaseModel {
     await Drive.put(pngKey, await Drive.use('local').get(pngKey))
 
     // Delete local data
-    await Promise.all([
-      Drive.use('local').delete(key),
-      Drive.use('local').delete(pngKey),
-    ])
+    await Promise.all([Drive.use('local').delete(key), Drive.use('local').delete(pngKey)])
   }
 
-  public async render () {
-    const rendered = !! this.versions?.sm
+  public async render() {
+    const rendered = !!this.versions?.sm
 
     if (rendered) {
       const response = await axios.get(this.staticURI, { responseType: 'arraybuffer' })
@@ -332,7 +350,7 @@ export default class Image extends BaseModel {
     }
   }
 
-  public async renderOriginal () {
+  public async renderOriginal() {
     if (this.is3D) {
       return await renderPage(this.threeJSPreviewPage)
     }
@@ -340,12 +358,12 @@ export default class Image extends BaseModel {
     return await renderPage(this.originalURI)
   }
 
-  public async updateImage (url) {
+  public async updateImage(url) {
     await this.fillImageFromURI(url)
     await this.generateScaledVersions()
   }
 
-  static async fromURI (url: string, data: object = { versions: {} }): Promise<Image> {
+  static async fromURI(url: string, data: object = { versions: {} }): Promise<Image> {
     const image = await Image.create(data)
 
     await image.fillImageFromURI(url)
@@ -353,30 +371,30 @@ export default class Image extends BaseModel {
     return image
   }
 
-  static votableQuery () {
-    return Image.query()
-      .where(query => query
+  static votableQuery() {
+    return Image.query().where((query) =>
+      query
         // Attached to approved single upload
-        .whereHas('cachedPost', query => query
-            .whereNotNull('approvedAt')
-            .whereNull('shadowedAt')
-            .whereNull('deletedAt')
+        .whereHas('cachedPost', (query) =>
+          query.whereNotNull('approvedAt').whereNull('shadowedAt').whereNull('deletedAt'),
         )
         // Revealed Dynamic Opepen
         .orHas('cachedOpepen')
         // Revealed Print Opepen
-        .orWhereHas('cachedSetSubmission', query => query
-          .whereNotNull('setId')
-          .whereNotNull('revealBlockNumber')
-          .whereIn('editionType', ['PRINT', 'NUMBERED_PRINT'])
+        .orWhereHas('cachedSetSubmission', (query) =>
+          query
+            .whereNotNull('setId')
+            .whereNotNull('revealBlockNumber')
+            .whereIn('editionType', ['PRINT', 'NUMBERED_PRINT']),
         )
         // Unrevealed Submissions
-        .orWhereHas('cachedSetSubmission', query => query
-          .whereNull('revealBlockNumber')
-          .whereNull('setId')
-          .whereNull('shadowedAt')
-          .whereNull('deletedAt')
-        )
-      )
+        .orWhereHas('cachedSetSubmission', (query) =>
+          query
+            .whereNull('revealBlockNumber')
+            .whereNull('setId')
+            .whereNull('shadowedAt')
+            .whereNull('deletedAt'),
+        ),
+    )
   }
 }

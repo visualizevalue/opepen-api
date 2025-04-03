@@ -5,7 +5,10 @@ import SetSubmission from 'App/Models/SetSubmission'
 import NotificationEmail from './NotificationEmail'
 
 export default class NotifyNewSubmissionEmail extends NotificationEmail {
-  constructor (protected account: Account, private submission: SetSubmission) {
+  constructor(
+    protected account: Account,
+    private submission: SetSubmission,
+  ) {
     super(account)
   }
 

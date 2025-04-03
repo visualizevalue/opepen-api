@@ -3,14 +3,14 @@ import BaseSchema from '@ioc:Adonis/Lucid/Schema'
 export default class extends BaseSchema {
   protected tableName = 'timeline'
 
-  public async up () {
+  public async up() {
     this.schema.alterTable(this.tableName, (table) => {
       table.bigInteger('cast_id').references('id').inTable('casts')
 
       table.renameColumn('account', 'address')
     })
 
-    this.defer(async db => {
+    this.defer(async (db) => {
       // Copy over posts
       await db.rawQuery(`
         INSERT INTO timeline (
@@ -59,14 +59,14 @@ export default class extends BaseSchema {
     })
   }
 
-  public async down () {
+  public async down() {
     this.schema.alterTable(this.tableName, (table) => {
       table.dropColumn('cast_id')
 
       table.renameColumn('address', 'account')
     })
 
-    this.defer(async db => {
+    this.defer(async (db) => {
       await db.from('timeline').delete()
     })
   }

@@ -18,7 +18,7 @@ class Ws {
       cors: {
         origin: '*',
         credentials: true,
-      }
+      },
     })
 
     this.namespaces['sets/026'] = this.io.of('sets/026')

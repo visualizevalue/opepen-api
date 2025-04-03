@@ -1,7 +1,7 @@
 import BaseSchema from '@ioc:Adonis/Lucid/Schema'
 
 export default class extends BaseSchema {
-  public async up () {
+  public async up() {
     this.schema.alterTable('sets', (table) => {
       table.jsonb('artist_signature')
     })
@@ -10,7 +10,7 @@ export default class extends BaseSchema {
     })
   }
 
-  public async down () {
+  public async down() {
     this.schema.alterTable('sets', (table) => {
       table.dropColumn('artist_signature')
     })

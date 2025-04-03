@@ -3,7 +3,7 @@ import Renderer from './Renderer'
 import SetSubmission from 'App/Models/SetSubmission'
 
 export default class SetMinimalRenderer extends Renderer {
-  public static async render (submission: SetSubmission) {
+  public static async render(submission: SetSubmission) {
     await Promise.all([
       submission.load('edition1Image'),
       submission.load('edition4Image'),
@@ -15,7 +15,7 @@ export default class SetMinimalRenderer extends Renderer {
 
     const padding = 32
     const imagePadding = 10
-    const imageWidth = (this.ASPECT_RATIOS.SQUARE.WIDTH - imagePadding * 2 - padding*2) / 3
+    const imageWidth = (this.ASPECT_RATIOS.SQUARE.WIDTH - imagePadding * 2 - padding * 2) / 3
 
     const svg = await this.svg(
       <div
@@ -30,12 +30,14 @@ export default class SetMinimalRenderer extends Renderer {
           padding: `${padding}px`,
         }}
       >
-        <div style={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          width: '100%',
-          position: 'relative',
-        }}>
+        <div
+          style={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            width: '100%',
+            position: 'relative',
+          }}
+        >
           <img
             style={{
               border: '1px solid #363636',
@@ -106,7 +108,7 @@ export default class SetMinimalRenderer extends Renderer {
           />
         </div>
       </div>,
-      'SQUARE'
+      'SQUARE',
     )
 
     return this.png(svg)

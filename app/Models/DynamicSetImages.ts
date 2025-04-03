@@ -249,7 +249,6 @@ export default class DynamicSetImages extends BaseModel {
   @column({ serializeAs: null })
   public image_40_40_id: bigint
 
-
   @belongsTo(() => Image, { foreignKey: 'image_1_1_id' })
   public image1_1: BelongsTo<typeof Image>
 
@@ -490,7 +489,7 @@ export default class DynamicSetImages extends BaseModel {
   @belongsTo(() => Image, { foreignKey: 'image_40_40_id' })
   public image40_40: BelongsTo<typeof Image>
 
-  public images () {
+  public images() {
     return [
       this.image1_1,
       this.image4_1,

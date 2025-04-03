@@ -7,15 +7,15 @@ import Event from 'App/Models/Event'
 
 // @ts-ignore
 type Sale = paths['/sales/v4']['get']['responses']['200']['schema']['sales'][0]
-const halfHour = 1000 * 60 * 60 / 2
+const halfHour = (1000 * 60 * 60) / 2
 
 const sdk = apiGenerator('@reservoirprotocol/v1.0#1llv231dlb6nmm72')
 sdk.server(Env.get('RESERVOIR_BASE'))
 
 export default class ImportSales {
-  public startTimestamp: number;
+  public startTimestamp: number
 
-  public async track () {
+  public async track() {
     while (true) {
       await this.sync()
 
@@ -23,7 +23,7 @@ export default class ImportSales {
     }
   }
 
-  public async sync () {
+  public async sync() {
     await this.run(Env.get('OPEPEN_ADDRESS'))
   }
 
@@ -33,7 +33,7 @@ export default class ImportSales {
     Logger.info(`Fetching historical sales for ${contract}`)
 
     const latestSale = await Event.query()
-      .whereRaw('data->\'saleId\' is not null')
+      .whereRaw("data->'saleId' is not null")
       .orderBy('blockNumber', 'desc')
       .orderBy('logIndex', 'desc')
       .first()
@@ -64,7 +64,7 @@ export default class ImportSales {
         .preload('opepen')
         .where('tokenId', parseInt(sale.token.tokenId))
         .where('transactionHash', sale.txHash.toLowerCase())
-        .where(q => {
+        .where((q) => {
           q.where('to', sale.to.toLowerCase())
           q.orWhere('to', sale.from.toLowerCase())
           q.orWhere('from', sale.to.toLowerCase())
@@ -73,7 +73,7 @@ export default class ImportSales {
         .orderBy('logIndex', 'desc')
         .first()
 
-      if (! event) {
+      if (!event) {
         Logger.warn(`Event for sale ${sale.id} not found`)
       } else {
         event.value = sale.price.amount.raw
@@ -86,13 +86,13 @@ export default class ImportSales {
     }
   }
 
-  private async fetchBatch (contract: string, continuation?: string) {
+  private async fetchBatch(contract: string, continuation?: string) {
     const query: {
-      contract: string,
-      limit: string,
-      accept: string,
-      continuation?: string,
-      startTimestamp?: number,
+      contract: string
+      limit: string
+      accept: string
+      continuation?: string
+      startTimestamp?: number
     } = {
       contract,
       limit: '100',

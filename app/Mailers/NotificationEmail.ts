@@ -8,26 +8,28 @@ import View from '@ioc:Adonis/Core/View'
 import Account from 'App/Models/Account'
 
 export default class NotificationEmail extends BaseMailer {
-  constructor (protected account: Account) {
+  constructor(protected account: Account) {
     super()
   }
 
-  public async prepareEmail(message: MessageContract, {
-    subject = '',
-    name = '',
-    templateString = '',
-    templateData = {}
-  }: {
-    subject: string,
-    name?: string, // new_set
-    templateString?: string,
-    templateData: {[key:string]: string|string[]}
-  }): Promise<MessageContract> {
-
-    const html = await this.renderTemplate({ name, templateString, templateData, })
+  public async prepareEmail(
+    message: MessageContract,
+    {
+      subject = '',
+      name = '',
+      templateString = '',
+      templateData = {},
+    }: {
+      subject: string
+      name?: string // new_set
+      templateString?: string
+      templateData: { [key: string]: string | string[] }
+    },
+  ): Promise<MessageContract> {
+    const html = await this.renderTemplate({ name, templateString, templateData })
 
     // Make sure we're sending notification in this environment
-    if (! html || ! Env.get('SEND_NOTIFICATIONS')) {
+    if (!html || !Env.get('SEND_NOTIFICATIONS')) {
       Logger.info(`Email Notification held: ${html}`)
       return message
     }
@@ -40,14 +42,14 @@ export default class NotificationEmail extends BaseMailer {
       .text(htmlToText(html))
   }
 
-  public async renderTemplate ({
+  public async renderTemplate({
     name,
     templateString,
     templateData,
   }: {
-    name: string,
-    templateString?: string,
-    templateData?: {[key:string]: string|string[]},
+    name: string
+    templateString?: string
+    templateData?: { [key: string]: string | string[] }
   }) {
     const data = {
       name: this.account.display,
@@ -57,7 +59,7 @@ export default class NotificationEmail extends BaseMailer {
           account: this.account.address,
           type: name,
         },
-        { prefixUrl: Env.get('APP_URL') }
+        { prefixUrl: Env.get('APP_URL') },
       ),
       ...templateData,
     }

@@ -11,7 +11,8 @@ export default class SyncOpepen extends BaseCommand {
   /**
    * Command description is displayed in the "help" output
    */
-  public static description = 'Sync the blockchain state of current opepen ownership by parsing blockchain events'
+  public static description =
+    'Sync the blockchain state of current opepen ownership by parsing blockchain events'
 
   public static settings = {
     loadApp: true,

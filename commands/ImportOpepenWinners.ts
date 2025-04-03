@@ -37,7 +37,7 @@ export default class ImportOpepenWinners extends BaseCommand {
       for (const id of opepenIds) {
         const opepen = await Opepen.find(id)
 
-        if (! opepen) continue
+        if (!opepen) continue
 
         opepen.revealedAt = DateTime.now()
         opepen.setId = set.id

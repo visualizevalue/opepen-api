@@ -5,11 +5,12 @@ import sharp from 'sharp'
 import Drive from '@ioc:Adonis/Core/Drive'
 import Application from '@ioc:Adonis/Core/Application'
 
-export type Action = string|{ text: string, action: 'post'|'post_redirect'|'link'|'mint', target?: string }
-export type AspectRatio = '1.9:1'|'1:1'
+export type Action =
+  | string
+  | { text: string; action: 'post' | 'post_redirect' | 'link' | 'mint'; target?: string }
+export type AspectRatio = '1.9:1' | '1:1'
 
 export default class Renderer {
-
   static ASPECT_RATIOS = {
     SQUARE: {
       WIDTH: 1000,
@@ -22,44 +23,41 @@ export default class Renderer {
   }
   static PADDING = 64
 
-  protected static async svg (svg, ratio: 'SQUARE'|'WIDE' = 'WIDE', size: number = 1) {
-    return satori(
-      svg,
-      {
-        width: this.ASPECT_RATIOS[ratio].WIDTH * size,
-        height: this.ASPECT_RATIOS[ratio].HEIGHT * size,
-        fonts: [
-          {
-            name: 'SpaceGrotesk-Medium',
-            data: fs.readFileSync(Application.resourcesPath(`fonts/SpaceGrotesk-Medium.ttf`)),
-            weight: 500,
-            style: 'normal',
-          },
-          {
-            name: 'SpaceGrotesk-Bold',
-            data: fs.readFileSync(Application.resourcesPath(`fonts/SpaceGrotesk-Bold.ttf`)),
-            weight: 700,
-            style: 'normal',
-          },
-        ],
-      }
-    )
+  protected static async svg(svg, ratio: 'SQUARE' | 'WIDE' = 'WIDE', size: number = 1) {
+    return satori(svg, {
+      width: this.ASPECT_RATIOS[ratio].WIDTH * size,
+      height: this.ASPECT_RATIOS[ratio].HEIGHT * size,
+      fonts: [
+        {
+          name: 'SpaceGrotesk-Medium',
+          data: fs.readFileSync(Application.resourcesPath(`fonts/SpaceGrotesk-Medium.ttf`)),
+          weight: 500,
+          style: 'normal',
+        },
+        {
+          name: 'SpaceGrotesk-Bold',
+          data: fs.readFileSync(Application.resourcesPath(`fonts/SpaceGrotesk-Bold.ttf`)),
+          weight: 700,
+          style: 'normal',
+        },
+      ],
+    })
   }
 
-  protected static async png (svg) {
-    return await sharp(Buffer.from(svg))
-      .toFormat('png')
-      .toBuffer()
+  protected static async png(svg) {
+    return await sharp(Buffer.from(svg)).toFormat('png').toBuffer()
   }
 
-  protected static async urlAsBuffer (url: string = 'https://opepenai.nyc3.cdn.digitaloceanspaces.com/images/base.png') {
+  protected static async urlAsBuffer(
+    url: string = 'https://opepenai.nyc3.cdn.digitaloceanspaces.com/images/base.png',
+  ) {
     try {
-      const response = await axios.get(url,  { responseType: 'arraybuffer' })
+      const response = await axios.get(url, { responseType: 'arraybuffer' })
 
       let contentType = response.headers['content-type']
       let buffer = Buffer.from(response.data, 'utf-8')
 
-      if (! ['image/png', 'image/jpeg'].includes(contentType)) {
+      if (!['image/png', 'image/jpeg'].includes(contentType)) {
         buffer = await sharp(buffer).toFormat('png').toBuffer()
         contentType = 'image/png'
       }
@@ -70,10 +68,9 @@ export default class Renderer {
     }
   }
 
-  protected static saveImage (key, png) {
+  protected static saveImage(key, png) {
     return Drive.put(key, png, {
       contentType: 'image/png',
     })
   }
-
 }

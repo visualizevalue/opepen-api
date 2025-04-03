@@ -8,8 +8,7 @@ import { constants } from 'ethers'
 import FarcasterData from 'App/Services/FarcasterData'
 
 export default class AccountsController extends BaseController {
-
-  public async artists ({ request }) {
+  public async artists({ request }) {
     const {
       page = 1,
       limit = 24,
@@ -28,7 +27,7 @@ export default class AccountsController extends BaseController {
     return query.paginate(page, limit)
   }
 
-  public async curators ({ request }) {
+  public async curators({ request }) {
     const {
       page = 1,
       limit = 24,
@@ -48,13 +47,13 @@ export default class AccountsController extends BaseController {
     return query.paginate(page, limit)
   }
 
-  public async show ({ params }) {
+  public async show({ params }) {
     const id = decodeURIComponent(params.id.toLowerCase())
     const address = isAddress(id) ? id : constants.AddressZero
 
     const account = await Account.byId(id)
       .preload('coverImage')
-      .preload('richContentLinks', query => {
+      .preload('richContentLinks', (query) => {
         query.preload('logo')
         query.preload('cover')
         query.orderBy('sortIndex')
@@ -63,7 +62,7 @@ export default class AccountsController extends BaseController {
       .withCount('burnedOpepen')
       .first()
 
-    if (! account) {
+    if (!account) {
       return Account.firstOrCreate({ address })
     }
 
@@ -87,8 +86,8 @@ export default class AccountsController extends BaseController {
             .whereRaw('set_submissions.id = co_creators.set_submission_id')
             .andWhere('co_creators.account_id', account.id)
         })
-      })      
-      .withScopes(scopes => {
+      })
+      .withScopes((scopes) => {
         scopes.live()
       })
       .orderBy('created_at', 'desc')
@@ -96,8 +95,10 @@ export default class AccountsController extends BaseController {
     return response
   }
 
-  public async update ({ params }) {
-    const account = await Account.byId(decodeURIComponent(params.id.toLowerCase())).firstOrFail()
+  public async update({ params }) {
+    const account = await Account.byId(
+      decodeURIComponent(params.id.toLowerCase()),
+    ).firstOrFail()
 
     await account.updateNames()
     await account.updateProfileCompletion()
@@ -105,18 +106,19 @@ export default class AccountsController extends BaseController {
     return account
   }
 
-  public async testMail ({ params, response }: HttpContextContract) {
-    const account = await Account.byId(decodeURIComponent(params.id.toLowerCase())).firstOrFail()
+  public async testMail({ params, response }: HttpContextContract) {
+    const account = await Account.byId(
+      decodeURIComponent(params.id.toLowerCase()),
+    ).firstOrFail()
 
-    if (! account.email) {
+    if (!account.email) {
       return response.badRequest(`User doesn't have an email.`)
     }
 
     return await new TestEmail(account).sendLater()
   }
 
-  public async byFid ({ params }: HttpContextContract) {
+  public async byFid({ params }: HttpContextContract) {
     return FarcasterData.getAccount(params.fid)
   }
-
 }

@@ -38,14 +38,17 @@ export default class NotifyRandomOpepen extends BaseCommand {
 
     const creatorNames = await opepen.set.submission.creatorNamesForXStr()
 
-    await this.notify([
-      `Featured Opepen: ${opepen.name}${creatorNames ? ` by ${creatorNames}` : ``}`,
-      `https://opepen.art/opepen/${opepen.tokenId}`
-    ], opepen.image.staticURI)
+    await this.notify(
+      [
+        `Featured Opepen: ${opepen.name}${creatorNames ? ` by ${creatorNames}` : ``}`,
+        `https://opepen.art/opepen/${opepen.tokenId}`,
+      ],
+      opepen.image.staticURI,
+    )
     // ], `https://api.opepen.art/v1/render/opepen/${opepen?.tokenId}/og`)
   }
 
-  private async notify (lines: string[], img: string) {
+  private async notify(lines: string[], img: string) {
     const { default: Account } = await import('App/Models/Account')
     const { default: Twitter } = await import('App/Services/Twitter')
     const { default: Farcaster } = await import('App/Services/Farcaster')
@@ -54,7 +57,7 @@ export default class NotifyRandomOpepen extends BaseCommand {
 
     const account = await Account.byId(Env.get('TWITTER_BOT_ACCOUNT_ADDRESS')).firstOrFail()
     const xClient = await Twitter.initialize(account)
-    if (! xClient) return
+    if (!xClient) return
 
     await xClient.tweet(txt, img)
     await Farcaster.cast(txt, img)

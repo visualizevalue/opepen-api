@@ -42,13 +42,16 @@ export default class OpepenMetadataImport extends BaseCommand {
     const opepens = await query.orderBy('tokenId')
 
     for (const opepen of opepens) {
-      const { data: metadata } = await axios.get(`https://metadata.opepen.art/${opepen.tokenId}/metadata.json`)
+      const { data: metadata } = await axios.get(
+        `https://metadata.opepen.art/${opepen.tokenId}/metadata.json`,
+      )
 
       delete metadata.name
       delete metadata.description
 
-      metadata.attributes = metadata.attributes
-        .filter(({ trait_type }) => ['Artist', 'Release', 'Set', 'Opepen', 'Edition Size'].includes(trait_type))
+      metadata.attributes = metadata.attributes.filter(({ trait_type }) =>
+        ['Artist', 'Release', 'Set', 'Opepen', 'Edition Size'].includes(trait_type),
+      )
 
       opepen.metadata = metadata
       await opepen.save()

@@ -6,7 +6,11 @@ import { delay, BLOCKS_PER_WEEK } from 'App/Helpers/time'
 export default abstract class Contract {
   protected contract: ethers.Contract
 
-  public async syncEvents (startBlock: number, eventType: string, onEvent: Function): Promise<ethers.BigNumber> {
+  public async syncEvents(
+    startBlock: number,
+    eventType: string,
+    onEvent: Function,
+  ): Promise<ethers.BigNumber> {
     const lastSynched = ethers.BigNumber.from(startBlock)
     let latestBlock
     try {
@@ -31,18 +35,24 @@ export default abstract class Contract {
       await onEvent.call(this, event)
     }
 
-    const syncedUntil = (until.gt(0) && until.lt(toBlock)) ? until : toBlock
-    Logger.info(`Synched ${eventType} events to block ${syncedUntil?.toNumber() || 'latest'}; Found ${events.length} events.`)
+    const syncedUntil = until.gt(0) && until.lt(toBlock) ? until : toBlock
+    Logger.info(
+      `Synched ${eventType} events to block ${syncedUntil?.toNumber() || 'latest'}; Found ${events.length} events.`,
+    )
 
     // If we're not fully synched up, continue synching
     if (toBlockTag !== 'latest') {
-     return await this.syncEvents(syncedUntil.toNumber(), eventType, onEvent)
+      return await this.syncEvents(syncedUntil.toNumber(), eventType, onEvent)
     }
 
     return syncedUntil
   }
 
-  protected async fetchEvents (fromBlockTag, toBlockTag, eventType): Promise<[Event[], ethers.BigNumber]> {
+  protected async fetchEvents(
+    fromBlockTag,
+    toBlockTag,
+    eventType,
+  ): Promise<[Event[], ethers.BigNumber]> {
     let events: Event[] = []
     let until: ethers.BigNumber = ethers.BigNumber.from(0)
     try {
@@ -60,7 +70,7 @@ export default abstract class Contract {
     return [events, until]
   }
 
-  public ownerOf (tokenId: number): Promise<string> {
+  public ownerOf(tokenId: number): Promise<string> {
     return this.contract.ownerOf(tokenId)
   }
 }

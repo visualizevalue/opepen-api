@@ -28,7 +28,10 @@ export default class UpdateMarketplaceImages extends BaseCommand {
     const { default: Opepen } = await import('App/Models/Opepen')
     const { default: SetModel } = await import('App/Models/SetModel')
 
-    const set = await SetModel.query().where('id', this.set).preload('submission').firstOrFail()
+    const set = await SetModel.query()
+      .where('id', this.set)
+      .preload('submission')
+      .firstOrFail()
 
     const query = Opepen.query().where('setId', set.id)
     if (this.edition) {

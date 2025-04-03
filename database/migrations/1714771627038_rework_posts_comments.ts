@@ -3,7 +3,7 @@ import BaseSchema from '@ioc:Adonis/Lucid/Schema'
 export default class extends BaseSchema {
   protected tableName = 'posts'
 
-  public async up () {
+  public async up() {
     this.schema.dropTable('images_posts')
     this.schema.dropTable('timeline')
     this.schema.dropTable('posts')
@@ -34,15 +34,18 @@ export default class extends BaseSchema {
       table.bigInteger('opepen_id').references('token_id').inTable('opepens')
       table.integer('submission_id').references('id').inTable('set_submissions')
       table.integer('subscription_id').references('id').inTable('set_subscriptions')
-      table.bigInteger('subscription_history_id').references('id').inTable('set_subscription_history')
+      table
+        .bigInteger('subscription_history_id')
+        .references('id')
+        .inTable('set_subscription_history')
     })
   }
 
-  public async down () {
+  public async down() {
     this.schema.dropTable('images_posts')
     this.schema.dropTable('timeline')
 
-    this.schema.alterTable('posts', table => {
+    this.schema.alterTable('posts', (table) => {
       table.dropColumn('approved_at')
       table.dropColumn('signature')
       table.renameColumn('parent_post_id', 'parent_comment_id')
@@ -77,7 +80,10 @@ export default class extends BaseSchema {
       table.bigInteger('opepen_id').references('token_id').inTable('opepens')
       table.integer('submission_id').references('id').inTable('set_submissions')
       table.integer('subscription_id').references('id').inTable('set_subscriptions')
-      table.bigInteger('subscription_history_id').references('id').inTable('set_subscription_history')
+      table
+        .bigInteger('subscription_history_id')
+        .references('id')
+        .inTable('set_subscription_history')
     })
   }
 }

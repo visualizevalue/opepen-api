@@ -35,10 +35,9 @@ export default class Generative extends BaseModel {
   @belongsTo(() => Account, {
     foreignKey: 'address',
     localKey: 'address',
-    onQuery: query => {
+    onQuery: (query) => {
       query.preload('pfp')
     },
   })
   public account: BelongsTo<typeof Account>
-
 }

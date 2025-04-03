@@ -23,7 +23,7 @@ const DEFAULT_MODELS = [
 export default class extends BaseSchema {
   protected tableName = 'ai_models'
 
-  public async up () {
+  public async up() {
     this.schema.createTable(this.tableName, (table) => {
       table.increments('id')
 
@@ -36,12 +36,12 @@ export default class extends BaseSchema {
     // Create the default models
     this.defer(async (db) => {
       for (const model of DEFAULT_MODELS) {
-        await db.table('ai_models').insert({...model, created_at: DateTime.now() })
+        await db.table('ai_models').insert({ ...model, created_at: DateTime.now() })
       }
     })
   }
 
-  public async down () {
+  public async down() {
     this.schema.dropTable(this.tableName)
   }
 }

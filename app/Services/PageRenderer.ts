@@ -12,12 +12,7 @@ export const newBrowser = async () => {
   browser = await puppeteer.launch({
     executablePath: Env.get('CHROMIUM_EXECUTABLE'),
     headless: true,
-    args: [
-      '--single-process',
-      '--no-zygote',
-      '--no-sandbox',
-      '--disable-setuid-sandbox',
-    ],
+    args: ['--single-process', '--no-zygote', '--no-sandbox', '--disable-setuid-sandbox'],
     protocolTimeout: 10_000,
   })
   Logger.info(`New browser loaded`)
@@ -25,7 +20,7 @@ export const newBrowser = async () => {
 
 export const getBrowser = async () => {
   Logger.info(`Getting browser`)
-  if (! browser) {
+  if (!browser) {
     await newBrowser()
   }
 
@@ -38,24 +33,25 @@ export const renderPage = async (url: string, dimension: number = 960, tries: nu
     const browser = await getBrowser()
     const page = await browser.newPage()
 
-    await page.setViewport({width: dimension, height: dimension})
-    const item = url.endsWith('.gif') || url.endsWith('.png')
-      ? `<img src="${url}" width="${dimension}" height="${dimension}" />`
-      : url.endsWith('.mp4') || url.endsWith('.webm')
-        ? `<video src="${url}" playsinline loop autoplay muted width="${dimension}" height="${dimension}"></video>`
-        : `<iframe src="${url}" width="${dimension}" height="${dimension}" style="border:none;"></iframe>`
+    await page.setViewport({ width: dimension, height: dimension })
+    const item =
+      url.endsWith('.gif') || url.endsWith('.png')
+        ? `<img src="${url}" width="${dimension}" height="${dimension}" />`
+        : url.endsWith('.mp4') || url.endsWith('.webm')
+          ? `<video src="${url}" playsinline loop autoplay muted width="${dimension}" height="${dimension}"></video>`
+          : `<iframe src="${url}" width="${dimension}" height="${dimension}" style="border:none;"></iframe>`
     const html = `<body style="margin:0;">${item}</body>`
     const dataUrl = `data:text/html;base64;charset=UTF-8,${Buffer.from(html).toString('base64')}`
     await page.goto(dataUrl)
 
     try {
-      await page.waitForFunction("RENDERED === true", {
+      await page.waitForFunction('RENDERED === true', {
         timeout: 1000,
       })
       Logger.info(`Rendered page (${url})`)
     } catch (e) {}
 
-    const image = await page.screenshot({});
+    const image = await page.screenshot({})
     Logger.info(`Screenshot captured (${url})`)
 
     await page.close()

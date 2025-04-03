@@ -7,8 +7,7 @@ import AccountRenderer from 'App/Frames/AccountRenderer'
 import Opepen from 'App/Models/Opepen'
 
 export default class FarcasterFrameAccountsController extends FarcasterFramesController {
-
-  public async account ({ request, params }: HttpContextContract) {
+  public async account({ request, params }: HttpContextContract) {
     if (request.method() === 'GET') return this.accountOverview(params.id)
 
     const qs = request.qs()
@@ -17,21 +16,23 @@ export default class FarcasterFrameAccountsController extends FarcasterFramesCon
     const data = request.body().untrustedData
     const buttonIndex = parseInt(data.buttonIndex)
 
-    let nextIndex = buttonIndex === 1
-      ? index - 1
-      : index + 1;
+    let nextIndex = buttonIndex === 1 ? index - 1 : index + 1
 
     if (nextIndex === -1) return this.accountOverview(params.id)
 
     return this.accountOpepenResponse(params.id, nextIndex)
   }
 
-  private async accountOverview (id: string) {
+  private async accountOverview(id: string) {
     const account = await Account.byId(id).firstOrFail()
     const opepen = await Opepen.query().where('owner', account.address)
 
     const actions: Action[] = [
-        { text: `View on on Opepen.art`, action: 'link', target: `https://opepen.art/holders/${id}` },
+      {
+        text: `View on on Opepen.art`,
+        action: 'link',
+        target: `https://opepen.art/holders/${id}`,
+      },
     ]
 
     if (opepen?.length) {
@@ -45,7 +46,7 @@ export default class FarcasterFrameAccountsController extends FarcasterFramesCon
     })
   }
 
-  private async accountOpepenResponse (accountId: string, opepenIndex: number) {
+  private async accountOpepenResponse(accountId: string, opepenIndex: number) {
     const account = await Account.byId(accountId).firstOrFail()
     const opepens = await Opepen.query()
       .where('owner', account.address)
@@ -63,15 +64,17 @@ export default class FarcasterFrameAccountsController extends FarcasterFramesCon
 
     const actions: Action[] = [
       isFirst ? '↺ Overview' : '← Previous',
-      isLast  ? '↺ Overview' : 'Next →',
+      isLast ? '↺ Overview' : 'Next →',
     ]
 
     const opepen = opepens[opepenIndex]
     let imageUrl = opepen.image?.staticURI
 
-    if (! imageUrl) {
+    if (!imageUrl) {
       const GET_URI = `https://metadata.opepen.art/${opepen.tokenId}/image-uri`
-      const { data: { uri }} = await axios.get(GET_URI)
+      const {
+        data: { uri },
+      } = await axios.get(GET_URI)
 
       imageUrl = uri
     }
@@ -87,18 +90,18 @@ export default class FarcasterFrameAccountsController extends FarcasterFramesCon
   /**
    * The main image for a profile
    */
-  public async image ({ params, response }: HttpContextContract) {
+  public async image({ params, response }: HttpContextContract) {
     const account = await Account.byId(params.id)
       .preload('pfp')
       .preload('coverImage')
       .firstOrFail()
     const opepen = await Opepen.query().where('owner', account.address).preload('image')
 
-    const image = opepen?.length >= 2
-      ? await AccountRenderer.renderWithOwnedOpepen(account)
-      : await AccountRenderer.render(account)
+    const image =
+      opepen?.length >= 2
+        ? await AccountRenderer.renderWithOwnedOpepen(account)
+        : await AccountRenderer.render(account)
 
     return this.imageResponse(image, response)
   }
-
 }

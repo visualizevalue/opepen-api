@@ -7,13 +7,12 @@ import MetadataParser from '@ioc:MetadataParser'
 import { renderPage } from 'App/Services/PageRenderer'
 
 export default class OpepenMetadataController {
-
   /**
    * Get the contract metadata
    *
    * @returns {Promise} A promise that resolves to the contract metadata
    */
-  public async contractMetadata () {
+  public async contractMetadata() {
     return MetadataParser.contract()
   }
 
@@ -24,7 +23,7 @@ export default class OpepenMetadataController {
    * @param {Object} ctx.response The HTTP response
    * @returns {Promise} A promise that resolves to the base image
    */
-  public async baseImage ({ response }: HttpContextContract) {
+  public async baseImage({ response }: HttpContextContract) {
     return this.resolveImage((await MetadataParser.base()).image, response)
   }
 
@@ -36,7 +35,7 @@ export default class OpepenMetadataController {
    * @param {Number} ctx.params.id The ID of the metadata to retrieve
    * @returns {Promise} A promise that resolves to the metadata for the specified ID
    */
-  public async metadata ({ params }: HttpContextContract) {
+  public async metadata({ params }: HttpContextContract) {
     await this.validate(params)
 
     return await MetadataParser.forId(params.id)
@@ -51,13 +50,13 @@ export default class OpepenMetadataController {
    * @param {Object} ctx.response The HTTP response
    * @returns {Promise} A promise that resolves to the image URI for the specified ID
    */
-  public async imageURI (ctx: HttpContextContract) {
+  public async imageURI(ctx: HttpContextContract) {
     const { params } = ctx
     await this.validate(params)
 
     let { image: uri } = await MetadataParser.forId(params.id)
 
-    if (! uri) {
+    if (!uri) {
       uri = (await MetadataParser.base()).image
     }
 
@@ -77,7 +76,7 @@ export default class OpepenMetadataController {
    * @param {Object} ctx.response The HTTP response
    * @returns {Promise} A promise that resolves to the image for the specified ID
    */
-  public async image (ctx: HttpContextContract) {
+  public async image(ctx: HttpContextContract) {
     const { response } = ctx
 
     const { uri } = await this.imageURI(ctx)
@@ -85,7 +84,7 @@ export default class OpepenMetadataController {
     return this.resolveImage(uri, response)
   }
 
-  public async render (ctx: HttpContextContract) {
+  public async render(ctx: HttpContextContract) {
     const { params, response } = ctx
     await this.validate(params)
 
@@ -93,13 +92,20 @@ export default class OpepenMetadataController {
     let url: string = animation_url || image
     const isAnimated = image.endsWith('.gif') || image.endsWith('.svg') || animation_url
 
-    if (! isAnimated) return await this.image(ctx)
+    if (!isAnimated) return await this.image(ctx)
 
     if (url.startsWith('ipfs://')) {
       url = `https://ipfs.vv.xyz/ipfs/${url.replace('ipfs://', '')}`
     }
 
-    const is3D = ['glb', 'gltf', 'glb-json', 'glb-binary', 'gltf-json', 'gltf-binary'].includes(url.split('.').at(-1) as string)
+    const is3D = [
+      'glb',
+      'gltf',
+      'glb-json',
+      'glb-binary',
+      'gltf-json',
+      'gltf-binary',
+    ].includes(url.split('.').at(-1) as string)
     if (is3D) {
       url = `${Env.get('APP_URL')}/v1/previews/three?file=${url}`
     }
@@ -119,9 +125,13 @@ export default class OpepenMetadataController {
    * @param {Object} response The HTTP response
    * @returns {Promise} A promise that resolves to the image
    */
-  private async resolveImage (image: string, response: ResponseContract) {
+  private async resolveImage(image: string, response: ResponseContract) {
     if (image.startsWith('ipfs://')) {
-      return response.redirect(`https://ipfs.vv.xyz/ipfs/${image.replace('ipfs://', '')}`, false, 302)
+      return response.redirect(
+        `https://ipfs.vv.xyz/ipfs/${image.replace('ipfs://', '')}`,
+        false,
+        302,
+      )
     }
 
     if (image.startsWith('https://')) {
@@ -137,20 +147,17 @@ export default class OpepenMetadataController {
    * @param {Object} data The data to validate
    * @throws {Error} Throws an error if the validation fails
    */
-  private async validate (data) {
+  private async validate(data) {
     const validID = schema.create({
-      id: schema.number([
-        rules.range(1, 16000),
-      ]),
+      id: schema.number([rules.range(1, 16000)]),
     })
 
     await validator.validate({
       schema: validID,
       data,
       messages: {
-        range: `This token does not exist`
-      }
+        range: `This token does not exist`,
+      },
     })
   }
-
 }

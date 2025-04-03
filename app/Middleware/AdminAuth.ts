@@ -21,7 +21,7 @@ export const isAdmin = (session: SessionContract) => {
 
 export default class AdminAuth {
   public async handle({ session, response }: HttpContextContract, next: () => Promise<void>) {
-    if (! isAdmin(session)) return response.unauthorized({ error: 'Not authorized' })
+    if (!isAdmin(session)) return response.unauthorized({ error: 'Not authorized' })
 
     await next()
   }

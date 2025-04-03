@@ -3,7 +3,7 @@ import BaseSchema from '@ioc:Adonis/Lucid/Schema'
 export default class extends BaseSchema {
   protected tableName = 'accounts'
 
-  public async up () {
+  public async up() {
     this.schema.alterTable(this.tableName, (table) => {
       table.bigInteger('cover_image_id').references('id').inTable('images')
 
@@ -13,7 +13,7 @@ export default class extends BaseSchema {
       table.jsonb('socials')
     })
 
-    this.schema.createTable('portfolio_items', table => {
+    this.schema.createTable('portfolio_items', (table) => {
       table.bigIncrements('id')
       table.string('address').references('address').inTable('accounts')
       table.integer('sort_index')
@@ -25,7 +25,7 @@ export default class extends BaseSchema {
     })
   }
 
-  public async down () {
+  public async down() {
     this.schema.alterTable(this.tableName, (table) => {
       table.dropColumn('cover_image_id')
       table.dropColumn('tagline')

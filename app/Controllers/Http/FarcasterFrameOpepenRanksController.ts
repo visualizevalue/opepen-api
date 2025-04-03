@@ -8,28 +8,26 @@ import Farcaster from 'App/Services/Farcaster'
 import OpePollRenderer from 'App/Frames/OpePollRenderer'
 
 export default class FarcasterFrameOpepenRanksController extends FarcasterFramesController {
-
-  public async entry (_: HttpContextContract) {
+  public async entry(_: HttpContextContract) {
     return this.response({
       imageUrl: `https://opepen.nyc3.cdn.digitaloceanspaces.com/OG/ranks@frame.png`,
       postUrl: `${Env.get('APP_URL')}/v1/frames/ranks/vote`,
-      actions: [
-        'Start Voting',
-      ],
+      actions: ['Start Voting'],
     })
   }
 
-  public async vote ({ request }: HttpContextContract) {
+  public async vote({ request }: HttpContextContract) {
     const { leftImage, rightImage } = await this.fetchImages(request)
 
     // If we don't have anything to evaluate, just render the new vote
-    if (! leftImage || ! rightImage) return this.renderNewVote()
+    if (!leftImage || !rightImage) return this.renderNewVote()
 
     // Fetch user input
     const { untrustedData, trustedData } = request.body()
 
     // Verify user input
-    if (! await Farcaster.verifyMessage({ untrustedData, trustedData })) return this.renderNewVote()
+    if (!(await Farcaster.verifyMessage({ untrustedData, trustedData })))
+      return this.renderNewVote()
 
     // Get user input
     const buttonIndex = parseInt(untrustedData.buttonIndex)
@@ -43,31 +41,30 @@ export default class FarcasterFrameOpepenRanksController extends FarcasterFrames
     return this.renderNewVote()
   }
 
-  public async image ({ request, response }: HttpContextContract) {
+  public async image({ request, response }: HttpContextContract) {
     const { leftImage, rightImage } = await this.fetchImages(request)
 
-    if (! leftImage || ! rightImage) throw Error(`No image given`)
+    if (!leftImage || !rightImage) throw Error(`No image given`)
 
     // Ensure we have the images
-    if (! leftImage.versions.sm) await leftImage.generateScaledVersions()
-    if (! rightImage.versions.sm) await rightImage.generateScaledVersions()
+    if (!leftImage.versions.sm) await leftImage.generateScaledVersions()
+    if (!rightImage.versions.sm) await rightImage.generateScaledVersions()
 
     const png = await OpePollRenderer.render({ leftImage, rightImage })
 
     return this.imageResponse(png, response)
   }
 
-  private async fetchImages (request): Promise<{leftImage: Image|null, rightImage: Image|null}> {
+  private async fetchImages(
+    request,
+  ): Promise<{ leftImage: Image | null; rightImage: Image | null }> {
     const query = request.qs()
 
-    const {left, right} = query
+    const { left, right } = query
     let leftImage, rightImage
 
     if (left && right) {
-      [leftImage, rightImage] = await Promise.all([
-        Image.find(left),
-        Image.find(right),
-      ])
+      ;[leftImage, rightImage] = await Promise.all([Image.find(left), Image.find(right)])
     }
 
     return {
@@ -76,9 +73,9 @@ export default class FarcasterFrameOpepenRanksController extends FarcasterFrames
     }
   }
 
-  private async renderNewVote () {
-    const [ leftSubmission, rightSubmission ] = await SetSubmission.query()
-      .withScopes(scopes => {
+  private async renderNewVote() {
+    const [leftSubmission, rightSubmission] = await SetSubmission.query()
+      .withScopes((scopes) => {
         scopes.complete()
         scopes.starred()
       })
@@ -87,13 +84,13 @@ export default class FarcasterFrameOpepenRanksController extends FarcasterFrames
 
     const options = [1, 4, 5, 10, 20, 40]
 
-    const leftEditionSize  = takeRandom(options)
+    const leftEditionSize = takeRandom(options)
     const rightEditionSize = takeRandom(options)
 
-    const leftId  = leftSubmission[`edition_${leftEditionSize}ImageId`]
+    const leftId = leftSubmission[`edition_${leftEditionSize}ImageId`]
     const rightId = rightSubmission[`edition_${rightEditionSize}ImageId`]
 
-    const leftName  = leftSubmission[`edition_${leftEditionSize}Name`]
+    const leftName = leftSubmission[`edition_${leftEditionSize}Name`]
     const rightName = rightSubmission[`edition_${rightEditionSize}Name`]
 
     return this.response({
@@ -105,5 +102,4 @@ export default class FarcasterFrameOpepenRanksController extends FarcasterFrames
       ],
     })
   }
-
 }

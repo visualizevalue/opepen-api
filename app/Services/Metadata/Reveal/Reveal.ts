@@ -15,42 +15,41 @@ import pad from 'App/Helpers/pad'
 import Database from '@ioc:Adonis/Lucid/Database'
 
 const EDITION_VOCAB = {
-  "1": "One",
-  "4": "Four",
-  "5": "Five",
-  "10": "Ten",
-  "20": "Twenty",
-  "40": "Forty",
+  '1': 'One',
+  '4': 'Four',
+  '5': 'Five',
+  '10': 'Ten',
+  '20': 'Twenty',
+  '40': 'Forty',
 }
 
 export default class Reveal {
-  public async schedule (submission: SetSubmission) {
+  public async schedule(submission: SetSubmission) {
     if (submission.revealBlockNumber) throw new Error(`Reveal block already set`)
 
-    submission.revealBlockNumber = (await provider.getBlockNumber() + 50).toString()
+    submission.revealBlockNumber = ((await provider.getBlockNumber()) + 50).toString()
     await submission.save()
     Logger.info(`Set reveal block for ${submission.name} to ${submission.revealBlockNumber}`)
 
     await this.prepareData(submission)
   }
 
-  public async compute (
-    submission: SetSubmission,
-    set: SetModel,
-  ) {
+  public async compute(submission: SetSubmission, set: SetModel) {
     Logger.info(`Computing reveal for ${submission.name}`)
-    if (! submission.revealSubmissionsInputCid) throw new Error(`Reveal data not prepared`)
+    if (!submission.revealSubmissionsInputCid) throw new Error(`Reveal data not prepared`)
 
     fs.writeFileSync(this.inputPath(submission.id), submission.revealSubmissionsInput)
 
     const block = await provider.getBlock(parseInt(submission.revealBlockNumber))
 
-    await execute(`python3 ${this.executablePath()} --seed "${block.hash}" --set ${submission.id}`)
+    await execute(
+      `python3 ${this.executablePath()} --seed "${block.hash}" --set ${submission.id}`,
+    )
 
     await this.handleResults(submission, set)
   }
 
-  private async prepareData (submission: SetSubmission) {
+  private async prepareData(submission: SetSubmission) {
     const optIns = await Subscription.query()
       .where('submissionId', submission.id)
       .orderBy('createdAt', 'desc')
@@ -69,10 +68,12 @@ export default class Reveal {
         }
 
         const signer = optIn.address.toLowerCase()
-        const delegators = optIn.delegatedBy ? optIn.delegatedBy.split(',').map(a => a.toLowerCase()) : []
+        const delegators = optIn.delegatedBy
+          ? optIn.delegatedBy.split(',').map((a) => a.toLowerCase())
+          : []
         const allowedOwners = [signer, ...delegators]
 
-        if (! allowedOwners.includes(opepen.owner)) {
+        if (!allowedOwners.includes(opepen.owner)) {
           Logger.info(`Skipping #${opepen.tokenId} cause not held by valid owners anymore.`)
           continue
         }
@@ -92,19 +93,19 @@ export default class Reveal {
       }
 
       // Save the set max reveal per edition size
-      const hasMaxReveals = optIn.maxReveals && (
-        optIn.maxReveals['1'] ||
-        optIn.maxReveals['4'] ||
-        optIn.maxReveals['5'] ||
-        optIn.maxReveals['10'] ||
-        optIn.maxReveals['20'] ||
-        optIn.maxReveals['40']
-      )
+      const hasMaxReveals =
+        optIn.maxReveals &&
+        (optIn.maxReveals['1'] ||
+          optIn.maxReveals['4'] ||
+          optIn.maxReveals['5'] ||
+          optIn.maxReveals['10'] ||
+          optIn.maxReveals['20'] ||
+          optIn.maxReveals['40'])
       if (hasMaxReveals) {
         maxReveals[optIn.address] = {
-          '1':  optIn.maxReveals['1'] ? optIn.maxReveals['1'] : undefined,
-          '4':  optIn.maxReveals['4'] ? optIn.maxReveals['4'] : undefined,
-          '5':  optIn.maxReveals['5'] ? optIn.maxReveals['5'] : undefined,
+          '1': optIn.maxReveals['1'] ? optIn.maxReveals['1'] : undefined,
+          '4': optIn.maxReveals['4'] ? optIn.maxReveals['4'] : undefined,
+          '5': optIn.maxReveals['5'] ? optIn.maxReveals['5'] : undefined,
           '10': optIn.maxReveals['10'] ? optIn.maxReveals['10'] : undefined,
           '20': optIn.maxReveals['20'] ? optIn.maxReveals['20'] : undefined,
           '40': optIn.maxReveals['40'] ? optIn.maxReveals['40'] : undefined,
@@ -120,13 +121,15 @@ export default class Reveal {
     submission.revealSubmissionsInput = dataBlob
     const cid = await CID.getJsonCID(data)
     submission.revealSubmissionsInputCid = cid.toString()
-    Logger.info(`Prepared reveal data for ${submission.name}. CID ${submission.revealSubmissionsInputCid}`)
+    Logger.info(
+      `Prepared reveal data for ${submission.name}. CID ${submission.revealSubmissionsInputCid}`,
+    )
 
     // And save to submission and to file (for python execution)
     await submission.save()
   }
 
-  private async handleResults (submission: SetSubmission, set: SetModel) {
+  private async handleResults(submission: SetSubmission, set: SetModel) {
     const output = fs.readFileSync(this.outputPath(submission.id)).toString()
     submission.revealSubmissionsOutput = JSON.parse(output)
 
@@ -144,15 +147,16 @@ export default class Reveal {
     await set.notifyPublished()
   }
 
-  private async saveOpepenMetadata (submission: SetSubmission, set: SetModel) {
+  private async saveOpepenMetadata(submission: SetSubmission, set: SetModel) {
     // Load images
-    await submission.load(loader => {
-      loader.load('edition1Image')
-            .load('edition4Image')
-            .load('edition5Image')
-            .load('edition10Image')
-            .load('edition20Image')
-            .load('edition40Image')
+    await submission.load((loader) => {
+      loader
+        .load('edition1Image')
+        .load('edition4Image')
+        .load('edition5Image')
+        .load('edition10Image')
+        .load('edition20Image')
+        .load('edition40Image')
     })
     if (submission.isDynamic) {
       await submission.load('dynamicSetImages')
@@ -163,12 +167,14 @@ export default class Reveal {
       let index = 1
       for (const tokenId of submission.revealSubmissionsOutput[edition]) {
         await this.generateMetadataFor(tokenId, index, submission, set)
-        index ++
+        index++
       }
     }
 
     // Clear other opt ins for the revealed Opepen
-    const revealedOpepenIds = Object.values(submission.revealSubmissionsOutput).flat().join(',')
+    const revealedOpepenIds = Object.values(submission.revealSubmissionsOutput)
+      .flat()
+      .join(',')
     await Database.rawQuery(`
       UPDATE set_subscriptions
       SET opepen_ids = opepen_ids - '{${revealedOpepenIds}}'::text[]
@@ -177,13 +183,19 @@ export default class Reveal {
     `)
   }
 
-  public async generateMetadataFor (tokenId: number, index: number, submission: SetSubmission, set: SetModel) {
+  public async generateMetadataFor(
+    tokenId: number,
+    index: number,
+    submission: SetSubmission,
+    set: SetModel,
+  ) {
     const opepen = await Opepen.findOrFail(tokenId)
     const edition = opepen.data.edition
 
-    const image: Image = submission.isDynamic && edition > 1
-      ? submission.dynamicSetImages[`image${edition}_${index}`]
-      : submission[`edition${edition}Image`]
+    const image: Image =
+      submission.isDynamic && edition > 1
+        ? submission.dynamicSetImages[`image${edition}_${index}`]
+        : submission[`edition${edition}Image`]
 
     opepen.metadata = {
       image: image.requiresAnimationUrlMetadata ? image.staticURI : image.originalURI,
@@ -191,25 +203,25 @@ export default class Reveal {
       attributes: [
         {
           trait_type: `Artist`,
-          value: submission.artist
+          value: submission.artist,
         },
         {
           trait_type: `Release`,
-          value: pad(set.id, 3)
+          value: pad(set.id, 3),
         },
         {
           trait_type: `Set`,
-          value: submission.name
+          value: submission.name,
         },
         {
           trait_type: `Opepen`,
-          value: submission[`edition_${edition}Name`]
+          value: submission[`edition_${edition}Name`],
         },
         {
           trait_type: `Edition Size`,
-          value: EDITION_VOCAB[edition]
-        }
-      ]
+          value: EDITION_VOCAB[edition],
+        },
+      ],
     }
 
     opepen.setId = set.id
@@ -217,7 +229,8 @@ export default class Reveal {
     opepen.setEditionId = index
     opepen.imageId = image.id
 
-    if (submission.isDynamic) { // Update image cache post reveal
+    if (submission.isDynamic) {
+      // Update image cache post reveal
       image.opepenId = opepen.tokenId as bigint
       await image.save()
     }
@@ -225,16 +238,15 @@ export default class Reveal {
     await opepen.save()
   }
 
-  private inputPath (submissionId: number) {
+  private inputPath(submissionId: number) {
     return path.join(__dirname, `data/${submissionId}.json`)
   }
 
-  private executablePath () {
+  private executablePath() {
     return path.join(__dirname, `randomize.py`)
   }
 
-  private outputPath (submissionId: number) {
+  private outputPath(submissionId: number) {
     return path.join(__dirname, `results/${submissionId}.json`)
   }
 }
-

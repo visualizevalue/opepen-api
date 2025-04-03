@@ -5,28 +5,22 @@ import BaseController from './BaseController'
 import OpenGraphUrl from 'App/Models/OpenGraphUrl'
 import InvalidInput from 'App/Exceptions/InvalidInput'
 
-const isImageMime = mime => [
-  'image/gif',
-  'image/png',
-  'image/jpeg',
-  'image/webp',
-  'image/svg+xml',
-].includes(mime)
+const isImageMime = (mime) =>
+  ['image/gif', 'image/png', 'image/jpeg', 'image/webp', 'image/svg+xml'].includes(mime)
 
 export default class OpenGraphController extends BaseController {
-
-  public async show ({ request }: HttpContextContract) {
+  public async show({ request }: HttpContextContract) {
     const { url } = request.qs()
     let og = await OpenGraphUrl.findBy('url', url)
 
-    if (! og) {
+    if (!og) {
       og = await this.make(url)
     }
 
     return og
   }
 
-  private async make (url: string) {
+  private async make(url: string) {
     const og = new OpenGraphUrl()
     og.url = url
 
@@ -35,7 +29,7 @@ export default class OpenGraphController extends BaseController {
       const isImage = isImageMime(response.headers['content-type'])
       const isHtml = response.headers['content-type'].includes('text/html')
 
-      if (! isImage && ! isHtml) throw new InvalidInput()
+      if (!isImage && !isHtml) throw new InvalidInput()
 
       if (isImage) {
         og.image = url
@@ -61,5 +55,4 @@ export default class OpenGraphController extends BaseController {
 
     return og
   }
-
 }

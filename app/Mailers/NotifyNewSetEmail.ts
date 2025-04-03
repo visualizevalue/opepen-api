@@ -5,7 +5,10 @@ import SetModel from 'App/Models/SetModel'
 import NotificationEmail from './NotificationEmail'
 
 export default class NotifyNewSetEmail extends NotificationEmail {
-  constructor (protected account: Account, private set: SetModel) {
+  constructor(
+    protected account: Account,
+    private set: SetModel,
+  ) {
     super(account)
   }
 

@@ -29,7 +29,10 @@ export default class ImportSetImages extends BaseCommand {
 
     this.logger.info(`Importing images from metadata api for set #${this.set}`)
 
-    const set = await SetModel.query().where('id', this.set).preload('submission').firstOrFail()
+    const set = await SetModel.query()
+      .where('id', this.set)
+      .preload('submission')
+      .firstOrFail()
 
     const query = Opepen.query().where('setId', set.id)
     if (this.edition) {

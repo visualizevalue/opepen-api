@@ -5,28 +5,35 @@ import Logger from '@ioc:Adonis/Core/Logger'
 import { DateTime } from 'luxon'
 import Account from 'App/Models/Account'
 
-type Media = [string]|[string,string]|[string,string,string]|[string,string,string,string]|undefined
+type Media =
+  | [string]
+  | [string, string]
+  | [string, string, string]
+  | [string, string, string, string]
+  | undefined
 
 export default class Twitter {
   private userClient: TwitterApi
   // @ts-ignore
   private account: Account
 
-  constructor (config: {
-    userClient: TwitterApi,
-    account: Account
-  }) {
+  constructor(config: { userClient: TwitterApi; account: Account }) {
     this.userClient = config.userClient
     this.account = config.account
   }
 
-  static async initialize (account: Account) {
-    if (! account.oauth.accessToken || ! account.oauth.refreshToken) return
+  static async initialize(account: Account) {
+    if (!account.oauth.accessToken || !account.oauth.refreshToken) return
 
     let userAccessToken: string = account.oauth.accessToken
 
-    const isExpired = DateTime.fromISO(account.oauth.expiresAt as string).diff(DateTime.now()).as('minutes') < 10
-    Logger.info(`${account.oauth.twitterUser?.name} token expires ${account.oauth.expiresAt}: ${isExpired ? 'expired' : 'active'}`)
+    const isExpired =
+      DateTime.fromISO(account.oauth.expiresAt as string)
+        .diff(DateTime.now())
+        .as('minutes') < 10
+    Logger.info(
+      `${account.oauth.twitterUser?.name} token expires ${account.oauth.expiresAt}: ${isExpired ? 'expired' : 'active'}`,
+    )
     if (isExpired) {
       Logger.info(`Twitter token for ${account.address} expired, refreshing`)
 
@@ -36,11 +43,9 @@ export default class Twitter {
       })
 
       try {
-        const {
-          accessToken,
-          refreshToken,
-          expiresIn,
-        } = await oauthClient.refreshOAuth2Token(account.oauth.refreshToken)
+        const { accessToken, refreshToken, expiresIn } = await oauthClient.refreshOAuth2Token(
+          account.oauth.refreshToken,
+        )
 
         Logger.info(`Fetched fresh Twitter auth tokens for ${account.address}`)
 
@@ -48,7 +53,9 @@ export default class Twitter {
 
         account.oauth.accessToken = accessToken
         account.oauth.refreshToken = refreshToken
-        account.oauth.expiresAt = DateTime.now().plus({ seconds: expiresIn - 30 }).toISO()
+        account.oauth.expiresAt = DateTime.now()
+          .plus({ seconds: expiresIn - 30 })
+          .toISO()
 
         await account.save()
       } catch (e) {
@@ -61,12 +68,13 @@ export default class Twitter {
     return new Twitter({ userClient, account })
   }
 
-  public async tweet (text: string, imageUrls?: string|string[]) {
+  public async tweet(text: string, imageUrls?: string | string[]) {
     Logger.info(`Twitter.tweet() ${text}, ${imageUrls}`)
     const mediaURLs = Array.isArray(imageUrls) ? imageUrls : [imageUrls]
     try {
-      const media = (await Promise.all(mediaURLs.map(url => this.uploadMedia(url))))
-        .filter(m => !!m) as string[]
+      const media = (await Promise.all(mediaURLs.map((url) => this.uploadMedia(url)))).filter(
+        (m) => !!m,
+      ) as string[]
 
       Logger.info(`Uploaded media: ${media}`)
 
@@ -86,9 +94,9 @@ export default class Twitter {
     }
   }
 
-  public async thread(tweets: { text: string, images?: string|string[] }[]) {
+  public async thread(tweets: { text: string; images?: string | string[] }[]) {
     // Upload media items and prepare data
-    const withMedia: { text?: string, media?: { media_ids: Media } }[] = []
+    const withMedia: { text?: string; media?: { media_ids: Media } }[] = []
     for (const config of tweets) {
       const media_ids: string[] = []
       const addMedia = async (url: string) => {
@@ -105,7 +113,10 @@ export default class Twitter {
         await addMedia(config.images)
       }
 
-      withMedia.push({ text: config.text, media: media_ids.length ? { media_ids: media_ids as Media } : undefined })
+      withMedia.push({
+        text: config.text,
+        media: media_ids.length ? { media_ids: media_ids as Media } : undefined,
+      })
     }
 
     // Send it
@@ -116,8 +127,8 @@ export default class Twitter {
     }
   }
 
-  private async uploadMedia (url?: string): Promise<string|null> {
-    if (! url) return null
+  private async uploadMedia(url?: string): Promise<string | null> {
+    if (!url) return null
 
     const { contentType, buffer } = await this.loadImage(url)
 
@@ -133,8 +144,8 @@ export default class Twitter {
     }
   }
 
-  private async loadImage (url: string) {
-    const response = await axios.get(url,  { responseType: 'arraybuffer' })
+  private async loadImage(url: string) {
+    const response = await axios.get(url, { responseType: 'arraybuffer' })
 
     let contentType = response.headers['content-type']
     let buffer = response.data

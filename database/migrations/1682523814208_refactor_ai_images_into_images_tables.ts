@@ -5,7 +5,7 @@ export default class extends BaseSchema {
   protected imagesTable = 'images'
   protected aiImagesTable = 'ai_images'
 
-  public async up () {
+  public async up() {
     this.schema.createTable(this.imagesTable, (table) => {
       table.bigIncrements('id')
       table.uuid('uuid').unique()
@@ -30,7 +30,8 @@ export default class extends BaseSchema {
           created_at: DateTime.now(),
         })
 
-        await db.from(this.aiImagesTable)
+        await db
+          .from(this.aiImagesTable)
           .where('uuid', image.uuid)
           .update({ image_id: inserts[0].id })
       }
@@ -41,7 +42,7 @@ export default class extends BaseSchema {
     })
   }
 
-  public async down () {
+  public async down() {
     this.schema.alterTable(this.aiImagesTable, (table) => {
       table.dropColumn('image_id')
       table.jsonb('versions').nullable()

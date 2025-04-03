@@ -5,7 +5,7 @@ import { DateTime } from 'luxon'
 export default class extends BaseSchema {
   protected tableName = 'accounts'
 
-  public async up () {
+  public async up() {
     this.schema.createTable(this.tableName, (table) => {
       table.bigIncrements('id')
 
@@ -24,7 +24,7 @@ export default class extends BaseSchema {
     })
   }
 
-  public async down () {
+  public async down() {
     this.schema.dropTable(this.tableName)
   }
 }

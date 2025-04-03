@@ -1,13 +1,30 @@
 import { DateTime } from 'luxon'
 import { v4 as uuid } from 'uuid'
-import { BaseModel, BelongsTo, ModelQueryBuilderContract, beforeCreate, belongsTo, column, computed, scope, hasMany, HasMany } from '@ioc:Adonis/Lucid/Orm'
+import {
+  BaseModel,
+  BelongsTo,
+  ModelQueryBuilderContract,
+  beforeCreate,
+  belongsTo,
+  column,
+  computed,
+  scope,
+  hasMany,
+  HasMany,
+} from '@ioc:Adonis/Lucid/Orm'
 import Logger from '@ioc:Adonis/Core/Logger'
 import { string } from '@ioc:Adonis/Core/Helpers'
 import BotNotifications from 'App/Services/BotNotifications'
 import Account from 'App/Models/Account'
 import SetModel from 'App/Models/SetModel'
 import { enumerate } from 'App/Helpers/enumerate'
-import { ArtistSignature, EditionGroups, EditionType, CurationStats, SubmissionStats } from './types'
+import {
+  ArtistSignature,
+  EditionGroups,
+  EditionType,
+  CurationStats,
+  SubmissionStats,
+} from './types'
 import Image from './Image'
 import DynamicSetImages from './DynamicSetImages'
 import Subscription from './Subscription'
@@ -35,9 +52,10 @@ const NOTIFICATIONS = {
 }
 
 const activeSubmissionScope = (query, submission) => {
-  query.join('opepens', query => {
-    query.on('opepens.owner', '=', 'accounts.address')
-         .andOnVal('opepens.submission_id', '=', submission.id)
+  query.join('opepens', (query) => {
+    query
+      .on('opepens.owner', '=', 'accounts.address')
+      .andOnVal('opepens.submission_id', '=', submission.id)
   })
 }
 const SCOPED_NOTIFICATIONS = {
@@ -48,33 +66,33 @@ const SCOPED_NOTIFICATIONS = {
 export const DEFAULT_REMAINING_REVEAL_TIME = OPT_IN_HOURS * 60 * 60
 
 const DEFAULT_SUBMISSION_STATS = {
-  "demand": {
-    "1": 0,
-    "4": 0,
-    "5": 0,
-    "10": 0,
-    "20": 0,
-    "40": 0,
-    "total": 0
+  demand: {
+    '1': 0,
+    '4': 0,
+    '5': 0,
+    '10': 0,
+    '20': 0,
+    '40': 0,
+    total: 0,
   },
-  "holders": {
-    "1": 0,
-    "4": 0,
-    "5": 0,
-    "10": 0,
-    "20": 0,
-    "40": 0,
-    "total": 0
+  holders: {
+    '1': 0,
+    '4': 0,
+    '5': 0,
+    '10': 0,
+    '20': 0,
+    '40': 0,
+    total: 0,
   },
-  "opepens": {
-    "1": 0,
-    "4": 0,
-    "5": 0,
-    "10": 0,
-    "20": 0,
-    "40": 0,
-    "total": 0
-  }
+  opepens: {
+    '1': 0,
+    '4': 0,
+    '5': 0,
+    '10': 0,
+    '20': 0,
+    '40': 0,
+    total: 0,
+  },
 }
 
 export default class SetSubmission extends BaseModel {
@@ -85,7 +103,7 @@ export default class SetSubmission extends BaseModel {
   public uuid: string
 
   @beforeCreate()
-  public static async createUUID (model: SetSubmission) {
+  public static async createUUID(model: SetSubmission) {
     model.uuid = uuid()
   }
 
@@ -116,25 +134,25 @@ export default class SetSubmission extends BaseModel {
   public updatedAt: DateTime
 
   @column.dateTime()
-  public deletedAt: DateTime|null
+  public deletedAt: DateTime | null
 
   @column.dateTime()
-  public publishedAt: DateTime|null
+  public publishedAt: DateTime | null
 
   @column.dateTime()
-  public starredAt: DateTime|null
+  public starredAt: DateTime | null
 
   @column.dateTime()
-  public pausedAt: DateTime|null
+  public pausedAt: DateTime | null
 
   @column.dateTime()
-  public lastOptInAt: DateTime|null
+  public lastOptInAt: DateTime | null
 
   @column.dateTime()
-  public archivedAt: DateTime|null
+  public archivedAt: DateTime | null
 
   @column.dateTime()
-  public shadowedAt: DateTime|null
+  public shadowedAt: DateTime | null
 
   @column()
   public setId: number
@@ -149,7 +167,7 @@ export default class SetSubmission extends BaseModel {
   public editionType: EditionType = 'PRINT'
 
   @computed({ serializeAs: 'is_dynamic' })
-  public get isDynamic (): boolean {
+  public get isDynamic(): boolean {
     return this.editionType !== 'PRINT'
   }
 
@@ -157,9 +175,9 @@ export default class SetSubmission extends BaseModel {
   public roundedPreview: boolean
 
   @column({
-    consume: value => {
+    consume: (value) => {
       return value || 100
-    }
+    },
   })
   public minSubscriptionPercentage: number
 
@@ -202,7 +220,7 @@ export default class SetSubmission extends BaseModel {
   public revealStrategy: string
 
   @column.dateTime()
-  public revealsAt: DateTime|null
+  public revealsAt: DateTime | null
 
   @column()
   public remainingRevealTime: number
@@ -211,8 +229,8 @@ export default class SetSubmission extends BaseModel {
   public revealBlockNumber: string
 
   @column({
-    consume: value => {
-      if (! value) return { 1: [], 4: [], 5: [], 10: [], 20: [], 40: [] }
+    consume: (value) => {
+      if (!value) return { 1: [], 4: [], 5: [], 10: [], 20: [], 40: [] }
 
       return value
     },
@@ -233,25 +251,26 @@ export default class SetSubmission extends BaseModel {
   public revealSubmissionsOutputCid: string
 
   @column({
-    consume: value => {
-      if (! value) return DEFAULT_SUBMISSION_STATS
+    consume: (value) => {
+      if (!value) return DEFAULT_SUBMISSION_STATS
 
       return value
-    }
+    },
   })
   public submissionStats: SubmissionStats
 
   @column({
-    consume: value => {
-      if (! value) return {
-        1: {},
-        4: {},
-        5: {},
-        10: {},
-        20: {},
-        40: {},
-        total: {},
-      }
+    consume: (value) => {
+      if (!value)
+        return {
+          1: {},
+          4: {},
+          5: {},
+          10: {},
+          20: {},
+          40: {},
+          total: {},
+        }
 
       return value
     },
@@ -269,8 +288,8 @@ export default class SetSubmission extends BaseModel {
   public notificationSentAt: DateTime
 
   @column({
-    consume: (value: string) => typeof value === 'string' ? JSON.parse(value) : value,
-    prepare: (value: any) => typeof value === 'object' ? JSON.stringify(value) : value,
+    consume: (value: string) => (typeof value === 'string' ? JSON.parse(value) : value),
+    prepare: (value: any) => (typeof value === 'object' ? JSON.stringify(value) : value),
   })
   public artistSignature: ArtistSignature
 
@@ -306,25 +325,89 @@ export default class SetSubmission extends BaseModel {
 
       query.preload('image4_1').preload('image4_2').preload('image4_3').preload('image4_4')
 
-      query.preload('image5_1').preload('image5_2').preload('image5_3').preload('image5_4').preload('image5_5')
+      query
+        .preload('image5_1')
+        .preload('image5_2')
+        .preload('image5_3')
+        .preload('image5_4')
+        .preload('image5_5')
 
-      query.preload('image10_1').preload('image10_2').preload('image10_3').preload('image10_4').preload('image10_5')
-           .preload('image10_6').preload('image10_7').preload('image10_8').preload('image10_9').preload('image10_10')
+      query
+        .preload('image10_1')
+        .preload('image10_2')
+        .preload('image10_3')
+        .preload('image10_4')
+        .preload('image10_5')
+        .preload('image10_6')
+        .preload('image10_7')
+        .preload('image10_8')
+        .preload('image10_9')
+        .preload('image10_10')
 
-      query.preload('image20_1').preload('image20_2').preload('image20_3').preload('image20_4').preload('image20_5')
-           .preload('image20_6').preload('image20_7').preload('image20_8').preload('image20_9').preload('image20_10')
-           .preload('image20_11').preload('image20_12').preload('image20_13').preload('image20_14').preload('image20_15')
-           .preload('image20_16').preload('image20_17').preload('image20_18').preload('image20_19').preload('image20_20')
+      query
+        .preload('image20_1')
+        .preload('image20_2')
+        .preload('image20_3')
+        .preload('image20_4')
+        .preload('image20_5')
+        .preload('image20_6')
+        .preload('image20_7')
+        .preload('image20_8')
+        .preload('image20_9')
+        .preload('image20_10')
+        .preload('image20_11')
+        .preload('image20_12')
+        .preload('image20_13')
+        .preload('image20_14')
+        .preload('image20_15')
+        .preload('image20_16')
+        .preload('image20_17')
+        .preload('image20_18')
+        .preload('image20_19')
+        .preload('image20_20')
 
-      query.preload('image40_1').preload('image40_2').preload('image40_3').preload('image40_4').preload('image40_5')
-           .preload('image40_6').preload('image40_7').preload('image40_8').preload('image40_9').preload('image40_10')
-           .preload('image40_11').preload('image40_12').preload('image40_13').preload('image40_14').preload('image40_15')
-           .preload('image40_16').preload('image40_17').preload('image40_18').preload('image40_19').preload('image40_20')
-           .preload('image40_21').preload('image40_22').preload('image40_23').preload('image40_24').preload('image40_25')
-           .preload('image40_26').preload('image40_27').preload('image40_28').preload('image40_29').preload('image40_30')
-           .preload('image40_31').preload('image40_32').preload('image40_33').preload('image40_34').preload('image40_35')
-           .preload('image40_36').preload('image40_37').preload('image40_38').preload('image40_39').preload('image40_40')
-    }
+      query
+        .preload('image40_1')
+        .preload('image40_2')
+        .preload('image40_3')
+        .preload('image40_4')
+        .preload('image40_5')
+        .preload('image40_6')
+        .preload('image40_7')
+        .preload('image40_8')
+        .preload('image40_9')
+        .preload('image40_10')
+        .preload('image40_11')
+        .preload('image40_12')
+        .preload('image40_13')
+        .preload('image40_14')
+        .preload('image40_15')
+        .preload('image40_16')
+        .preload('image40_17')
+        .preload('image40_18')
+        .preload('image40_19')
+        .preload('image40_20')
+        .preload('image40_21')
+        .preload('image40_22')
+        .preload('image40_23')
+        .preload('image40_24')
+        .preload('image40_25')
+        .preload('image40_26')
+        .preload('image40_27')
+        .preload('image40_28')
+        .preload('image40_29')
+        .preload('image40_30')
+        .preload('image40_31')
+        .preload('image40_32')
+        .preload('image40_33')
+        .preload('image40_34')
+        .preload('image40_35')
+        .preload('image40_36')
+        .preload('image40_37')
+        .preload('image40_38')
+        .preload('image40_39')
+        .preload('image40_40')
+    },
   })
   public dynamicSetImages: BelongsTo<typeof DynamicSetImages>
 
@@ -336,7 +419,7 @@ export default class SetSubmission extends BaseModel {
   @belongsTo(() => Account, {
     foreignKey: 'creator',
     localKey: 'address',
-    onQuery: query => {
+    onQuery: (query) => {
       query.preload('pfp')
     },
   })
@@ -396,21 +479,21 @@ export default class SetSubmission extends BaseModel {
   })
 
   public static live = scope((query: Builder) => {
-    query.withScopes(scopes => {
+    query.withScopes((scopes) => {
       scopes.active()
       scopes.published()
     })
   })
 
   public static activeTimer = scope((query: Builder) => {
-    query.withScopes(scopes => scopes.live())
+    query.withScopes((scopes) => scopes.live())
     query.whereNotNull('revealsAt')
     query.whereNull('setId')
     query.orderBy('revealsAt')
   })
 
   public static pausedTimer = scope((query: Builder) => {
-    query.withScopes(scopes => scopes.live())
+    query.withScopes((scopes) => scopes.live())
     query.whereNull('revealsAt')
     query.where('remainingRevealTime', '>', 0)
     query.where('remainingRevealTime', '<', DEFAULT_REMAINING_REVEAL_TIME)
@@ -418,50 +501,54 @@ export default class SetSubmission extends BaseModel {
   })
 
   public static noTimer = scope((query: Builder) => {
-    query.withScopes(scopes => scopes.live())
+    query.withScopes((scopes) => scopes.live())
     query.whereNull('revealsAt')
   })
 
   public static orderActiveByRemainingTime = scope((query: Builder) => {
     query.orderByRaw(
-      `COALESCE(reveals_at, '3000-01-01') asc, COALESCE(remaining_reveal_time, ${DEFAULT_REMAINING_REVEAL_TIME}) asc`
+      `COALESCE(reveals_at, '3000-01-01') asc, COALESCE(remaining_reveal_time, ${DEFAULT_REMAINING_REVEAL_TIME}) asc`,
     )
   })
 
   public static orderByRemainingTime = scope((query: Builder) => {
     query
-      .select(Database.raw(`
+      .select(
+        Database.raw(`
         *,
         CASE
           WHEN reveals_at IS NULL THEN remaining_reveal_time
           ELSE EXTRACT(EPOCH FROM (reveals_at - NOW()))
-        END AS seconds_remaining`))
+        END AS seconds_remaining`),
+      )
       .orderBy(`seconds_remaining`)
   })
 
   public static prereveal = scope((query: Builder) => {
     query
-      .withScopes(scopes => {
+      .withScopes((scopes) => {
         scopes.live()
         scopes.orderActiveByRemainingTime()
       })
-      .where(query => query
-        // Active Timer
-        .where(query => query
-          .whereNotNull('revealsAt')
-          .whereNull('setId')
-        // Paused Timer
-        ).orWhere(query => query
-            .whereNull('revealsAt')
-            .where('remainingRevealTime', '>', 0)
-            .where('remainingRevealTime', '<', DEFAULT_REMAINING_REVEAL_TIME)
-            .where('pausedAt', '>', DateTime.now().minus({ hours: 24 }).toISO())
-        )
+      .where((query) =>
+        query
+          // Active Timer
+          .where(
+            (query) => query.whereNotNull('revealsAt').whereNull('setId'),
+            // Paused Timer
+          )
+          .orWhere((query) =>
+            query
+              .whereNull('revealsAt')
+              .where('remainingRevealTime', '>', 0)
+              .where('remainingRevealTime', '<', DEFAULT_REMAINING_REVEAL_TIME)
+              .where('pausedAt', '>', DateTime.now().minus({ hours: 24 }).toISO()),
+          ),
       )
       .whereNull('setId')
   })
 
-  public async updateDynamicSetImagesCache () {
+  public async updateDynamicSetImagesCache() {
     const submission: SetSubmission = this
     await submission.load('dynamicSetImages')
 
@@ -474,61 +561,64 @@ export default class SetSubmission extends BaseModel {
 
     // Update cache
     await Image.query()
-      .whereIn('uuid', submission.dynamicSetImages.images().filter(i => !!i).map(i => i.uuid))
+      .whereIn(
+        'uuid',
+        submission.dynamicSetImages
+          .images()
+          .filter((i) => !!i)
+          .map((i) => i.uuid),
+      )
       .update({ setSubmissionId: submission.id })
       .exec()
   }
 
-  public remainingDuration () {
+  public remainingDuration() {
     return this.revealsAt
       ? this.revealsAt.diff(DateTime.now())
       : DateTime.now().plus({ seconds: this.remainingRevealTime }).diff(DateTime.now())
   }
 
-  public remainingSeconds () {
+  public remainingSeconds() {
     return this.remainingDuration().as('seconds')
   }
 
-  public timeRemainigStr () {
+  public timeRemainigStr() {
     return timeRemaining(this.remainingDuration())
   }
 
-  public optInOpen () {
+  public optInOpen() {
     if (this.starredAt) {
-      return this.starredAt < DateTime.now() &&
+      return (
+        this.starredAt < DateTime.now() &&
         this.starredAt.plus({ hours: OPT_IN_HOURS }) > DateTime.now()
+      )
     }
 
-    return ! this.revealsAt
+    return !this.revealsAt
   }
 
-  public async creators () {
+  public async creators() {
     const sub: SetSubmission = this
     await sub.load((loader) => {
-      loader
-        .load('creatorAccount')
-        .load('coCreators', (query) => query.preload('account'))
+      loader.load('creatorAccount').load('coCreators', (query) => query.preload('account'))
     })
 
-    return [
-      this.creatorAccount,
-      ...this.coCreators.map(c => c.account)
-    ]
+    return [this.creatorAccount, ...this.coCreators.map((c) => c.account)]
   }
 
-  public async creatorNames () {
+  public async creatorNames() {
     const creators = await this.creators()
 
-    return creators.map(c => c.display)
+    return creators.map((c) => c.display)
   }
 
-  public async creatorNamesForX () {
+  public async creatorNamesForX() {
     const creators = await this.creators()
 
-    return creators.map(c => c.nameForX)
+    return creators.map((c) => c.nameForX)
   }
 
-  public async creatorNamesStr () {
+  public async creatorNamesStr() {
     const creators = await this.creatorNames()
     if (creators.length <= 3) {
       return string.toSentence(creators)
@@ -538,7 +628,7 @@ export default class SetSubmission extends BaseModel {
     }
   }
 
-  public async creatorNamesForXStr () {
+  public async creatorNamesForXStr() {
     const creators = await this.creatorNamesForX()
     if (creators.length <= 3) {
       return string.toSentence(creators)
@@ -548,7 +638,7 @@ export default class SetSubmission extends BaseModel {
     }
   }
 
-  public async updateSearchString () {
+  public async updateSearchString() {
     this.search = [
       this.name,
       // this.description,
@@ -558,18 +648,15 @@ export default class SetSubmission extends BaseModel {
       // this.edition_10Name,
       // this.edition_20Name,
       // this.edition_40Name,
-      ...(
-        (await this.creators()).map(c => [c.display, c.address, c.ens]
-          .filter(i => !!i)
-          .join(' ')
-        )
+      ...(await this.creators()).map((c) =>
+        [c.display, c.address, c.ens].filter((i) => !!i).join(' '),
       ),
     ].join(' ')
 
     await this.save()
   }
 
-  public async startRevealTimer () {
+  public async startRevealTimer() {
     if (this.revealsAt || !this.starredAt) return
 
     this.revealsAt = this.starredAt.plus({ hours: OPT_IN_HOURS })
@@ -582,10 +669,10 @@ export default class SetSubmission extends BaseModel {
     await this.notify('RevealStarted')
   }
 
-  public async pauseRevealTimer () {
+  public async pauseRevealTimer() {
     const now = DateTime.now()
 
-    if (! this.revealsAt) return
+    if (!this.revealsAt) return
     if (this.revealsAt < now) return
 
     this.remainingRevealTime = 0
@@ -598,9 +685,9 @@ export default class SetSubmission extends BaseModel {
     await this.notify('RevealPaused')
   }
 
-  public async scheduleReveal () {
+  public async scheduleReveal() {
     try {
-      await (new Reveal()).schedule(this)
+      await new Reveal().schedule(this)
 
       await BotNotifications?.provenance(this)
     } catch (e) {
@@ -609,7 +696,7 @@ export default class SetSubmission extends BaseModel {
     }
   }
 
-  public async reveal (setId: number|null = this.preferredSetId) {
+  public async reveal(setId: number | null = this.preferredSetId) {
     const submission: SetSubmission = this
     const set = setId
       ? await SetModel.findOrFail(setId)
@@ -618,15 +705,14 @@ export default class SetSubmission extends BaseModel {
     const currentBlock = await provider.getBlockNumber()
     const revealBlock = Number(this.revealBlockNumber)
 
-    if (! submission.revealsAt) throw new Error(`Unscheduled reveal`)
-    if (
-      currentBlock < revealBlock + 5 ||
-      submission.revealsAt > DateTime.now()
-    ) throw new Error(`Not time to reveal yet`)
-    if (submission.setId && set.id !== submission.setId) throw new Error(`Not allowed to re-reveal to a set`)
+    if (!submission.revealsAt) throw new Error(`Unscheduled reveal`)
+    if (currentBlock < revealBlock + 5 || submission.revealsAt > DateTime.now())
+      throw new Error(`Not time to reveal yet`)
+    if (submission.setId && set.id !== submission.setId)
+      throw new Error(`Not allowed to re-reveal to a set`)
 
     try {
-      await (new Reveal()).compute(submission, set)
+      await new Reveal().compute(submission, set)
 
       // Update sets counts for contributors
       const creators = await this.creators()
@@ -635,12 +721,14 @@ export default class SetSubmission extends BaseModel {
         await creator.save()
       }
     } catch (e) {
-      Logger.info(`Something bad happened during reveal of set ${set.id} and submission ${submission.uuid}: ${e}`)
+      Logger.info(
+        `Something bad happened during reveal of set ${set.id} and submission ${submission.uuid}: ${e}`,
+      )
       console.error(e)
     }
   }
 
-  public async opepensInSetSubmission () {
+  public async opepensInSetSubmission() {
     const opepens = {
       1: new Set(),
       4: new Set(),
@@ -653,7 +741,7 @@ export default class SetSubmission extends BaseModel {
     for (const s of subscriptions) {
       for (const id of s.opepenIds) {
         const opepen = await Opepen.find(id)
-        if (! opepen) continue
+        if (!opepen) continue
 
         opepens[opepen.data?.edition].add(opepen.tokenId)
       }
@@ -669,16 +757,15 @@ export default class SetSubmission extends BaseModel {
     }
   }
 
-  public async updateAndValidateOpepensInSet () {
+  public async updateAndValidateOpepensInSet() {
     const demandBefore = this.submissionStats?.demand.total || 0
 
     await this.cleanSubscriptionsAndStats()
     await this.maybeStartOrStopTimer()
     await this.maybeSendDemandMultipleNotification(demandBefore)
-
   }
 
-  public async maybeSendDemandMultipleNotification (demandBefore: number) {
+  public async maybeSendDemandMultipleNotification(demandBefore: number) {
     const demandAfter = this.submissionStats?.demand.total || 0
 
     const beforeMultiple = Math.floor(demandBefore / 80)
@@ -689,7 +776,7 @@ export default class SetSubmission extends BaseModel {
     }
   }
 
-  public async clearOptIns () {
+  public async clearOptIns() {
     await Subscription.query().where('submissionId', this.id).update({ submissionId: null })
 
     this.submissionStats = DEFAULT_SUBMISSION_STATS
@@ -697,7 +784,7 @@ export default class SetSubmission extends BaseModel {
   }
 
   // FIXME: Clean up this ducking mess!
-  public async cleanSubscriptionsAndStats () {
+  public async cleanSubscriptionsAndStats() {
     const subscriptions = await Subscription.query().where('submissionId', this.id)
 
     const holders = { 1: 0, 4: 0, 5: 0, 10: 0, 20: 0, 40: 0, total: 0 }
@@ -708,14 +795,17 @@ export default class SetSubmission extends BaseModel {
     for (const subscription of subscriptions) {
       const submittedOpepen = await Opepen.query().whereIn('token_id', subscription.opepenIds)
 
-      const groups = submittedOpepen.reduce((groups, opepen) => {
-        groups[opepen.data.edition].push(opepen.tokenId)
+      const groups = submittedOpepen.reduce(
+        (groups, opepen) => {
+          groups[opepen.data.edition].push(opepen.tokenId)
 
-        return groups
-      }, { 1: [], 4: [], 5: [], 10: [], 20: [], 40: [] } as EditionGroups)
+          return groups
+        },
+        { 1: [], 4: [], 5: [], 10: [], 20: [], 40: [] } as EditionGroups,
+      )
 
       for (const edition in groups) {
-        if (! subscription.maxReveals) {
+        if (!subscription.maxReveals) {
           subscription.maxReveals = {}
         }
 
@@ -723,20 +813,19 @@ export default class SetSubmission extends BaseModel {
         const overallocated = opepenCount >= subscription.maxReveals[edition]
         const isOneOfOneOptIn = edition === '1' && opepenCount
 
-        subscription.maxReveals[edition] = (
+        subscription.maxReveals[edition] =
           overallocated &&
           typeof subscription.maxReveals[edition] === 'number' &&
           subscription.maxReveals[edition] > 0
-        )
-          ? subscription.maxReveals[edition]
-          : opepenCount
+            ? subscription.maxReveals[edition]
+            : opepenCount
 
         if (isOneOfOneOptIn) {
           subscription.maxReveals[edition] = 1
         }
 
         if (subscription.maxReveals[edition] > 0) {
-          holders[edition] ++
+          holders[edition]++
         }
 
         const actual = isOneOfOneOptIn
@@ -750,10 +839,10 @@ export default class SetSubmission extends BaseModel {
 
         // Update curator stats
         if (actual) {
-          if (! curationStats[edition][subscription.address]) {
+          if (!curationStats[edition][subscription.address]) {
             curationStats[edition][subscription.address] = { opepens: 0, demand: 0 }
           }
-          if (! curationStats.total[subscription.address]) {
+          if (!curationStats.total[subscription.address]) {
             curationStats.total[subscription.address] = { opepens: 0, demand: 0 }
           }
           curationStats[edition][subscription.address].opepens += opepenCount
@@ -764,13 +853,15 @@ export default class SetSubmission extends BaseModel {
       }
 
       if (subscription.opepenIds?.length) {
-        holders.total ++
+        holders.total++
       }
 
       await subscription.save()
     }
 
-    const owners = await Opepen.holdersAtBlock(parseInt(this.revealBlockNumber) || 9999999999999999)
+    const owners = await Opepen.holdersAtBlock(
+      parseInt(this.revealBlockNumber) || 9999999999999999,
+    )
 
     this.submissionStats = {
       ...this.submissionStats,
@@ -785,7 +876,7 @@ export default class SetSubmission extends BaseModel {
     await this.save()
   }
 
-  public async maybeStartOrStopTimer () {
+  public async maybeStartOrStopTimer() {
     const demand = this.submissionStats.demand
 
     const editions = [1, 4, 5, 10, 20, 40]
@@ -805,9 +896,9 @@ export default class SetSubmission extends BaseModel {
     }
   }
 
-  public async notify (scopeKey: keyof typeof NOTIFICATIONS, sendNow: boolean = false) {
+  public async notify(scopeKey: keyof typeof NOTIFICATIONS, sendNow: boolean = false) {
     Logger.info(`SetSubmission.notify(): ${scopeKey}`)
-    const query = Account.query().withScopes(scopes => scopes.receivesEmail(scopeKey))
+    const query = Account.query().withScopes((scopes) => scopes.receivesEmail(scopeKey))
 
     if (SCOPED_NOTIFICATIONS[scopeKey]) {
       SCOPED_NOTIFICATIONS[scopeKey](query, this)

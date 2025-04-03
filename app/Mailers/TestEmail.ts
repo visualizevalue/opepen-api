@@ -6,7 +6,7 @@ import View from '@ioc:Adonis/Core/View'
 import Account from 'App/Models/Account'
 
 export default class TestEmail extends BaseMailer {
-  constructor (private account: Account) {
+  constructor(private account: Account) {
     super()
   }
 
@@ -19,8 +19,8 @@ export default class TestEmail extends BaseMailer {
           account: this.account.address,
           type: 'new_set',
         },
-        { prefixUrl: Env.get('APP_URL') }
-      )
+        { prefixUrl: Env.get('APP_URL') },
+      ),
     }
 
     const html = mjml2html(await View.render('emails/test@mjml', data)).html

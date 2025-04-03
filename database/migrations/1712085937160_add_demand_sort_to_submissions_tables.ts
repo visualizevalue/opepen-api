@@ -3,12 +3,12 @@ import BaseSchema from '@ioc:Adonis/Lucid/Schema'
 export default class extends BaseSchema {
   protected tableName = 'set_submissions'
 
-  public async up () {
+  public async up() {
     this.schema.alterTable(this.tableName, (table) => {
       table.integer('demand').defaultTo(0).index()
     })
 
-    this.defer(async db => {
+    this.defer(async (db) => {
       await db.rawQuery(`
         UPDATE set_submissions
         SET demand = COALESCE(("submission_stats" -> 'demand' ->> 'total')::integer, 0);
@@ -16,7 +16,7 @@ export default class extends BaseSchema {
     })
   }
 
-  public async down () {
+  public async down() {
     this.schema.alterTable(this.tableName, (table) => {
       table.dropColumn('demand')
     })

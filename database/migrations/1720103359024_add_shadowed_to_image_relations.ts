@@ -4,7 +4,7 @@ export default class extends BaseSchema {
   protected submissionsTable = 'set_submissions'
   protected postsTable = 'posts'
 
-  public async up () {
+  public async up() {
     this.schema.alterTable(this.submissionsTable, (table) => {
       table.timestamp('shadowed_at', { useTz: true })
     })
@@ -14,7 +14,7 @@ export default class extends BaseSchema {
     })
   }
 
-  public async down () {
+  public async down() {
     this.schema.alterTable(this.submissionsTable, (table) => {
       table.dropColumn('shadowed_at')
     })

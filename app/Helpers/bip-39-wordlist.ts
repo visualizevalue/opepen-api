@@ -2046,7 +2046,7 @@ const WORDS = [
   'zebra',
   'zero',
   'zone',
-  'zoo'
+  'zoo',
 ]
 
 export default WORDS

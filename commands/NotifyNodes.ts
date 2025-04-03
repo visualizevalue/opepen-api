@@ -35,7 +35,7 @@ export default class NotifyNodes extends BaseCommand {
     const movementsSince = DateTime.fromISO(setting.data.updatedAt)
 
     // Make sure we have all sales imported
-    await (new ImportSales()).sync()
+    await new ImportSales().sync()
 
     this.logger.info(`Computing node movements since ${movementsSince.toISO()}`)
 
@@ -56,7 +56,7 @@ export default class NotifyNodes extends BaseCommand {
     await setting.save()
   }
 
-  private async getEventsPerNode (movementsSince: DateTime) {
+  private async getEventsPerNode(movementsSince: DateTime) {
     const events = await Event.query()
       .where('contract', 'OPEPEN')
       .where('from', '!=', ethers.constants.AddressZero)
@@ -67,7 +67,7 @@ export default class NotifyNodes extends BaseCommand {
     const groups = {}
 
     for (const event of events) {
-      if (! groups[event.to]) {
+      if (!groups[event.to]) {
         groups[event.to] = {
           events: [],
           account: await Account.byId(event.to).firstOrFail(),
@@ -80,16 +80,21 @@ export default class NotifyNodes extends BaseCommand {
     return groups
   }
 
-  private async handleNode (account: Account, events: Event[]) {
-    const [currentEventBatchOpepen, previouslyOwnedOpepen, ownedOpepen, ownedBurnedOpepen] = await Promise.all([
-      Opepen.query().whereIn('tokenId', events.map(e => e.tokenId.toString())),
-      Event.query().where('to', account.address).count('*', 'owned'),
-      Opepen.query().where('owner', account.address).count('*', 'owned'),
-      BurnedOpepen.query().where('owner', account.address).count('*', 'owned')
-    ])
+  private async handleNode(account: Account, events: Event[]) {
+    const [currentEventBatchOpepen, previouslyOwnedOpepen, ownedOpepen, ownedBurnedOpepen] =
+      await Promise.all([
+        Opepen.query().whereIn(
+          'tokenId',
+          events.map((e) => e.tokenId.toString()),
+        ),
+        Event.query().where('to', account.address).count('*', 'owned'),
+        Opepen.query().where('owner', account.address).count('*', 'owned'),
+        BurnedOpepen.query().where('owner', account.address).count('*', 'owned'),
+      ])
 
     const previouslyOwnedCount = parseInt(previouslyOwnedOpepen[0].$extras.owned)
-    const ownedCount = parseInt(ownedOpepen[0].$extras.owned) + parseInt(ownedBurnedOpepen[0].$extras.owned)
+    const ownedCount =
+      parseInt(ownedOpepen[0].$extras.owned) + parseInt(ownedBurnedOpepen[0].$extras.owned)
 
     if (ownedCount === 0) {
       this.logger.info(`Node ${account.nameForX} sold everything in the meantime`)
@@ -106,7 +111,9 @@ export default class NotifyNodes extends BaseCommand {
         opepen.updatedAt !== opepen.revealedAt &&
         opepen.updatedAt > DateTime.now().minus({ hours: 3 })
       ) {
-        this.logger.info(`Last update for this opepen was ${opepen.updatedAt}. skip (likely a bot)`)
+        this.logger.info(
+          `Last update for this opepen was ${opepen.updatedAt}. skip (likely a bot)`,
+        )
         return
       }
     }
@@ -115,19 +122,20 @@ export default class NotifyNodes extends BaseCommand {
 
     const imageURI = `https://api.opepen.art/v1/accounts/${account.address}/opepen/grid.png?key=${DateTime.now().toUnixInteger()}`
 
-    const value = events.reduce((value, event) => BigInt(value) + BigInt(event.value || 0), BigInt(0))
+    const value = events.reduce(
+      (value, event) => BigInt(value) + BigInt(event.value || 0),
+      BigInt(0),
+    )
     const action = value > 0n ? `Acquired` : `Received`
-    const opepenStr = events.length > 2
-      ? `${events.length} Opepen`
-      : `${events.map(e => e.opepen.name).join(' & ')}`
+    const opepenStr =
+      events.length > 2
+        ? `${events.length} Opepen`
+        : `${events.map((e) => e.opepen.name).join(' & ')}`
     const actionString = `${action} ${opepenStr} ${value > 0n ? `(Ξ${formatEther(value)})` : ''}`
 
     // New node
     if (previouslyOwnedCount === ownedCount && ownedCount === events.length) {
-      const msg = [
-        `New Node ${account.nameForX}`,
-        actionString,
-      ]
+      const msg = [`New Node ${account.nameForX}`, actionString]
       await this.notify(msg, imageURI)
     }
     // Expanding node
@@ -140,20 +148,20 @@ export default class NotifyNodes extends BaseCommand {
 
       msg.push(`Node uptime: ${formatDuration(await account.timeHeld())}`)
 
-      await this.notify(msg, `${imageURI}&highlight=${events.map(e => e.tokenId).join(',')}`)
+      await this.notify(msg, `${imageURI}&highlight=${events.map((e) => e.tokenId).join(',')}`)
     }
     // Returning node
     else {
-      const lastOwnedOpepen = await Event.query().where('from', account.address).orderBy('timestamp', 'desc').first()
-      if (! lastOwnedOpepen) return
+      const lastOwnedOpepen = await Event.query()
+        .where('from', account.address)
+        .orderBy('timestamp', 'desc')
+        .first()
+      if (!lastOwnedOpepen) return
 
       const diff = DateTime.now().diff(lastOwnedOpepen.timestamp)
       if (diff.days < 30) return
 
-      const msg = [
-        `Returning Node ${account.nameForX}`,
-        actionString,
-      ]
+      const msg = [`Returning Node ${account.nameForX}`, actionString]
 
       msg.push(`Node downtime: ${formatDuration(diff)}`)
 
@@ -161,14 +169,14 @@ export default class NotifyNodes extends BaseCommand {
     }
   }
 
-  private async notify (lines: string[], img: string) {
+  private async notify(lines: string[], img: string) {
     this.logger.info(lines.join('; ') + ' ' + img)
 
     const txt = lines.join(`\n`)
 
     const account = await Account.byId(Env.get('TWITTER_BOT_ACCOUNT_ADDRESS')).firstOrFail()
     const xClient = await Twitter.initialize(account)
-    if (! xClient) return
+    if (!xClient) return
 
     try {
       await xClient.tweet(txt, img)
@@ -180,6 +188,5 @@ export default class NotifyNodes extends BaseCommand {
     } catch (e) {
       this.logger.error(`NotifyNodes: Issue sending Farcaster post`)
     }
-
   }
 }

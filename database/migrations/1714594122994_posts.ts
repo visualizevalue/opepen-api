@@ -4,7 +4,7 @@ export default class extends BaseSchema {
   protected tableName = 'posts'
   protected pivotTableName = 'images_posts'
 
-  public async up () {
+  public async up() {
     this.schema.createTable(this.tableName, (table) => {
       table.bigIncrements('id')
       table.string('address')
@@ -21,7 +21,7 @@ export default class extends BaseSchema {
     })
   }
 
-  public async down () {
+  public async down() {
     this.schema.dropTable(this.pivotTableName)
     this.schema.dropTable(this.tableName)
   }

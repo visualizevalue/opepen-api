@@ -24,14 +24,20 @@ export default class SetRevealImages extends BaseCommand {
     const { default: SetModel } = await import('App/Models/SetModel')
 
     const set = await SetModel.query()
-      .preload('submission', query => {
+      .preload('submission', (query) => {
         query.preload('dynamicSetImages')
       })
       .preload('opepen')
-      .where('id', this.set).firstOrFail()
+      .where('id', this.set)
+      .firstOrFail()
 
     for (const opepen of set.opepen) {
-      await (new Reveal()).generateMetadataFor(Number(opepen.tokenId), opepen.setEditionId, set.submission, set)
+      await new Reveal().generateMetadataFor(
+        Number(opepen.tokenId),
+        opepen.setEditionId,
+        set.submission,
+        set,
+      )
       this.logger.info(`Executed metadata generation for opepen ${opepen.tokenId}`)
     }
   }

@@ -1,6 +1,16 @@
 import axios from 'axios'
 import Env from '@ioc:Adonis/Core/Env'
-import { beforeSave, BelongsTo, belongsTo, column, computed, HasMany, hasMany, hasOne, HasOne } from '@ioc:Adonis/Lucid/Orm'
+import {
+  beforeSave,
+  BelongsTo,
+  belongsTo,
+  column,
+  computed,
+  HasMany,
+  hasMany,
+  hasOne,
+  HasOne,
+} from '@ioc:Adonis/Lucid/Orm'
 import Database from '@ioc:Adonis/Lucid/Database'
 import Logger from '@ioc:Adonis/Core/Logger'
 import pad from 'App/Helpers/pad'
@@ -16,14 +26,14 @@ import { ContractType } from './types'
 type SetConfig = any
 
 type OpepenData = {
-  edition: 1|4|5|10|20|40,
-  setConfig?: SetConfig,
+  edition: 1 | 4 | 5 | 10 | 20 | 40
+  setConfig?: SetConfig
   order?: {
-    source: string,
+    source: string
     price: {
-      raw: string,
-      decimal: number,
-      usd: number,
+      raw: string
+      decimal: number
+      usd: number
     }
   }
 }
@@ -38,21 +48,21 @@ export default class Opepen extends TokenModel {
         ...value,
         setConfig: undefined,
       }
-    }
+    },
   })
   public data: OpepenData
 
   @column({
-    consume: value => {
-      if (! value) return {}
+    consume: (value) => {
+      if (!value) return {}
 
       return value
-    }
+    },
   })
   public metadata: TokenMetadata
 
   @computed()
-  public get name () {
+  public get name() {
     return this.revealedAt
       ? `Set ${pad(this.setId, 3)}, 1/${this.data.edition} (#${this.tokenId})`
       : `1/${this.data.edition} (#${this.tokenId})`
@@ -72,7 +82,7 @@ export default class Opepen extends TokenModel {
 
   @belongsTo(() => SetModel, {
     foreignKey: 'setId',
-    onQuery: query => query.preload('submission')
+    onQuery: (query) => query.preload('submission'),
   })
   public set: BelongsTo<typeof SetModel>
 
@@ -87,23 +97,23 @@ export default class Opepen extends TokenModel {
   @hasMany(() => Event, {
     foreignKey: 'tokenId',
     localKey: 'tokenId',
-    onQuery: query => {
+    onQuery: (query) => {
       query.where('contract', 'OPEPEN')
       query.orderBy('blockNumber', 'desc')
       query.orderBy('logIndex', 'desc')
-    }
+    },
   })
   public events: HasMany<typeof Event>
 
   @hasOne(() => Event, {
     foreignKey: 'tokenId',
     localKey: 'tokenId',
-    onQuery: query => {
+    onQuery: (query) => {
       query.where('contract', 'OPEPEN')
       query.orderBy('blockNumber', 'desc')
       query.orderBy('logIndex', 'desc')
       query.limit(1)
-    }
+    },
   })
   public lastEvent: HasOne<typeof Event>
 
@@ -112,27 +122,32 @@ export default class Opepen extends TokenModel {
     return TokenModel.lowerCaseAddresses(model)
   }
 
-  public static async holdersAtBlock (block: number = 9999999999999999) {
-    const lastTokenOwners = await Database.rawQuery(`SELECT
+  public static async holdersAtBlock(block: number = 9999999999999999) {
+    const lastTokenOwners = await Database.rawQuery(
+      `SELECT
           DISTINCT on (token_id) token_id,
           "to" as holder,
           block_number
         FROM events
         WHERE block_number::NUMERIC < ?
         AND contract = 'OPEPEN'
-        ORDER BY token_id, block_number::int desc`, [block])
+        ORDER BY token_id, block_number::int desc`,
+      [block],
+    )
 
-    return new Set<string>(lastTokenOwners.rows.map(t => t.holder))
+    return new Set<string>(lastTokenOwners.rows.map((t) => t.holder))
   }
 
-  public async updateImage () {
+  public async updateImage() {
     const opepen: Opepen = this
     let uri: string
 
     if (opepen.metadata.animation_url?.endsWith('.svg')) {
       uri = opepen.metadata.animation_url
     } else {
-      const response = await axios.get(`https://metadata.opepen.art/${opepen.tokenId}/image-uri`)
+      const response = await axios.get(
+        `https://metadata.opepen.art/${opepen.tokenId}/image-uri`,
+      )
 
       uri = response.data.uri as string
     }
@@ -147,7 +162,7 @@ export default class Opepen extends TokenModel {
     await opepen.load('image')
     await opepen.load('set')
 
-    if (! opepen.image) {
+    if (!opepen.image) {
       const image = await Image.fromURI(gatewayURI)
       await image.generateScaledVersions()
 

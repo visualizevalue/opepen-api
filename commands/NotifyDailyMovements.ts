@@ -39,7 +39,7 @@ export default class NotifyDailyMovements extends BaseCommand {
       .where('timestamp', '>=', start.toISO())
       .where('timestamp', '<=', today.toISO())
 
-    const nodes = new Set(events.map(e => e.to))
+    const nodes = new Set(events.map((e) => e.to))
     const previousEventsPerNode = await Event.query()
       .whereIn('to', Array.from(nodes))
       .where('timestamp', '<', start.toISO())
@@ -54,19 +54,27 @@ export default class NotifyDailyMovements extends BaseCommand {
       }
     }
 
-    const curations: number = parseInt((await SubscriptionHistory.query()
-      .where('createdAt', '>=', start.toISO())
-      .where('createdAt', '<=', today.toISO())
-      .count('*', 'count'))[0].$extras.count)
+    const curations: number = parseInt(
+      (
+        await SubscriptionHistory.query()
+          .where('createdAt', '>=', start.toISO())
+          .where('createdAt', '<=', today.toISO())
+          .count('*', 'count')
+      )[0].$extras.count,
+    )
 
-    const transfers: number = parseInt((await Event.query()
-      .where('timestamp', '>=', start.toISO())
-      .where('timestamp', '<=', today.toISO())
-      .count('*', 'count'))[0].$extras.count)
+    const transfers: number = parseInt(
+      (
+        await Event.query()
+          .where('timestamp', '>=', start.toISO())
+          .where('timestamp', '<=', today.toISO())
+          .count('*', 'count')
+      )[0].$extras.count,
+    )
 
-    const totalNodes: number = parseInt((
-      await Opepen.query().countDistinct('owner', 'count')
-    )[0].$extras.count)
+    const totalNodes: number = parseInt(
+      (await Opepen.query().countDistinct('owner', 'count'))[0].$extras.count,
+    )
 
     if (events.length < 4) return
 
@@ -82,7 +90,7 @@ export default class NotifyDailyMovements extends BaseCommand {
 
     const account = await Account.byId(Env.get('TWITTER_BOT_ACCOUNT_ADDRESS')).firstOrFail()
     const xClient = await Twitter.initialize(account)
-    if (! xClient) return
+    if (!xClient) return
 
     await xClient.tweet(txt, imageUrl)
     await Farcaster.cast(txt, imageUrl)

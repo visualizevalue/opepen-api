@@ -50,14 +50,14 @@ export default class TimelineUpdate extends BaseModel {
   @belongsTo(() => Account, {
     foreignKey: 'address',
     localKey: 'address',
-    onQuery: query => {
+    onQuery: (query) => {
       query.preload('pfp')
     },
   })
   public account: BelongsTo<typeof Account>
 
   @belongsTo(() => Event, {
-    onQuery: query => {
+    onQuery: (query) => {
       query.preload('fromAccount')
       query.preload('toAccount')
     },
@@ -65,7 +65,7 @@ export default class TimelineUpdate extends BaseModel {
   public event: BelongsTo<typeof Event>
 
   @belongsTo(() => Post, {
-    onQuery: query => {
+    onQuery: (query) => {
       query.whereNull('deleted_at')
       query.preload('account')
       query.preload('images')
@@ -75,7 +75,7 @@ export default class TimelineUpdate extends BaseModel {
   public post: BelongsTo<typeof Post>
 
   @belongsTo(() => Cast, {
-    onQuery: query => {
+    onQuery: (query) => {
       query.preload('account')
     },
   })
@@ -94,7 +94,7 @@ export default class TimelineUpdate extends BaseModel {
   @belongsTo(() => SubscriptionHistory, {})
   public subscriptionHistory: BelongsTo<typeof SubscriptionHistory>
 
-  public static async createFor(model: Post|Cast|SetSubmission|SubscriptionHistory) {
+  public static async createFor(model: Post | Cast | SetSubmission | SubscriptionHistory) {
     const update = new TimelineUpdate()
 
     if (model instanceof Post) {
@@ -123,5 +123,4 @@ export default class TimelineUpdate extends BaseModel {
 
     await update.save()
   }
-
 }

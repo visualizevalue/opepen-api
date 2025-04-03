@@ -10,11 +10,7 @@ import { Exception } from '@adonisjs/core/build/standalone'
 |
 */
 export default class NotAuthorized extends Exception {
-  constructor(
-    message = `Forbidden.`,
-    status = 403,
-    code = 'NOT_AUTHORIZED',
-  ) {
+  constructor(message = `Forbidden.`, status = 403, code = 'NOT_AUTHORIZED') {
     super(message, status, code)
   }
 }

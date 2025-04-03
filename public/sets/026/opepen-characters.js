@@ -19,21 +19,14 @@ export default class OpepenCharacters {
 
   // HTML elements
   opepenElement = null
-  formElement   = null
-  inputElement  = null
-  statsElement  = null
+  formElement = null
+  inputElement = null
+  statsElement = null
 
   // Other options
   width = getWidth()
 
-  constructor ({
-    charactersElement,
-    opepenElement,
-    inputElement,
-    formElement,
-    edition,
-    id,
-  }) {
+  constructor({ charactersElement, opepenElement, inputElement, formElement, edition, id }) {
     this.charactersElement = charactersElement
     this.opepenElement = opepenElement
     this.inputElement = inputElement
@@ -46,33 +39,34 @@ export default class OpepenCharacters {
     this.edition = edition
     this.id = id
 
-
     this.initialize()
   }
 
-  get empty () {
+  get empty() {
     return this.words.length === 0
   }
 
-  get lastWord () {
+  get lastWord() {
     return this.words.at(-1)
   }
 
-  get maxLetterCount () {
+  get maxLetterCount() {
     return LETTER_COUNTS_PER_EDITION[this.edition]
   }
 
-  get letters () {
+  get letters() {
     const arr = []
 
-    this.words.forEach(word => word.split('').forEach(letter => {
-      arr.push(letter)
-    }))
+    this.words.forEach((word) =>
+      word.split('').forEach((letter) => {
+        arr.push(letter)
+      }),
+    )
 
     return arr
   }
 
-  initialize () {
+  initialize() {
     this.charactersElement.className = `edition-${this.edition}`
 
     // Event listeners
@@ -90,7 +84,7 @@ export default class OpepenCharacters {
     this.connect()
   }
 
-  async connect () {
+  async connect() {
     this.socket = io('wss://api.opepen.art/sets/026', {
       query: {
         edition: this.edition,
@@ -101,11 +95,11 @@ export default class OpepenCharacters {
       secure: true,
     })
 
-    this.socket.on(`opepen:load:${this.id}`,    (data) => this.setData(data, true))
+    this.socket.on(`opepen:load:${this.id}`, (data) => this.setData(data, true))
     this.socket.on(`opepen:updated:${this.id}`, (data) => this.setData(data))
   }
 
-  setData (data, forceSetPrevious = false) {
+  setData(data, forceSetPrevious = false) {
     if (data.counts) this.stats = data.counts
 
     this.setWords(data.words, forceSetPrevious)
@@ -113,26 +107,26 @@ export default class OpepenCharacters {
     RENDERED = true
   }
 
-  setWords (words, forceSetPrevious = false) {
-    this.previosWords = forceSetPrevious ? words : [ ...this.words ]
+  setWords(words, forceSetPrevious = false) {
+    this.previosWords = forceSetPrevious ? words : [...this.words]
     this.words = words
     this.render()
   }
 
-  onResize () {
+  onResize() {
     this.width = getWidth()
-    this.opepenElement.style.setProperty("--width", this.width + 'px')
+    this.opepenElement.style.setProperty('--width', this.width + 'px')
 
     this.render()
   }
 
-  onKeyDown (e) {
+  onKeyDown(e) {
     if (e.keyCode === 13) {
       this.onWordSubmit()
     }
   }
 
-  onInput () {
+  onInput() {
     const input = this.inputElement.value?.toLowerCase()
     const valid = this.validateInput(input)
 
@@ -150,7 +144,7 @@ export default class OpepenCharacters {
     this.vvriter.innerHTML = vvrite(input)
   }
 
-  onWordSubmit (e) {
+  onWordSubmit(e) {
     // Don't submit the page via a POST request...
     e?.preventDefault()
 
@@ -166,7 +160,7 @@ export default class OpepenCharacters {
     // FIXME: Implement clientonly mode
     // Clear input if it's invalid
     const valid = this.validateInput(word)
-    if (! valid) {
+    if (!valid) {
       this.formElement.classList.add('invalid')
       setTimeout(() => this.formElement.classList.remove('invalid'), 1000)
     } else {
@@ -186,40 +180,42 @@ export default class OpepenCharacters {
     }, clearAfter)
   }
 
-  async store (word) {
+  async store(word) {
     return await this.socket.emit(`opepen:word:${this.id}`, word)
   }
 
-  async clearWords () {
+  async clearWords() {
     this.words = []
     return await this.socket.emit(`opepen:clear:${this.id}`)
   }
 
-  validateInput (word) {
+  validateInput(word) {
     // Word is not part of the BIP 39 wordlist, it's not valid
-    if (! WORDS.includes(word)) return false
+    if (!WORDS.includes(word)) return false
 
     if (word.length > this.maxLetterCount) return false
 
     return true
   }
 
-  clearInput () {
+  clearInput() {
     this.inputElement.value = ''
     this.onInput()
   }
 
-  render () {
+  render() {
     // Set dimensions
     this.opepenElement.style.width = this.width + 'px'
     this.opepenElement.style.height = this.width + 'px'
 
     // Set the stats
-    this.statsElement.innerHTML = vvrite([
-      `${formatNumber(this.stats.total)} words entered`,
-      `${formatNumber(this.stats.valid)} valid words entered`,
-      `${formatNumber(this.stats.seeds)} valid seed phrases`,
-    ].join(' - '))
+    this.statsElement.innerHTML = vvrite(
+      [
+        `${formatNumber(this.stats.total)} words entered`,
+        `${formatNumber(this.stats.valid)} valid words entered`,
+        `${formatNumber(this.stats.seeds)} valid seed phrases`,
+      ].join(' - '),
+    )
 
     // Clear existing content
     this.charactersElement.innerHTML = ''
@@ -236,37 +232,40 @@ export default class OpepenCharacters {
     // Find existing span elements (if they exist) and fill our default tiles
     let letterElements = this.charactersElement.querySelectorAll('& > span')
     if (letterElements.length !== this.maxLetterCount) {
-      Array(this.maxLetterCount).fill('').forEach(() => {
-        this.charactersElement.appendChild(document.createElement('span'))
-      })
+      Array(this.maxLetterCount)
+        .fill('')
+        .forEach(() => {
+          this.charactersElement.appendChild(document.createElement('span'))
+        })
     }
     letterElements = this.charactersElement.querySelectorAll('& > span')
 
     // Fill letters
     let index = 0
     this.words.forEach((word, wordIndex) => {
-
       if (word.length > this.maxLetterCount) return
 
-      word.split('').forEach(letter => {
+      word.split('').forEach((letter) => {
         const el = letterElements[index]
 
-        if (! el) return
+        if (!el) return
 
         el.innerHTML = vvrite(letter)
         el.className = dark ? 'dark' : 'light'
 
-        if (wordIndex === 0 && JSON.stringify(this.words) !== JSON.stringify(this.previosWords)) {
+        if (
+          wordIndex === 0 &&
+          JSON.stringify(this.words) !== JSON.stringify(this.previosWords)
+        ) {
           el.classList.add('highlight')
 
           setTimeout(() => el.classList.remove('highlight'), 1000)
         }
 
-        index ++
+        index++
       })
 
       dark = !dark
     })
   }
-
 }

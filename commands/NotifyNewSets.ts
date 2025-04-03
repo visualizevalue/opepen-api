@@ -19,16 +19,16 @@ export default class NotifyNewSets extends BaseCommand {
     stayAlive: false,
   }
 
-  private async getLastNotificationTime (): Promise<[Setting, DateTime]> {
+  private async getLastNotificationTime(): Promise<[Setting, DateTime]> {
     const { default: Setting } = await import('App/Models/Setting')
 
     let setting = await Setting.findBy('key', SETTINGS_KEYS.NOTIFICATION_NEW_SETS)
 
     // Add default setting
-    if (! setting) {
+    if (!setting) {
       setting = await Setting.create({
         key: SETTINGS_KEYS.NOTIFICATION_NEW_SETS,
-        data: { lastSent: DateTime.utc().minus({ weeks: 1 }).toISO() }
+        data: { lastSent: DateTime.utc().minus({ weeks: 1 }).toISO() },
       })
     }
 
@@ -46,19 +46,18 @@ export default class NotifyNewSets extends BaseCommand {
       .where('published_at', '>', lastSent.toISO())
       .orderBy('published_at', 'desc')
 
-    if (! submissions.length) return
+    if (!submissions.length) return
 
-    await this.notify([
-      `Recently added Opepen Set Submissions`,
-      ``,
-      `Curate: https://opepen.art/curate`,
-    ], imageUrl)
+    await this.notify(
+      [`Recently added Opepen Set Submissions`, ``, `Curate: https://opepen.art/curate`],
+      imageUrl,
+    )
 
     setting.data.lastSent = until.toISO()
     await setting.save()
   }
 
-  private async notify (lines: string[], img: string) {
+  private async notify(lines: string[], img: string) {
     const { default: Account } = await import('App/Models/Account')
     const { default: Twitter } = await import('App/Services/Twitter')
     const { default: Farcaster } = await import('App/Services/Farcaster')
@@ -67,7 +66,7 @@ export default class NotifyNewSets extends BaseCommand {
 
     const account = await Account.byId(Env.get('TWITTER_BOT_ACCOUNT_ADDRESS')).firstOrFail()
     const xClient = await Twitter.initialize(account)
-    if (! xClient) return
+    if (!xClient) return
 
     await xClient.tweet(txt, img)
     await Farcaster.cast(txt, img)

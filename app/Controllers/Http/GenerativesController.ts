@@ -3,8 +3,7 @@ import BaseController from './BaseController'
 import Generative from 'App/Models/Generative'
 
 export default class GenerativesController extends BaseController {
-
-  public async create ({ request }: HttpContextContract) {
+  public async create({ request }: HttpContextContract) {
     const generative = await Generative.create({
       type: request.input('type'),
       code: request.input('code'),
@@ -13,11 +12,11 @@ export default class GenerativesController extends BaseController {
     return generative
   }
 
-  public async show ({ params }: HttpContextContract) {
+  public async show({ params }: HttpContextContract) {
     return Generative.findOrFail(params.id)
   }
 
-  public async update ({ params, request }: HttpContextContract) {
+  public async update({ params, request }: HttpContextContract) {
     const generative = await Generative.findOrFail(params.id)
 
     generative.merge({
@@ -27,5 +26,4 @@ export default class GenerativesController extends BaseController {
 
     return generative.save()
   }
-
 }

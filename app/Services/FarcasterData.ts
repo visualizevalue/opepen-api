@@ -10,29 +10,28 @@ import { isAdminAddress } from 'App/Middleware/AdminAuth'
 const TIME_START = 1609455600
 
 type FnameTransfer = {
-  id: number,
-  timestamp: number,
-  username: string,
-  owner: string,
-  from: number,
-  to: number,
-  user_signature: string,
-  server_signature: string,
+  id: number
+  timestamp: number
+  username: string
+  owner: string
+  from: number
+  to: number
+  user_signature: string
+  server_signature: string
 }
 
 export class FarcasterData {
   HUB_HTTP_URL: string = `https://${Env.get('FARCASTER_HUB')}`
   NETWORK: number = 1
 
-  public async getOrImportCast (fid: string, hash: string) {
-    const existing = await Cast.query()
-      .where('hash', hash)
-      .preload('account')
-      .first()
+  public async getOrImportCast(fid: string, hash: string) {
+    const existing = await Cast.query().where('hash', hash).preload('account').first()
 
     if (existing) return existing
 
-    const { data: message } = await axios.get(`${this.HUB_HTTP_URL}/v1/castById?fid=${fid}&hash=${hash}`)
+    const { data: message } = await axios.get(
+      `${this.HUB_HTTP_URL}/v1/castById?fid=${fid}&hash=${hash}`,
+    )
 
     const account = await this.getAccount(message.data.fid)
 
@@ -44,7 +43,7 @@ export class FarcasterData {
     })
   }
 
-  public async importCasts (
+  public async importCasts(
     reverse: boolean = true,
     allPages: boolean = true,
     parentUrl: string = `chain://eip155:1/erc721:0x6339e5e072086621540d0362c4e3cea0d643e114`,
@@ -55,7 +54,7 @@ export class FarcasterData {
     const url = `${this.HUB_HTTP_URL}/v1/castsByParent?${query}`
 
     try {
-      let pageToken: string|null = null
+      let pageToken: string | null = null
 
       while (pageToken !== '') {
         const response = await axios.get(`${url}${pageToken ? `&pageToken=${pageToken}` : ``}`)
@@ -69,7 +68,7 @@ export class FarcasterData {
           const account = await this.getAccount(message.data.fid)
 
           let cast = await Cast.findBy('hash', message.hash)
-          if (! cast) {
+          if (!cast) {
             cast = await Cast.create({
               ...message,
               address: account?.address,
@@ -87,7 +86,7 @@ export class FarcasterData {
     }
   }
 
-  public async getFidOwner (fid: number): Promise<FnameTransfer|null> {
+  public async getFidOwner(fid: number): Promise<FnameTransfer | null> {
     const url = `https://fnames.farcaster.xyz/transfers?fid=${fid}`
 
     try {
@@ -103,11 +102,11 @@ export class FarcasterData {
     return null
   }
 
-  public async getUser (fid: number) {
+  public async getUser(fid: number) {
     const url = `${this.HUB_HTTP_URL}/v1/verificationsByFid?fid=${fid}&pageSize=1000`
     const user: {
-      fid: number,
-      username: string,
+      fid: number
+      username: string
       addresses: string[]
     } = {
       fid,
@@ -139,7 +138,7 @@ export class FarcasterData {
     return user
   }
 
-  public async getAccount (fid: number): Promise<Account|null> {
+  public async getAccount(fid: number): Promise<Account | null> {
     const existingAccount = await Account.query()
       .whereJsonSuperset('farcaster', { fid })
       .first()
@@ -149,7 +148,7 @@ export class FarcasterData {
     // Fetch/import account
     const user = await this.getUser(fid)
 
-    if (! user?.addresses) return null
+    if (!user?.addresses) return null
 
     let account = await Account.query()
       .whereIn('address', user.addresses)
@@ -157,7 +156,7 @@ export class FarcasterData {
       .orderBy('opepen_count', 'desc')
       .first()
 
-    if (! account) {
+    if (!account) {
       account = await Account.create({ address: user.addresses[0] })
     }
 

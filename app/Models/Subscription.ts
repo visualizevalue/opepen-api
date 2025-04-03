@@ -29,12 +29,12 @@ export default class Subscription extends BaseModel {
   public comment: string
 
   @column({
-    prepare: value => JSON.stringify(value),
+    prepare: (value) => JSON.stringify(value),
   })
   public opepenIds: string[]
 
   @column({
-    prepare: value => JSON.stringify(value),
+    prepare: (value) => JSON.stringify(value),
   })
   public maxReveals: MaxReveal
 

@@ -39,7 +39,9 @@ export default class ReplaceImageFileContents extends BaseCommand {
       this.logger.info(`Update ${token.tokenId}, ${path}`)
 
       this.logger.info(`1. Download image`)
-      const image = await Drive.get(`${token.image.path}/${token.image.uuid}.${token.image.type}`)
+      const image = await Drive.get(
+        `${token.image.path}/${token.image.uuid}.${token.image.type}`,
+      )
 
       this.logger.info(`2. Find "${this.find}"; Replace "${this.replace}"`)
       const newImageStr = image.toString().replace(this.find, this.replace)

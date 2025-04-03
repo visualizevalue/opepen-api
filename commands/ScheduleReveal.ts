@@ -30,7 +30,9 @@ export default class ScheduleReveal extends BaseCommand {
     for (const submission of toSchedule) {
       try {
         await submission.scheduleReveal()
-        this.logger.info(`Scheduled reveal of submission ${submission.uuid} to block ${submission.revealBlockNumber}`)
+        this.logger.info(
+          `Scheduled reveal of submission ${submission.uuid} to block ${submission.revealBlockNumber}`,
+        )
 
         // Postpone other tokens
         const toPostpone = await SetSubmission.query()
@@ -39,7 +41,7 @@ export default class ScheduleReveal extends BaseCommand {
           .whereNot('id', submission.id)
 
         for (const submission of toPostpone) {
-          if (! submission.revealsAt) continue
+          if (!submission.revealsAt) continue
           submission.revealsAt = submission.revealsAt.plus({ hours: 12 })
           await submission.save()
           this.logger.info(`Postponed ${submission.name} by 12 hours`)
@@ -48,6 +50,5 @@ export default class ScheduleReveal extends BaseCommand {
         this.logger.error(`Something went wrong during reveal schedule: ${e}`)
       }
     }
-
   }
 }

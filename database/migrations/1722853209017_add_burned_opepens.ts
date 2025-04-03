@@ -1,14 +1,18 @@
 import BaseSchema from '@ioc:Adonis/Lucid/Schema'
 
 export default class extends BaseSchema {
-  protected tableName       = 'burned_opepens'
+  protected tableName = 'burned_opepens'
   protected opepenTableName = 'opepens'
 
-  public async up () {
+  public async up() {
     this.schema.createTable(this.tableName, (table) => {
       table.bigInteger('token_id').primary()
 
-      table.string('owner').references('address').inTable('accounts').index('burned_opepens_owner')
+      table
+        .string('owner')
+        .references('address')
+        .inTable('accounts')
+        .index('burned_opepens_owner')
 
       // Buy Now Price
       table.decimal('price', 128, 0).nullable()
@@ -27,7 +31,7 @@ export default class extends BaseSchema {
     })
   }
 
-  public async down () {
+  public async down() {
     this.schema.dropTable(this.tableName)
 
     this.schema.alterTable(this.opepenTableName, (table) => {

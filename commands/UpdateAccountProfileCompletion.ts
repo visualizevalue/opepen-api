@@ -34,7 +34,7 @@ export default class UpdateAccountProfileCompletion extends BaseCommand {
     let count = 0
     for (const account of accounts) {
       await account.updateProfileCompletion()
-      count ++
+      count++
 
       if (count % 1000 === 0) {
         this.logger.info(`Updated: ${count}`)

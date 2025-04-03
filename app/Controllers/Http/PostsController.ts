@@ -10,14 +10,8 @@ import TimelineUpdate from 'App/Models/TimelineUpdate'
 import NotAuthorized from 'App/Exceptions/NotAuthorized'
 
 export default class PostsController extends BaseController {
-
-  public async list ({ request, session }: HttpContextContract) {
-    const {
-      page = 1,
-      limit = 10,
-      filter = {},
-      sort = 'createdAt',
-    } = request.qs()
+  public async list({ request, session }: HttpContextContract) {
+    const { page = 1, limit = 10, filter = {}, sort = 'createdAt' } = request.qs()
 
     const query = Post.query()
       .whereNull('deletedAt')
@@ -32,13 +26,13 @@ export default class PostsController extends BaseController {
       .withCount('commentsCount')
 
     // Apply default comment filter
-    if (! filter[`parent_post_id`]) {
+    if (!filter[`parent_post_id`]) {
       query.whereNull('parentPostId')
     }
 
     // Filter non approved for non admins
-    if (! isAdmin(session)) {
-      query.where(q => {
+    if (!isAdmin(session)) {
+      query.where((q) => {
         q.whereNotNull('approvedAt')
         q.whereNull('shadowedAt')
 
@@ -50,19 +44,16 @@ export default class PostsController extends BaseController {
     await this.applyFilters(query, filter)
     await this.applySorts(query, sort)
 
-    return query
-      // Fix sort pagination
-      .orderBy('id')
-      .paginate(page, limit)
+    return (
+      query
+        // Fix sort pagination
+        .orderBy('id')
+        .paginate(page, limit)
+    )
   }
 
-  public async listImagePosts ({ request, session }: HttpContextContract) {
-    const {
-      page = 1,
-      limit = 10,
-      filter = {},
-      sort = '-createdAt',
-    } = request.qs()
+  public async listImagePosts({ request, session }: HttpContextContract) {
+    const { page = 1, limit = 10, filter = {}, sort = '-createdAt' } = request.qs()
 
     const query = Post.query()
       .has('images')
@@ -77,9 +68,9 @@ export default class PostsController extends BaseController {
       .preload('image')
 
     // Filter non approved for non admins
-    if (! isAdmin(session)) {
+    if (!isAdmin(session)) {
       query.whereNull('deletedAt')
-      query.where(q => {
+      query.where((q) => {
         q.whereNotNull('approvedAt')
 
         const userAddress = session.get('siwe')?.address?.toLowerCase()
@@ -90,28 +81,34 @@ export default class PostsController extends BaseController {
     await this.applyFilters(query, filter)
     await this.applySorts(query, sort)
 
-    return query
-      // Fix sort pagination
-      .orderBy('id')
-      .paginate(page, limit)
+    return (
+      query
+        // Fix sort pagination
+        .orderBy('id')
+        .paginate(page, limit)
+    )
   }
 
-  public async show ({ params }: HttpContextContract) {
-    return Post.query()
-      .where('uuid', params.id)
-      .whereNull('deletedAt')
-      // Main relationship...
-      .preload('account')
-      .preload('images')
-      // Attached to...
-      .preload('submission')
-      .preload('opepen')
-      .preload('parent')
+  public async show({ params }: HttpContextContract) {
+    return (
+      Post.query()
+        .where('uuid', params.id)
+        .whereNull('deletedAt')
+        // Main relationship...
+        .preload('account')
+        .preload('images')
+        // Attached to...
+        .preload('submission')
+        .preload('opepen')
+        .preload('parent')
+        .firstOrFail()
+    )
+  }
+
+  public async create({ request, session }: HttpContextContract) {
+    const account = await Account.query()
+      .where('address', session.get('siwe')?.address?.toLowerCase())
       .firstOrFail()
-  }
-
-  public async create ({ request, session }: HttpContextContract) {
-    const account = await Account.query().where('address', session.get('siwe')?.address?.toLowerCase()).firstOrFail()
 
     // Gather basic data
     const parentPostId = request.input('parent_post_id', null)
@@ -119,7 +116,7 @@ export default class PostsController extends BaseController {
     const imageIds = request.input('image_ids', [])
 
     // Basic content validation
-    if (! body && ! imageIds?.length) {
+    if (!body && !imageIds?.length) {
       throw new BadRequest(`Posts need content`)
     }
 
@@ -140,11 +137,16 @@ export default class PostsController extends BaseController {
 
     // Attach images
     const images = await Image.query().whereIn('uuid', imageIds)
-    await post.related('images').sync(images.map(i => i.id?.toString()))
+    await post.related('images').sync(images.map((i) => i.id?.toString()))
     await post.load('images')
-    await Image.query().whereIn('uuid', images.map(i => i.uuid)).update({
-      postId: post.id,
-    })
+    await Image.query()
+      .whereIn(
+        'uuid',
+        images.map((i) => i.uuid),
+      )
+      .update({
+        postId: post.id,
+      })
 
     // Save timeline item
     await TimelineUpdate.createFor(post)
@@ -152,7 +154,7 @@ export default class PostsController extends BaseController {
     return post
   }
 
-  public async approve (ctx: HttpContextContract) {
+  public async approve(ctx: HttpContextContract) {
     const post = await this.show(ctx)
 
     post.approvedAt = DateTime.now()
@@ -161,9 +163,9 @@ export default class PostsController extends BaseController {
     return post
   }
 
-  public async shadow (ctx: HttpContextContract) {
+  public async shadow(ctx: HttpContextContract) {
     const post = await this.show(ctx)
-    if (! post) return ctx.response.badRequest()
+    if (!post) return ctx.response.badRequest()
 
     post.shadowedAt = post.shadowedAt ? null : DateTime.now()
     post.approvedAt = post.shadowedAt ? post.shadowedAt : null
@@ -171,7 +173,7 @@ export default class PostsController extends BaseController {
     return post.save()
   }
 
-  public async unapprove (ctx: HttpContextContract) {
+  public async unapprove(ctx: HttpContextContract) {
     const post = await this.show(ctx)
 
     post.approvedAt = null
@@ -180,11 +182,11 @@ export default class PostsController extends BaseController {
     return post
   }
 
-  public async destroy (ctx: HttpContextContract) {
+  public async destroy(ctx: HttpContextContract) {
     const post = await this.show(ctx)
 
     const currentAddress = ctx.session.get('siwe')?.address?.toLowerCase()
-    if (post.address !== currentAddress && ! isAdmin(ctx.session)) {
+    if (post.address !== currentAddress && !isAdmin(ctx.session)) {
       throw new NotAuthorized(`Only the owner can delete a post`)
     }
 
@@ -193,5 +195,4 @@ export default class PostsController extends BaseController {
 
     return post
   }
-
 }

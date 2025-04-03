@@ -28,13 +28,14 @@ const Set26Controller = async (socket: Socket) => {
   await socket.join(roomId)
 
   // Get the size of the room
-  const getRoomSize = async () => (await Ws.io.of('sets/026').in(roomId).fetchSockets())?.length
+  const getRoomSize = async () =>
+    (await Ws.io.of('sets/026').in(roomId).fetchSockets())?.length
 
   // Getter for the set config
   const getSetConfig = async () => {
     await opepen.refresh()
 
-    if (! opepen.data.setConfig) {
+    if (!opepen.data.setConfig) {
       opepen.data.setConfig = {
         words: [],
         history: [],
@@ -93,7 +94,7 @@ const Set26Controller = async (socket: Socket) => {
   socket.on(`opepen:word:${id}`, async (word) => {
     const config = await getSetConfig()
 
-    if (! word) return
+    if (!word) return
 
     // Invalidate word
     if (word.length > letterCount) {
@@ -101,15 +102,15 @@ const Set26Controller = async (socket: Socket) => {
     }
 
     // Add to history
-    config.history.unshift({ word, timestamp: Date.now(), })
+    config.history.unshift({ word, timestamp: Date.now() })
 
     // Increment total words
-    config.counts.total ++
+    config.counts.total++
 
     // If valid
     if (WORDS.includes(word)) {
       // Increment valid words
-      config.counts.valid ++
+      config.counts.valid++
 
       // Add to word list
       config.words.unshift(word)
@@ -122,12 +123,15 @@ const Set26Controller = async (socket: Socket) => {
 
     // Increment valid seeds
     if (config.history?.length >= 12) {
-      const mnemonic = config.history.slice(0, 12).map(({ word }) => word).join(' ')
+      const mnemonic = config.history
+        .slice(0, 12)
+        .map(({ word }) => word)
+        .join(' ')
 
       try {
         Wallet.fromMnemonic(mnemonic)
 
-        config.counts.seeds ++
+        config.counts.seeds++
       } catch (e) {
         // Invalid seed
       }

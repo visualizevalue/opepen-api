@@ -3,7 +3,7 @@ import BaseSchema from '@ioc:Adonis/Lucid/Schema'
 export default class extends BaseSchema {
   protected tableName = 'accounts'
 
-  public async up () {
+  public async up() {
     this.schema.alterTable(this.tableName, (table) => {
       table.boolean('notification_new_submission').defaultTo(false)
       table.boolean('notification_new_curated_submission').defaultTo(true)
@@ -12,7 +12,7 @@ export default class extends BaseSchema {
     })
   }
 
-  public async down () {
+  public async down() {
     this.schema.alterTable(this.tableName, (table) => {
       table.dropColumn('notification_new_submission')
       table.dropColumn('notification_new_curated_submission')

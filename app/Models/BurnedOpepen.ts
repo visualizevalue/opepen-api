@@ -1,6 +1,16 @@
 import { DateTime } from 'luxon'
 import Env from '@ioc:Adonis/Core/Env'
-import { beforeSave, BelongsTo, belongsTo, column, computed, HasMany, hasMany, hasOne, HasOne } from '@ioc:Adonis/Lucid/Orm'
+import {
+  beforeSave,
+  BelongsTo,
+  belongsTo,
+  column,
+  computed,
+  HasMany,
+  hasMany,
+  hasOne,
+  HasOne,
+} from '@ioc:Adonis/Lucid/Orm'
 import Event from 'App/Models/Event'
 import Image from 'App/Models/Image'
 import Opepen from 'App/Models/Opepen'
@@ -8,8 +18,8 @@ import TokenModel from 'App/Models/TokenModel'
 import { ContractType } from './types'
 
 type BurnedOpepenData = {
-  name: string,
-  image: string,
+  name: string
+  image: string
 }
 
 export default class BurnedOpepen extends TokenModel {
@@ -22,7 +32,7 @@ export default class BurnedOpepen extends TokenModel {
   public data: BurnedOpepenData
 
   @computed()
-  public get name () {
+  public get name() {
     return this.data.name
   }
 
@@ -34,7 +44,7 @@ export default class BurnedOpepen extends TokenModel {
 
   @hasOne(() => Opepen, {
     foreignKey: 'burnedOpepenId',
-    onQuery: query => query.preload('image'),
+    onQuery: (query) => query.preload('image'),
   })
   public opepen: HasOne<typeof Opepen>
 
@@ -44,23 +54,23 @@ export default class BurnedOpepen extends TokenModel {
   @hasMany(() => Event, {
     foreignKey: 'tokenId',
     localKey: 'tokenId',
-    onQuery: query => {
+    onQuery: (query) => {
       query.where('contract', 'BURNED_OPEPEN')
       query.orderBy('blockNumber', 'desc')
       query.orderBy('logIndex', 'desc')
-    }
+    },
   })
   public events: HasMany<typeof Event>
 
   @hasOne(() => Event, {
     foreignKey: 'tokenId',
     localKey: 'tokenId',
-    onQuery: query => {
+    onQuery: (query) => {
       query.where('contract', 'BURNED_OPEPEN')
       query.orderBy('blockNumber', 'desc')
       query.orderBy('logIndex', 'desc')
       query.limit(1)
-    }
+    },
   })
   public lastEvent: HasOne<typeof Event>
 
@@ -69,7 +79,7 @@ export default class BurnedOpepen extends TokenModel {
     return TokenModel.lowerCaseAddresses(model)
   }
 
-  public async updateImage () {
+  public async updateImage() {
     const burnedOpepen: BurnedOpepen = this
     let uri: string = this.data.image?.replace('ipfs://', 'https://ipfs.vv.xyz/ipfs/')
 
@@ -77,7 +87,7 @@ export default class BurnedOpepen extends TokenModel {
       await burnedOpepen.load('image')
     } catch (e) {}
 
-    if (! burnedOpepen.image) {
+    if (!burnedOpepen.image) {
       const image = await Image.fromURI(uri)
       await image.generateScaledVersions()
       await image.save()
@@ -88,5 +98,4 @@ export default class BurnedOpepen extends TokenModel {
       await burnedOpepen.image.updateImage(uri)
     }
   }
-
 }

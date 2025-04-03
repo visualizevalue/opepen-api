@@ -3,8 +3,7 @@ import Opepen from 'App/Models/Opepen'
 import { GridItem } from './GridItem'
 
 export class OpepenGrid {
-
-  public async make (ids: string[], forceSquare: boolean = true, highlighted: string[] = []) {
+  public async make(ids: string[], forceSquare: boolean = true, highlighted: string[] = []) {
     const uniqueIds = Array.from(new Set(ids.concat(highlighted)))
     const opepenRecords = await Opepen.query()
       .preload('image')

@@ -33,7 +33,10 @@ export default class GenerateSet064 extends BaseCommand {
       .whereNotNull('setId')
       .whereJsonSuperset('data', { edition: 1 })
       .orderBy('setId')
-    fs.writeFileSync('./sets/064/dist/01.png', await BaseOpepenGrid.make(oneOfOnes.map(o => new GridItem(o, 'opepen'))))
+    fs.writeFileSync(
+      './sets/064/dist/01.png',
+      await BaseOpepenGrid.make(oneOfOnes.map((o) => new GridItem(o, 'opepen'))),
+    )
 
     await this.makeGridForEdition(4)
     await this.makeGridForEdition(5)
@@ -42,7 +45,7 @@ export default class GenerateSet064 extends BaseCommand {
     await this.makeGridForEdition(40)
   }
 
-  private async makeGridForEdition (edition: number) {
+  private async makeGridForEdition(edition: number) {
     const { default: Opepen } = await import('App/Models/Opepen')
     const { default: BaseOpepenGrid } = await import('App/Services/BaseOpepenGrid')
 
@@ -61,9 +64,8 @@ export default class GenerateSet064 extends BaseCommand {
       const shuffled = shuffle(chunk, rand)
       fs.writeFileSync(
         `./sets/064/dist/${pad(edition)}-${pad(idx)}.png`,
-        await BaseOpepenGrid.make(shuffled.map(o => new GridItem(o, 'opepen')))
+        await BaseOpepenGrid.make(shuffled.map((o) => new GridItem(o, 'opepen'))),
       )
     }
   }
-
 }

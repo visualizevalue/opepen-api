@@ -6,14 +6,14 @@ export default class extends BaseSchema {
   protected submissionsTable = 'set_submissions'
   protected coCreatorsTable = 'co_creators'
 
-  public async up () {
+  public async up() {
     const submissions = await Database.from(this.submissionsTable).select(
       'id',
       'co_creator_1',
       'co_creator_2',
       'co_creator_3',
       'co_creator_4',
-      'co_creator_5'
+      'co_creator_5',
     )
 
     for (const submission of submissions) {
@@ -31,10 +31,11 @@ export default class extends BaseSchema {
     }
   }
 
-  public async down () {
-    const cocreators = await Database
-      .from(this.coCreatorsTable)
-      .select('set_submission_id', 'account_id')
+  public async down() {
+    const cocreators = await Database.from(this.coCreatorsTable).select(
+      'set_submission_id',
+      'account_id',
+    )
 
     const grouped: Record<number, string[]> = {}
 

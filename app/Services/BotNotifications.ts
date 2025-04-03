@@ -11,17 +11,17 @@ import BurnedOpepen from 'App/Models/BurnedOpepen'
 import { formatNumber } from 'App/Helpers/numbers'
 
 export class BotNotifications {
-  xClient: Twitter|undefined
+  xClient: Twitter | undefined
   fcClient = Farcaster
 
-  public async initialize () {
+  public async initialize() {
     const account = await Account.byId(Env.get('TWITTER_BOT_ACCOUNT_ADDRESS')).firstOrFail()
     this.xClient = await Twitter.initialize(account)
 
     Logger.info(`BotNotifications initialized to account ${account.address}`)
   }
 
-  public async newSubmission (submission: SetSubmission) {
+  public async newSubmission(submission: SetSubmission) {
     const template = ({ creators }) => [
       `New Set Submitted: "${submission.name}"`,
       `${string.capitalCase(submission.editionType)} Editions by ${creators}`,
@@ -32,7 +32,7 @@ export class BotNotifications {
     await this.sendForSubmission(submission, template, img)
   }
 
-  public async newStagedSubmission (submission: SetSubmission) {
+  public async newStagedSubmission(submission: SetSubmission) {
     const template = ({ creators }) => [
       `New Staged Set: "${submission.name}"`,
       `${string.capitalCase(submission.editionType)} Editions by ${creators}`,
@@ -43,7 +43,7 @@ export class BotNotifications {
     await this.sendForSubmission(submission, template, img)
   }
 
-  public async consensusReached (submission: SetSubmission) {
+  public async consensusReached(submission: SetSubmission) {
     const template = ({ creators }) => [
       `Consensus Reached`,
       `"${submission.name}" by ${creators}`,
@@ -54,7 +54,7 @@ export class BotNotifications {
     await this.sendForSubmission(submission, template, img)
   }
 
-  public async consensusMultiple (submission: SetSubmission) {
+  public async consensusMultiple(submission: SetSubmission) {
     const holders = submission.submissionStats?.holders.total || 0
     const total = submission.submissionStats?.demand.total || 0
     const times = Math.round(total / 80)
@@ -71,7 +71,7 @@ export class BotNotifications {
     await this.sendForSubmission(submission, template, img)
   }
 
-  public async consensusPaused (submission: SetSubmission) {
+  public async consensusPaused(submission: SetSubmission) {
     const template = ({ creators }) => [
       `Consensus Lost`,
       `"${submission.name}" by ${creators}`,
@@ -85,7 +85,7 @@ export class BotNotifications {
     await this.sendForSubmission(submission, template, imgs)
   }
 
-  public async consensusFailed (submission: SetSubmission) {
+  public async consensusFailed(submission: SetSubmission) {
     const template = ({ creators }) => [
       `Consensus Failed`,
       `"${submission.name}" by ${creators}`,
@@ -105,7 +105,7 @@ export class BotNotifications {
   // 1hr 00m remaining
   // [6up grid image preview]
 
-  public async newSet (set: SetModel) {
+  public async newSet(set: SetModel) {
     await set.load('submission')
 
     const template = ({ creators }) => [
@@ -119,17 +119,21 @@ export class BotNotifications {
     await this.sendForSubmission(set.submission, template, img)
   }
 
-  public async provenance (submission: SetSubmission) {
+  public async provenance(submission: SetSubmission) {
     await this.initialize()
 
     const posts = [
-      { text: `Opepen Set "${submission.name}" reveal provenance thread...\n\n↓ https://opepen.art/sets/${submission.uuid}` },
-      { text: `Reveal block hash: ${submission.revealBlockNumber} (in about 10 minutes) https://etherscan.io/block/${submission.revealBlockNumber}` },
+      {
+        text: `Opepen Set "${submission.name}" reveal provenance thread...\n\n↓ https://opepen.art/sets/${submission.uuid}`,
+      },
+      {
+        text: `Reveal block hash: ${submission.revealBlockNumber} (in about 10 minutes) https://etherscan.io/block/${submission.revealBlockNumber}`,
+      },
       { text: `Opt in data hash: ${submission.revealSubmissionsInputCid}` },
     ]
 
     // Make sure we're sending notification in this environment
-    if (! Env.get('SEND_NOTIFICATIONS')) {
+    if (!Env.get('SEND_NOTIFICATIONS')) {
       Logger.info(`BotNotification for ${posts[0].text}`)
       return
     }
@@ -138,7 +142,7 @@ export class BotNotifications {
     await this.fcClient?.thread(posts)
   }
 
-  public async burn (burnedOpepen: BurnedOpepen) {
+  public async burn(burnedOpepen: BurnedOpepen) {
     await this.initialize()
 
     await burnedOpepen.load('opepen')
@@ -149,21 +153,27 @@ export class BotNotifications {
       `Opepen Opt-Out #${burnedOpepen.tokenId}`,
       `"${burnedOpepen.data.name}" minted by ${burnedOpepen.ownerAccount.display}.`,
       `Burned: ${(parseInt(burnedOpepen.tokenId.toString()) * 100) / 16000}%`,
-    ].filter(l => !!l)
+    ].filter((l) => !!l)
 
     const text = lines.join(`\n\n`)
-    const image = burnedOpepen.image.staticURI || burnedOpepen.data.image.replace('ipfs://', 'https://ipfs.vv.xyz/ipfs/')
+    const image =
+      burnedOpepen.image.staticURI ||
+      burnedOpepen.data.image.replace('ipfs://', 'https://ipfs.vv.xyz/ipfs/')
 
     // Make sure we're sending notification in this environment
     Logger.info(`BotNotification: ${text}`)
-    if (! Env.get('SEND_NOTIFICATIONS')) return;
+    if (!Env.get('SEND_NOTIFICATIONS')) return
 
     // Send to the networks
     await this.xClient?.tweet(text, image)
     await this.fcClient?.cast(text, image)
   }
 
-  private async sendForSubmission (submission: SetSubmission, template: Function, images: string|string[]) {
+  private async sendForSubmission(
+    submission: SetSubmission,
+    template: Function,
+    images: string | string[],
+  ) {
     // Make sure we have valid API keys, and any other setup
     await this.initialize()
 
@@ -175,7 +185,7 @@ export class BotNotifications {
     const render = (creators, delimiter = '\n') => template({ creators }).join(delimiter)
 
     // Make sure we're sending notification in this environment
-    if (! Env.get('SEND_NOTIFICATIONS')) {
+    if (!Env.get('SEND_NOTIFICATIONS')) {
       Logger.info(`BotNotification: ${render(creators, '; ')}`)
       return
     }
@@ -184,7 +194,6 @@ export class BotNotifications {
     await this.xClient?.tweet(render(xCreators), images)
     await this.fcClient?.cast(render(creators), images)
   }
-
 }
 
 export default new BotNotifications()

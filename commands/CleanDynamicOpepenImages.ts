@@ -29,10 +29,10 @@ export default class CleanOpepenImages extends BaseCommand {
       const oneOfOne = await Opepen.query()
         .where('setId', submission.setId)
         .whereJsonSuperset('data', { edition: 1 })
-        .preload('image', query => query.preload('votes'))
+        .preload('image', (query) => query.preload('votes'))
         .first()
 
-      if (! oneOfOne) {
+      if (!oneOfOne) {
         this.logger.info(`no one of one found for ${submission.name}`)
         continue
       }
@@ -50,7 +50,7 @@ export default class CleanOpepenImages extends BaseCommand {
         await oneOfOne.updateImage()
       }
 
-      if (! oneOfOne.imageId) {
+      if (!oneOfOne.imageId) {
         this.logger.info(`no one of one image defined`)
         continue
       }
@@ -64,7 +64,9 @@ export default class CleanOpepenImages extends BaseCommand {
       for (const token of others) {
         token.imageId = null
         await token.updateImage()
-        this.logger.info(`update image for #${token.tokenId} (1/${token.data.edition}; set ${token.setId})`)
+        this.logger.info(
+          `update image for #${token.tokenId} (1/${token.data.edition}; set ${token.setId})`,
+        )
       }
     }
   }

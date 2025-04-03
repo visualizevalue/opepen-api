@@ -5,11 +5,11 @@ import Opepen from 'App/Models/Opepen'
 import OpepenService from 'App/Services/OpepenService'
 
 export default class SetsController extends BaseController {
-  public async list () {
+  public async list() {
     return OpepenService.listSets()
   }
 
-  public async show ({ params }: HttpContextContract) {
+  public async show({ params }: HttpContextContract) {
     const set = await SetModel.query()
       .preload('submission')
       .preload('replacedSubmission')
@@ -19,13 +19,17 @@ export default class SetsController extends BaseController {
     return set
   }
 
-  public async stats ({ params }: HttpContextContract) {
+  public async stats({ params }: HttpContextContract) {
     return {
-      floorListing: (await Opepen.query().whereNotNull('price').where('setId', params.id).orderBy('price').first()),
+      floorListing: await Opepen.query()
+        .whereNotNull('price')
+        .where('setId', params.id)
+        .orderBy('price')
+        .first(),
     }
   }
 
-  public async opepen ({ params }: HttpContextContract) {
+  public async opepen({ params }: HttpContextContract) {
     return Opepen.query()
       .where('setId', params.id)
       .preload('image')

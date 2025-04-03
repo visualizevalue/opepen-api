@@ -3,11 +3,11 @@ import Account from 'App/Models/Account'
 import NotificationEmail from './NotificationEmail'
 
 export default class NotifyGeneralEmail extends NotificationEmail {
-  constructor (
+  constructor(
     protected account: Account,
     protected subject: string,
     protected templateString: string,
-    protected templateData?: { [key: string]: string|string[] },
+    protected templateData?: { [key: string]: string | string[] },
   ) {
     super(account)
   }

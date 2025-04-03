@@ -7,8 +7,7 @@ import { Account } from 'App/Models'
 import SetSubmission from 'App/Models/SetSubmission'
 
 export default class VotesController extends BaseController {
-
-  public async create ({ request, session }: HttpContextContract) {
+  public async create({ request, session }: HttpContextContract) {
     const address = session.get('siwe')?.address?.toLowerCase()
     const image = await Image.findByOrFail('uuid', request.input('image'))
 
@@ -20,22 +19,25 @@ export default class VotesController extends BaseController {
     // If the vote existed, remove its previous points
     if (vote) {
       image.points -= vote.points
-      image.votesCount --
+      image.votesCount--
     }
 
     // Create or update the vote
-    vote = await Vote.updateOrCreate({
-      address: address,
-      imageId: image.id,
-    }, {
-      address: address,
-      points: request.input('approve') === true ? 1 : -1,
-      imageId: image.id,
-    })
+    vote = await Vote.updateOrCreate(
+      {
+        address: address,
+        imageId: image.id,
+      },
+      {
+        address: address,
+        points: request.input('approve') === true ? 1 : -1,
+        imageId: image.id,
+      },
+    )
 
     // Calculate the new points based on the new vote
     image.points += vote.points
-    image.votesCount ++
+    image.votesCount++
     image.voteScore = image.points / image.votesCount
 
     await image.save()
@@ -46,8 +48,10 @@ export default class VotesController extends BaseController {
 
       if (submission) {
         submission.points += vote.points
-        submission.votesCount ++
-        submission.voteScore = parseFloat((submission.points / submission.votesCount).toFixed(2))
+        submission.votesCount++
+        submission.voteScore = parseFloat(
+          (submission.points / submission.votesCount).toFixed(2),
+        )
 
         await submission.save()
       }
@@ -56,16 +60,13 @@ export default class VotesController extends BaseController {
     return vote
   }
 
-  public async stats ({ session }: HttpContextContract) {
+  public async stats({ session }: HttpContextContract) {
     const address = session.get('siwe')?.address?.toLowerCase() || constants.AddressZero
 
-    const [
-      votesCount,
-      votableCount
-    ] = await Promise.all([
+    const [votesCount, votableCount] = await Promise.all([
       Vote.query().where('address', address).count('id'),
       this.filterBad(Image.votableQuery())
-        .whereDoesntHave('votes', query => query.where('votes.address', address))
+        .whereDoesntHave('votes', (query) => query.where('votes.address', address))
         .count('id'),
     ])
 
@@ -78,7 +79,7 @@ export default class VotesController extends BaseController {
   /**
    * Randomly select an image belonging to a set or a post.
    */
-  public async votable ({ session }) {
+  public async votable({ session }) {
     const address = session.get('siwe')?.address?.toLowerCase() || constants.AddressZero
 
     const query = Image.votableQuery()
@@ -87,7 +88,7 @@ export default class VotesController extends BaseController {
     this.filterBad(query)
 
     // That we haven't voted on yet
-    query.whereDoesntHave('votes', query => query.where('votes.address', address))
+    query.whereDoesntHave('votes', (query) => query.where('votes.address', address))
 
     // Half of the time, only select the least voted on opepen...
     if (Math.random() > 0.5) {
@@ -99,11 +100,8 @@ export default class VotesController extends BaseController {
     return image
   }
 
-  public async leaderboard ({ request }: HttpContextContract) {
-    const {
-      page = 1,
-      limit = 100,
-    } = request.qs()
+  public async leaderboard({ request }: HttpContextContract) {
+    const { page = 1, limit = 100 } = request.qs()
 
     return Account.query()
       .has('votes')
@@ -112,13 +110,9 @@ export default class VotesController extends BaseController {
       .paginate(page, limit)
   }
 
-  protected filterBad (query) {
-    query.where(query => query
-      .where('points', '>', -10)
-      .orWhere('votesCount', '<', 20)
-    )
+  protected filterBad(query) {
+    query.where((query) => query.where('points', '>', -10).orWhere('votesCount', '<', 20))
 
     return query
   }
-
 }

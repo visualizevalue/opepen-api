@@ -3,8 +3,11 @@ import BaseOpepenGrid from './BaseOpepenGrid'
 import BurnedOpepen from 'App/Models/BurnedOpepen'
 
 export class OpepenGridGenerator {
-
-  public async make(models: ModelType[], forceSquare: boolean = true, highlighted: string[] = []) {
+  public async make(
+    models: ModelType[],
+    forceSquare: boolean = true,
+    highlighted: string[] = [],
+  ) {
     const gridItems = models.map((m) => {
       const type = m instanceof BurnedOpepen ? 'burned_opepen' : 'opepen'
       return new GridItem(m, type)

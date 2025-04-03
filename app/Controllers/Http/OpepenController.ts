@@ -11,15 +11,8 @@ import OpepenRenderer from 'App/Frames/OpepenRenderer'
 import OpepenGrid from 'App/Services/OpepenGrid'
 
 export default class OpepenController extends BaseController {
-
-  public async list ({ request }: HttpContextContract) {
-    const {
-      page = 1,
-      limit = 24,
-      filter = {},
-      includes = [],
-      sort = ''
-    } = request.qs()
+  public async list({ request }: HttpContextContract) {
+    const { page = 1, limit = 24, filter = {}, includes = [], sort = '' } = request.qs()
 
     const query = Opepen.query().preload('image')
 
@@ -32,7 +25,7 @@ export default class OpepenController extends BaseController {
     return query.paginate(page, limit)
   }
 
-  public async show ({ params }: HttpContextContract) {
+  public async show({ params }: HttpContextContract) {
     const opepen = await Opepen.query()
       .where('tokenId', params.id)
       .preload('set')
@@ -41,31 +34,23 @@ export default class OpepenController extends BaseController {
       .preload('lastEvent')
       .firstOrFail()
 
-    const metadata = await (new MetadataParser()).forOpepen(opepen)
+    const metadata = await new MetadataParser().forOpepen(opepen)
 
     return { ...opepen.toJSON(), metadata }
   }
 
-  public async updateImage (context: HttpContextContract) {
+  public async updateImage(context: HttpContextContract) {
     const opepen = await Opepen.query().where('tokenId', context.params.id).firstOrFail()
     await opepen.updateImage()
     return this.show(context)
   }
 
-  public async forAccount ({ params, request }: HttpContextContract) {
-    const {
-      page = 1,
-      limit = 16_000,
-      filter = {},
-      includes = [],
-      sort = ''
-    } = request.qs()
+  public async forAccount({ params, request }: HttpContextContract) {
+    const { page = 1, limit = 16_000, filter = {}, includes = [], sort = '' } = request.qs()
 
     const account = await Account.byId(params.id).firstOrFail()
 
-    const query = Opepen.query()
-      .where('owner', account.address)
-      .preload('image')
+    const query = Opepen.query().where('owner', account.address).preload('image')
 
     if (filter.edition) {
       query.whereJsonSuperset('data', { edition: parseInt(filter.edition) })
@@ -83,7 +68,7 @@ export default class OpepenController extends BaseController {
       .paginate(page, limit)
   }
 
-  public async summary ({ params, response, }: HttpContextContract) {
+  public async summary({ params, response }: HttpContextContract) {
     const date = DateTime.fromISO(params.date).toUTC()
     const key = `daily-summaries/${date.toISODate()}.png`
 
@@ -102,7 +87,7 @@ export default class OpepenController extends BaseController {
       .send(image)
   }
 
-  async gridForAccount (ctx: HttpContextContract) {
+  async gridForAccount(ctx: HttpContextContract) {
     const { params, request, response } = ctx
     const account = await Account.byId(params.id).firstOrFail()
 
@@ -114,13 +99,15 @@ export default class OpepenController extends BaseController {
     if (await Drive.exists(imagePath)) {
       return await ctx.response.redirect(`${Env.get('CDN_URL')}/${imagePath}`)
     } else {
-      const opepen = await Opepen.query().where('owner', account.address).preload('image')
+      const opepen = await Opepen.query()
+        .where('owner', account.address)
+        .preload('image')
         .orderBy('updatedAt', 'desc')
 
       image = await OpepenGrid.make(
-        opepen.map(c => c.tokenId.toString()),
+        opepen.map((c) => c.tokenId.toString()),
         false,
-        query.highlight?.split(',')
+        query.highlight?.split(','),
       )
 
       await Drive.put(imagePath, image, {
@@ -134,10 +121,10 @@ export default class OpepenController extends BaseController {
       .send(image)
   }
 
-  public async og ({ request, params, response }: HttpContextContract) {
+  public async og({ request, params, response }: HttpContextContract) {
     const opepen = await Opepen.query()
       .where('tokenId', params.id)
-      .preload('set', query => query.preload('submission'))
+      .preload('set', (query) => query.preload('submission'))
       .preload('ownerAccount')
       .preload('events')
       .preload('image')
@@ -150,5 +137,4 @@ export default class OpepenController extends BaseController {
       .header('Content-Length', Buffer.byteLength(image))
       .send(image)
   }
-
 }

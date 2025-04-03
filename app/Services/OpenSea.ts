@@ -3,8 +3,8 @@ import Env from '@ioc:Adonis/Core/Env'
 import Logger from '@ioc:Adonis/Core/Logger'
 
 const sdk = api('@opensea/v2.0#acj27lqhfpwaj')
-sdk.auth(Env.get('OPENSEA_KEY'));
-sdk.server(Env.get('OPENSEA_BASE'));
+sdk.auth(Env.get('OPENSEA_KEY'))
+sdk.server(Env.get('OPENSEA_BASE'))
 
 export default class OpenSea {
   public static async updateMetadata(identifier: string) {

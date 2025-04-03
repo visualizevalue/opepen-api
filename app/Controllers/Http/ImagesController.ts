@@ -9,10 +9,10 @@ import InvalidInput from 'App/Exceptions/InvalidInput'
 import BadRequest from 'App/Exceptions/BadRequest'
 
 export default class ImagesController extends BaseController {
-  public async store ({ request, session }: HttpContextContract) {
+  public async store({ request, session }: HttpContextContract) {
     const address = session.get('siwe')?.address?.toLowerCase()
 
-    if (! address) throw new NotAuthenticated()
+    if (!address) throw new NotAuthenticated()
 
     const user = await Account.firstOrCreate({
       address,
@@ -22,13 +22,25 @@ export default class ImagesController extends BaseController {
       size: '15mb',
     })
 
-    if (! file) throw new BadRequest(`No file provided`)
+    if (!file) throw new BadRequest(`No file provided`)
 
     if (
       !file.isValid ||
       !file.subtype ||
-      !['jpeg', 'jpg', 'png', 'gif', 'webp', 'svg', 'mp4', 'webm', 'glb-json', 'gltf-binary'].includes(file.subtype?.toLowerCase())
-    ) throw new InvalidInput(`Unspupported file format`)
+      ![
+        'jpeg',
+        'jpg',
+        'png',
+        'gif',
+        'webp',
+        'svg',
+        'mp4',
+        'webm',
+        'glb-json',
+        'gltf-binary',
+      ].includes(file.subtype?.toLowerCase())
+    )
+      throw new InvalidInput(`Unspupported file format`)
 
     const image = await Image.create({
       creator: user.address,
@@ -43,13 +55,11 @@ export default class ImagesController extends BaseController {
     return image
   }
 
-  public async show ({ params }: HttpContextContract) {
-    return Image.query()
-      .where('uuid', params.id)
-      .firstOrFail()
+  public async show({ params }: HttpContextContract) {
+    return Image.query().where('uuid', params.id).firstOrFail()
   }
 
-  public async render ({ params, response }: HttpContextContract) {
+  public async render({ params, response }: HttpContextContract) {
     const image = await Image.query().where('uuid', params.id).firstOrFail()
 
     // TODO: Refactor
@@ -63,38 +73,25 @@ export default class ImagesController extends BaseController {
       .send(buffer)
   }
 
-  public async featured ({ request }: HttpContextContract) {
-    const {
-      page = 1,
-      limit = 24,
-    } = request.qs()
+  public async featured({ request }: HttpContextContract) {
+    const { page = 1, limit = 24 } = request.qs()
 
-    const query = Image.query()
-      .whereNotNull('featuredAt')
-      .orderBy('featuredAt', 'desc')
+    const query = Image.query().whereNotNull('featuredAt').orderBy('featuredAt', 'desc')
 
     return query.paginate(page, limit)
   }
 
-  public async curated ({ request }: HttpContextContract) {
-    const {
-      page = 1,
-      limit = 24,
-      filter = 'all',
-    } = request.qs()
+  public async curated({ request }: HttpContextContract) {
+    const { page = 1, limit = 24, filter = 'all' } = request.qs()
 
     const query = Image.query()
       .has('votes')
-      .where(query => {
-        query.whereHas('cachedPost', query =>
-          query
-            .whereNull('shadowedAt')
-            .whereNull('deletedAt')
+      .where((query) => {
+        query.whereHas('cachedPost', (query) =>
+          query.whereNull('shadowedAt').whereNull('deletedAt'),
         )
-        query.orWhereHas('cachedSetSubmission', query =>
-          query
-            .whereNull('shadowedAt')
-            .whereNull('deletedAt')
+        query.orWhereHas('cachedSetSubmission', (query) =>
+          query.whereNull('shadowedAt').whereNull('deletedAt'),
         )
         query.orHas('cachedOpepen')
       })
@@ -107,20 +104,13 @@ export default class ImagesController extends BaseController {
 
     this.applyCachedFilter(query, filter)
 
-    query
-      .orderBy('vote_score', 'desc')
-      .orderBy('votes_count', 'desc')
-      .orderBy('id', 'desc')
+    query.orderBy('vote_score', 'desc').orderBy('votes_count', 'desc').orderBy('id', 'desc')
 
     return query.paginate(page, limit)
   }
 
-  public async myCurated ({ request, session }: HttpContextContract) {
-    const {
-      page = 1,
-      limit = 24,
-      filter = 'all',
-    } = request.qs()
+  public async myCurated({ request, session }: HttpContextContract) {
+    const { page = 1, limit = 24, filter = 'all' } = request.qs()
 
     const query = Image.query()
       .preload('votes')
@@ -128,24 +118,23 @@ export default class ImagesController extends BaseController {
       .preload('cachedPost')
       .preload('cachedSetSubmission')
       .preload('cachedOpepen')
-      .innerJoin('votes', query => query
-        .on('votes.image_id', '=', 'images.id')
-        .andOnVal('address', '=', session.get('siwe')?.address?.toLowerCase())
-        .andOnVal('votes.points', '>', 0)
+      .innerJoin('votes', (query) =>
+        query
+          .on('votes.image_id', '=', 'images.id')
+          .andOnVal('address', '=', session.get('siwe')?.address?.toLowerCase())
+          .andOnVal('votes.points', '>', 0),
       )
       .select('images.*')
       .select('votes.created_at')
 
     this.applyCachedFilter(query, filter)
 
-    query
-      .orderBy('votes.created_at', 'desc')
-      .orderBy('id', 'desc')
+    query.orderBy('votes.created_at', 'desc').orderBy('id', 'desc')
 
     return query.paginate(page, limit)
   }
 
-  public async curatedArt ({ request, session }: HttpContextContract) {
+  public async curatedArt({ request, session }: HttpContextContract) {
     const {
       page = 1,
       limit = 24,
@@ -174,22 +163,25 @@ export default class ImagesController extends BaseController {
     return query.paginate(page, limit)
   }
 
-  protected applyCachedFilter (query, filter: string) {
+  protected applyCachedFilter(query, filter: string) {
     switch (filter) {
       case 'singles':
         query.has('cachedPost')
-        break;
+        break
       case 'submissions':
-        query.whereHas('cachedSetSubmission', query => query.whereNull('revealBlockNumber'))
-        break;
+        query.whereHas('cachedSetSubmission', (query) => query.whereNull('revealBlockNumber'))
+        break
       case 'sets':
-        query.where(query => query
-          .has('cachedOpepen')
-          .orWhereHas('cachedSetSubmission', query => query.whereNotNull('setId').whereNotNull('revealBlockNumber'))
+        query.where((query) =>
+          query
+            .has('cachedOpepen')
+            .orWhereHas('cachedSetSubmission', (query) =>
+              query.whereNotNull('setId').whereNotNull('revealBlockNumber'),
+            ),
         )
-        break;
+        break
       default:
-        break;
+        break
     }
   }
 }

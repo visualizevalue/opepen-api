@@ -2,21 +2,21 @@ import { DateTime } from 'luxon'
 import Database from '@ioc:Adonis/Lucid/Database'
 
 export default class BaseController {
-  protected async applyIncludes (query, includes) {
+  protected async applyIncludes(query, includes) {
     for (const include of includes) {
       const nested = include.split('.')
-      query.preload(nested[0], query => {
+      query.preload(nested[0], (query) => {
         if (nested[1]) query.preload(nested[1])
       })
     }
   }
 
-  protected async applyFilters (query, filters) {
+  protected async applyFilters(query, filters) {
     Object.entries(filters).forEach(([key, value]) => {
       const values = Array.isArray(value) ? value : [`${value}`]
       const columns = key.split('.')
 
-      query.where(q => {
+      query.where((q) => {
         values.forEach((v, i) => {
           const where = i === 0 ? `where` : `orWhere`
 
@@ -41,7 +41,7 @@ export default class BaseController {
     })
   }
 
-  protected async applySorts (query, sort, separator = ',') {
+  protected async applySorts(query, sort, separator = ',') {
     const sorts = sort.split(separator)
 
     for (const s of sorts) {
@@ -53,7 +53,9 @@ export default class BaseController {
 
       if (sort.includes('.')) {
         const [column, ...keys] = sort.split('.')
-        query.orderByRaw(`"${column}" -> ${keys.map(key => `'${key}'`).join(' -> ')} ${sortDirection} NULLS LAST`)
+        query.orderByRaw(
+          `"${column}" -> ${keys.map((key) => `'${key}'`).join(' -> ')} ${sortDirection} NULLS LAST`,
+        )
       } else if (sort === 'random') {
         query.orderByRaw('random()')
       } else if (sort === 'dailyRandom') {
@@ -65,8 +67,8 @@ export default class BaseController {
     }
   }
 
-  protected async applySearch (query, search, column: string = 'search') {
-    if (! search.trim()) return
+  protected async applySearch(query, search, column: string = 'search') {
+    if (!search.trim()) return
 
     // Function to escape special characters in search terms for 'ilike'
     // Escapes '!', '%', and '_' by prefixing with '!' (our chosen escape character)
@@ -77,14 +79,20 @@ export default class BaseController {
     // - For each OR group, split by '&&' for AND conditions
     // - Trim whitespace from each term and filter out empty terms
     // - Filter out empty AND groups
-    const orAndQueries = search.split('||').map((orGroup: string) =>
-      orGroup.split('&&').map(term => term.trim()).filter(term => term.length > 0)
-    ).filter((andGroup: string) => andGroup.length > 0)
+    const orAndQueries = search
+      .split('||')
+      .map((orGroup: string) =>
+        orGroup
+          .split('&&')
+          .map((term) => term.trim())
+          .filter((term) => term.length > 0),
+      )
+      .filter((andGroup: string) => andGroup.length > 0)
 
-    query.where(q => {
+    query.where((q) => {
       // Iterate over OR groups
       for (const searchOr of orAndQueries) {
-        q.orWhere(iq => {
+        q.orWhere((iq) => {
           // Add where conditions for each AND term in this OR group
           for (const searchAnd of searchOr) {
             const escapedTerm = escapeLike(searchAnd)
@@ -96,11 +104,11 @@ export default class BaseController {
     })
   }
 
-  protected async setRandomSeed () {
+  protected async setRandomSeed() {
     const now = DateTime.now()
     const day = now.ordinal
     const days = DateTime.local(now.year, 12, 31).ordinal
-    const seed = 2 * day / days - 1
+    const seed = (2 * day) / days - 1
 
     await Database.rawQuery(`SELECT setseed(${seed})`)
   }

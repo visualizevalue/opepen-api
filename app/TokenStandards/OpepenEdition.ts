@@ -9,17 +9,11 @@ const INTERVAL = 60_000
 const MODEL = Opepen
 
 export default class OpepenEdition extends ZoraEdition {
-  constructor () {
-    super(
-      ADDRESS,
-      NAME,
-      START_BLOCK,
-      MODEL,
-      INTERVAL,
-    )
+  constructor() {
+    super(ADDRESS, NAME, START_BLOCK, MODEL, INTERVAL)
   }
 
-  public static async initialize (): Promise<ZoraEdition> {
+  public static async initialize(): Promise<ZoraEdition> {
     return super.initialize(ADDRESS, NAME, START_BLOCK, MODEL, INTERVAL)
   }
 }
