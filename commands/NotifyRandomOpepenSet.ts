@@ -28,12 +28,12 @@ export default class NotifyRandomOpepenSet extends BaseCommand {
 
     const minResult = await SetSubmission.query()
       .whereNotNull('setId')
-      .min('botFeaturedCount as min_count')
+      .min('botFeaturedCount', 'minCount')
       .first()
 
-    if (!minResult || typeof minResult.$extras.min_count === 'undefined') return
+    if (!minResult || typeof minResult.$extras.minCount === 'undefined') return
 
-    const minCount = minResult.$extras.min_count
+    const minCount = minResult.$extras.minCount
 
     const submission = await SetSubmission.query()
       .whereNotNull('setId')
@@ -42,7 +42,7 @@ export default class NotifyRandomOpepenSet extends BaseCommand {
       .first()
 
     if (!submission) return
-    
+
     submission.botFeaturedCount++
     await submission.save()
 
@@ -61,7 +61,7 @@ export default class NotifyRandomOpepenSet extends BaseCommand {
     await this.notify(lines, img)
   }
 
-  private async notify (lines: string[], img: string) {
+  private async notify(lines: string[], img: string) {
     const { default: Account } = await import('App/Models/Account')
     const { default: Twitter } = await import('App/Services/Twitter')
     const { default: Farcaster } = await import('App/Services/Farcaster')
@@ -70,7 +70,7 @@ export default class NotifyRandomOpepenSet extends BaseCommand {
 
     const account = await Account.byId(Env.get('TWITTER_BOT_ACCOUNT_ADDRESS')).firstOrFail()
     const xClient = await Twitter.initialize(account)
-    if (! xClient) return
+    if (!xClient) return
 
     await xClient.tweet(txt, img)
     await Farcaster.cast(txt, img)
