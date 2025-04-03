@@ -168,8 +168,8 @@ export class BotNotifications {
     await this.initialize()
 
     // Get the creator list for different platforms
-    const creators = await submission.creatorNamesStr
-    const xCreators = await submission.creatorNamesForXStr
+    const creators = await submission.creatorNamesStr()
+    const xCreators = await submission.creatorNamesForXStr()
 
     // Function to render the given template.
     const render = (creators, delimiter = '\n') => template({ creators }).join(delimiter)
