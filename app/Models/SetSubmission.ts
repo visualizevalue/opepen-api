@@ -6,6 +6,7 @@ import { string } from '@ioc:Adonis/Core/Helpers'
 import BotNotifications from 'App/Services/BotNotifications'
 import Account from 'App/Models/Account'
 import SetModel from 'App/Models/SetModel'
+import { enumerate } from 'App/Helpers/enumerate'
 import { ArtistSignature, EditionGroups, EditionType, CurationStats, SubmissionStats } from './types'
 import Image from './Image'
 import DynamicSetImages from './DynamicSetImages'
@@ -528,11 +529,23 @@ export default class SetSubmission extends BaseModel {
   }
 
   public async creatorNamesStr () {
-    return string.toSentence(await this.creatorNames())
+    const creators = await this.creatorNames()
+    if (creators.length <= 3) {
+      return string.toSentence(creators)
+    } else {
+      const coCreatorCount = creators.length - 1
+      return `${creators[0]}, and ${enumerate(coCreatorCount)} co-creators`
+    }
   }
 
   public async creatorNamesForXStr () {
-    return string.toSentence(await this.creatorNamesForX())
+    const creators = await this.creatorNamesForX()
+    if (creators.length <= 3) {
+      return string.toSentence(creators)
+    } else {
+      const coCreatorCount = creators.length - 1
+      return `${creators[0]}, and ${enumerate(coCreatorCount)} co-creators`
+    }
   }
 
   public async updateSearchString () {
