@@ -141,7 +141,11 @@ export default class SetSubmissionsController extends BaseController {
       .preload('edition40Image')
       .preload('dynamicSetImages')
       .preload('creatorAccount')
-      .preload('coCreators', (query) => query.preload('account'))
+      .preload('coCreators', (query) =>
+        query.preload('account', (accountQuery) =>
+          accountQuery.preload('pfp').preload('coverImage'),
+        ),
+      )
       .preload('richContentLinks', (query) => {
         query.preload('logo')
         query.preload('cover')
