@@ -130,7 +130,7 @@ export default class Account extends BaseModel {
 
   @computed()
   public get display() {
-    if (this.name) return this.name
+    if (this.name) return this.name.trim()
     if (this.ens) {
       if (this.ens.endsWith('.eth')) return this.ens.slice(0, -4)
 
