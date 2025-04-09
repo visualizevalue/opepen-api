@@ -36,7 +36,9 @@ export default class Account extends BaseModel {
   @column()
   public address: string
 
-  @column()
+  @column({
+    prepare: (value: string) => value.trim(),
+  })
   public name: string
 
   @column()
