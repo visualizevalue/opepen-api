@@ -128,11 +128,7 @@ export default abstract class TokenModel extends BaseModel {
 
   public async syncOwnerFromChain() {
     try {
-      const contract = await new ethers.Contract(
-        this.contractAddress,
-        Array.from(abi),
-        provider,
-      )
+      const contract = new ethers.Contract(this.contractAddress, Array.from(abi), provider)
       const owner = (await contract.ownerOf(this.tokenId)).toLowerCase()
       this.owner = owner
     } catch (e) {
