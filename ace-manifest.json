@@ -370,7 +370,26 @@
       "commandPath": "./commands/NotifyTest",
       "commandName": "notify:test",
       "description": "",
-      "args": [],
+      "args": [
+        {
+          "type": "string",
+          "propertyName": "image",
+          "name": "image",
+          "required": true
+        },
+        {
+          "type": "string",
+          "propertyName": "text",
+          "name": "text",
+          "required": true
+        },
+        {
+          "type": "string",
+          "propertyName": "account",
+          "name": "account",
+          "required": true
+        }
+      ],
       "aliases": [],
       "flags": []
     },
@@ -592,6 +611,18 @@
           "type": "string"
         }
       ]
+    },
+    "update:names": {
+      "settings": {
+        "loadApp": true,
+        "stayAlive": false
+      },
+      "commandPath": "./commands/UpdateOpepenNames",
+      "commandName": "update:names",
+      "description": "Update the names of all Opepen tokens",
+      "args": [],
+      "aliases": [],
+      "flags": []
     },
     "dump:rcfile": {
       "settings": {},
