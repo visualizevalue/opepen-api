@@ -236,6 +236,9 @@ export default class Reveal {
     }
 
     await opepen.save()
+
+    await opepen.load('set')
+    await opepen.updateName()
   }
 
   private inputPath(submissionId: number) {
