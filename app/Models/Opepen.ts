@@ -13,7 +13,6 @@ import {
 } from '@ioc:Adonis/Lucid/Orm'
 import Database from '@ioc:Adonis/Lucid/Database'
 import Logger from '@ioc:Adonis/Core/Logger'
-import pad from 'App/Helpers/pad'
 import BurnedOpepen from 'App/Models/BurnedOpepen'
 import Event from 'App/Models/Event'
 import Image from 'App/Models/Image'
@@ -26,6 +25,7 @@ import { ContractType } from './types'
 type SetConfig = any
 
 type OpepenData = {
+  name: string
   edition: 1 | 4 | 5 | 10 | 20 | 40
   setConfig?: SetConfig
   order?: {
@@ -63,9 +63,7 @@ export default class Opepen extends TokenModel {
 
   @computed()
   public get name() {
-    return this.revealedAt
-      ? `Set ${pad(this.setId, 3)}, 1/${this.data.edition} (#${this.tokenId})`
-      : `1/${this.data.edition} (#${this.tokenId})`
+    return this.data.name
   }
 
   @column()
@@ -180,5 +178,24 @@ export default class Opepen extends TokenModel {
     }
 
     await OpenSea.updateMetadata(opepen.tokenId.toString())
+  }
+
+  public async updateName() {
+    const opepen: Opepen = this
+    const edition = opepen.data.edition
+    const editionStr = `(Ed. ${edition})`
+
+    if (!opepen.revealedAt) {
+      opepen.data.name = `Unrevealed #${opepen.tokenId} ${editionStr}`
+    } else {
+      if (!opepen.$preloaded['set']) {
+        await opepen.load('set')
+      }
+      const submission = opepen.set.submission
+
+      opepen.data.name = `${submission.name}, ${submission[`edition_${edition}Name`]} ${editionStr}`
+    }
+
+    await opepen.save()
   }
 }
