@@ -47,6 +47,14 @@ export default class SubscriptionHistory extends BaseModel {
   public get isOptIn(): boolean {
     return this.opepenCount > this.previousOpepenCount && this.opepenCount > 0
   }
+  @computed()
+  public get optedInCount(): number {
+    return this.opepenCount - this.previousOpepenCount
+  }
+  @computed()
+  public get optedOutCount(): number {
+    return this.previousOpepenCount - this.opepenCount
+  }
 
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime
