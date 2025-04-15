@@ -508,6 +508,18 @@
       "aliases": [],
       "flags": []
     },
+    "seed:subscription_history": {
+      "settings": {
+        "loadApp": true,
+        "stayAlive": false
+      },
+      "commandPath": "./commands/SeedSubscriptionHistory",
+      "commandName": "seed:subscription_history",
+      "description": "Seed previous ids and counts in subscription history",
+      "args": [],
+      "aliases": [],
+      "flags": []
+    },
     "reveal:update-images": {
       "settings": {
         "loadApp": true,
