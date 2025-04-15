@@ -41,11 +41,19 @@ export default class SubscriptionHistory extends BaseModel {
   @column()
   public previousOpepenCount: number
 
-  @computed({
-    serializeAs: 'is_opt_in',
-  })
+  @computed({ serializeAs: 'is_opt_in' })
   public get isOptIn(): boolean {
     return this.opepenCount > this.previousOpepenCount && this.opepenCount > 0
+  }
+
+  @computed()
+  public get optedInCount(): number {
+    return this.opepenCount - this.previousOpepenCount
+  }
+
+  @computed()
+  public get optedOutCount(): number {
+    return this.previousOpepenCount - this.opepenCount
   }
 
   @column.dateTime({ autoCreate: true })
@@ -62,7 +70,16 @@ export default class SubscriptionHistory extends BaseModel {
   })
   public account: BelongsTo<typeof Account>
 
-  public static saveFor(subscription: Subscription) {
+  public static async saveFor(subscription: Subscription) {
+    const previousHistory = await SubscriptionHistory.query()
+      .where('address', subscription.address)
+      .where('submissionId', subscription.submissionId)
+      .orderBy('createdAt', 'desc')
+      .first()
+
+    const previousOpepenIds = previousHistory?.opepenIds || []
+    const previousOpepenCount = previousHistory?.opepenCount || 0
+
     return SubscriptionHistory.create({
       submissionId: subscription.submissionId,
       subscriptionId: subscription.id,
@@ -71,7 +88,8 @@ export default class SubscriptionHistory extends BaseModel {
       opepenCount: subscription.opepenIds.length,
       maxReveals: subscription.maxReveals,
       createdAt: subscription.createdAt,
-      // TODO: Implement previous count / history
+      previousOpepenIds,
+      previousOpepenCount,
     })
   }
 }
