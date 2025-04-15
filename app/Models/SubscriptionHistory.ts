@@ -62,7 +62,16 @@ export default class SubscriptionHistory extends BaseModel {
   })
   public account: BelongsTo<typeof Account>
 
-  public static saveFor(subscription: Subscription) {
+  public static async saveFor(subscription: Subscription) {
+    const previousHistory = await SubscriptionHistory.query()
+      .where('address', subscription.address)
+      .where('submissionId', subscription.submissionId)
+      .orderBy('createdAt', 'desc')
+      .first()
+    
+    const previousOpepenIds = previousHistory?.opepenIds || []
+    const previousOpepenCount = previousHistory?.opepenCount || 0
+    
     return SubscriptionHistory.create({
       submissionId: subscription.submissionId,
       subscriptionId: subscription.id,
@@ -71,7 +80,8 @@ export default class SubscriptionHistory extends BaseModel {
       opepenCount: subscription.opepenIds.length,
       maxReveals: subscription.maxReveals,
       createdAt: subscription.createdAt,
-      // TODO: Implement previous count / history
+      previousOpepenIds,
+      previousOpepenCount,
     })
   }
 }
