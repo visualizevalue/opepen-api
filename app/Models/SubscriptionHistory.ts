@@ -41,16 +41,16 @@ export default class SubscriptionHistory extends BaseModel {
   @column()
   public previousOpepenCount: number
 
-  @computed({
-    serializeAs: 'is_opt_in',
-  })
+  @computed({ serializeAs: 'is_opt_in' })
   public get isOptIn(): boolean {
     return this.opepenCount > this.previousOpepenCount && this.opepenCount > 0
   }
+
   @computed()
   public get optedInCount(): number {
     return this.opepenCount - this.previousOpepenCount
   }
+
   @computed()
   public get optedOutCount(): number {
     return this.previousOpepenCount - this.opepenCount
@@ -76,10 +76,10 @@ export default class SubscriptionHistory extends BaseModel {
       .where('submissionId', subscription.submissionId)
       .orderBy('createdAt', 'desc')
       .first()
-    
+
     const previousOpepenIds = previousHistory?.opepenIds || []
     const previousOpepenCount = previousHistory?.opepenCount || 0
-    
+
     return SubscriptionHistory.create({
       submissionId: subscription.submissionId,
       subscriptionId: subscription.id,

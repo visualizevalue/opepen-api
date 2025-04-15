@@ -40,7 +40,7 @@ export default class SeedSubscriptionHistory extends BaseCommand {
         opepenCount: history.opepenCount,
       })
     }
-    
+
     this.logger.success(`Successfully updated ${updated} subscription history records`)
   }
 }
