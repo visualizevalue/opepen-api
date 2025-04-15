@@ -58,6 +58,9 @@ export default class AccountsController extends BaseController {
         query.preload('cover')
         query.orderBy('sortIndex')
       })
+      .preload('subscriptionsHistory', (query) => {
+        query.preload('submission')
+      })
       .withCount('opepen')
       .withCount('burnedOpepen')
       .first()
