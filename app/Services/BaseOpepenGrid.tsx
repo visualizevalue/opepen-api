@@ -87,9 +87,9 @@ export class BaseOpepenGrid {
       perSide += 1
       dimension = Math.floor(width / perSide)
     }
-
-    const height = dimension * perSide
-
+    const height = forceSquare
+      ? dimension * perSide
+      : Math.max(...positions.map((pos) => pos.y + dimension * pos.size))
     const svg = await this.svg(
       <div
         style={{
