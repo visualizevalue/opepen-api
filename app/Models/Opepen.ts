@@ -21,6 +21,7 @@ import TokenModel from 'App/Models/TokenModel'
 import OpenSea from 'App/Services/OpenSea'
 import { TokenMetadata } from 'App/Services/Metadata/MetadataTypes'
 import { ContractType } from './types'
+import pad from 'App/Helpers/pad'
 
 type SetConfig = any
 
@@ -183,17 +184,17 @@ export default class Opepen extends TokenModel {
   public async updateName() {
     const opepen: Opepen = this
     const edition = opepen.data.edition
-    const editionStr = `(Ed. ${edition})`
+    const editionStr = `Ed. ${edition}`
 
     if (!opepen.revealedAt) {
-      opepen.data.name = `Unrevealed #${opepen.tokenId} ${editionStr}`
+      opepen.data.name = `Unrevealed #${opepen.tokenId}, ${editionStr}`
     } else {
       if (!opepen.$preloaded['set']) {
         await opepen.load('set')
       }
       const submission = opepen.set.submission
 
-      opepen.data.name = `${submission.name}, ${submission[`edition_${edition}Name`]} ${editionStr}`
+      opepen.data.name = `${submission.name}, Set ${pad(submission.setId)}, ${editionStr}`
     }
 
     await opepen.save()
