@@ -151,6 +151,12 @@ export default class SetSubmissionsController extends BaseController {
         query.preload('cover')
         query.orderBy('sortIndex')
       })
+      .preload('participationImages', (query) => {
+        query.whereNull('deletedAt')
+        query.preload('image')
+        query.preload('creator', (creatorQuery) => creatorQuery.preload('pfp'))
+        query.orderBy('createdAt', 'desc')
+      })
       .firstOrFail()
     // TODO: Implement rich content links
     // .preload('richContentLinks', query => {
@@ -292,6 +298,7 @@ export default class SetSubmissionsController extends BaseController {
       edition_10ImageId: images[3]?.id,
       edition_20ImageId: images[4]?.id,
       edition_40ImageId: images[5]?.id,
+      openForParticipation: request.input('open_for_participation', false),
     }
 
     if (isAdmin(ctx.session)) {

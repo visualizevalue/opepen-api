@@ -30,6 +30,7 @@ import DynamicSetImages from './DynamicSetImages'
 import Subscription from './Subscription'
 import Opepen from './Opepen'
 import CoCreator from './CoCreator'
+import ParticipationImage from './ParticipationImage'
 import provider from 'App/Services/RPCProvider'
 import Reveal from 'App/Services/Metadata/Reveal/Reveal'
 import NotifyNewCuratedSubmissionEmail from 'App/Mailers/NotifyNewCuratedSubmissionEmail'
@@ -162,6 +163,9 @@ export default class SetSubmission extends BaseModel {
 
   @column()
   public botFeaturedCount: number
+
+  @column()
+  public openForParticipation: boolean = false
 
   @column()
   public editionType: EditionType = 'PRINT'
@@ -431,6 +435,11 @@ export default class SetSubmission extends BaseModel {
   })
   public richContentLinks: HasMany<typeof RichContentLink>
 
+  @hasMany(() => ParticipationImage, {
+    foreignKey: 'setSubmissionId',
+  })
+  public participationImages: HasMany<typeof ParticipationImage>
+
   // TODO: rename to visible (?)
   public static active = scope((query) => {
     query.whereNull('deletedAt')
@@ -455,6 +464,10 @@ export default class SetSubmission extends BaseModel {
 
   public static unstarred = scope((query) => {
     query.whereNull('starredAt')
+  })
+
+  public static openForParticipation = scope((query) => {
+    query.where('openForParticipation', true)
   })
 
   public static archived = scope((query) => {

@@ -221,6 +221,14 @@ Route.group(() => {
   Route.post('/general', 'NotificationsController.general').middleware(['admin'])
 }).prefix('/v1/notifications')
 
+// Participation Images
+Route.group(() => {
+  Route.post('/', 'ParticipationImagesController.store')
+  Route.delete('/:id', 'ParticipationImagesController.destroy')
+})
+  .prefix('/v1/participation')
+  .middleware(['auth'])
+
 // FC Frames
 Route.group(() => {
   // Account profiles
