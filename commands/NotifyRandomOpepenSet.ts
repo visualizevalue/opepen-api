@@ -28,6 +28,7 @@ export default class NotifyRandomOpepenSet extends BaseCommand {
 
     const minResult = await SetSubmission.query()
       .whereNotNull('setId')
+      .whereNull('replacedSubmissionId')
       .min('botFeaturedCount', 'minCount')
       .first()
 
@@ -37,6 +38,7 @@ export default class NotifyRandomOpepenSet extends BaseCommand {
 
     const submission = await SetSubmission.query()
       .whereNotNull('setId')
+      .whereNull('replacedSubmissionId')
       .where('botFeaturedCount', minCount)
       .orderByRaw('random()')
       .first()
