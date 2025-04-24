@@ -124,6 +124,7 @@ export default class SetSubmissionsController extends BaseController {
     const submission = await SetSubmission.firstOrCreate({
       creator: creator.address,
       name: request.input('name', ''),
+      deletedAt: null,
     })
 
     return submission
