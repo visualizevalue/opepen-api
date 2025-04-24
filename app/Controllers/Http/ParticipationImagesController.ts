@@ -21,18 +21,13 @@ export default class ParticipationImagesController extends BaseController {
     if (!submissionId) throw new BadRequest('submissionId is missing')
     if (!imageIds?.length) throw new BadRequest('imageIds array is missing or empty')
 
-    const submission = await SetSubmission.query().where('uuid', submissionId).first()
-    if (!submission) throw new BadRequest('Submission not found')
+    const submission = await SetSubmission.query().where('uuid', submissionId).firstOrFail()
     if (!submission.openForParticipation) throw new BadRequest('This set is not open for participation')
 
     await Account.firstOrCreate({ address })
 
-    const images = await Image.query().whereIn('uuid', imageIds)
-    if (images.length !== imageIds.length) throw new BadRequest('No image not found')
-
-    if (images.some(img => img.creator !== address)) {
-      throw new NotAuthorized('You can only use images you uploaded')
-    }
+    const images = await Image.query().whereIn('uuid', imageIds).where('creator', address)
+    if (images.length !== imageIds.length) throw new BadRequest('At least one image not found')
 
     const participationImages = await Promise.all(
       images.map(img => 
