@@ -446,6 +446,13 @@ export default class SetSubmissionsController extends BaseController {
     submission.deletedAt = DateTime.now()
     await submission.save()
 
+    // Remove set from count for the creator and coCreators
+    await submission.creatorAccount.updateSetSubmissionsCount()
+
+    for (const coCreator of submission.coCreators) {
+      await coCreator.account.updateSetSubmissionsCount()
+    }
+
     return ctx.response.ok('')
   }
 
