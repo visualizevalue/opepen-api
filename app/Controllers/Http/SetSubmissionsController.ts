@@ -430,8 +430,16 @@ export default class SetSubmissionsController extends BaseController {
     if (!submission) return ctx.response.badRequest()
 
     submission.shadowedAt = submission.shadowedAt ? null : DateTime.now()
+    await submission.save()
 
-    return submission.save()
+    // Update submission counts for creator and co-creators
+    await submission.creatorAccount.updateSetSubmissionsCount()
+
+    for (const coCreator of submission.coCreators) {
+      await coCreator.account.updateSetSubmissionsCount()
+    }
+
+    return submission
   }
 
   public async delete(ctx: HttpContextContract) {
