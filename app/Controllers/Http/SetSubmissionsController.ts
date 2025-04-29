@@ -407,6 +407,12 @@ export default class SetSubmissionsController extends BaseController {
 
     await this.creatorOrAdmin({ creator: submission.creatorAccount, session })
 
+    // Update submission
+    submission.publishedAt = null
+    submission.revealsAt = null
+    submission.remainingRevealTime = DEFAULT_REMAINING_REVEAL_TIME
+    await submission.save()
+
     // Remove set from count for the creator and coCreators
     await submission.creatorAccount.updateSetSubmissionsCount()
 
@@ -414,14 +420,9 @@ export default class SetSubmissionsController extends BaseController {
       await coCreator.account.updateSetSubmissionsCount()
     }
 
-    // Update submission
-    submission.publishedAt = null
-    submission.revealsAt = null
-    submission.remainingRevealTime = DEFAULT_REMAINING_REVEAL_TIME
-
     await submission.clearOptIns()
 
-    return submission.save()
+    return submission
   }
 
   public async shadow(ctx: HttpContextContract) {
