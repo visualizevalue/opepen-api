@@ -375,12 +375,20 @@ export default class SetSubmissionsController extends BaseController {
       .where('uuid', params.id)
       .withScopes((scopes) => scopes.complete())
       .preload('creatorAccount')
+      .preload('coCreators', (query) => query.preload('account'))
       .firstOrFail()
 
     await this.creatorOrAdmin({ creator: submission.creatorAccount, session })
 
     submission.publishedAt = DateTime.now()
     await submission.save()
+
+    // Update submission counts for the creator and coCreators
+    await submission.creatorAccount.updateSetSubmissionsCount()
+
+    for (const coCreator of submission.coCreators) {
+      await coCreator.account.updateSetSubmissionsCount()
+    }
 
     TimelineUpdate.createFor(submission)
 
@@ -394,21 +402,27 @@ export default class SetSubmissionsController extends BaseController {
       .where('uuid', params.id)
       .whereNull('setId')
       .preload('creatorAccount')
+      .preload('coCreators', (query) => query.preload('account'))
       .firstOrFail()
 
     await this.creatorOrAdmin({ creator: submission.creatorAccount, session })
-
-    // Remove set from count
-    await submission.creatorAccount.updateSetSubmissionsCount()
 
     // Update submission
     submission.publishedAt = null
     submission.revealsAt = null
     submission.remainingRevealTime = DEFAULT_REMAINING_REVEAL_TIME
+    await submission.save()
+
+    // Remove set from count for the creator and coCreators
+    await submission.creatorAccount.updateSetSubmissionsCount()
+
+    for (const coCreator of submission.coCreators) {
+      await coCreator.account.updateSetSubmissionsCount()
+    }
 
     await submission.clearOptIns()
 
-    return submission.save()
+    return submission
   }
 
   public async shadow(ctx: HttpContextContract) {
@@ -416,8 +430,16 @@ export default class SetSubmissionsController extends BaseController {
     if (!submission) return ctx.response.badRequest()
 
     submission.shadowedAt = submission.shadowedAt ? null : DateTime.now()
+    await submission.save()
 
-    return submission.save()
+    // Update submission counts for creator and co-creators
+    await submission.creatorAccount.updateSetSubmissionsCount()
+
+    for (const coCreator of submission.coCreators) {
+      await coCreator.account.updateSetSubmissionsCount()
+    }
+
+    return submission
   }
 
   public async delete(ctx: HttpContextContract) {
@@ -431,6 +453,13 @@ export default class SetSubmissionsController extends BaseController {
 
     submission.deletedAt = DateTime.now()
     await submission.save()
+
+    // Remove set from count for the creator and coCreators
+    await submission.creatorAccount.updateSetSubmissionsCount()
+
+    for (const coCreator of submission.coCreators) {
+      await coCreator.account.updateSetSubmissionsCount()
+    }
 
     return ctx.response.ok('')
   }
