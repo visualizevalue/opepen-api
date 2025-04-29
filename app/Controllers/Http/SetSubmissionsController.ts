@@ -375,12 +375,20 @@ export default class SetSubmissionsController extends BaseController {
       .where('uuid', params.id)
       .withScopes((scopes) => scopes.complete())
       .preload('creatorAccount')
+      .preload('coCreators', (query) => query.preload('account'))
       .firstOrFail()
 
     await this.creatorOrAdmin({ creator: submission.creatorAccount, session })
 
     submission.publishedAt = DateTime.now()
     await submission.save()
+
+    // Update submission counts for the creator and coCreators
+    await submission.creatorAccount.updateSetSubmissionsCount()
+
+    for (const coCreator of submission.coCreators) {
+      await coCreator.account.updateSetSubmissionsCount()
+    }
 
     TimelineUpdate.createFor(submission)
 
@@ -394,12 +402,17 @@ export default class SetSubmissionsController extends BaseController {
       .where('uuid', params.id)
       .whereNull('setId')
       .preload('creatorAccount')
+      .preload('coCreators', (query) => query.preload('account'))
       .firstOrFail()
 
     await this.creatorOrAdmin({ creator: submission.creatorAccount, session })
 
-    // Remove set from count
+    // Remove set from count for the creator and coCreators
     await submission.creatorAccount.updateSetSubmissionsCount()
+
+    for (const coCreator of submission.coCreators) {
+      await coCreator.account.updateSetSubmissionsCount()
+    }
 
     // Update submission
     submission.publishedAt = null
