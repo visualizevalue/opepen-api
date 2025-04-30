@@ -102,6 +102,12 @@ export default class SetSubmissionsController extends BaseController {
         query.whereJsonPath('submission_stats', '$.demand.total', '>=', 1)
         query.whereNull('setId')
         break
+      case 'participation':
+        query.withScopes((scopes) => scopes.active())
+        query.where('openForParticipation', true)
+        query.whereNotNull('name').andWhereNot('name', '')
+        query.whereNull('setId')
+        break
       default:
         query.withScopes((scopes) => scopes.live())
         query.whereNull('setId')
