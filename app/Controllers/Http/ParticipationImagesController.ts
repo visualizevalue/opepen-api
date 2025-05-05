@@ -1,4 +1,5 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
+import Database from '@ioc:Adonis/Lucid/Database'
 import ParticipationImage from 'App/Models/ParticipationImage'
 import SetSubmission from 'App/Models/SetSubmission'
 import BaseController from './BaseController'
@@ -41,6 +42,8 @@ export default class ParticipationImagesController extends BaseController {
 
     await Promise.all(participationImages.map(img => img.load('image')))
 
+    await this.updateCounts(submission.id)
+
     return participationImages
   }
 
@@ -62,6 +65,30 @@ export default class ParticipationImagesController extends BaseController {
     participationImage.deletedAt = DateTime.now()
     await participationImage.save()
 
+    const submissionId = participationImage.setSubmissionId
+    await this.updateCounts(submissionId)
+
     return { success: true }
+  }
+
+  private async updateCounts(submissionId: number) {
+    const contributionsCount = await Database.from('participation_images')
+      .where('set_submission_id', submissionId)
+      .whereNull('deleted_at')
+      .count('* as count')
+      .first()
+
+    const contributorsCount = await Database.from('participation_images')
+      .where('set_submission_id', submissionId)
+      .whereNull('deleted_at')
+      .countDistinct('creator_address as count')
+      .first()
+
+    await SetSubmission.query()
+      .where('id', submissionId)
+      .update({
+        contributions_count: contributionsCount?.count || 0,
+        contributors_count: contributorsCount?.count || 0,
+      })
   }
 }

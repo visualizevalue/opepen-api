@@ -168,6 +168,12 @@ export default class SetSubmission extends BaseModel {
   public openForParticipation: boolean = false
 
   @column()
+  public contributionsCount: number
+
+  @column()
+  public contributorsCount: number
+
+  @column()
   public editionType: EditionType = 'PRINT'
 
   @computed({ serializeAs: 'is_dynamic' })
