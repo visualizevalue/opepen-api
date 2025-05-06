@@ -848,7 +848,7 @@ export default class SetSubmission extends BaseModel {
         }
 
         const actual = isOneOfOneOptIn
-          ? opepenCount
+          ? 1
           : Math.min(subscription.maxReveals[edition], opepenCount)
 
         demand[edition] += actual
