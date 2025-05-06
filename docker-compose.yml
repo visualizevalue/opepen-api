@@ -1,0 +1,15 @@
+services:
+  postgres15:
+    image: postgres:15
+    container_name: postgres15
+    environment:
+      POSTGRES_USER: opepen
+      POSTGRES_PASSWORD: opepen
+      POSTGRES_DB: opepen
+    ports:
+      - '5440:5432'
+    volumes:
+      - postgres15_data:/var/lib/postgresql/data
+
+volumes:
+  postgres15_data:
