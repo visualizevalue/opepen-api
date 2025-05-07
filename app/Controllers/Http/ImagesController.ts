@@ -38,6 +38,7 @@ export default class ImagesController extends BaseController {
         'webm',
         'glb-json',
         'gltf-binary',
+        'html',
       ].includes(file.subtype?.toLowerCase())
     )
       throw new InvalidInput(`Unspupported file format`)
