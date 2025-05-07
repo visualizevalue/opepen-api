@@ -86,6 +86,11 @@ export default class Image extends BaseModel {
   }
 
   @computed()
+  public get isWebInteractive(): boolean {
+    return ['html', 'svg'].includes(this.type)
+  }
+
+  @computed()
   public get is3D(): boolean {
     return ['glb', 'gltf', 'glb-json', 'glb-binary', 'gltf-json', 'gltf-binary'].includes(
       this.type,
@@ -104,12 +109,12 @@ export default class Image extends BaseModel {
 
   @computed()
   public get requiresAnimationUrlMetadata(): boolean {
-    return this.isVideo || this.is3D
+    return this.isVideo || this.is3D || this.isWebInteractive
   }
 
   @computed()
   public get isWebRendered(): boolean {
-    return ['svg', 'html'].includes(this.type) || this.is3D
+    return this.type === 'svg' || this.is3D || this.isWebInteractive
   }
 
   public get staticType(): string {
