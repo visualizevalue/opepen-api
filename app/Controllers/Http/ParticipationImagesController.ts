@@ -4,7 +4,7 @@ import ParticipationImage from 'App/Models/ParticipationImage'
 import SetSubmission from 'App/Models/SetSubmission'
 import BaseController from './BaseController'
 import Account from 'App/Models/Account'
-import { isAdmin } from 'App/Middleware/AdminAuth'
+import { isAdminAddress } from 'App/Middleware/AdminAuth'
 import { DateTime } from 'luxon'
 import NotAuthenticated from 'App/Exceptions/NotAuthenticated'
 import NotAuthorized from 'App/Exceptions/NotAuthorized'
@@ -57,9 +57,12 @@ export default class ParticipationImagesController extends BaseController {
       .preload('setSubmission')
       .firstOrFail()
 
-    const isCreator = participationImage.setSubmission.creator === address
-    if (!isCreator && !isAdmin(address)) {
-      throw new NotAuthorized('Only the set creator or an admin can delete participation images')
+    const isContributor = participationImage.creatorAddress === address
+    const isSetCreator = participationImage.setSubmission.creator === address
+    const isAdmin = isAdminAddress(address)
+    
+    if (!isSetCreator && !isContributor && !isAdmin) {
+      throw new NotAuthorized('Only the set creator, the contributor, or an admin can delete participation images')
     }
 
     participationImage.deletedAt = DateTime.now()
