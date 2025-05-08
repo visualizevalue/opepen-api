@@ -70,7 +70,6 @@ export default class ImportSales {
     // Save Sales
     for (const sale of sales) {
       const event = await Event.query()
-        .preload('opepen')
         .where('tokenId', parseInt(sale.token))
         .where('transactionHash', sale.tx.toLowerCase())
         .where((q) => {
