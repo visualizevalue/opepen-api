@@ -281,8 +281,8 @@ class StatsService {
   private marketVolume() {
     return Database.rawQuery(`
       SELECT
-        SUM(COALESCE((data->'price'->'amount'->>'native')::numeric, 0)) AS total_native,
-        SUM(COALESCE((data->'price'->'amount'->>'usd')::numeric, 0)) AS total_usd
+        SUM(COALESCE((data->'price'->>'eth')::numeric, 0)) AS total_native,
+        SUM(COALESCE((data->'price'->>'usd')::numeric, 0)) AS total_usd
       FROM events
       WHERE data IS NOT NULL;
     `)
