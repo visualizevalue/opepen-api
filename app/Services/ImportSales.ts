@@ -1,39 +1,39 @@
-import { paths } from '@reservoir0x/reservoir-kit-client'
+import axios from 'axios'
 import Env from '@ioc:Adonis/Core/Env'
-import apiGenerator from 'api'
 import { delay } from 'App/Helpers/time'
 import Logger from '@ioc:Adonis/Core/Logger'
 import Event from 'App/Models/Event'
 
-// @ts-ignore
-type Sale = paths['/sales/v4']['get']['responses']['200']['schema']['sales'][0]
-const halfHour = (1000 * 60 * 60) / 2
-
-const sdk = apiGenerator('@reservoirprotocol/v1.0#1llv231dlb6nmm72')
-sdk.server(Env.get('RESERVOIR_BASE'))
+type Sale = {
+  chain: number
+  contract: `0x${string}`
+  token: string
+  tx: `0x${string}`
+  block: string
+  timestamp: number
+  logIndex: number
+  from: `0x${string}`
+  to: `0x${string}`
+  amount: string
+  price: {
+    eth: string
+    usd: string
+    wei: string
+  }
+}
 
 export default class ImportSales {
   public startTimestamp: number
-
-  public async track() {
-    while (true) {
-      await this.sync()
-
-      await delay(halfHour)
-    }
-  }
 
   public async sync() {
     await this.run(Env.get('OPEPEN_ADDRESS'))
   }
 
   public async run(contract: string) {
-    sdk.auth(Env.get('RESERVOIR_KEY'))
-
     Logger.info(`Fetching historical sales for ${contract}`)
 
     const latestSale = await Event.query()
-      .whereRaw("data->'saleId' is not null")
+      .whereRaw("data->'price' is not null")
       .orderBy('blockNumber', 'desc')
       .orderBy('logIndex', 'desc')
       .first()
@@ -45,14 +45,23 @@ export default class ImportSales {
     // Fetch Sales
     let sales: Sale[] = []
     try {
-      let data = await this.fetchBatch(contract)
-      sales = sales.concat(data.sales)
-      while (data.continuation) {
+      let { data, meta } = await this.fetchBatch(contract, latestSale?.blockNumber)
+      sales = sales.concat(data)
+
+      while (meta.currentPage < meta.lastPage) {
         Logger.info(`Next page`)
 
         await delay(500)
-        data = await this.fetchBatch(contract, data.continuation)
-        sales = sales.concat(data.sales)
+
+        const response = await this.fetchBatch(
+          contract,
+          latestSale?.blockNumber,
+          meta.currentPage + 1,
+        )
+        data = response.data
+        meta = response.meta
+
+        sales = sales.concat(data)
       }
     } catch (e) {
       console.log(e)
@@ -62,8 +71,8 @@ export default class ImportSales {
     for (const sale of sales) {
       const event = await Event.query()
         .preload('opepen')
-        .where('tokenId', parseInt(sale.token.tokenId))
-        .where('transactionHash', sale.txHash.toLowerCase())
+        .where('tokenId', parseInt(sale.token))
+        .where('transactionHash', sale.tx.toLowerCase())
         .where((q) => {
           q.where('to', sale.to.toLowerCase())
           q.orWhere('to', sale.from.toLowerCase())
@@ -74,41 +83,39 @@ export default class ImportSales {
         .first()
 
       if (!event) {
-        Logger.warn(`Event for sale ${sale.id} not found`)
+        Logger.warn(`Event for sale ${sale.token}:${sale.tx} not found`)
       } else {
-        event.value = sale.price.amount.raw
-        event.data = sale
+        event.value = BigInt(sale.price.wei)
+        event.data = { ...event.data, price: sale.price }
         await event.save()
-        Logger.info(`Event for sale ${sale.id} saved`)
+        Logger.info(`Event for sale ${sale.token}:${sale.tx} saved`)
 
         // TODO: Maybe send notification...
       }
     }
   }
 
-  private async fetchBatch(contract: string, continuation?: string) {
-    const query: {
-      contract: string
-      limit: string
-      accept: string
-      continuation?: string
-      startTimestamp?: number
-    } = {
-      contract,
-      limit: '100',
-      accept: '*/*',
+  private async fetchBatch(contract: string, fromBlock?: string, page?: number) {
+    const params = new URLSearchParams()
+    params.set('collection', contract)
+    params.set('sortDirection', 'asc')
+    params.set('fromBlock', fromBlock || '0')
+    params.set('limit', '100')
+    params.set('page', page?.toString() || '1')
+    const url = `https://evm.api.vv.xyz/sales?${params}`
+
+    console.log('fetching ', url)
+
+    const { data } = await axios.get(url)
+
+    return data as {
+      data: Sale[]
+      meta: {
+        total: number
+        perPage: number
+        currentPage: number
+        lastPage: number
+      }
     }
-
-    if (this.startTimestamp) {
-      query.startTimestamp = this.startTimestamp
-    }
-
-    if (continuation) {
-      query.continuation = continuation
-    }
-
-    const { data } = await sdk.getSalesV4(query)
-
-    return data as paths['/sales/v4']['get']['responses']['200']['schema']
   }
 }
