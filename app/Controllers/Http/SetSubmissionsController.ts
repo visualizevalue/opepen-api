@@ -320,44 +320,6 @@ export default class SetSubmissionsController extends BaseController {
     return this.show(ctx)
   }
 
-  public async updateDynamicSetImages({ params, request, session }: HttpContextContract) {
-    const submission = await SetSubmission.query()
-      .where('uuid', params.id)
-      .preload('creatorAccount')
-      .preload('dynamicSetImages')
-      .firstOrFail()
-
-    await this.creatorOrAdmin({ creator: submission.creatorAccount, session })
-
-    const imageConfig: { edition: number; index: number; uuid: string }[] =
-      request.input('images')
-
-    if (!submission.dynamicSetImages) {
-      const setImages = await DynamicSetImages.create({})
-      submission.dynamicSetImagesId = setImages.id
-      await submission.save()
-      await submission.load('dynamicSetImages')
-    }
-
-    // Save new
-    for (const config of imageConfig) {
-      if (!config.uuid) continue
-
-      const image = await Image.query().where('uuid', config.uuid).firstOrFail()
-
-      image.creator = submission.creator
-      await image.save()
-
-      // Attach to submission
-      submission.dynamicSetImages[`image_${config.edition}_${config.index}_id`] = image.id
-    }
-    await submission.dynamicSetImages.save()
-    await submission.updateDynamicSetImagesCache()
-    await submission.load('dynamicSetImages')
-
-    return submission
-  }
-
   public async sign(ctx: HttpContextContract) {
     const { session, request, response } = ctx
 
@@ -490,6 +452,121 @@ export default class SetSubmissionsController extends BaseController {
     this.applySorts(query, sort)
 
     return query.paginate(page, limit)
+  }
+
+  public async updateImages({ request, params, session }: HttpContextContract) {
+    const submission = await SetSubmission.query()
+      .where('uuid', params.id)
+      .whereNull('setId')
+      .preload('creatorAccount')
+      .preload('dynamicSetImages')
+      .firstOrFail()
+
+    await this.creatorOrAdmin({ creator: submission.creatorAccount, session })
+
+    const body = request.body()
+
+    if (submission.editionType === 'PRINT') {
+      await this.updatePrintImages(submission, body)
+    } else {
+      await this.updateDynamicImages(submission, body)
+    }
+
+    return SetSubmission.query()
+      .where('id', submission.id)
+      .preload('edition1Image')
+      .preload('edition4Image')
+      .preload('edition5Image')
+      .preload('edition10Image')
+      .preload('edition20Image')
+      .preload('edition40Image')
+      .preload('dynamicSetImages')
+      .firstOrFail()
+  }
+
+  private async updatePrintImages(submission: SetSubmission, body: any) {
+    const columns = [
+      'edition_1ImageId',
+      'edition_4ImageId',
+      'edition_5ImageId',
+      'edition_10ImageId',
+      'edition_20ImageId',
+      'edition_40ImageId',
+    ] as const
+
+    const uuids = columns.filter((col) => body[col]).map((col) => body[col])
+    const images = await Image.query().whereIn('uuid', uuids)
+    const uuidToId = new Map(images.map((img) => [img.uuid, img.id]))
+
+    const updateData = Object.fromEntries(
+      columns.flatMap((col) => {
+        const uuid = body[col]
+        if (!uuid) return []
+        const id = uuidToId.get(uuid)
+        if (!id) throw new InvalidInput(`Unknown image UUID: ${uuid}`)
+        return [[col, id]]
+      }),
+    )
+
+    await submission.merge(updateData).save()
+
+    if (submission.editionType === 'PRINT') {
+      await Image.query()
+        .where('setSubmissionId', submission.id)
+        .whereNotIn('uuid', uuids)
+        .update({ setSubmissionId: null })
+
+      await Promise.all(
+        images.map(async (image) => {
+          image.setSubmissionId = submission.id
+          await image.save()
+        }),
+      )
+    }
+  }
+
+  private async updateDynamicImages(submission: SetSubmission, body: any) {
+    const imageConfigs: { edition: number; index: number; uuid: string | null }[] =
+      body.images || []
+
+    if (!submission.dynamicSetImages) {
+      const dynamicSetImages = await DynamicSetImages.create({})
+      submission.dynamicSetImagesId = dynamicSetImages.id
+      await submission.save()
+      await submission.load('dynamicSetImages')
+    }
+
+    const validUuids = imageConfigs
+      .filter((c) => c.uuid !== null && c.uuid !== undefined)
+      .map((c) => c.uuid as string)
+
+    const images = validUuids.length > 0 ? await Image.query().whereIn('uuid', validUuids) : []
+    const uuidToId = new Map(images.map((img) => [img.uuid, img.id]))
+
+    for (const { edition, index, uuid } of imageConfigs) {
+      // handle deletion case (when uuid is null)
+      if (uuid === null || uuid === undefined) {
+        submission.dynamicSetImages[`image_${edition}_${index}_id`] = null
+        continue
+      }
+
+      const imageId = uuidToId.get(uuid)!
+
+      // special case for 1/1s
+      if (edition === 1) {
+        submission.edition_1ImageId = imageId
+
+        const img = images.find((img) => img.uuid === uuid)!
+        img.setSubmissionId = submission.id
+        await img.save()
+      }
+
+      submission.dynamicSetImages[`image_${edition}_${index}_id`] = imageId
+    }
+
+    await submission.save()
+    await submission.dynamicSetImages.save()
+    await submission.updateDynamicSetImagesCache()
   }
 
   protected async creatorOrAdmin({ creator, session }) {
