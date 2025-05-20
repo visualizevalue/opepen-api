@@ -176,6 +176,9 @@ export default class SetSubmission extends BaseModel {
   @column()
   public editionType: EditionType = 'PRINT'
 
+  @column()
+  public aspectRatio: string = '1'
+
   @computed({ serializeAs: 'is_dynamic' })
   public get isDynamic(): boolean {
     return this.editionType !== 'PRINT'
