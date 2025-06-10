@@ -56,15 +56,16 @@ export class BotNotifications {
 
   public async consensusMultiple(submission: SetSubmission) {
     const holders = submission.submissionStats?.holders.total || 0
-    const total = submission.submissionStats?.demand.total || 0
+    const total = submission.submissionStats?.opepens.total || 0
     const times = Math.round(total / 80)
 
     const template = ({ creators }) => [
-      `Demand Increase`,
-      `"${submission.name}" by ${creators}`,
+      `Demand Increase for "${submission.name}"`,
       `${times}x Consensus`,
-      `${formatNumber(total)}% Opt-ins from ${formatNumber(holders)} Holders`,
-      `Time left to opt in: ${submission.timeRemainigStr()}`,
+      `${formatNumber(total)} Opt-ins from ${formatNumber(holders)} Holders`,
+      `${submission.timeRemainigStr()} left to Opt-In`,
+      ``,
+      `${Env.get('FRONTEND_URL')}/submissions/${submission.uuid}`,
     ]
 
     const img = `${Env.get('APP_URL')}/v1/render/sets/${submission.uuid}/square`
