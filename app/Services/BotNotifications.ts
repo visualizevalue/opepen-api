@@ -60,14 +60,24 @@ export class BotNotifications {
     const totalDemand = submission.submissionStats?.demand.total || 0
     const times = Math.round(totalDemand / 80)
 
-    const template = () => [
-      `Demand Increase for "${submission.name}"`,
-      `${times}x Consensus`,
-      `${formatNumber(total)} Opt-ins from ${formatNumber(holders)} Holders`,
-      `${submission.timeRemainigStr()} left to Opt-In`,
-      ``,
-      `${Env.get('FRONTEND_URL')}/submissions/${submission.uuid}?ref=demand-increase`,
-    ]
+    const template = () => {
+      const text = [
+        `Demand Increase for "${submission.name}"`,
+        `${times}x Consensus`,
+        `${formatNumber(total)} Opt-ins from ${formatNumber(holders)} Holders`,
+      ]
+
+      if (submission.optInOpen()) {
+        text.push(`${submission.timeRemainigStr()} left to Opt-In`)
+      }
+
+      text.push(``)
+      text.push(
+        `${Env.get('FRONTEND_URL')}/submissions/${submission.uuid}?ref=demand-increase`,
+      )
+
+      return text
+    }
 
     await this.sendForSubmission(submission, template, [])
   }
