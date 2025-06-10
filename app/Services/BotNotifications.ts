@@ -65,12 +65,10 @@ export class BotNotifications {
       `${formatNumber(total)} Opt-ins from ${formatNumber(holders)} Holders`,
       `${submission.timeRemainigStr()} left to Opt-In`,
       ``,
-      `${Env.get('FRONTEND_URL')}/submissions/${submission.uuid}`,
+      `${Env.get('FRONTEND_URL')}/submissions/${submission.uuid}?ref=demand-increase`,
     ]
 
-    const img = `${Env.get('APP_URL')}/v1/render/sets/${submission.uuid}/square`
-
-    await this.sendForSubmission(submission, template, img)
+    await this.sendForSubmission(submission, template)
   }
 
   public async consensusPaused(submission: SetSubmission) {
