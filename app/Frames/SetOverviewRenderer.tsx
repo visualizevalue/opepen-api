@@ -92,6 +92,9 @@ export default class SetOverviewRenderer extends Renderer {
             style={{
               border: '1px solid #363636',
               borderRadius: '12px',
+              objectFit: 'contain',
+              objectPosition: 'center',
+              background: '#000000',
             }}
             src={await this.urlAsBuffer(submission.edition1Image?.renderedURI)}
             width={imageWidth * 2 + imagePadding}
@@ -103,6 +106,9 @@ export default class SetOverviewRenderer extends Renderer {
               borderRadius: '12px',
               position: 'absolute',
               left: imageWidth * 2 + imagePadding * 2 + 'px',
+              objectFit: 'contain',
+              objectPosition: 'center',
+              background: '#000000',
             }}
             src={await this.urlAsBuffer(submission.edition4Image?.renderedURI)}
             width={imageWidth}
@@ -115,6 +121,9 @@ export default class SetOverviewRenderer extends Renderer {
               position: 'absolute',
               top: imageWidth + imagePadding + 'px',
               left: imageWidth * 2 + imagePadding * 2 + 'px',
+              objectFit: 'contain',
+              objectPosition: 'center',
+              background: '#000000',
             }}
             src={await this.urlAsBuffer(submission.edition5Image?.renderedURI)}
             width={imageWidth}
@@ -126,6 +135,9 @@ export default class SetOverviewRenderer extends Renderer {
               borderRadius: '12px',
               position: 'absolute',
               top: imageWidth * 2 + imagePadding * 2 + 'px',
+              objectFit: 'contain',
+              objectPosition: 'center',
+              background: '#000000',
             }}
             src={await this.urlAsBuffer(submission.edition10Image?.renderedURI)}
             width={imageWidth}
@@ -138,6 +150,9 @@ export default class SetOverviewRenderer extends Renderer {
               position: 'absolute',
               top: imageWidth * 2 + imagePadding * 2 + 'px',
               left: imageWidth + imagePadding + 'px',
+              objectFit: 'contain',
+              objectPosition: 'center',
+              background: '#000000',
             }}
             src={await this.urlAsBuffer(submission.edition20Image?.renderedURI)}
             width={imageWidth}
@@ -150,6 +165,9 @@ export default class SetOverviewRenderer extends Renderer {
               position: 'absolute',
               top: imageWidth * 2 + imagePadding * 2 + 'px',
               left: imageWidth * 2 + imagePadding * 2 + 'px',
+              objectFit: 'contain',
+              objectPosition: 'center',
+              background: '#000000',
             }}
             src={await this.urlAsBuffer(submission.edition40Image?.renderedURI)}
             width={imageWidth}
