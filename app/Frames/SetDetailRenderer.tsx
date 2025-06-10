@@ -45,6 +45,8 @@ export default class SetDetailRenderer extends Renderer {
               border: '1px solid #363636',
               borderRadius: '12px',
               position: 'absolute',
+              objectFit: 'contain',
+              objectPosition: 'center',
             }}
             src={await this.urlAsBuffer(submission.edition1Image?.renderURI)}
             width={imageWidth * 2 + imagePadding}
@@ -56,6 +58,8 @@ export default class SetDetailRenderer extends Renderer {
               borderRadius: '12px',
               position: 'absolute',
               left: imageWidth * 2 + imagePadding * 2 + 'px',
+              objectFit: 'contain',
+              objectPosition: 'center',
             }}
             src={await this.urlAsBuffer(submission.edition4Image?.renderURI)}
             width={imageWidth}
@@ -68,6 +72,8 @@ export default class SetDetailRenderer extends Renderer {
               position: 'absolute',
               top: imageWidth + imagePadding + 'px',
               left: imageWidth * 2 + imagePadding * 2 + 'px',
+              objectFit: 'contain',
+              objectPosition: 'center',
             }}
             src={await this.urlAsBuffer(submission.edition5Image?.renderURI)}
             width={imageWidth}
@@ -79,6 +85,8 @@ export default class SetDetailRenderer extends Renderer {
               borderRadius: '12px',
               position: 'absolute',
               top: imageWidth * 2 + imagePadding * 2 + 'px',
+              objectFit: 'contain',
+              objectPosition: 'center',
             }}
             src={await this.urlAsBuffer(submission.edition10Image?.renderURI)}
             width={imageWidth}
@@ -91,6 +99,8 @@ export default class SetDetailRenderer extends Renderer {
               position: 'absolute',
               top: imageWidth * 2 + imagePadding * 2 + 'px',
               left: imageWidth + imagePadding + 'px',
+              objectFit: 'contain',
+              objectPosition: 'center',
             }}
             src={await this.urlAsBuffer(submission.edition20Image?.renderURI)}
             width={imageWidth}
@@ -103,6 +113,8 @@ export default class SetDetailRenderer extends Renderer {
               position: 'absolute',
               top: imageWidth * 2 + imagePadding * 2 + 'px',
               left: imageWidth * 2 + imagePadding * 2 + 'px',
+              objectFit: 'contain',
+              objectPosition: 'center',
             }}
             src={await this.urlAsBuffer(submission.edition40Image?.renderURI)}
             width={imageWidth}
