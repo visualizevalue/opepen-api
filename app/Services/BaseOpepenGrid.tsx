@@ -114,6 +114,7 @@ export class BaseOpepenGrid {
                   left: `${x}px`,
                   width: `${dimension * size}px`,
                   height: `${dimension * size}px`,
+                  objectFit: 'contain',
                 }}
               />
             )
