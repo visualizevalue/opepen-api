@@ -64,6 +64,7 @@ export class BotNotifications {
       `"${submission.name}" by ${creators}`,
       `${times}x Consensus`,
       `${formatNumber(total)}% Opt-ins from ${formatNumber(holders)} Holders`,
+      `Time left to opt in: ${submission.timeRemainigStr()}`,
     ]
 
     const img = `${Env.get('APP_URL')}/v1/render/sets/${submission.uuid}/square`
