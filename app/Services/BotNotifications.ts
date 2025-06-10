@@ -59,7 +59,7 @@ export class BotNotifications {
     const total = submission.submissionStats?.opepens.total || 0
     const times = Math.round(total / 80)
 
-    const template = ({ creators }) => [
+    const template = () => [
       `Demand Increase for "${submission.name}"`,
       `${times}x Consensus`,
       `${formatNumber(total)} Opt-ins from ${formatNumber(holders)} Holders`,
@@ -68,7 +68,7 @@ export class BotNotifications {
       `${Env.get('FRONTEND_URL')}/submissions/${submission.uuid}?ref=demand-increase`,
     ]
 
-    await this.sendForSubmission(submission, template)
+    await this.sendForSubmission(submission, template, [])
   }
 
   public async consensusPaused(submission: SetSubmission) {
