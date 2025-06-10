@@ -47,6 +47,7 @@ export default class SetDetailRenderer extends Renderer {
               position: 'absolute',
               objectFit: 'contain',
               objectPosition: 'center',
+              background: '#000000',
             }}
             src={await this.urlAsBuffer(submission.edition1Image?.renderURI)}
             width={imageWidth * 2 + imagePadding}
@@ -60,6 +61,7 @@ export default class SetDetailRenderer extends Renderer {
               left: imageWidth * 2 + imagePadding * 2 + 'px',
               objectFit: 'contain',
               objectPosition: 'center',
+              background: '#000000',
             }}
             src={await this.urlAsBuffer(submission.edition4Image?.renderURI)}
             width={imageWidth}
@@ -74,6 +76,7 @@ export default class SetDetailRenderer extends Renderer {
               left: imageWidth * 2 + imagePadding * 2 + 'px',
               objectFit: 'contain',
               objectPosition: 'center',
+              background: '#000000',
             }}
             src={await this.urlAsBuffer(submission.edition5Image?.renderURI)}
             width={imageWidth}
@@ -87,6 +90,7 @@ export default class SetDetailRenderer extends Renderer {
               top: imageWidth * 2 + imagePadding * 2 + 'px',
               objectFit: 'contain',
               objectPosition: 'center',
+              background: '#000000',
             }}
             src={await this.urlAsBuffer(submission.edition10Image?.renderURI)}
             width={imageWidth}
@@ -101,6 +105,7 @@ export default class SetDetailRenderer extends Renderer {
               left: imageWidth + imagePadding + 'px',
               objectFit: 'contain',
               objectPosition: 'center',
+              background: '#000000',
             }}
             src={await this.urlAsBuffer(submission.edition20Image?.renderURI)}
             width={imageWidth}
@@ -115,6 +120,7 @@ export default class SetDetailRenderer extends Renderer {
               left: imageWidth * 2 + imagePadding * 2 + 'px',
               objectFit: 'contain',
               objectPosition: 'center',
+              background: '#000000',
             }}
             src={await this.urlAsBuffer(submission.edition40Image?.renderURI)}
             width={imageWidth}
