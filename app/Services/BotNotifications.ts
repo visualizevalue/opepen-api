@@ -57,7 +57,8 @@ export class BotNotifications {
   public async consensusMultiple(submission: SetSubmission) {
     const holders = submission.submissionStats?.holders.total || 0
     const total = submission.submissionStats?.opepens.total || 0
-    const times = Math.round(total / 80)
+    const totalDemand = submission.submissionStats?.demand.total || 0
+    const times = Math.round(totalDemand / 80)
 
     const template = () => [
       `Demand Increase for "${submission.name}"`,
