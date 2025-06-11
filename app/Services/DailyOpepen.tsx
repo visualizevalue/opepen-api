@@ -30,19 +30,22 @@ export class DailyOpepen {
         }}
       >
         {await Promise.all(
-          events
-            .slice(0, perSide ** 2)
-            .map(async (e) => (
-              <img
-                src={await this.urlAsBuffer(
-                  e.opepen.image
-                    ? e.opepen.image.staticURI
-                    : `https://api.opepen.art/${e.tokenId}/image`,
-                )}
-                width={dimension}
-                height={dimension}
-              />
-            )),
+          events.slice(0, perSide ** 2).map(async (e) => (
+            <img
+              src={await this.urlAsBuffer(
+                e.opepen.image
+                  ? e.opepen.image.staticURI
+                  : `https://api.opepen.art/${e.tokenId}/image`,
+              )}
+              style={{
+                objectFit: 'contain',
+                objectPosition: 'center',
+                backgroundColor: '#000000',
+              }}
+              width={dimension}
+              height={dimension}
+            />
+          )),
         )}
       </div>,
     )
