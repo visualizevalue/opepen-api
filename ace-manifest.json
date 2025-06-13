@@ -599,13 +599,13 @@
       "aliases": [],
       "flags": []
     },
-    "images:update-marketplace-images": {
+    "images:update-third-party-images": {
       "settings": {
         "loadApp": true,
         "stayAlive": false
       },
       "commandPath": "./commands/UpdateMarketplaceImages",
-      "commandName": "images:update-marketplace-images",
+      "commandName": "images:update-third-party-images",
       "description": "Update third party image cache",
       "args": [
         {
