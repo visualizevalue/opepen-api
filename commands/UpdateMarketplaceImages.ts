@@ -1,12 +1,13 @@
 import { BaseCommand, args, flags } from '@adonisjs/core/build/standalone'
 import { delay } from 'App/Helpers/time'
 import OpenSea from 'App/Services/OpenSea'
+import VVEVMDataApi from 'App/Services/VVEVMDataApi'
 
-export default class UpdateMarketplaceImages extends BaseCommand {
+export default class UpdateThirdPartyImages extends BaseCommand {
   /**
    * Command name is used to run the command
    */
-  public static commandName = 'images:update-marketplace-images'
+  public static commandName = 'images:update-third-party-images'
 
   /**
    * Command description is displayed in the "help" output
@@ -41,7 +42,10 @@ export default class UpdateMarketplaceImages extends BaseCommand {
     const opepenInSet = await query
 
     for (const opepen of opepenInSet) {
-      await OpenSea.updateMetadata(`${opepen.tokenId}`)
+      await Promise.all([
+        VVEVMDataApi.updateMetadata(`${opepen.tokenId}`),
+        OpenSea.updateMetadata(`${opepen.tokenId}`),
+      ])
       await delay(200)
     }
   }

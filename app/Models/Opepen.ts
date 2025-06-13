@@ -22,6 +22,7 @@ import OpenSea from 'App/Services/OpenSea'
 import { TokenMetadata } from 'App/Services/Metadata/MetadataTypes'
 import { ContractType } from './types'
 import pad from 'App/Helpers/pad'
+import VVEVMDataApi from 'App/Services/VVEVMDataApi'
 
 type SetConfig = any
 
@@ -178,7 +179,10 @@ export default class Opepen extends TokenModel {
       await opepen.image.updateImage(gatewayURI)
     }
 
-    await OpenSea.updateMetadata(opepen.tokenId.toString())
+    await Promise.all([
+      VVEVMDataApi.updateMetadata(opepen.tokenId.toString()),
+      OpenSea.updateMetadata(opepen.tokenId.toString()),
+    ])
   }
 
   public async updateName() {
