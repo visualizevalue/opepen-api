@@ -595,17 +595,23 @@ export default class SetSubmission extends BaseModel {
   }
 
   public remainingDuration() {
-    return this.revealsAt
-      ? this.revealsAt.diff(DateTime.now())
-      : DateTime.now().plus({ seconds: this.remainingRevealTime }).diff(DateTime.now())
-  }
+    if (this.revealsAt) {
+      return this.revealsAt.diff(DateTime.now())
+    }
 
-  public remainingSeconds() {
-    return this.remainingDuration().as('seconds')
+    if (this.optInOpen()) {
+      return this.starredAt!.plus({ hours: OPT_IN_HOURS }).diff(DateTime.now())
+    }
+
+    return null
   }
 
   public timeRemainigStr() {
-    return timeRemaining(this.remainingDuration())
+    const dur = this.remainingDuration()
+
+    if (!dur) return 'Unknown time'
+
+    return timeRemaining(dur)
   }
 
   public optInOpen() {
