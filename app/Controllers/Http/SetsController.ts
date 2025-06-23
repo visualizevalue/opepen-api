@@ -3,6 +3,7 @@ import SetModel from 'App/Models/SetModel'
 import BaseController from './BaseController'
 import Opepen from 'App/Models/Opepen'
 import OpepenService from 'App/Services/OpepenService'
+import Account from 'App/Models/Account'
 
 export default class SetsController extends BaseController {
   public async list() {
@@ -36,5 +37,19 @@ export default class SetsController extends BaseController {
       .preload('ownerAccount')
       .orderByRaw(`(data->>'edition')::int`)
       .orderBy('set_edition_id')
+  }
+
+  public async collectors({ params }: HttpContextContract) {
+    const collectors = await Account.query()
+      .whereHas('opepen', (query) => {
+        query.where('setId', params.id)
+      })
+      .withCount('opepen', (query) => {
+        query.where('setId', params.id)
+      })
+      .preload('pfp')
+      .orderBy('opepen_count', 'desc')
+
+    return collectors
   }
 }

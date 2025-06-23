@@ -72,6 +72,7 @@ Route.group(() => {
   Route.get('/sets/:id', 'SetsController.show')
   Route.get('/sets/:id/stats', 'SetsController.stats')
   Route.get('/sets/:id/opepen', 'SetsController.opepen')
+  Route.get('/sets/:id/collectors', 'SetsController.collectors')
   Route.get('/sets/:id/stats/listings', 'SetStatsController.listings')
 
   // Burned
