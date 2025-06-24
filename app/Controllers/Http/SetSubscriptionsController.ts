@@ -170,4 +170,36 @@ export default class SetSubscriptionsController extends BaseController {
       per_edition: perEdition,
     }
   }
+
+  public async historyForAccount({ params }: HttpContextContract) {
+    const submission = await SetSubmission.findByOrFail('uuid', params.id)
+
+    const subscriptions = await SubscriptionHistory.query()
+      .where('address', params.account.toLowerCase())
+      .where('submissionId', submission.id)
+      .orderBy('createdAt', 'asc')
+
+    let totalOptIns = 0
+
+    for (const subscription of subscriptions) {
+      if (subscription.isOptIn) {
+        totalOptIns += subscription.optedInCount
+      } else {
+        totalOptIns -= subscription.optedOutCount
+      }
+    }
+
+    let totalMaxReveals = 0
+    const lastSubscription = subscriptions[subscriptions.length - 1]
+    const maxReveals = lastSubscription.maxReveals || {}
+    totalMaxReveals = Object.values(maxReveals)
+      .filter((value): value is number => value !== null)
+      .reduce((sum, value) => sum + value, 0)
+
+    return {
+      total_opt_ins: totalOptIns,
+      total_max_reveals: totalMaxReveals,
+      subscriptions
+    }
+  }
 }
