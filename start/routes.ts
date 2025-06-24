@@ -200,6 +200,10 @@ Route.group(() => {
     '/:account/set-submissions/:id/subscription',
     'SetSubscriptionsController.forAccount',
   )
+  Route.get(
+    '/:account/set-submissions/:id/subscription-history',
+    'SetSubscriptionsController.historyForAccount',
+  )
 }).prefix('/v1/accounts')
 
 // Rich Content Cards
