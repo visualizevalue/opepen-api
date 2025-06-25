@@ -235,19 +235,28 @@ export default class SetSubscriptionsController extends BaseController {
     }, {})
 
     const totalMaxRevealsPerNode = subscriptions.reduce((acc, subscription) => {
-      const maxReveals = subscription.maxReveals || {}
-      const totalMaxReveals = Object.values(maxReveals)
-        .filter((value): value is number => value !== null)
-        .reduce((sum, value) => sum + value, 0)
+      if (
+        !acc[subscription.address] ||
+        subscription.createdAt > acc[subscription.address].createdAt
+      ) {
+        const maxReveals = subscription.maxReveals || {}
+        const totalMaxReveals = Object.values(maxReveals)
+          .filter((value): value is number => value !== null)
+          .reduce((sum, value) => sum + value, 0)
 
-      acc[subscription.address] = (acc[subscription.address] || 0) + totalMaxReveals
+        acc[subscription.address] = {
+          createdAt: subscription.createdAt,
+          totalMaxReveals,
+        }
+      }
       return acc
     }, {})
 
     const holdersWithStats = holders.map((holder) => ({
       ...holder.toJSON(),
       total_opt_ins: totalOptInsPerNode[holder.address.toLowerCase()] || 0,
-      total_max_reveals: totalMaxRevealsPerNode[holder.address.toLowerCase()] || 0,
+      total_max_reveals:
+        totalMaxRevealsPerNode[holder.address.toLowerCase()]?.totalMaxReveals || 0,
     }))
 
     return holdersWithStats
