@@ -199,7 +199,57 @@ export default class SetSubscriptionsController extends BaseController {
     return {
       total_opt_ins: totalOptIns,
       total_max_reveals: totalMaxReveals,
-      subscriptions
+      subscriptions,
     }
+  }
+
+  public async nodesStats({ params }: HttpContextContract) {
+    const submission = await SetSubmission.findByOrFail('uuid', params.id)
+
+    const holders = await Account.query()
+      .whereHas('opepen', (query) => {
+        query.where('setId', submission.setId)
+      })
+      .withCount('opepen', (query) => {
+        query.where('setId', submission.setId)
+      })
+      .preload('pfp')
+      .orderBy('opepen_count', 'desc')
+
+    const subscriptions = await SubscriptionHistory.query()
+      .where('submissionId', submission.id)
+      .whereIn(
+        'address',
+        holders.map((h) => h.address.toLowerCase()),
+      )
+
+    const totalOptInsPerNode = subscriptions.reduce((acc, subscription) => {
+      if (subscription.isOptIn) {
+        acc[subscription.address] =
+          (acc[subscription.address] || 0) + subscription.optedInCount
+      } else {
+        acc[subscription.address] =
+          (acc[subscription.address] || 0) - subscription.optedOutCount
+      }
+      return acc
+    }, {})
+
+    const totalMaxRevealsPerNode = subscriptions.reduce((acc, subscription) => {
+      const maxReveals = subscription.maxReveals || {}
+      const totalMaxReveals = Object.values(maxReveals)
+        .filter((value): value is number => value !== null)
+        .reduce((sum, value) => sum + value, 0)
+
+      acc[subscription.address] = (acc[subscription.address] || 0) + totalMaxReveals
+      return acc
+    }, {})
+
+    const holdersWithStats = holders.map((holder) => ({
+      ...holder.toJSON(),
+      total_opt_ins: totalOptInsPerNode[holder.address.toLowerCase()] || 0,
+      total_max_reveals: totalMaxRevealsPerNode[holder.address.toLowerCase()] || 0,
+    }))
+
+    return holdersWithStats
   }
 }

@@ -115,6 +115,7 @@ Route.group(() => {
 
   Route.get('/:id/subscribers', 'SetSubscriptionsController.listSubscribers')
   Route.get('/:id/history', 'SetSubscriptionsController.history')
+  Route.get('/:id/nodes-stats', 'SetSubscriptionsController.nodesStats')
 }).prefix('/v1/set-submissions')
 
 // Posts
