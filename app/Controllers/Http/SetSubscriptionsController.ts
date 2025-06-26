@@ -198,7 +198,7 @@ export default class SetSubscriptionsController extends BaseController {
 
     return {
       total_opt_ins: totalOptIns,
-      total_max_reveals: totalMaxReveals,
+      total_max_reveals: Math.min(totalMaxReveals, totalOptIns),
       subscriptions,
     }
   }
@@ -252,12 +252,17 @@ export default class SetSubscriptionsController extends BaseController {
       return acc
     }, {})
 
-    const holdersWithStats = holders.map((holder) => ({
-      ...holder.toJSON(),
-      total_opt_ins: totalOptInsPerNode[holder.address.toLowerCase()] || 0,
-      total_max_reveals:
-        totalMaxRevealsPerNode[holder.address.toLowerCase()]?.totalMaxReveals || 0,
-    }))
+    const holdersWithStats = holders.map((holder) => {
+      const totalOptIns = totalOptInsPerNode[holder.address.toLowerCase()] || 0
+      const totalMaxReveals =
+        totalMaxRevealsPerNode[holder.address.toLowerCase()]?.totalMaxReveals || 0
+
+      return {
+        ...holder.toJSON(),
+        total_opt_ins: totalOptIns,
+        total_max_reveals: Math.min(totalMaxReveals, totalOptIns),
+      }
+    })
 
     return holdersWithStats
   }
