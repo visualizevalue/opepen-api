@@ -198,8 +198,72 @@ export default class SetSubscriptionsController extends BaseController {
 
     return {
       total_opt_ins: totalOptIns,
-      total_max_reveals: totalMaxReveals,
-      subscriptions
+      total_max_reveals: Math.min(totalMaxReveals, totalOptIns),
+      subscriptions,
     }
+  }
+
+  public async nodesStats({ params }: HttpContextContract) {
+    const submission = await SetSubmission.findByOrFail('uuid', params.id)
+
+    const holders = await Account.query()
+      .whereHas('opepen', (query) => {
+        query.where('setId', submission.setId)
+      })
+      .withCount('opepen', (query) => {
+        query.where('setId', submission.setId)
+      })
+      .preload('pfp')
+      .orderBy('opepen_count', 'desc')
+
+    const subscriptions = await SubscriptionHistory.query()
+      .where('submissionId', submission.id)
+      .whereIn(
+        'address',
+        holders.map((h) => h.address.toLowerCase()),
+      )
+
+    const totalOptInsPerNode = subscriptions.reduce((acc, subscription) => {
+      if (subscription.isOptIn) {
+        acc[subscription.address] =
+          (acc[subscription.address] || 0) + subscription.optedInCount
+      } else {
+        acc[subscription.address] =
+          (acc[subscription.address] || 0) - subscription.optedOutCount
+      }
+      return acc
+    }, {})
+
+    const totalMaxRevealsPerNode = subscriptions.reduce((acc, subscription) => {
+      if (
+        !acc[subscription.address] ||
+        subscription.createdAt > acc[subscription.address].createdAt
+      ) {
+        const maxReveals = subscription.maxReveals || {}
+        const totalMaxReveals = Object.values(maxReveals)
+          .filter((value): value is number => value !== null)
+          .reduce((sum, value) => sum + value, 0)
+
+        acc[subscription.address] = {
+          createdAt: subscription.createdAt,
+          totalMaxReveals,
+        }
+      }
+      return acc
+    }, {})
+
+    const holdersWithStats = holders.map((holder) => {
+      const totalOptIns = totalOptInsPerNode[holder.address.toLowerCase()] || 0
+      const totalMaxReveals =
+        totalMaxRevealsPerNode[holder.address.toLowerCase()]?.totalMaxReveals || 0
+
+      return {
+        ...holder.toJSON(),
+        total_opt_ins: totalOptIns,
+        total_max_reveals: Math.min(totalMaxReveals, totalOptIns),
+      }
+    })
+
+    return holdersWithStats
   }
 }
