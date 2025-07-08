@@ -135,9 +135,14 @@ export default class SetSubscriptionsController extends BaseController {
     const { page = 1, limit = 20, filter = {}, sort = '' } = request.qs()
 
     const submission = await SetSubmission.findByOrFail('uuid', params.id)
-    const query = SubscriptionHistory.query()
-      .where('submissionId', submission.id)
-      .where('createdAt', '>=', submission.publishedAt.toISO())
+    const query = SubscriptionHistory.query().where('submissionId', submission.id)
+
+    // Scope to valid opt ins
+    query.where(
+      'createdAt',
+      '>=',
+      submission.publishedAt ? submission.publishedAt.toISO() : DateTime.now().toISO(),
+    )
 
     await this.applyFilters(query, filter)
     await this.applySorts(query, sort)
