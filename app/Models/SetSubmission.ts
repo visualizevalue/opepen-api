@@ -184,6 +184,11 @@ export default class SetSubmission extends BaseModel {
     return this.editionType !== 'PRINT'
   }
 
+  @computed({ serializeAs: 'is_live' })
+  public get isLive(): boolean {
+    return !!this.publishedAt && !this.archivedAt && !this.setId
+  }
+
   @column()
   public roundedPreview: boolean
 
