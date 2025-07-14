@@ -6,6 +6,8 @@ import Opepen from 'App/Models/Opepen'
 import { DateTime } from 'luxon'
 import DailyOpepen from 'App/Services/DailyOpepen'
 import { Account } from 'App/Models'
+import SubscriptionHistory from 'App/Models/SubscriptionHistory'
+import Subscription from 'App/Models/Subscription'
 import MetadataParser from 'App/Services/Metadata/MetadataParser'
 import OpepenRenderer from 'App/Frames/OpepenRenderer'
 import OpepenGrid from 'App/Services/OpepenGrid'
@@ -119,6 +121,53 @@ export default class OpepenController extends BaseController {
       .header('Content-Type', 'image/png')
       .header('Content-Length', Buffer.byteLength(image))
       .send(image)
+  }
+
+  public async optInStats({ params }: HttpContextContract) {
+    const opepenId = params.id
+
+    const subscriptionHistory = await SubscriptionHistory.query()
+      .whereRaw('opepen_ids @> ?', [JSON.stringify([opepenId])])
+      .preload('submission')
+      .preload('account', (query) => query.preload('pfp'))
+      .orderBy('createdAt', 'asc')
+
+    const submissions = new Set()
+    const result = subscriptionHistory
+      .filter((entry) => entry.submission && entry.isOptIn)
+      .filter((entry) => {
+        if (submissions.has(entry.submission.uuid)) {
+          return false
+        }
+        submissions.add(entry.submission.uuid)
+        return true
+      })
+      .map((entry) => ({
+        submission: entry.submission,
+        subscriber_account: entry.account,
+        created_at: entry.createdAt,
+      }))
+
+    const liveSubscriptions = new Set(
+      (
+        await Subscription.query()
+          .whereRaw('opepen_ids @> ?', [JSON.stringify([opepenId])])
+          .preload('submission')
+      )
+        .filter((subscription) => subscription.submission.isLive)
+        .map((subscription) => subscription.submission.uuid),
+    )
+
+    const resultWithLiveStatus = result.map((entry) => ({
+      ...entry,
+      is_live: liveSubscriptions.has(entry.submission.uuid),
+    }))
+
+    return {
+      total_opt_ins: result.length,
+      total_live_opt_ins: resultWithLiveStatus.filter((entry) => entry.is_live).length,
+      opt_in_history: resultWithLiveStatus,
+    }
   }
 
   public async og({ request, params, response }: HttpContextContract) {
