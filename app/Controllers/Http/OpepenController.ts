@@ -154,7 +154,7 @@ export default class OpepenController extends BaseController {
           .whereRaw('opepen_ids @> ?', [JSON.stringify([opepenId])])
           .preload('submission')
       )
-        .filter((subscription) => subscription.submission.isLive)
+        .filter((subscription) => subscription.submission?.isLive)
         .map((subscription) => subscription.submission.uuid),
     )
 
