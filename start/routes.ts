@@ -84,6 +84,7 @@ Route.group(() => {
   // Opepen
   Route.get('/', 'OpepenController.list')
   Route.get('/:id', 'OpepenController.show')
+  Route.get('/:id/opt-in-stats', 'OpepenController.optInStats')
   Route.post('/:id/image', 'OpepenController.updateImage')
   Route.get('/:id/events', 'EventsController.forToken')
 }).prefix('/v1/opepen')
