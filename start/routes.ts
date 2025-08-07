@@ -75,6 +75,9 @@ Route.group(() => {
   Route.get('/sets/:id/collectors', 'SetsController.collectors')
   Route.get('/sets/:id/stats/listings', 'SetStatsController.listings')
 
+  // Bids
+  Route.get('/bids/set/:id', 'BidsController.highestOffers')
+
   // Burned
   Route.get('/burned', 'BurnedOpepenController.list')
   Route.get('/burned/:id', 'BurnedOpepenController.show')
