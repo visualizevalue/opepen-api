@@ -1,0 +1,20 @@
+:root {
+  --dimension: min(100vw, 100vh);
+  --tile: calc(min(100vw, 100vh) / 8);
+}
+
+body {
+  margin: 0;
+  background: black;
+  overflow: hidden;
+}
+
+#opepen {
+  position: relative;
+
+  & > svg {
+    position: absolute;
+    width: var(--dimension);
+    height: var(--dimension);
+  }
+}
