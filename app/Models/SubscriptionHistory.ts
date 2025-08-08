@@ -43,7 +43,7 @@ export default class SubscriptionHistory extends BaseModel {
 
   @computed({ serializeAs: 'is_opt_in' })
   public get isOptIn(): boolean {
-    return this.opepenCount > this.previousOpepenCount && this.opepenCount > 0
+    return this.opepenCount >= this.previousOpepenCount && this.opepenCount > 0
   }
 
   @computed()
