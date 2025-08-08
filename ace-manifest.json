@@ -209,6 +209,18 @@
         }
       ]
     },
+    "import:opepen_bids": {
+      "settings": {
+        "loadApp": true,
+        "stayAlive": false
+      },
+      "commandPath": "./commands/ImportOpepenBids",
+      "commandName": "import:opepen_bids",
+      "description": "Import bids from OpenSea API",
+      "args": [],
+      "aliases": [],
+      "flags": []
+    },
     "opepen:import-events": {
       "settings": {
         "loadApp": true,
