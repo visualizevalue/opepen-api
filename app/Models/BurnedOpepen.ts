@@ -42,6 +42,9 @@ export default class BurnedOpepen extends TokenModel {
   @column.dateTime()
   public burnedAt: DateTime
 
+  @column()
+  public burnerAccount: string | null
+
   @hasOne(() => Opepen, {
     foreignKey: 'burnedOpepenId',
     onQuery: (query) => query.preload('image'),
