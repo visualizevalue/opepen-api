@@ -155,8 +155,8 @@ export const generateSvg = async ({ dimension = 512, edition = 1, bidAmount = 0 
   }
 
   result = result.replace(
-    /width="800" height="800"/,
-    `width="${dimension}" height="${dimension}"`,
+    /<rect[^>]*fill="#ffffff"[^>]*width="[^"]*"[^>]*height="[^"]*"[^>]*>/,
+    '<rect fill="#ffffff" width="100%" height="100%"></rect>',
   )
 
   if (!result.includes('viewBox')) {
