@@ -203,4 +203,11 @@ export default class Opepen extends TokenModel {
 
     await opepen.save()
   }
+
+  public async updateThirdPartyCaches() {
+    await Promise.all([
+      VVEVMDataApi.updateMetadata(this.tokenId.toString()),
+      OpenSea.updateMetadata(this.tokenId.toString()),
+    ])
+  }
 }
