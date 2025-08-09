@@ -2,6 +2,7 @@ import { BaseCommand } from '@adonisjs/core/build/standalone'
 import Env from '@ioc:Adonis/Core/Env'
 import axios from 'axios'
 import { DateTime } from 'luxon'
+import { delay } from 'App/Helpers/time'
 
 export default class ImportOpepenBids extends BaseCommand {
   public static commandName = 'import:opepen_bids'
@@ -32,6 +33,14 @@ export default class ImportOpepenBids extends BaseCommand {
       this.logger.success(
         `Import complete! Processed ${totalProcessed} offers, saved ${totalSaved} bids (${collectionOffers.saved} collection offers, ${allOffers.saved} other offers)`,
       )
+
+      // update set 076 image cache after importing bids
+      try {
+        await this.updateSet76ImageCache()
+        this.logger.success('Image cache update for Set 076 complete!')
+      } catch (cacheError) {
+        this.logger.warning(`Image cache update for Set 076 failed: ${cacheError.message}`)
+      }
     } catch (error) {
       this.logger.error(`Import failed: ${error.message}`)
       if (error.response?.status === 429) {
@@ -209,5 +218,22 @@ export default class ImportOpepenBids extends BaseCommand {
     })
 
     return true
+  }
+
+  private async updateSet76ImageCache() {
+    const { default: Opepen } = await import('App/Models/Opepen')
+
+    const set76Tokens = await Opepen.query().where('setId', 76)
+
+    for (const opepen of set76Tokens) {
+      try {
+        await opepen.updateThirdPartyCaches()
+        await delay(200)
+      } catch (error) {
+        this.logger.warning(
+          `Failed to update cache for token ${opepen.tokenId}: ${error.message}`,
+        )
+      }
+    }
   }
 }
