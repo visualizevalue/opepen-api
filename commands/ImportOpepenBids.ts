@@ -227,7 +227,7 @@ export default class ImportOpepenBids extends BaseCommand {
 
     for (const opepen of set76Tokens) {
       try {
-        await opepen.updateThirdPartyCaches()
+        await opepen.updateImage()
         await delay(200)
       } catch (error) {
         this.logger.warning(
