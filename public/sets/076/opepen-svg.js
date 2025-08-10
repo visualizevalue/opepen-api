@@ -22,7 +22,7 @@ async function generateBidDisplay(
   targetHeight = 108,
   edition = 1,
 ) {
-  const bidStr = parseFloat(bidAmount).toFixed(2)
+  const bidStr = bidAmount.toString()
   const svgElements = []
 
   for (const char of bidStr) {

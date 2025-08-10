@@ -4,6 +4,11 @@ const container = document.getElementById('opepen')
 const config = new URLSearchParams(window.location.search)
 const edition = parseInt(config.get('edition'))
 
+// Format price to remove trailing zeros
+const formatPrice = (price) => {
+  return parseFloat(price.toFixed(2)).toString()
+}
+
 const getBids = async () => {
   try {
     const response = await fetch(
@@ -15,8 +20,8 @@ const getBids = async () => {
     Object.keys(data).forEach((edition) => {
       const amountWei = data[edition]
       if (amountWei && amountWei !== null) {
-        const amountInEth = parseFloat((parseFloat(amountWei) / 1e18).toFixed(2))
-        bids[parseInt(edition)] = amountInEth
+        const amountInEth = parseFloat(amountWei) / 1e18
+        bids[parseInt(edition)] = parseFloat(formatPrice(amountInEth))
       }
     })
 
@@ -34,8 +39,8 @@ const getOffer = async (tokenId) => {
 
     if (data.price) {
       // Convert price from WEI to ETH
-      const priceInEth = parseFloat((parseFloat(data.price) / 1e18).toFixed(2))
-      return priceInEth
+      const priceInEth = parseFloat(data.price) / 1e18
+      return parseFloat(formatPrice(priceInEth))
     }
 
     return null
@@ -88,7 +93,7 @@ const render = async () => {
   const svgContent = await generateSvg({
     dimension,
     edition,
-    bidAmount: parseFloat(amount.toFixed(2)),
+    bidAmount: parseFloat(formatPrice(amount)),
   })
 
   container.innerHTML = svgContent
