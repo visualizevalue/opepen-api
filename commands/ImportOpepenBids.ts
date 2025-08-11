@@ -35,12 +35,7 @@ export default class ImportOpepenBids extends BaseCommand {
       )
 
       // update set 076 image cache after importing bids
-      try {
-        await this.updateSet76ImageCache()
-        this.logger.success('Image cache update for Set 076 complete!')
-      } catch (cacheError) {
-        this.logger.warning(`Image cache update for Set 076 failed: ${cacheError.message}`)
-      }
+      await this.updateSet76ImageCache()
     } catch (error) {
       this.logger.error(`Import failed: ${error.message}`)
       if (error.response?.status === 429) {
