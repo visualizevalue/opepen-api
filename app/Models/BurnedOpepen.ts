@@ -14,6 +14,7 @@ import {
 import Event from 'App/Models/Event'
 import Image from 'App/Models/Image'
 import Opepen from 'App/Models/Opepen'
+import Account from 'App/Models/Account'
 import TokenModel from 'App/Models/TokenModel'
 import { ContractType } from './types'
 
@@ -42,6 +43,9 @@ export default class BurnedOpepen extends TokenModel {
   @column.dateTime()
   public burnedAt: DateTime
 
+  @column()
+  public burner: string | null
+
   @hasOne(() => Opepen, {
     foreignKey: 'burnedOpepenId',
     onQuery: (query) => query.preload('image'),
@@ -50,6 +54,13 @@ export default class BurnedOpepen extends TokenModel {
 
   @belongsTo(() => Image)
   public image: BelongsTo<typeof Image>
+
+  @belongsTo(() => Account, {
+    foreignKey: 'burner',
+    localKey: 'address',
+    onQuery: (query) => query.preload('pfp'),
+  })
+  public burnerAccount: BelongsTo<typeof Account>
 
   @hasMany(() => Event, {
     foreignKey: 'tokenId',

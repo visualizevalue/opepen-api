@@ -520,6 +520,18 @@
       "aliases": [],
       "flags": []
     },
+    "seed:burner_accounts": {
+      "settings": {
+        "loadApp": true,
+        "stayAlive": false
+      },
+      "commandPath": "./commands/SeedBurnerAccounts",
+      "commandName": "seed:burner_accounts",
+      "description": "Populate burner field for burned Opepen using burn events",
+      "args": [],
+      "aliases": [],
+      "flags": []
+    },
     "seed:subscription_history": {
       "settings": {
         "loadApp": true,

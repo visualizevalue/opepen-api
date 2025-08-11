@@ -96,6 +96,7 @@ export default class BurnedOpepen extends Contract {
       {
         tokenId: burnedId,
         owner: burner,
+        burner: burner,
         data: {
           name: metadata.name,
           image: metadata.image,
