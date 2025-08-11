@@ -179,10 +179,7 @@ export default class Opepen extends TokenModel {
       await opepen.image.updateImage(gatewayURI)
     }
 
-    await Promise.all([
-      VVEVMDataApi.updateMetadata(opepen.tokenId.toString()),
-      OpenSea.updateMetadata(opepen.tokenId.toString()),
-    ])
+    await this.updateThirdPartyCaches()
   }
 
   public async updateName() {
@@ -202,5 +199,12 @@ export default class Opepen extends TokenModel {
     }
 
     await opepen.save()
+  }
+
+  public async updateThirdPartyCaches() {
+    await Promise.all([
+      VVEVMDataApi.updateMetadata(this.tokenId.toString()),
+      OpenSea.updateMetadata(this.tokenId.toString()),
+    ])
   }
 }
