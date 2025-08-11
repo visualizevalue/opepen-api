@@ -11,6 +11,7 @@ export default class BurnedOpepenController extends BaseController {
     const query = BurnedOpepen.query()
       .preload('opepen')
       .preload('ownerAccount')
+      .preload('burnerAccount')
       .preload('image')
 
     await this.applyFilters(query, filter)
@@ -42,6 +43,7 @@ export default class BurnedOpepenController extends BaseController {
       .where('tokenId', params.id)
       .preload('opepen')
       .preload('ownerAccount')
+      .preload('burnerAccount')
       .preload('lastEvent')
       .preload('image')
       .firstOrFail()
@@ -54,6 +56,7 @@ export default class BurnedOpepenController extends BaseController {
       .where('tokenId', params.id)
       .preload('opepen')
       .preload('ownerAccount')
+      .preload('burnerAccount')
       .preload('events')
       .preload('image')
       .firstOrFail()

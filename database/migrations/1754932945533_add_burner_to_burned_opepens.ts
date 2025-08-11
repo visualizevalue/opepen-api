@@ -5,13 +5,13 @@ export default class extends BaseSchema {
 
   public async up() {
     this.schema.alterTable(this.tableName, (table) => {
-      table.string('burner_account').nullable()
+      table.string('burner').nullable()
     })
   }
 
   public async down() {
     this.schema.alterTable(this.tableName, (table) => {
-      table.dropColumn('burner_account')
+      table.dropColumn('burner')
     })
   }
 }

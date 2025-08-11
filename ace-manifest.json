@@ -527,7 +527,7 @@
       },
       "commandPath": "./commands/SeedBurnerAccounts",
       "commandName": "seed:burner_accounts",
-      "description": "Populate burnerAccount field for burned Opepen using burn events",
+      "description": "Populate burner field for burned Opepen using burn events",
       "args": [],
       "aliases": [],
       "flags": []

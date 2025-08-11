@@ -3,7 +3,7 @@ import { BaseCommand } from '@adonisjs/core/build/standalone'
 export default class SeedBurnerAccounts extends BaseCommand {
   public static commandName = 'seed:burner_accounts'
   public static description =
-    'Populate burnerAccount field for burned Opepen using burn events'
+    'Populate burner field for burned Opepen using burn events'
 
   public static settings = {
     loadApp: true,
@@ -14,7 +14,7 @@ export default class SeedBurnerAccounts extends BaseCommand {
     const { default: BurnedOpepen } = await import('App/Models/BurnedOpepen')
     const { default: Event } = await import('App/Models/Event')
 
-    const burnedOpepen = await BurnedOpepen.query().whereNull('burnerAccount')
+    const burnedOpepen = await BurnedOpepen.query().whereNull('burner')
 
     let updated = 0
     let notFound = 0
@@ -30,7 +30,7 @@ export default class SeedBurnerAccounts extends BaseCommand {
           .first()
 
         if (burnEvent?.from) {
-          burned.burnerAccount = burnEvent.from
+          burned.burner = burnEvent.from
           await burned.save()
           updated++
         } else {
