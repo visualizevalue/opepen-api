@@ -12,7 +12,14 @@ export const newBrowser = async () => {
   browser = await puppeteer.launch({
     executablePath: Env.get('CHROMIUM_EXECUTABLE'),
     headless: true,
-    args: ['--single-process', '--no-zygote', '--no-sandbox', '--disable-setuid-sandbox'],
+    args: [
+      '--single-process',
+      '--no-zygote',
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      '--disable-dev-shm-usage',
+      '--disable-gpu', // harmless on servers
+    ],
     protocolTimeout: 10_000,
   })
   Logger.info(`New browser loaded`)
