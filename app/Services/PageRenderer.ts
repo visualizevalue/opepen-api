@@ -99,8 +99,6 @@ export const getBrowser = async (): Promise<Browser> => {
 export const renderPage = async (url: string, dimension: number = 960, tries: number = 1) => {
   let page: Page | null = null
 
-  console.log('render page')
-
   try {
     Logger.info(`Trying to render page (${url}) (try ${tries})`)
     const browser = await getBrowser()
@@ -108,52 +106,38 @@ export const renderPage = async (url: string, dimension: number = 960, tries: nu
 
     try {
       await page.setViewport({ width: dimension, height: dimension })
-      const item =
-        url.endsWith('.gif') || url.endsWith('.png')
+
+      // Determine if this is a media file or HTML page
+      const isImage = url.endsWith('.gif') || url.endsWith('.png')
+      const isVideo = url.endsWith('.mp4') || url.endsWith('.webm')
+      const isMedia = isImage || isVideo
+
+      if (isMedia) {
+        // For media files, embed them in HTML
+        const item = isImage
           ? `<img src="${url}" width="${dimension}" height="${dimension}" />`
-          : url.endsWith('.mp4') || url.endsWith('.webm')
-            ? `<video src="${url}" playsinline loop autoplay muted width="${dimension}" height="${dimension}"></video>`
-            : `<iframe src="${url}" width="${dimension}" height="${dimension}" style="border:none;"></iframe>`
-      const html = `<body style="margin:0;">${item}</body>`
-      const dataUrl = `data:text/html;base64;charset=UTF-8,${Buffer.from(html).toString('base64')}`
-      await page.goto(dataUrl)
+          : `<video src="${url}" playsinline loop autoplay muted width="${dimension}" height="${dimension}"></video>`
+        const html = `<body style="margin:0;">${item}</body>`
+        const dataUrl = `data:text/html;base64;charset=UTF-8,${Buffer.from(html).toString('base64')}`
+        await page.goto(dataUrl)
 
-      try {
-        console.log('try wait for function')
-        // await page.waitForFunction('RENDERED === true || window.RENDERED === true || true', {
-        // await page.waitForFunction('window.innerWidth > 100', {
-        // await page.waitForFunction('window["RENDERED"] == true', {
-        //   timeout: 10_000,
-        //   polling: 100,
-        // })
+        // For media files, just wait a bit for them to load
+        await delay(1000)
+      } else {
+        // For HTML pages, navigate directly to the URL
+        await page.goto(url, { waitUntil: 'networkidle2', timeout: 30000 })
 
-        await delay(6000)
-
-        // Get a property from window
-        const myProp = await page.evaluate(() => {
-          // This runs inside the browser context
-          // @ts-ignore
-          const win = window as any
-          console.log('win', win)
-          return win.RENDERED
-        })
-        // Get a property from window
-        const myProp2 = await page.evaluate(() => {
-          // This runs inside the browser context
-          // @ts-ignore
-          const win = window as any
-          return win.innerWidth
-        })
-
-        console.log('Window property value:', myProp)
-        console.log('Window property 2 value:', myProp2)
-
-        Logger.info(`Rendered page (${url})`)
-        console.log('rendered page')
-      } catch (waitError) {
-        // Page might not have RENDERED variable, continue anyway
-        Logger.debug(`waitForFunction failed for ${url}, continuing:`, waitError)
-        console.log('catch blah', waitError)
+        // Wait for RENDERED flag on HTML pages
+        try {
+          await page.waitForFunction('window.RENDERED === true || RENDERED === true', {
+            timeout: 6_000,
+            polling: 100,
+          })
+          Logger.info(`RENDERED flag detected for ${url}`)
+        } catch (waitError) {
+          // Page might not have RENDERED variable, continue anyway
+          Logger.debug(`RENDERED flag not found for ${url}, continuing`)
+        }
       }
 
       const image = await page.screenshot({})
