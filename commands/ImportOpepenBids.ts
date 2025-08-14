@@ -219,8 +219,6 @@ export default class ImportOpepenBids extends BaseCommand {
     const { default: Opepen } = await import('App/Models/Opepen')
 
     // Update images for first opepen of each edition (since underlying image is the same)
-    const editions = [1, 4, 5, 10, 20, 40]
-
     const firstSet76TokensPerEdition = await Opepen.query()
       .where('setId', 76)
       .where('setEditionId', 1)
