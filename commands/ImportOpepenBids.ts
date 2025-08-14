@@ -221,28 +221,27 @@ export default class ImportOpepenBids extends BaseCommand {
     // Update images for first opepen of each edition (since underlying image is the same)
     const editions = [1, 4, 5, 10, 20, 40]
 
-    for (const edition of editions) {
-      const firstOpepen = await Opepen.query()
-        .where('setId', 76)
-        .whereJsonSuperset('data', { edition })
-        .first()
+    const firstSet76TokensPerEdition = await Opepen.query()
+      .where('setId', 76)
+      .where('setEditionId', 1)
 
-      if (firstOpepen) {
-        try {
-          await firstOpepen.updateImage()
-          await delay(200)
-        } catch (error) {
-          this.logger.warning(
-            `Failed to update cache for edition ${edition}: ${error.message}`,
-          )
-        }
+    for (const opepen of firstSet76TokensPerEdition) {
+      try {
+        await opepen.updateImage()
+        await delay(200)
+      } catch (error) {
+        this.logger.warning(
+          `Failed to update third party images for token ${opepen.tokenId}: ${error.message}`,
+        )
       }
     }
 
     // Update third party images for all opepen in the set
-    const allSet76Tokens = await Opepen.query().where('setId', 76)
+    const allOtherSet76Tokens = await Opepen.query()
+      .where('setId', 76)
+      .whereNot('setEditionId', 1)
 
-    for (const opepen of allSet76Tokens) {
+    for (const opepen of allOtherSet76Tokens) {
       try {
         await opepen.updateThirdPartyCaches()
         await delay(200)
