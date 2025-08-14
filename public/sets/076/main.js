@@ -98,7 +98,7 @@ const render = async () => {
 
   container.innerHTML = svgContent
 
-  RENDERED = true
+  window.RENDERED = true
 }
 
 render()
