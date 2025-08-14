@@ -218,6 +218,7 @@ export default class ImportOpepenBids extends BaseCommand {
   private async updateSet76ImageCache() {
     const { default: Opepen } = await import('App/Models/Opepen')
 
+    // Update images for first opepen of each edition (since underlying image is the same)
     const editions = [1, 4, 5, 10, 20, 40]
 
     for (const edition of editions) {
@@ -235,6 +236,20 @@ export default class ImportOpepenBids extends BaseCommand {
             `Failed to update cache for edition ${edition}: ${error.message}`,
           )
         }
+      }
+    }
+
+    // Update third party images for all opepen in the set
+    const allSet76Tokens = await Opepen.query().where('setId', 76)
+
+    for (const opepen of allSet76Tokens) {
+      try {
+        await opepen.updateThirdPartyCaches()
+        await delay(200)
+      } catch (error) {
+        this.logger.warning(
+          `Failed to update third party images for token ${opepen.tokenId}: ${error.message}`,
+        )
       }
     }
   }
