@@ -125,11 +125,7 @@ export default class ImportOpepenListings extends BaseCommand {
 
     for (const edition of editionsToFetch) {
       this.logger.info(`Importing set images for set 31; edition ${edition}!`)
-      await this.kernel.exec('images:import-set-images', [
-        '31',
-        '--opensea=true',
-        `--edition=${edition}`,
-      ])
+      await this.kernel.exec('images:import-set-images', ['31', `--edition=${edition}`])
     }
   }
 }
