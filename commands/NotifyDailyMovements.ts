@@ -54,15 +54,6 @@ export default class NotifyDailyMovements extends BaseCommand {
       }
     }
 
-    const curations: number = parseInt(
-      (
-        await SubscriptionHistory.query()
-          .where('createdAt', '>=', start.toISO())
-          .where('createdAt', '<=', today.toISO())
-          .count('*', 'count')
-      )[0].$extras.count,
-    )
-
     const transfers: number = parseInt(
       (
         await Event.query()
@@ -83,7 +74,6 @@ export default class NotifyDailyMovements extends BaseCommand {
     const txt = [
       `Opepen Day ${formatNumber(day)}`,
       ``,
-      `Curations: ${formatNumber(curations)}`,
       `New Nodes: +${formatNumber(newNodes.size)} (${formatNumber(totalNodes)})`,
       `Transfers: ${formatNumber(transfers)}`,
     ].join('\n')
