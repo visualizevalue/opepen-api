@@ -23,7 +23,6 @@ export default class NotifyDailyMovements extends BaseCommand {
     const { default: Account } = await import('App/Models/Account')
     const { default: Event } = await import('App/Models/Event')
     const { default: Opepen } = await import('App/Models/Opepen')
-    const { default: SubscriptionHistory } = await import('App/Models/SubscriptionHistory')
     const { default: Farcaster } = await import('App/Services/Farcaster')
     const { default: Twitter } = await import('App/Services/Twitter')
 
