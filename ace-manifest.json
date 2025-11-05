@@ -1,5 +1,25 @@
 {
   "commands": {
+    "reveal:analyze-filtered": {
+      "settings": {
+        "loadApp": true,
+        "stayAlive": false
+      },
+      "commandPath": "./commands/AnalyzeFilteredOpepens",
+      "commandName": "reveal:analyze-filtered",
+      "description": "Analyze which opepens were filtered out of reveal data",
+      "args": [
+        {
+          "type": "string",
+          "propertyName": "submissionId",
+          "name": "submissionId",
+          "required": true,
+          "description": "Submission ID"
+        }
+      ],
+      "aliases": [],
+      "flags": []
+    },
     "attach:revealed_dynamics_to_cached_set_submission": {
       "settings": {
         "loadApp": true,
@@ -495,6 +515,26 @@
           "type": "string"
         }
       ]
+    },
+    "reveal:reprepare": {
+      "settings": {
+        "loadApp": true,
+        "stayAlive": false
+      },
+      "commandPath": "./commands/ReprepareRevealData",
+      "commandName": "reveal:reprepare",
+      "description": "Re-prepare reveal data for a submission without changing the reveal block",
+      "args": [
+        {
+          "type": "string",
+          "propertyName": "submissionId",
+          "name": "submissionId",
+          "required": true,
+          "description": "Submission ID"
+        }
+      ],
+      "aliases": [],
+      "flags": []
     },
     "restore:past_valid_opt_ins": {
       "settings": {
