@@ -718,8 +718,42 @@ export default class SetSubmission extends BaseModel {
     await this.notify('RevealPaused')
   }
 
+  private checkDemandSufficiency(): { valid: boolean; errors: string[] } {
+    const demand = this.submissionStats.demand
+    const editions = [1, 4, 5, 10, 20, 40]
+    const errors: string[] = []
+
+    for (const edition of editions) {
+      if (demand[edition] < edition) {
+        const shortage = edition - demand[edition]
+        const error = `Edition ${edition}: have ${demand[edition]}, need ${edition} (short by ${shortage})`
+        errors.push(error)
+      }
+    }
+
+    return {
+      valid: errors.length === 0,
+      errors,
+    }
+  }
+
   public async scheduleReveal() {
     try {
+      // Revalidate demand before scheduling in case users sold opepens since timer started
+      // This will clean stats and pause timer if demand is no longer met
+      await this.updateAndValidateOpepensInSet()
+
+      // Check if demand is sufficient after validation
+      const validation = this.checkDemandSufficiency()
+
+      if (!validation.valid) {
+        Logger.error(`Cannot schedule reveal for ${this.name}: demand no longer sufficient`)
+        for (const error of validation.errors) {
+          Logger.error(`  - ${error}`)
+        }
+        throw new Error(`Demand no longer sufficient: ${validation.errors.join(', ')}`)
+      }
+
       await new Reveal().schedule(this)
 
       await BotNotifications?.provenance(this)
@@ -743,6 +777,25 @@ export default class SetSubmission extends BaseModel {
       throw new Error(`Not time to reveal yet`)
     if (submission.setId && set.id !== submission.setId)
       throw new Error(`Not allowed to re-reveal to a set`)
+
+    // Revalidate demand one more time before executing reveal
+    await this.updateAndValidateOpepensInSet()
+    const validation = this.checkDemandSufficiency()
+
+    if (!validation.valid) {
+      Logger.error(`Cannot execute reveal for ${this.name}: demand no longer sufficient`)
+      for (const error of validation.errors) {
+        Logger.error(`  - ${error}`)
+      }
+
+      // Clear the scheduled reveal since we can't proceed
+      submission.revealBlockNumber = ''
+      submission.revealSubmissionsInput = ''
+      submission.revealSubmissionsInputCid = ''
+      await submission.save()
+
+      throw new Error(`Insufficient demand to execute reveal: ${validation.errors.join(', ')}`)
+    }
 
     try {
       await new Reveal().compute(submission, set)
@@ -925,21 +978,14 @@ export default class SetSubmission extends BaseModel {
   }
 
   public async maybeStartOrStopTimer() {
-    const demand = this.submissionStats.demand
+    const validation = this.checkDemandSufficiency()
 
-    const editions = [1, 4, 5, 10, 20, 40]
-
-    let demandMet = true
-
-    for (const edition of editions) {
-      if (demand[edition] < edition) {
-        demandMet = false
-      }
-    }
-
-    if (demandMet) {
+    if (validation.valid) {
       await this.startRevealTimer()
     } else {
+      for (const error of validation.errors) {
+        Logger.info(`Demand not met for ${this.name}: ${error}`)
+      }
       await this.pauseRevealTimer()
     }
   }
