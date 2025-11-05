@@ -828,7 +828,22 @@ export default class SetSubmission extends BaseModel {
     for (const subscription of subscriptions) {
       const submittedOpepen = await Opepen.query().whereIn('token_id', subscription.opepenIds)
 
-      const groups = submittedOpepen.reduce(
+      // Filter out opepens not held by valid owners (subscriber or delegators)
+      const signer = subscription.address.toLowerCase()
+      const delegators = subscription.delegatedBy
+        ? subscription.delegatedBy.split(',').map((a) => a.toLowerCase())
+        : []
+      const allowedOwners = [signer, ...delegators]
+
+      const validOpepens = submittedOpepen.filter((opepen) => {
+        // Skip already revealed opepens
+        if (opepen.revealedAt) return false
+        // Skip opepens not held by valid owners
+        if (!allowedOwners.includes(opepen.owner)) return false
+        return true
+      })
+
+      const groups = validOpepens.reduce(
         (groups, opepen) => {
           groups[opepen.data.edition].push(opepen.tokenId)
 
