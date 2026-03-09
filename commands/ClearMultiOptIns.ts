@@ -42,16 +42,17 @@ export default class ClearMultiOptIns extends BaseCommand {
     `)
 
     for (const opt of latestOptIns.rows) {
+      const opepenIdArray = `{${opt.id}}`
       await Database.rawQuery(`
         UPDATE set_subscriptions
-        SET opepen_ids = opepen_ids - '{${opt.id}}'::text[]
-        WHERE opepen_ids \\?| '{${opt.id}}'::text[]
+        SET opepen_ids = opepen_ids - ?::text[]
+        WHERE opepen_ids \\?| ?::text[]
         AND (
-          submission_id != ${opt.submission_id}
-          OR address != '${opt.address}'
+          submission_id != ?
+          OR address != ?
         )
         AND submission_id NOT IN (SELECT submission_id FROM sets WHERE submission_id IS NOT NULL)
-      `)
+      `, [opepenIdArray, opepenIdArray, opt.submission_id, opt.address])
 
       this.logger.info(`Cleared all opt ins for ${opt.id} except to set ${opt.submission_id}`)
     }

@@ -83,13 +83,13 @@ export default class SetSubscriptionsController extends BaseController {
     await subscription.save()
 
     // Clear opt ins for these opepen from other accounts
-    const optedOpepenStr = subscription.opepenIds.join(',')
+    const opepenIdsArray = `{${subscription.opepenIds.join(',')}}`
     await Database.rawQuery(`
       UPDATE set_subscriptions
-      SET opepen_ids = opepen_ids - '{${optedOpepenStr}}'::text[]
-      WHERE opepen_ids \\?| '{${optedOpepenStr}}'::text[]
-      AND address != '${subscription.address}'
-    `)
+      SET opepen_ids = opepen_ids - ?::text[]
+      WHERE opepen_ids \\?| ?::text[]
+      AND address != ?
+    `, [opepenIdsArray, opepenIdsArray, subscription.address])
 
     // Save history
     const history = await SubscriptionHistory.saveFor(subscription)

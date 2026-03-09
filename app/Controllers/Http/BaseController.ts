@@ -111,6 +111,6 @@ export default class BaseController {
     const days = DateTime.local(now.year, 12, 31).ordinal
     const seed = (2 * day) / days - 1
 
-    await Database.rawQuery(`SELECT setseed(${seed})`)
+    await Database.rawQuery(`SELECT setseed(?)`, [seed])
   }
 }

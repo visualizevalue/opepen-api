@@ -25,6 +25,11 @@ export default class OpenGraphController extends BaseController {
     og.url = url
 
     try {
+      const parsed = new URL(url)
+      if (!['http:', 'https:'].includes(parsed.protocol)) {
+        throw new InvalidInput('Only HTTP(S) URLs are allowed')
+      }
+
       const response = await axios(url)
       const isImage = isImageMime(response.headers['content-type'])
       const isHtml = response.headers['content-type'].includes('text/html')

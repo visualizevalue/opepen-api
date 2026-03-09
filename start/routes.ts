@@ -282,9 +282,9 @@ Route.group(() => {
 
 // Generative
 Route.group(() => {
-  Route.post('/', 'GenerativesController.create')
+  Route.post('/', 'GenerativesController.create').middleware(['admin'])
   Route.get('/:id', 'GenerativesController.show')
-  Route.put('/:id', 'GenerativesController.update')
+  Route.put('/:id', 'GenerativesController.update').middleware(['admin'])
 
   Route.get('/preview/:id', 'PreviewController.p5')
 }).prefix('/v1/generative')

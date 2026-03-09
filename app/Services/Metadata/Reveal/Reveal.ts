@@ -2,7 +2,7 @@ import fs from 'fs'
 import path from 'path'
 import { DateTime } from 'luxon'
 import Logger from '@ioc:Adonis/Core/Logger'
-import { execute } from 'App/Helpers/execute'
+import { executeFile } from 'App/Helpers/execute'
 import { MaxReveal } from 'App/Models/types'
 import Image from 'App/Models/Image'
 import Opepen from 'App/Models/Opepen'
@@ -42,9 +42,11 @@ export default class Reveal {
 
     const block = await provider.getBlock(parseInt(submission.revealBlockNumber))
 
-    await execute(
-      `python3 ${this.executablePath()} --seed "${block.hash}" --set ${submission.id}`,
-    )
+    await executeFile('python3', [
+      this.executablePath(),
+      '--seed', block.hash,
+      '--set', submission.id.toString(),
+    ])
 
     await this.handleResults(submission, set)
   }
@@ -172,15 +174,13 @@ export default class Reveal {
     }
 
     // Clear other opt ins for the revealed Opepen
-    const revealedOpepenIds = Object.values(submission.revealSubmissionsOutput)
-      .flat()
-      .join(',')
+    const revealedOpepenIdsArray = `{${Object.values(submission.revealSubmissionsOutput).flat().join(',')}}`
     await Database.rawQuery(`
       UPDATE set_subscriptions
-      SET opepen_ids = opepen_ids - '{${revealedOpepenIds}}'::text[]
-      WHERE opepen_ids \\?| '{${revealedOpepenIds}}'::text[]
-      AND submission_id != ${submission.id}
-    `)
+      SET opepen_ids = opepen_ids - ?::text[]
+      WHERE opepen_ids \\?| ?::text[]
+      AND submission_id != ?
+    `, [revealedOpepenIdsArray, revealedOpepenIdsArray, submission.id])
   }
 
   public async generateMetadataFor(
