@@ -49,20 +49,21 @@ export default class BaseController {
 
       const isDesc = s[0] === '-'
       const sortDirection = isDesc ? 'desc' : 'asc'
-      const sort = isDesc ? s.slice(1) : s
+      const sortCol = isDesc ? s.slice(1) : s
 
-      if (sort.includes('.')) {
-        const [column, ...keys] = sort.split('.')
-        query.orderByRaw(
-          `"${column}" -> ${keys.map((key) => `'${key}'`).join(' -> ')} ${sortDirection} NULLS LAST`,
-        )
-      } else if (sort === 'random') {
+      if (sortCol === 'random') {
         query.orderByRaw('random()')
-      } else if (sort === 'dailyRandom') {
+      } else if (sortCol === 'dailyRandom') {
         await this.setRandomSeed()
         query.orderByRaw('random()')
+      } else if (sortCol.includes('.')) {
+        const [column, ...keys] = sortCol.split('.')
+        query.orderByRaw(
+          `?? -> ${keys.map(() => '?').join(' -> ')} ${sortDirection} NULLS LAST`,
+          [column, ...keys],
+        )
       } else {
-        query.orderBy(sort, sortDirection)
+        query.orderBy(sortCol, sortDirection)
       }
     }
   }
