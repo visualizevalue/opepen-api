@@ -54,13 +54,9 @@ export default Env.rules({
   OPENSEA_BASE: Env.schema.string(),
   SIGNATURE_API_BASE: Env.schema.string(),
   SEND_NOTIFICATIONS: Env.schema.boolean(),
-  TWITTER_API_KEY: Env.schema.string(),
-  TWITTER_API_SECRET: Env.schema.string(),
   TWITTER_BEARER: Env.schema.string(),
   TWITTER_CLIENT_ID: Env.schema.string(),
   TWITTER_CLIENT_SECRET: Env.schema.string(),
-  TWITTER_ACCESS_TOKEN: Env.schema.string(),
-  TWITTER_ACCESS_TOKEN_SECRET: Env.schema.string(),
   TWITTER_BOT_ACCOUNT_ADDRESS: Env.schema.string(),
   CHROMIUM_EXECUTABLE: Env.schema.string(),
 })
