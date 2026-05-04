@@ -134,13 +134,6 @@ Route.group(() => {
   Route.delete('/:id', 'PostsController.destroy').middleware(['auth'])
 }).prefix('/v1/posts')
 
-// Casts
-Route.group(() => {
-  Route.get('/:fid/:hash', 'CastsController.show')
-  Route.post('/:id/approve', 'CastsController.approve').middleware(['admin'])
-  Route.delete('/:id', 'CastsController.destroy').middleware(['auth'])
-}).prefix('/v1/casts')
-
 // Tweets
 Route.group(() => {
   Route.get('/', 'CuratedTweetsController.index')
@@ -189,7 +182,6 @@ Route.group(() => {
 
   Route.get('/artists', 'AccountsController.artists')
   Route.get('/curators', 'AccountsController.curators')
-  Route.get('/fid/:fid', 'AccountsController.byFid')
   Route.get('/:id', 'AccountsController.show')
   Route.put('/:id', 'AccountsController.update')
   Route.get('/:id/opepen', 'OpepenController.forAccount')
@@ -239,47 +231,6 @@ Route.group(() => {
   .prefix('/v1/participation')
   .middleware(['auth'])
 
-// FC Frames
-Route.group(() => {
-  // Account profiles
-  Route.route('/accounts/:id', ['GET', 'POST'], 'FarcasterFrameAccountsController.account')
-
-  // Sets
-  Route.get('/sets', 'FarcasterFrameSetsController.setsEntry')
-  Route.post('/sets', 'FarcasterFrameSetsController.sets')
-  Route.post('/sets/:id', 'FarcasterFrameSetsController.set')
-
-  // Set Detail
-  Route.route('/sets/:id/detail', ['GET', 'POST'], 'FarcasterFrameSetController.set')
-  Route.post('/sets/:id/detail/:edition', 'FarcasterFrameSetController.edition')
-  Route.route(
-    '/sets/:id/opt-in/image',
-    ['GET', 'POST'],
-    'FarcasterFrameSetController.optInImage',
-  )
-
-  // Opepen Voting Game
-  Route.get('/ranks', 'FarcasterFrameOpepenRanksController.entry')
-  Route.post('/ranks/vote', 'FarcasterFrameOpepenRanksController.vote')
-  Route.get('/image/ranks/vote', 'FarcasterFrameOpepenRanksController.image')
-
-  // Opepen merch
-  Route.get('/merch', 'FarcasterFrameMerchController.product')
-  Route.route(
-    '/merch/confirmation',
-    ['GET', 'POST'],
-    'FarcasterFrameMerchController.confirmation',
-  )
-  Route.route(
-    '/merch/confirmation/image',
-    ['GET', 'POST'],
-    'FarcasterFrameMerchController.confirmationImage',
-  )
-  Route.route('/merch/:id', ['GET', 'POST'], 'FarcasterFrameMerchController.product')
-  Route.route('/merch/:id/variants', ['GET', 'POST'], 'FarcasterFrameMerchController.variants')
-  Route.route('/merch/:id/image', ['GET', 'POST'], 'FarcasterFrameMerchController.image')
-}).prefix('/v1/frames')
-
 // Generative
 Route.group(() => {
   Route.post('/', 'GenerativesController.create').middleware(['admin'])
@@ -295,22 +246,18 @@ Route.group(() => {
 
 // OpenGraph
 Route.group(() => {
-  Route.get('/accounts/:id/image', 'FarcasterFrameAccountsController.image')
+  Route.get('/accounts/:id/image', 'RenderController.accountImage')
 
-  Route.route('/sets/summary/:date', ['GET', 'POST'], 'FarcasterFrameSetsController.summary')
-  Route.route('/sets/:id/og', ['GET', 'POST'], 'FarcasterFrameSetsController.image')
-  Route.route('/sets/:id/square', ['GET', 'POST'], 'FarcasterFrameSetController.entryImage')
-  Route.route('/sets/:id/minimal', ['GET', 'POST'], 'FarcasterFrameSetController.minimal')
+  Route.route('/sets/summary/:date', ['GET', 'POST'], 'RenderController.setsSummary')
+  Route.route('/sets/:id/og', ['GET', 'POST'], 'RenderController.setOg')
+  Route.route('/sets/:id/square', ['GET', 'POST'], 'RenderController.setSquare')
+  Route.route('/sets/:id/minimal', ['GET', 'POST'], 'RenderController.setMinimal')
   Route.route(
     '/sets/:id/:edition/square',
     ['GET', 'POST'],
-    'FarcasterFrameSetController.editionImage',
+    'RenderController.setEditionSquare',
   )
-  Route.route(
-    '/sets/:id/opt-in-status',
-    ['GET', 'POST'],
-    'FarcasterFrameSetController.optInStatus',
-  )
+  Route.route('/sets/:id/opt-in-status', ['GET', 'POST'], 'RenderController.setOptInStatus')
 
   Route.route('/opepen/:id/og', ['GET', 'POST'], 'OpepenController.og')
   Route.route('/burned/:id/og', ['GET', 'POST'], 'BurnedOpepenController.og')

@@ -3,7 +3,6 @@ import { BaseModel, BelongsTo, belongsTo, column } from '@ioc:Adonis/Lucid/Orm'
 import Account from './Account'
 import Event from './Event'
 import Post from './Post'
-import Cast from './Cast'
 import SetSubmission from './SetSubmission'
 import Subscription from './Subscription'
 import SubscriptionHistory from './SubscriptionHistory'
@@ -25,9 +24,6 @@ export default class TimelineUpdate extends BaseModel {
 
   @column({ serializeAs: null })
   public postId: bigint
-
-  @column({ serializeAs: null })
-  public castId: bigint
 
   @column({ serializeAs: null })
   public eventId: bigint
@@ -74,13 +70,6 @@ export default class TimelineUpdate extends BaseModel {
   })
   public post: BelongsTo<typeof Post>
 
-  @belongsTo(() => Cast, {
-    onQuery: (query) => {
-      query.preload('account')
-    },
-  })
-  public cast: BelongsTo<typeof Cast>
-
   @belongsTo(() => SetSubmission, {
     foreignKey: 'submissionId',
   })
@@ -94,7 +83,7 @@ export default class TimelineUpdate extends BaseModel {
   @belongsTo(() => SubscriptionHistory, {})
   public subscriptionHistory: BelongsTo<typeof SubscriptionHistory>
 
-  public static async createFor(model: Post | Cast | SetSubmission | SubscriptionHistory) {
+  public static async createFor(model: Post | SetSubmission | SubscriptionHistory) {
     const update = new TimelineUpdate()
 
     if (model instanceof Post) {
@@ -102,11 +91,6 @@ export default class TimelineUpdate extends BaseModel {
       update.createdAt = model.createdAt
       update.postId = model.id
       update.type = 'POST:INTERNAL'
-    } else if (model instanceof Cast) {
-      update.address = model.address
-      update.createdAt = model.createdAt
-      update.castId = model.id
-      update.type = 'POST:FARCASTER'
     } else if (model instanceof SetSubmission) {
       update.address = model.creator
       update.createdAt = model.publishedAt as DateTime

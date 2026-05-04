@@ -52,8 +52,6 @@ export default Env.rules({
   CACHE_VIEWS: Env.schema.boolean(),
   OPENSEA_KEY: Env.schema.string(),
   OPENSEA_BASE: Env.schema.string(),
-  FARCASTER_HUB: Env.schema.string(),
-  FARCASTER_SIGNER: Env.schema.string(),
   SIGNATURE_API_BASE: Env.schema.string(),
   SEND_NOTIFICATIONS: Env.schema.boolean(),
   TWITTER_API_KEY: Env.schema.string(),

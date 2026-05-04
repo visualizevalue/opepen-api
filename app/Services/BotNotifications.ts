@@ -6,13 +6,11 @@ import Account from 'App/Models/Account'
 import SetModel from 'App/Models/SetModel'
 import SetSubmission from 'App/Models/SetSubmission'
 import Twitter from './Twitter'
-import Farcaster from './Farcaster'
 import BurnedOpepen from 'App/Models/BurnedOpepen'
 import { formatNumber } from 'App/Helpers/numbers'
 
 export class BotNotifications {
   xClient: Twitter | undefined
-  fcClient = Farcaster
 
   public async initialize() {
     const account = await Account.byId(Env.get('TWITTER_BOT_ACCOUNT_ADDRESS')).firstOrFail()
@@ -150,7 +148,6 @@ export class BotNotifications {
     }
 
     await this.xClient?.thread(posts)
-    await this.fcClient?.thread(posts)
   }
 
   public async burn(burnedOpepen: BurnedOpepen) {
@@ -177,7 +174,6 @@ export class BotNotifications {
 
     // Send to the networks
     await this.xClient?.tweet(text, image)
-    await this.fcClient?.cast(text, image)
   }
 
   private async sendForSubmission(
@@ -203,7 +199,6 @@ export class BotNotifications {
 
     // Send to the networks
     await this.xClient?.tweet(render(xCreators), images)
-    await this.fcClient?.cast(render(creators), images)
   }
 }
 

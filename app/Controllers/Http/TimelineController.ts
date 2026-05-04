@@ -17,7 +17,6 @@ export default class TimelineController extends BaseController {
       .preload('subscriptionHistory')
       .preload('event')
       .preload('post')
-      .preload('cast')
 
     // Default filters
     query.whereNotNull('createdAt')
@@ -33,24 +32,6 @@ export default class TimelineController extends BaseController {
 
           // Filter out deleted comments
           query.whereNull('deletedAt')
-
-          if (!admin) {
-            query.where((query) => {
-              query.whereNotNull('approvedAt').orWhere('address', userAddress)
-            })
-          }
-        })
-      })
-
-      // CASTS
-      query.orWhere((query) => {
-        query.where('type', 'POST:FARCASTER')
-        query.whereHas('cast', (query) => {
-          // Filter out deleted casts
-          query.whereNull('deletedAt')
-
-          // Filter out bot
-          query.whereNot('address', '0xed029061b6e3d873057eeefd3be91121e103ea44')
 
           if (!admin) {
             query.where((query) => {

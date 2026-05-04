@@ -79,11 +79,6 @@ export type CurationStats = {
   total: CurationStat
 }
 
-export type FarcasterData = {
-  fid: number
-  username: string | undefined
-}
-
 export type OauthData = {
   accessToken: string | undefined
   refreshToken: string | undefined

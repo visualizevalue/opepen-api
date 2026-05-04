@@ -23,7 +23,6 @@ export default class NotifyDailyMovements extends BaseCommand {
     const { default: Account } = await import('App/Models/Account')
     const { default: Event } = await import('App/Models/Event')
     const { default: Opepen } = await import('App/Models/Opepen')
-    const { default: Farcaster } = await import('App/Services/Farcaster')
     const { default: Twitter } = await import('App/Services/Twitter')
 
     const deployment = DateTime.fromSeconds(1673158871)
@@ -82,6 +81,5 @@ export default class NotifyDailyMovements extends BaseCommand {
     if (!xClient) return
 
     await xClient.tweet(txt, imageUrl)
-    await Farcaster.cast(txt, imageUrl)
   }
 }

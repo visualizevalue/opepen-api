@@ -24,7 +24,6 @@ import axios from 'axios'
 import { renderPage } from 'App/Services/PageRenderer'
 import Vote from './Vote'
 import Post from './Post'
-import Cast from './Cast'
 import SetSubmission from './SetSubmission'
 import Opepen from './Opepen'
 
@@ -181,14 +180,6 @@ export default class Image extends BaseModel {
   public cachedPost: BelongsTo<typeof Post>
 
   @column({ serializeAs: null })
-  public castId: bigint | null
-
-  @belongsTo(() => Cast, {
-    foreignKey: 'castId',
-  })
-  public cachedCast: BelongsTo<typeof Cast>
-
-  @column({ serializeAs: null })
   public setSubmissionId: number | null
 
   @belongsTo(() => SetSubmission, {
@@ -218,7 +209,6 @@ export default class Image extends BaseModel {
   async clearCashed() {
     this.opepenId = null
     this.setSubmissionId = null
-    this.castId = null
     this.postId = null
 
     await this.save()

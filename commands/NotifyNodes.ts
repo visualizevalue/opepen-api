@@ -8,7 +8,6 @@ import Opepen from 'App/Models/Opepen'
 import Event from 'App/Models/Event'
 import Setting from 'App/Models/Setting'
 import Twitter from 'App/Services/Twitter'
-import Farcaster from 'App/Services/Farcaster'
 import ImportSales from 'App/Services/ImportSales'
 import { SETTINGS_KEYS } from 'App/Models/Setting'
 import { formatDuration } from 'App/Helpers/dates'
@@ -182,11 +181,6 @@ export default class NotifyNodes extends BaseCommand {
       await xClient.tweet(txt, img)
     } catch (e) {
       this.logger.error(`NotifyNodes: Issue sending X post `)
-    }
-    try {
-      await Farcaster.cast(txt, img)
-    } catch (e) {
-      this.logger.error(`NotifyNodes: Issue sending Farcaster post`)
     }
   }
 }

@@ -25,7 +25,7 @@ import SubscriptionHistory from 'App/Models/SubscriptionHistory'
 import SetSubmission from 'App/Models/SetSubmission'
 import Vote from 'App/Models/Vote'
 import provider from 'App/Services/RPCProvider'
-import { ArtistSocials, FarcasterData, OauthData } from './types'
+import { ArtistSocials, OauthData } from './types'
 
 type Builder = ModelQueryBuilderContract<typeof Account>
 
@@ -46,15 +46,6 @@ export default class Account extends BaseModel {
 
   @column()
   public data: object
-
-  @column({
-    consume: (value) => {
-      if (!value) return {}
-
-      return value
-    },
-  })
-  public farcaster: FarcasterData
 
   @column({ serializeAs: null })
   public oauth: OauthData
