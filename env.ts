@@ -43,6 +43,9 @@ export default Env.rules({
   OPEPEN_START_BLOCK: Env.schema.number(),
   BURNED_OPEPEN_ADDRESS: Env.schema.string(),
   BURNED_OPEPEN_START_BLOCK: Env.schema.number(),
+  // v5 — forward-only migration. When true, sets flagged allow_forward_migration
+  // accept revealed (migrating) Opepen. Defaults off.
+  V5_MIGRATION: Env.schema.boolean.optional(),
   UPDATE_ENS: Env.schema.boolean(),
   IPFS_GATEWAY: Env.schema.string(),
   SMTP_HOST: Env.schema.string({ format: 'host' }),

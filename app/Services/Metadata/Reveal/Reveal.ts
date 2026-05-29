@@ -8,6 +8,7 @@ import Image from 'App/Models/Image'
 import Opepen from 'App/Models/Opepen'
 import SetModel from 'App/Models/SetModel'
 import SetSubmission from 'App/Models/SetSubmission'
+import TokenMigration from 'App/Models/TokenMigration'
 import Subscription from 'App/Models/Subscription'
 import CID from 'App/Services/CID'
 import provider from 'App/Services/RPCProvider'
@@ -222,6 +223,18 @@ export default class Reveal {
           value: EDITION_VOCAB[edition],
         },
       ],
+    }
+
+    // v5 — forward-only migration. If this token was already revealed in a
+    // different set, record the lineage before reassigning. The old set simply
+    // loses this member (it shrinks and never refills); supply is unchanged.
+    if (opepen.revealedAt && opepen.setId && opepen.setId !== set.id) {
+      await TokenMigration.record({
+        tokenId: Number(opepen.tokenId),
+        fromSetId: opepen.setId,
+        toSetId: set.id,
+        toSubmissionId: submission.id,
+      })
     }
 
     opepen.setId = set.id

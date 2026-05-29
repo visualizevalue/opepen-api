@@ -13,6 +13,7 @@ import {
   HasMany,
 } from '@ioc:Adonis/Lucid/Orm'
 import Logger from '@ioc:Adonis/Core/Logger'
+import Env from '@ioc:Adonis/Core/Env'
 import { string } from '@ioc:Adonis/Core/Helpers'
 import BotNotifications from 'App/Services/BotNotifications'
 import Account from 'App/Models/Account'
@@ -148,6 +149,10 @@ export default class SetSubmission extends BaseModel {
 
   @column.dateTime()
   public lastOptInAt: DateTime | null
+
+  // v5 — when true, this set accepts revealed (migrating) Opepen. Default false.
+  @column()
+  public allowForwardMigration: boolean
 
   @column.dateTime()
   public archivedAt: DateTime | null
@@ -888,9 +893,18 @@ export default class SetSubmission extends BaseModel {
         : []
       const allowedOwners = [signer, ...delegators]
 
+      // v5: a set flagged for forward migration also accepts revealed Opepen
+      // (they migrate forward, vacating their current set if selected). A token
+      // may not migrate into the set it already belongs to.
+      const acceptsMigration = Env.get('V5_MIGRATION') && this.allowForwardMigration
+
       const validOpepens = submittedOpepen.filter((opepen) => {
-        // Skip already revealed opepens
-        if (opepen.revealedAt) return false
+        // Skip already revealed opepens, unless this set accepts migration and
+        // the token is coming from a different set.
+        if (opepen.revealedAt) {
+          if (!acceptsMigration) return false
+          if (opepen.setId === this.setId) return false
+        }
         // Skip opepens not held by valid owners
         if (!allowedOwners.includes(opepen.owner)) return false
         return true

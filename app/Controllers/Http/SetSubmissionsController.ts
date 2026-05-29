@@ -312,6 +312,11 @@ export default class SetSubmissionsController extends BaseController {
       const address = request.input('creator', submission.creator)?.toLowerCase()
       await Account.firstOrCreate({ address }) // Ensure we have this account
       updateData.creator = address
+
+      // v5 — admins opt a set into forward migration (accepting revealed Opepen).
+      if (request.input('allow_forward_migration') !== undefined) {
+        updateData.allowForwardMigration = !!request.input('allow_forward_migration')
+      }
     }
 
     await submission.merge(updateData).save()

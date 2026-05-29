@@ -73,6 +73,7 @@ Route.group(() => {
   Route.get('/sets/:id/stats', 'SetsController.stats')
   Route.get('/sets/:id/opepen', 'SetsController.opepen')
   Route.get('/sets/:id/collectors', 'SetsController.collectors')
+  Route.get('/sets/:id/migrations', 'SetsController.migrations')
   Route.get('/sets/:id/stats/listings', 'SetStatsController.listings')
 
   // Bids
@@ -86,7 +87,11 @@ Route.group(() => {
 
   // Opepen
   Route.get('/', 'OpepenController.list')
+  // v5 — global forward-migration feed. Registered before `/:id` so it isn't
+  // swallowed by the token route.
+  Route.get('/migrations', 'OpepenController.recentMigrations')
   Route.get('/:id', 'OpepenController.show')
+  Route.get('/:id/migrations', 'OpepenController.migrations')
   Route.get('/:id/opt-in-stats', 'OpepenController.optInStats')
   Route.post('/:id/image', 'OpepenController.updateImage')
   Route.get('/:id/events', 'EventsController.forToken')

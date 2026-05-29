@@ -3,6 +3,8 @@ import Drive from '@ioc:Adonis/Core/Drive'
 import Env from '@ioc:Adonis/Core/Env'
 import BaseController from './BaseController'
 import Opepen from 'App/Models/Opepen'
+import SetModel from 'App/Models/SetModel'
+import TokenMigration from 'App/Models/TokenMigration'
 import { DateTime } from 'luxon'
 import DailyOpepen from 'App/Services/DailyOpepen'
 import { Account } from 'App/Models'
@@ -39,6 +41,80 @@ export default class OpepenController extends BaseController {
     const metadata = await new MetadataParser().forOpepen(opepen)
 
     return { ...opepen.toJSON(), metadata }
+  }
+
+  // v5 — global forward-migration feed (most recent first). Powers the timeline
+  // and any "migrations to date" surfaces.
+  public async recentMigrations({ request }: HttpContextContract) {
+    const { limit = 50 } = request.qs()
+
+    const migrations = await TokenMigration.query()
+      .preload('fromSet', (q) => q.preload('submission'))
+      .preload('toSet', (q) => q.preload('submission'))
+      .orderBy('migratedAt', 'desc')
+      .limit(Math.min(Number(limit), 200))
+
+    return migrations.map((m) => ({
+      token_id: Number(m.tokenId),
+      from_set_id: m.fromSetId,
+      from_set_name: m.fromSet?.submission?.name ?? null,
+      to_set_id: m.toSetId,
+      to_set_name: m.toSet?.submission?.name ?? null,
+      migrated_at: m.migratedAt,
+    }))
+  }
+
+  // v5 — forward-only migration lineage. Returns a token's set history as an
+  // ordered list of steps (genesis → … → current), matching the frontend
+  // `MigrationHistory` shape. A never-migrated token returns genesis + current.
+  public async migrations({ params }: HttpContextContract) {
+    const opepen = await Opepen.query()
+      .where('tokenId', params.id)
+      .preload('set', (q) => q.preload('submission'))
+      .firstOrFail()
+
+    const migrations = await TokenMigration.query()
+      .where('tokenId', params.id)
+      .preload('fromSet', (q) => q.preload('submission'))
+      .preload('toSet', (q) => q.preload('submission'))
+      .orderBy('migratedAt', 'asc')
+
+    type Step = {
+      set_id: number | null
+      set_name: string
+      reveals_at: DateTime | null
+      current: boolean
+    }
+
+    const step = (set: SetModel | null): Step => ({
+      set_id: set?.id ?? null,
+      set_name: set?.submission?.name ?? (set ? `Set ${set.id}` : 'Unrevealed'),
+      reveals_at: set?.submission?.revealsAt ?? null,
+      current: false,
+    })
+
+    // Genesis: every Opepen starts blank.
+    const steps: Step[] = [
+      { set_id: null, set_name: 'Unrevealed', reveals_at: null, current: false },
+    ]
+
+    if (migrations.length) {
+      // The first migration's `fromSet` is the original revealed set, then each
+      // migration's `toSet` in order.
+      steps.push(step(migrations[0].fromSet))
+      for (const m of migrations) steps.push(step(m.toSet))
+    } else if (opepen.revealedAt && opepen.set) {
+      steps.push(step(opepen.set))
+    }
+
+    // Mark the present state.
+    if (opepen.revealedAt) {
+      steps[steps.length - 1].current = true
+    } else {
+      steps[0].current = true
+    }
+
+    return { token_id: Number(opepen.tokenId), edition: opepen.data?.edition, steps }
   }
 
   public async updateImage(context: HttpContextContract) {
