@@ -2,6 +2,7 @@ import fs from 'fs'
 import path from 'path'
 import { DateTime } from 'luxon'
 import Logger from '@ioc:Adonis/Core/Logger'
+import Env from '@ioc:Adonis/Core/Env'
 import { executeFile } from 'App/Helpers/execute'
 import { MaxReveal } from 'App/Models/types'
 import Image from 'App/Models/Image'
@@ -66,8 +67,14 @@ export default class Reveal {
         const opepen = await Opepen.findOrFail(tokenId)
 
         if (opepen.revealedAt) {
-          Logger.info(`Skipping #${opepen.tokenId} cause it is already revealed`)
-          continue
+          // v5 — forward migration. A revealed Opepen may enter the lottery for
+          // a migration-enabled set; it only leaves its current set if actually
+          // selected here. Otherwise revealed tokens are skipped as before.
+          const acceptsMigration = Env.get('V5_MIGRATION') && submission.allowForwardMigration
+          if (!acceptsMigration) {
+            Logger.info(`Skipping #${opepen.tokenId} cause it is already revealed`)
+            continue
+          }
         }
 
         const signer = optIn.address.toLowerCase()
