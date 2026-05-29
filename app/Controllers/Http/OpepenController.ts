@@ -3,6 +3,7 @@ import Drive from '@ioc:Adonis/Core/Drive'
 import Env from '@ioc:Adonis/Core/Env'
 import BaseController from './BaseController'
 import Opepen from 'App/Models/Opepen'
+import EventModel from 'App/Models/Event'
 import { DateTime } from 'luxon'
 import DailyOpepen from 'App/Services/DailyOpepen'
 import { Account } from 'App/Models'
@@ -39,6 +40,24 @@ export default class OpepenController extends BaseController {
     const metadata = await new MetadataParser().forOpepen(opepen)
 
     return { ...opepen.toJSON(), metadata }
+  }
+
+  // Global recent sales feed. A sale is a Transfer carrying a value; ordered by
+  // most recent. Powers the homepage "Recent Sales" section and the activity
+  // timeline.
+  public async recentSales({ request }: HttpContextContract) {
+    const { page = 1, limit = 24 } = request.qs()
+
+    return EventModel.query()
+      .where('contract', 'OPEPEN')
+      .whereNotNull('value')
+      .whereRaw(`value != '0'`)
+      .preload('fromAccount')
+      .preload('toAccount')
+      .preload('opepen', (q) => q.preload('image').preload('set', (s) => s.preload('submission')))
+      .orderByRaw('block_number::int desc')
+      .orderByRaw('log_index::int desc')
+      .paginate(page, Math.min(Number(limit), 100))
   }
 
   public async updateImage(context: HttpContextContract) {

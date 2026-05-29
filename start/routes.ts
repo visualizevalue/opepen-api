@@ -69,6 +69,8 @@ Route.group(() => {
 
   // Sets
   Route.get('/sets', 'SetsController.list')
+  // Registered before `/sets/:id` so it isn't swallowed by the id route.
+  Route.get('/sets/popular', 'SetsController.popular')
   Route.get('/sets/:id', 'SetsController.show')
   Route.get('/sets/:id/stats', 'SetsController.stats')
   Route.get('/sets/:id/opepen', 'SetsController.opepen')
@@ -86,6 +88,8 @@ Route.group(() => {
 
   // Opepen
   Route.get('/', 'OpepenController.list')
+  // Recent sales feed (before `/:id`).
+  Route.get('/sales', 'OpepenController.recentSales')
   Route.get('/:id', 'OpepenController.show')
   Route.get('/:id/opt-in-stats', 'OpepenController.optInStats')
   Route.post('/:id/image', 'OpepenController.updateImage')
