@@ -18,29 +18,49 @@ export default class ParticipationImagesController extends BaseController {
 
     const submissionId: string | undefined = request.input('submissionId')
     const imageIds: string[] | undefined = request.input('imageIds')
-    
+
     if (!submissionId) throw new BadRequest('submissionId is missing')
     if (!imageIds?.length) throw new BadRequest('imageIds array is missing or empty')
 
     const submission = await SetSubmission.query().where('uuid', submissionId).firstOrFail()
-    if (!submission.openForParticipation) throw new BadRequest('This set is not open for participation')
+    if (!submission.openForParticipation)
+      throw new BadRequest('This set is not open for participation')
 
     await Account.firstOrCreate({ address })
 
     const images = await Image.query().whereIn('uuid', imageIds).where('creator', address)
     if (images.length !== imageIds.length) throw new BadRequest('At least one image not found')
 
+    const limit = submission.maxContributionsPerContributor
+    if (limit) {
+      const existingCount = await ParticipationImage.query()
+        .where('setSubmissionId', submission.id)
+        .where('creatorAddress', address)
+        .whereNull('deletedAt')
+        .count('* as total')
+        .then((result) => Number(result[0].$extras.total))
+
+      if (existingCount + images.length > limit) {
+        const remaining = Math.max(limit - existingCount, 0)
+        throw new BadRequest(
+          remaining > 0
+            ? `This set allows ${limit} contribution${limit === 1 ? '' : 's'} per artist. You can submit ${remaining} more.`
+            : `This set allows ${limit} contribution${limit === 1 ? '' : 's'} per artist. You have reached your limit.`,
+        )
+      }
+    }
+
     const participationImages = await Promise.all(
-      images.map(img => 
+      images.map((img) =>
         ParticipationImage.create({
           setSubmissionId: submission.id,
           imageId: img.id,
           creatorAddress: address,
-        })
-      )
+        }),
+      ),
     )
 
-    await Promise.all(participationImages.map(img => img.load('image')))
+    await Promise.all(participationImages.map((img) => img.load('image')))
 
     await this.updateCounts(submission.id)
 
@@ -60,9 +80,11 @@ export default class ParticipationImagesController extends BaseController {
     const isContributor = participationImage.creatorAddress === address
     const isSetCreator = participationImage.setSubmission.creator === address
     const isAdmin = isAdminAddress(address)
-    
+
     if (!isSetCreator && !isContributor && !isAdmin) {
-      throw new NotAuthorized('Only the set creator, the contributor, or an admin can delete participation images')
+      throw new NotAuthorized(
+        'Only the set creator, the contributor, or an admin can delete participation images',
+      )
     }
 
     participationImage.deletedAt = DateTime.now()

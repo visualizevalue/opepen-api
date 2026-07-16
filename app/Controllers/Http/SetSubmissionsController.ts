@@ -288,6 +288,14 @@ export default class SetSubmissionsController extends BaseController {
       await submission.related('coCreators').create({ accountId: account.id })
     }
 
+    const maxContributionsInput = parseInt(
+      request.input('max_contributions_per_contributor', null),
+    )
+    const maxContributionsPerContributor =
+      Number.isNaN(maxContributionsInput) || maxContributionsInput <= 0
+        ? null
+        : maxContributionsInput
+
     const updateData: any = {
       name: request.input('name'),
       artist: request.input('artist'),
@@ -306,6 +314,7 @@ export default class SetSubmissionsController extends BaseController {
       edition_20ImageId: images[4]?.id,
       edition_40ImageId: images[5]?.id,
       openForParticipation: request.input('open_for_participation', false),
+      maxContributionsPerContributor,
     }
 
     if (isAdmin(ctx.session)) {

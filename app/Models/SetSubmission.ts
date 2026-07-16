@@ -168,6 +168,9 @@ export default class SetSubmission extends BaseModel {
   public openForParticipation: boolean = false
 
   @column()
+  public maxContributionsPerContributor: number | null
+
+  @column()
   public contributionsCount: number
 
   @column()
