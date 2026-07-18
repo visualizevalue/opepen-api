@@ -13,6 +13,16 @@ import NotAuthenticated from 'App/Exceptions/NotAuthenticated'
 import InvalidInput from 'App/Exceptions/InvalidInput'
 import DynamicSetImages from 'App/Models/DynamicSetImages'
 import TimelineUpdate from 'App/Models/TimelineUpdate'
+import ParticipationImage from 'App/Models/ParticipationImage'
+
+const PRINT_IMAGE_COLUMNS = [
+  'edition_1ImageId',
+  'edition_4ImageId',
+  'edition_5ImageId',
+  'edition_10ImageId',
+  'edition_20ImageId',
+  'edition_40ImageId',
+] as const
 
 export default class SetSubmissionsController extends BaseController {
   public async list({ request, session }: HttpContextContract) {
@@ -474,11 +484,16 @@ export default class SetSubmissionsController extends BaseController {
     await this.creatorOrAdmin({ creator: submission.creatorAccount, session })
 
     const body = request.body()
+    const participationImage = await this.validateParticipationSelection(submission, body)
 
     if (submission.editionType === 'PRINT') {
       await this.updatePrintImages(submission, body)
     } else {
       await this.updateDynamicImages(submission, body)
+    }
+
+    if (participationImage) {
+      await this.addParticipationCreator(submission, participationImage)
     }
 
     return SetSubmission.query()
@@ -493,22 +508,75 @@ export default class SetSubmissionsController extends BaseController {
       .firstOrFail()
   }
 
-  private async updatePrintImages(submission: SetSubmission, body: any) {
-    const columns = [
-      'edition_1ImageId',
-      'edition_4ImageId',
-      'edition_5ImageId',
-      'edition_10ImageId',
-      'edition_20ImageId',
-      'edition_40ImageId',
-    ] as const
+  private async validateParticipationSelection(
+    submission: SetSubmission,
+    body: any,
+  ): Promise<ParticipationImage | null> {
+    const participationId = body.participationId
+    if (participationId === null || participationId === undefined) return null
 
-    const uuids = columns.filter((col) => body[col]).map((col) => body[col])
+    const parsedParticipationId = Number(participationId)
+    if (!Number.isSafeInteger(parsedParticipationId) || parsedParticipationId <= 0) {
+      throw new InvalidInput('Invalid participation image')
+    }
+
+    const imageConfigs: { uuid?: unknown }[] = Array.isArray(body.images) ? body.images : []
+    const assignedUuids =
+      submission.editionType === 'PRINT'
+        ? PRINT_IMAGE_COLUMNS.map((column) => body[column]).filter(
+            (uuid): uuid is string => typeof uuid === 'string' && uuid.length > 0,
+          )
+        : imageConfigs
+            .map((config) => config.uuid)
+            .filter((uuid): uuid is string => typeof uuid === 'string' && uuid.length > 0)
+
+    const images = assignedUuids.length
+      ? await Image.query().whereIn('uuid', assignedUuids)
+      : []
+    const knownUuids = new Set(images.map((image) => image.uuid))
+    const unknownUuid = assignedUuids.find((uuid) => !knownUuids.has(uuid))
+    if (unknownUuid) throw new InvalidInput(`Unknown image UUID: ${unknownUuid}`)
+
+    const participationImage = await ParticipationImage.query()
+      .where('id', parsedParticipationId)
+      .where('setSubmissionId', submission.id)
+      .whereNull('deletedAt')
+      .preload('image')
+      .first()
+
+    if (!participationImage?.image || !knownUuids.has(participationImage.image.uuid)) {
+      throw new InvalidInput('Participation image does not match an assigned image')
+    }
+
+    return participationImage
+  }
+
+  private async addParticipationCreator(
+    submission: SetSubmission,
+    participationImage: ParticipationImage,
+  ) {
+    const creatorAddress = participationImage.creatorAddress.toLowerCase()
+    if (creatorAddress === submission.creator.toLowerCase()) return
+
+    const account = await Account.firstOrCreate({ address: creatorAddress })
+    const existingCoCreator = await submission
+      .related('coCreators')
+      .query()
+      .where('accountId', account.id)
+      .first()
+
+    if (!existingCoCreator) {
+      await submission.related('coCreators').create({ accountId: account.id })
+    }
+  }
+
+  private async updatePrintImages(submission: SetSubmission, body: any) {
+    const uuids = PRINT_IMAGE_COLUMNS.filter((col) => body[col]).map((col) => body[col])
     const images = await Image.query().whereIn('uuid', uuids)
     const uuidToId = new Map(images.map((img) => [img.uuid, img.id]))
 
     const updateData = Object.fromEntries(
-      columns.flatMap((col) => {
+      PRINT_IMAGE_COLUMNS.flatMap((col) => {
         const uuid = body[col]
         if (!uuid) return []
         const id = uuidToId.get(uuid)
