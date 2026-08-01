@@ -4,10 +4,19 @@ export default class extends BaseSchema {
   protected tableName = 'co_creators'
 
   public async up() {
-    await this.schema.alterTable(this.tableName, (table) => {
-      table.boolean('is_manual').notNullable().defaultTo(true)
-      table.boolean('is_selected_contributor').notNullable().defaultTo(false)
-    })
+    if (!(await this.schema.hasColumn(this.tableName, 'is_manual'))) {
+      await this.db.rawQuery(`
+        ALTER TABLE co_creators
+        ADD COLUMN is_manual boolean NOT NULL DEFAULT true
+      `)
+    }
+
+    if (!(await this.schema.hasColumn(this.tableName, 'is_selected_contributor'))) {
+      await this.db.rawQuery(`
+        ALTER TABLE co_creators
+        ADD COLUMN is_selected_contributor boolean NOT NULL DEFAULT false
+      `)
+    }
 
     await this.db.rawQuery(`
       DELETE FROM co_creators duplicate
@@ -17,16 +26,23 @@ export default class extends BaseSchema {
         AND duplicate.account_id = original.account_id
     `)
 
-    await this.schema.alterTable(this.tableName, (table) => {
-      table.unique(['set_submission_id', 'account_id'])
-    })
+    await this.db.rawQuery(`
+      CREATE UNIQUE INDEX IF NOT EXISTS co_creators_submission_account_unique
+      ON co_creators (set_submission_id, account_id)
+    `)
   }
 
   public async down() {
-    await this.schema.alterTable(this.tableName, (table) => {
-      table.dropUnique(['set_submission_id', 'account_id'])
-      table.dropColumn('is_manual')
-      table.dropColumn('is_selected_contributor')
-    })
+    await this.db.rawQuery(`
+      DROP INDEX IF EXISTS co_creators_submission_account_unique
+    `)
+
+    if (await this.schema.hasColumn(this.tableName, 'is_manual')) {
+      await this.db.rawQuery(`ALTER TABLE co_creators DROP COLUMN is_manual`)
+    }
+
+    if (await this.schema.hasColumn(this.tableName, 'is_selected_contributor')) {
+      await this.db.rawQuery(`ALTER TABLE co_creators DROP COLUMN is_selected_contributor`)
+    }
   }
 }
