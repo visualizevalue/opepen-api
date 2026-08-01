@@ -496,7 +496,7 @@ export default class SetSubmissionsController extends BaseController {
 
     await this.creatorOrAdmin({ creator: submission.creatorAccount, session })
 
-    if (submission.publishedAt) {
+    if (submission.publishedAt && !isAdmin(session)) {
       throw new InvalidInput(`Can't edit published set`)
     }
 
