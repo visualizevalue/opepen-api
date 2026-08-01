@@ -1,12 +1,12 @@
 import { test } from '@japa/runner'
-import { hasDuplicateImageSelection } from 'App/Helpers/imageSelection'
+import { isImageSelectionUnique } from 'App/Helpers/imageSelection'
 
-test('detects duplicate image selections across slots', ({ assert }) => {
-  assert.isTrue(hasDuplicateImageSelection([1n, 2n, 1n]))
-  assert.isTrue(hasDuplicateImageSelection(['12', 12n]))
+test('rejects repeated image selections across slots', ({ assert }) => {
+  assert.isFalse(isImageSelectionUnique([1n, 2n, 1n]))
+  assert.isFalse(isImageSelectionUnique(['12', 12n]))
 })
 
-test('allows distinct and empty image selections', ({ assert }) => {
-  assert.isFalse(hasDuplicateImageSelection([1n, 2n, null, undefined, 3n]))
-  assert.isFalse(hasDuplicateImageSelection([null, null, undefined]))
+test('accepts distinct and empty image selections', ({ assert }) => {
+  assert.isTrue(isImageSelectionUnique([1n, 2n, null, undefined, 3n]))
+  assert.isTrue(isImageSelectionUnique([null, null, undefined]))
 })

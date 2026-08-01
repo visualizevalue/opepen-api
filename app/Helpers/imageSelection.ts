@@ -1,16 +1,9 @@
-export function hasDuplicateImageSelection(
+export function isImageSelectionUnique(
   imageIds: (bigint | number | string | null | undefined)[],
 ) {
-  const seen = new Set<string>()
+  const selectedImageIds = imageIds
+    .filter((imageId) => imageId !== null && imageId !== undefined)
+    .map(String)
 
-  for (const imageId of imageIds) {
-    if (imageId === null || imageId === undefined) continue
-
-    const normalizedId = String(imageId)
-    if (seen.has(normalizedId)) return true
-
-    seen.add(normalizedId)
-  }
-
-  return false
+  return new Set(selectedImageIds).size === selectedImageIds.length
 }

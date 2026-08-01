@@ -14,7 +14,7 @@ import InvalidInput from 'App/Exceptions/InvalidInput'
 import DynamicSetImages from 'App/Models/DynamicSetImages'
 import TimelineUpdate from 'App/Models/TimelineUpdate'
 import ParticipationImage from 'App/Models/ParticipationImage'
-import { hasDuplicateImageSelection } from 'App/Helpers/imageSelection'
+import { isImageSelectionUnique } from 'App/Helpers/imageSelection'
 import Database from '@ioc:Adonis/Lucid/Database'
 import type { TransactionClientContract } from '@ioc:Adonis/Lucid/Database'
 import {
@@ -541,7 +541,7 @@ export default class SetSubmissionsController extends BaseController {
   private assertUniqueImageSelection(
     imageIds: (bigint | number | string | null | undefined)[],
   ) {
-    if (hasDuplicateImageSelection(imageIds)) {
+    if (!isImageSelectionUnique(imageIds)) {
       throw new InvalidInput('The same image cannot be selected more than once')
     }
   }
