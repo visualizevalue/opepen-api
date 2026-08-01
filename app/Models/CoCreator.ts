@@ -12,6 +12,12 @@ export default class CoCreator extends BaseModel {
   @column()
   public accountId: number
 
+  @column()
+  public isManual: boolean
+
+  @column()
+  public isSelectedContributor: boolean
+
   @belongsTo(() => SetSubmission, {
     foreignKey: 'setSubmissionId',
   })
