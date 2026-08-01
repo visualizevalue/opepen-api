@@ -14,6 +14,13 @@ import InvalidInput from 'App/Exceptions/InvalidInput'
 import DynamicSetImages from 'App/Models/DynamicSetImages'
 import TimelineUpdate from 'App/Models/TimelineUpdate'
 import ParticipationImage from 'App/Models/ParticipationImage'
+import { isImageSelectionUnique } from 'App/Helpers/imageSelection'
+import Database from '@ioc:Adonis/Lucid/Database'
+import type { TransactionClientContract } from '@ioc:Adonis/Lucid/Database'
+import {
+  reconcileManualCoCreators,
+  reconcileSelectedCoCreators,
+} from 'App/Helpers/coCreatorAttribution'
 
 const PRINT_IMAGE_COLUMNS = [
   'edition_1ImageId',
@@ -23,6 +30,8 @@ const PRINT_IMAGE_COLUMNS = [
   'edition_20ImageId',
   'edition_40ImageId',
 ] as const
+
+const DYNAMIC_EDITIONS = [1, 4, 5, 10, 20, 40] as const
 
 export default class SetSubmissionsController extends BaseController {
   public async list({ request, session }: HttpContextContract) {
@@ -256,6 +265,8 @@ export default class SetSubmissionsController extends BaseController {
       request.input('edition_20_image_id', null),
       request.input('edition_40_image_id', null),
     ])
+    this.assertUniqueImageSelection(imageUUIDs)
+
     const images = await Promise.all(imageUUIDs.map((uuid) => Image.findBy('uuid', uuid)))
 
     // Maintain cache
@@ -291,13 +302,6 @@ export default class SetSubmissionsController extends BaseController {
       .filter((address: string) => isAddress(address))
       .map((address: string) => address.toLowerCase())
 
-    await submission.related('coCreators').query().delete()
-
-    for (const address of coCreatorAddresses) {
-      const account = await Account.firstOrCreate({ address })
-      await submission.related('coCreators').create({ accountId: account.id })
-    }
-
     const maxContributionsInput = parseInt(
       request.input('max_contributions_per_contributor', null),
     )
@@ -317,12 +321,12 @@ export default class SetSubmissionsController extends BaseController {
       edition_10Name: request.input('edition_10_name'),
       edition_20Name: request.input('edition_20_name'),
       edition_40Name: request.input('edition_40_name'),
-      edition_1ImageId: images[0]?.id,
-      edition_4ImageId: images[1]?.id,
-      edition_5ImageId: images[2]?.id,
-      edition_10ImageId: images[3]?.id,
-      edition_20ImageId: images[4]?.id,
-      edition_40ImageId: images[5]?.id,
+      edition_1ImageId: images[0]?.id ?? null,
+      edition_4ImageId: images[1]?.id ?? null,
+      edition_5ImageId: images[2]?.id ?? null,
+      edition_10ImageId: images[3]?.id ?? null,
+      edition_20ImageId: images[4]?.id ?? null,
+      edition_40ImageId: images[5]?.id ?? null,
       openForParticipation: request.input('open_for_participation', false),
       maxContributionsPerContributor,
     }
@@ -334,6 +338,15 @@ export default class SetSubmissionsController extends BaseController {
     }
 
     await submission.merge(updateData).save()
+
+    if (submission.editionType !== 'PRINT' && submission.dynamicSetImages) {
+      submission.dynamicSetImages.image_1_1_id = submission.edition_1ImageId
+      await submission.dynamicSetImages.save()
+      await submission.updateDynamicSetImagesCache()
+    }
+
+    await reconcileManualCoCreators(submission, coCreatorAddresses)
+    await reconcileSelectedCoCreators(submission)
     await submission.updateSearchString()
 
     return this.show(ctx)
@@ -483,17 +496,33 @@ export default class SetSubmissionsController extends BaseController {
 
     await this.creatorOrAdmin({ creator: submission.creatorAccount, session })
 
-    const body = request.body()
-    const participationImage = await this.validateParticipationSelection(submission, body)
-
-    if (submission.editionType === 'PRINT') {
-      await this.updatePrintImages(submission, body)
-    } else {
-      await this.updateDynamicImages(submission, body)
+    if (submission.publishedAt && !isAdmin(session)) {
+      throw new InvalidInput(`Can't edit published set`)
     }
 
-    if (participationImage) {
-      await this.addParticipationCreator(submission, participationImage)
+    const body = request.body()
+    await this.validateUniqueImageSelection(submission, body)
+    await this.validateParticipationSelection(submission, body)
+
+    await Database.transaction(async (trx) => {
+      submission.useTransaction(trx)
+      submission.dynamicSetImages?.useTransaction(trx)
+
+      if (submission.editionType === 'PRINT') {
+        await this.updatePrintImages(submission, body, trx)
+      } else {
+        await this.updateDynamicImages(submission, body, trx)
+      }
+
+      await reconcileSelectedCoCreators(submission, trx)
+    })
+
+    if (submission.editionType !== 'PRINT') {
+      const committedSubmission = await SetSubmission.query()
+        .where('id', submission.id)
+        .preload('dynamicSetImages')
+        .firstOrFail()
+      await committedSubmission.updateDynamicSetImagesCache()
     }
 
     return SetSubmission.query()
@@ -505,7 +534,100 @@ export default class SetSubmissionsController extends BaseController {
       .preload('edition20Image')
       .preload('edition40Image')
       .preload('dynamicSetImages')
+      .preload('coCreators', (query) => query.preload('account'))
       .firstOrFail()
+  }
+
+  private assertUniqueImageSelection(
+    imageIds: (bigint | number | string | null | undefined)[],
+  ) {
+    if (!isImageSelectionUnique(imageIds)) {
+      throw new InvalidInput('The same image cannot be selected more than once')
+    }
+  }
+
+  private async validateUniqueImageSelection(submission: SetSubmission, body: any) {
+    if (submission.editionType === 'PRINT') {
+      const requestedUuids = PRINT_IMAGE_COLUMNS.flatMap((column) => {
+        const uuid = body[column]
+        return typeof uuid === 'string' && uuid.length > 0 ? [uuid] : []
+      })
+      const images = requestedUuids.length
+        ? await Image.query().whereIn('uuid', [...new Set(requestedUuids)])
+        : []
+      const uuidToId = new Map(images.map((image) => [image.uuid, image.id]))
+      const unknownUuid = requestedUuids.find((uuid) => !uuidToId.has(uuid))
+
+      if (unknownUuid) throw new InvalidInput(`Unknown image UUID: ${unknownUuid}`)
+
+      const finalImageIds = PRINT_IMAGE_COLUMNS.map((column) => {
+        if (!Object.prototype.hasOwnProperty.call(body, column)) return submission[column]
+
+        const uuid = body[column]
+        if (uuid === null) return null
+
+        return typeof uuid === 'string' && uuid.length > 0 ? uuidToId.get(uuid) : null
+      })
+
+      this.assertUniqueImageSelection(finalImageIds)
+      return
+    }
+
+    if (body.images !== undefined && !Array.isArray(body.images)) {
+      throw new InvalidInput('Images must be an array')
+    }
+
+    const imageConfigs: { edition: number; index: number; uuid: string | null }[] =
+      body.images || []
+    const validSlots = new Set(
+      DYNAMIC_EDITIONS.flatMap((edition) =>
+        Array.from({ length: edition }, (_, index) => `${edition}:${index + 1}`),
+      ),
+    )
+
+    for (const config of imageConfigs) {
+      if (
+        !config ||
+        !Number.isInteger(config.edition) ||
+        !Number.isInteger(config.index) ||
+        !validSlots.has(`${config.edition}:${config.index}`) ||
+        (config.uuid !== null && (typeof config.uuid !== 'string' || config.uuid.length === 0))
+      ) {
+        throw new InvalidInput('Invalid dynamic image selection')
+      }
+    }
+
+    const requestedUuids = imageConfigs.flatMap(({ uuid }) =>
+      typeof uuid === 'string' && uuid.length > 0 ? [uuid] : [],
+    )
+    const images = requestedUuids.length
+      ? await Image.query().whereIn('uuid', [...new Set(requestedUuids)])
+      : []
+    const uuidToId = new Map(images.map((image) => [image.uuid, image.id]))
+    const unknownUuid = requestedUuids.find((uuid) => !uuidToId.has(uuid))
+
+    if (unknownUuid) throw new InvalidInput(`Unknown image UUID: ${unknownUuid}`)
+
+    const finalImageIds = new Map<string, bigint | null | undefined>()
+    finalImageIds.set('1:1', submission.edition_1ImageId)
+
+    for (const edition of DYNAMIC_EDITIONS.filter((edition) => edition !== 1)) {
+      for (let index = 1; index <= edition; index++) {
+        finalImageIds.set(
+          `${edition}:${index}`,
+          submission.dynamicSetImages?.[`image_${edition}_${index}_id`],
+        )
+      }
+    }
+
+    for (const { edition, index, uuid } of imageConfigs) {
+      finalImageIds.set(
+        `${edition}:${index}`,
+        typeof uuid === 'string' && uuid.length > 0 ? uuidToId.get(uuid) : null,
+      )
+    }
+
+    this.assertUniqueImageSelection([...finalImageIds.values()])
   }
 
   private async validateParticipationSelection(
@@ -551,79 +673,85 @@ export default class SetSubmissionsController extends BaseController {
     return participationImage
   }
 
-  private async addParticipationCreator(
+  private async updatePrintImages(
     submission: SetSubmission,
-    participationImage: ParticipationImage,
+    body: any,
+    client?: TransactionClientContract,
   ) {
-    const creatorAddress = participationImage.creatorAddress.toLowerCase()
-    if (creatorAddress === submission.creator.toLowerCase()) return
-
-    const account = await Account.firstOrCreate({ address: creatorAddress })
-    const existingCoCreator = await submission
-      .related('coCreators')
-      .query()
-      .where('accountId', account.id)
-      .first()
-
-    if (!existingCoCreator) {
-      await submission.related('coCreators').create({ accountId: account.id })
-    }
-  }
-
-  private async updatePrintImages(submission: SetSubmission, body: any) {
-    const uuids = PRINT_IMAGE_COLUMNS.filter((col) => body[col]).map((col) => body[col])
-    const images = await Image.query().whereIn('uuid', uuids)
+    const changedColumns = PRINT_IMAGE_COLUMNS.filter((column) =>
+      Object.prototype.hasOwnProperty.call(body, column),
+    )
+    const uuids = changedColumns.flatMap((column) =>
+      typeof body[column] === 'string' && body[column].length > 0 ? [body[column]] : [],
+    )
+    const images = uuids.length
+      ? await Image.query(client ? { client } : undefined).whereIn('uuid', uuids)
+      : []
     const uuidToId = new Map(images.map((img) => [img.uuid, img.id]))
 
     const updateData = Object.fromEntries(
-      PRINT_IMAGE_COLUMNS.flatMap((col) => {
+      changedColumns.map((col) => {
         const uuid = body[col]
-        if (!uuid) return []
+        if (uuid === null) return [col, null]
         const id = uuidToId.get(uuid)
         if (!id) throw new InvalidInput(`Unknown image UUID: ${uuid}`)
-        return [[col, id]]
+        return [col, id]
       }),
     )
 
     await submission.merge(updateData).save()
 
     if (submission.editionType === 'PRINT') {
-      await Image.query()
-        .where('setSubmissionId', submission.id)
-        .whereNotIn('uuid', uuids)
-        .update({ setSubmissionId: null })
-
-      await Promise.all(
-        images.map(async (image) => {
-          image.setSubmissionId = submission.id
-          await image.save()
-        }),
+      const selectedIds = PRINT_IMAGE_COLUMNS.map((column) => submission[column]).filter(
+        Boolean,
       )
+      const staleImages = Image.query(client ? { client } : undefined).where(
+        'setSubmissionId',
+        submission.id,
+      )
+
+      if (selectedIds.length) (staleImages as any).whereNotIn('id', selectedIds)
+      await staleImages.update({ setSubmissionId: null })
+
+      await (Image.query(client ? { client } : undefined) as any)
+        .whereIn('id', selectedIds)
+        .update({ setSubmissionId: submission.id })
     }
   }
 
-  private async updateDynamicImages(submission: SetSubmission, body: any) {
+  private async updateDynamicImages(
+    submission: SetSubmission,
+    body: any,
+    client?: TransactionClientContract,
+  ) {
     const imageConfigs: { edition: number; index: number; uuid: string | null }[] =
       body.images || []
 
     if (!submission.dynamicSetImages) {
-      const dynamicSetImages = await DynamicSetImages.create({})
+      const dynamicSetImages = await DynamicSetImages.create(
+        {},
+        client ? { client } : undefined,
+      )
       submission.dynamicSetImagesId = dynamicSetImages.id
+      submission.$setRelated('dynamicSetImages', dynamicSetImages)
       await submission.save()
-      await submission.load('dynamicSetImages')
     }
 
     const validUuids = imageConfigs
       .filter((c) => c.uuid !== null && c.uuid !== undefined)
       .map((c) => c.uuid as string)
 
-    const images = validUuids.length > 0 ? await Image.query().whereIn('uuid', validUuids) : []
+    const images =
+      validUuids.length > 0
+        ? await Image.query(client ? { client } : undefined).whereIn('uuid', validUuids)
+        : []
     const uuidToId = new Map(images.map((img) => [img.uuid, img.id]))
 
     for (const { edition, index, uuid } of imageConfigs) {
       // handle deletion case (when uuid is null)
       if (uuid === null || uuid === undefined) {
         submission.dynamicSetImages[`image_${edition}_${index}_id`] = null
+        if (edition === 1) submission.edition_1ImageId = null as any
         continue
       }
 
@@ -634,6 +762,7 @@ export default class SetSubmissionsController extends BaseController {
         submission.edition_1ImageId = imageId
 
         const img = images.find((img) => img.uuid === uuid)!
+        if (client) img.useTransaction(client)
         img.setSubmissionId = submission.id
         await img.save()
       }
@@ -643,7 +772,6 @@ export default class SetSubmissionsController extends BaseController {
 
     await submission.save()
     await submission.dynamicSetImages.save()
-    await submission.updateDynamicSetImagesCache()
   }
 
   protected async creatorOrAdmin({ creator, session }) {

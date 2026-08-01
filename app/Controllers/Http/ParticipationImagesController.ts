@@ -10,6 +10,8 @@ import NotAuthenticated from 'App/Exceptions/NotAuthenticated'
 import NotAuthorized from 'App/Exceptions/NotAuthorized'
 import BadRequest from 'App/Exceptions/BadRequest'
 import Image from 'App/Models/Image'
+import InvalidInput from 'App/Exceptions/InvalidInput'
+import { selectedImageIds } from 'App/Helpers/coCreatorAttribution'
 
 export default class ParticipationImagesController extends BaseController {
   public async store({ request, session }: HttpContextContract) {
@@ -85,6 +87,15 @@ export default class ParticipationImagesController extends BaseController {
       throw new NotAuthorized(
         'Only the set creator, the contributor, or an admin can delete participation images',
       )
+    }
+
+    await participationImage.setSubmission.load('dynamicSetImages')
+    const isSelected = selectedImageIds(participationImage.setSubmission).some(
+      (imageId) => imageId.toString() === participationImage.imageId.toString(),
+    )
+
+    if (isSelected) {
+      throw new InvalidInput('Remove this piece from the set before deleting its contribution')
     }
 
     participationImage.deletedAt = DateTime.now()
