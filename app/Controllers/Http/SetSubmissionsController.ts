@@ -14,6 +14,7 @@ import InvalidInput from 'App/Exceptions/InvalidInput'
 import DynamicSetImages from 'App/Models/DynamicSetImages'
 import TimelineUpdate from 'App/Models/TimelineUpdate'
 import ParticipationImage from 'App/Models/ParticipationImage'
+import { hasDuplicateImageSelection } from 'App/Helpers/imageSelection'
 
 const PRINT_IMAGE_COLUMNS = [
   'edition_1ImageId',
@@ -23,6 +24,8 @@ const PRINT_IMAGE_COLUMNS = [
   'edition_20ImageId',
   'edition_40ImageId',
 ] as const
+
+const DYNAMIC_EDITIONS = [1, 4, 5, 10, 20, 40] as const
 
 export default class SetSubmissionsController extends BaseController {
   public async list({ request, session }: HttpContextContract) {
@@ -256,6 +259,8 @@ export default class SetSubmissionsController extends BaseController {
       request.input('edition_20_image_id', null),
       request.input('edition_40_image_id', null),
     ])
+    this.assertUniqueImageSelection(imageUUIDs)
+
     const images = await Promise.all(imageUUIDs.map((uuid) => Image.findBy('uuid', uuid)))
 
     // Maintain cache
@@ -484,6 +489,7 @@ export default class SetSubmissionsController extends BaseController {
     await this.creatorOrAdmin({ creator: submission.creatorAccount, session })
 
     const body = request.body()
+    await this.validateUniqueImageSelection(submission, body)
     const participationImage = await this.validateParticipationSelection(submission, body)
 
     if (submission.editionType === 'PRINT') {
@@ -506,6 +512,96 @@ export default class SetSubmissionsController extends BaseController {
       .preload('edition40Image')
       .preload('dynamicSetImages')
       .firstOrFail()
+  }
+
+  private assertUniqueImageSelection(
+    imageIds: (bigint | number | string | null | undefined)[],
+  ) {
+    if (hasDuplicateImageSelection(imageIds)) {
+      throw new InvalidInput('The same image cannot be selected more than once')
+    }
+  }
+
+  private async validateUniqueImageSelection(submission: SetSubmission, body: any) {
+    if (submission.editionType === 'PRINT') {
+      const requestedUuids = PRINT_IMAGE_COLUMNS.flatMap((column) => {
+        const uuid = body[column]
+        return typeof uuid === 'string' && uuid.length > 0 ? [uuid] : []
+      })
+      const images = requestedUuids.length
+        ? await Image.query().whereIn('uuid', [...new Set(requestedUuids)])
+        : []
+      const uuidToId = new Map(images.map((image) => [image.uuid, image.id]))
+      const unknownUuid = requestedUuids.find((uuid) => !uuidToId.has(uuid))
+
+      if (unknownUuid) throw new InvalidInput(`Unknown image UUID: ${unknownUuid}`)
+
+      const finalImageIds = PRINT_IMAGE_COLUMNS.map((column) => {
+        const uuid = body[column]
+        return typeof uuid === 'string' && uuid.length > 0
+          ? uuidToId.get(uuid)
+          : submission[column]
+      })
+
+      this.assertUniqueImageSelection(finalImageIds)
+      return
+    }
+
+    if (body.images !== undefined && !Array.isArray(body.images)) {
+      throw new InvalidInput('Images must be an array')
+    }
+
+    const imageConfigs: { edition: number; index: number; uuid: string | null }[] =
+      body.images || []
+    const validSlots = new Set(
+      DYNAMIC_EDITIONS.flatMap((edition) =>
+        Array.from({ length: edition }, (_, index) => `${edition}:${index + 1}`),
+      ),
+    )
+
+    for (const config of imageConfigs) {
+      if (
+        !config ||
+        !Number.isInteger(config.edition) ||
+        !Number.isInteger(config.index) ||
+        !validSlots.has(`${config.edition}:${config.index}`) ||
+        (config.uuid !== null && (typeof config.uuid !== 'string' || config.uuid.length === 0))
+      ) {
+        throw new InvalidInput('Invalid dynamic image selection')
+      }
+    }
+
+    const requestedUuids = imageConfigs.flatMap(({ uuid }) =>
+      typeof uuid === 'string' && uuid.length > 0 ? [uuid] : [],
+    )
+    const images = requestedUuids.length
+      ? await Image.query().whereIn('uuid', [...new Set(requestedUuids)])
+      : []
+    const uuidToId = new Map(images.map((image) => [image.uuid, image.id]))
+    const unknownUuid = requestedUuids.find((uuid) => !uuidToId.has(uuid))
+
+    if (unknownUuid) throw new InvalidInput(`Unknown image UUID: ${unknownUuid}`)
+
+    const finalImageIds = new Map<string, bigint | null | undefined>()
+    finalImageIds.set('1:1', submission.edition_1ImageId)
+
+    for (const edition of DYNAMIC_EDITIONS.filter((edition) => edition !== 1)) {
+      for (let index = 1; index <= edition; index++) {
+        finalImageIds.set(
+          `${edition}:${index}`,
+          submission.dynamicSetImages?.[`image_${edition}_${index}_id`],
+        )
+      }
+    }
+
+    for (const { edition, index, uuid } of imageConfigs) {
+      finalImageIds.set(
+        `${edition}:${index}`,
+        typeof uuid === 'string' && uuid.length > 0 ? uuidToId.get(uuid) : null,
+      )
+    }
+
+    this.assertUniqueImageSelection([...finalImageIds.values()])
   }
 
   private async validateParticipationSelection(
