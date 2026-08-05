@@ -117,6 +117,9 @@ Route.group(() => {
     Route.post('/:id/subscribe', 'SetSubscriptionsController.subscribe')
   }).middleware(['auth'])
 
+  Route.get('/:id/participation', 'ParticipationImagesController.list')
+  Route.get('/:id/participation-stats', 'ParticipationImagesController.stats')
+
   Route.get('/:id/subscribers', 'SetSubscriptionsController.listSubscribers')
   Route.get('/:id/history', 'SetSubscriptionsController.history')
   Route.get('/:id/nodes-stats', 'SetSubscriptionsController.nodesStats')

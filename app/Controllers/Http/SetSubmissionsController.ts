@@ -155,7 +155,10 @@ export default class SetSubmissionsController extends BaseController {
     return submission
   }
 
-  public async show({ params }: HttpContextContract) {
+  public async show({ params, request }: HttpContextContract) {
+    const { includes = [] } = request.qs()
+    const requestedIncludes = Array.isArray(includes) ? includes : [includes]
+
     const submission = await SetSubmission.query()
       .where('uuid', params.id)
       .preload('set')
@@ -177,12 +180,20 @@ export default class SetSubmissionsController extends BaseController {
         query.preload('cover')
         query.orderBy('sortIndex')
       })
-      .preload('participationImages', (query) => {
-        query.whereNull('deletedAt')
-        query.preload('image')
-        query.preload('creator', (creatorQuery) => creatorQuery.preload('pfp'))
-        query.orderBy('createdAt', 'desc')
-      })
+      /*
+       * Only embedded when asked for. A busy set carries thousands of
+       * contributions, each with its image and creator, which made this
+       * response several megabytes and dwarfed everything else on it.
+       * Use the paginated `/:id/participation` route instead.
+       */
+      .if(requestedIncludes.includes('participationImages'), (query) =>
+        query.preload('participationImages', (participationQuery) => {
+          participationQuery.whereNull('deletedAt')
+          participationQuery.preload('image')
+          participationQuery.preload('creator', (creatorQuery) => creatorQuery.preload('pfp'))
+          participationQuery.orderBy('createdAt', 'desc')
+        }),
+      )
       .firstOrFail()
     // TODO: Implement rich content links
     // .preload('richContentLinks', query => {
