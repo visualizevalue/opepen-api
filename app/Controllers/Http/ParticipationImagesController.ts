@@ -14,6 +14,47 @@ import InvalidInput from 'App/Exceptions/InvalidInput'
 import { selectedImageIds } from 'App/Helpers/coCreatorAttribution'
 
 export default class ParticipationImagesController extends BaseController {
+  /**
+   * Contributions for a set, paginated.
+   *
+   * Previously these were embedded in the set submission response in full,
+   * which meant every visitor downloaded every contribution before the page
+   * could paint. Filter by `filter[creatorAddress]` to page through a single
+   * artist's work.
+   */
+  public async list({ params, request }: HttpContextContract) {
+    const { page = 1, limit = 24, filter = {}, sort = '-createdAt' } = request.qs()
+
+    const submission = await SetSubmission.query().where('uuid', params.id).firstOrFail()
+
+    const query = ParticipationImage.query()
+      .where('setSubmissionId', submission.id)
+      .whereNull('deletedAt')
+      .preload('image')
+      .preload('creator', (creatorQuery) => creatorQuery.preload('pfp'))
+
+    await this.applyFilters(query, filter)
+    await this.applySorts(query, sort)
+
+    return query.paginate(page, limit)
+  }
+
+  /** Contribution and contributor counts, so a client can size a list without fetching it. */
+  public async stats({ params }: HttpContextContract) {
+    const submission = await SetSubmission.query().where('uuid', params.id).firstOrFail()
+
+    const [contributions] = await Database.from('participation_images')
+      .where('set_submission_id', submission.id)
+      .whereNull('deleted_at')
+      .count('* as total')
+      .countDistinct('creator_address as contributors')
+
+    return {
+      contributions: Number(contributions.total),
+      contributors: Number(contributions.contributors),
+    }
+  }
+
   public async store({ request, session }: HttpContextContract) {
     const address = session.get('siwe')?.address?.toLowerCase()
     if (!address) throw new NotAuthenticated()
