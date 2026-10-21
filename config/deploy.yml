@@ -90,6 +90,7 @@ ssh:
   user: root
 
 volumes:
+  - /var/lib/opepen-api/cron-locks:/run/opepen-locks
   - /var/lib/opepen-api/tmp:/app/tmp
   - /var/lib/opepen-api/reveal-data:/app/app/Services/Metadata/Reveal/data
   - /var/lib/opepen-api/reveal-results:/app/app/Services/Metadata/Reveal/results

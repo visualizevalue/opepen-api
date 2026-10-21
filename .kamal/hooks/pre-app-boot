@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+set -euo pipefail
+bundle exec kamal app exec --roles=web -p --version="$KAMAL_VERSION" -- node ace migration:run --force
