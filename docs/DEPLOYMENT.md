@@ -53,9 +53,10 @@ log at `/var/log/opepen-db-backup.log`.
 The source was Cleavr server `44713170`, IP `5.161.113.81`. Its API and frontend
 were at the same application revisions as the local repositories. The production
 database and reveal files were copied to Kamal; a rehearsal restore was checked
-before the final transfer. The final cutover stops the old jobs and processes,
-transfers a fresh database snapshot, and forwards old Nginx traffic to Kamal over
-verified HTTPS. This keeps one writable database during DNS propagation.
+before the final transfer. The final cutover stopped the old jobs and processes,
+transferred a fresh database snapshot, and forwards old Nginx traffic to Kamal over
+verified HTTPS. This keeps one writable database during DNS propagation. See the
+[migration receipt](MIGRATION-2026-10-21.md) for the completed handover and checks.
 
 Set the A records for `opepen.art`, `api.opepen.art` and `metadata.opepen.art` to
 `5.78.66.101`. Keep `www` as a CNAME to `opepen.art`. No AAAA records were present
