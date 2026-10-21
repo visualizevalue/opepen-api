@@ -116,7 +116,7 @@ export const renderPage = async (url: string, dimension: number = 960, tries: nu
           ? `<img src="${url}" width="${dimension}" height="${dimension}" />`
           : `<video src="${url}" playsinline loop autoplay muted width="${dimension}" height="${dimension}"></video>`
         const html = `<body style="margin:0;">${item}</body>`
-        const dataUrl = `data:text/html;base64;charset=UTF-8,${Buffer.from(html).toString('base64')}`
+        const dataUrl = `data:text/html;charset=UTF-8;base64,${Buffer.from(html).toString('base64')}`
         await page.goto(dataUrl)
 
         // For media files, just wait a bit for them to load
