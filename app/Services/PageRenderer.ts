@@ -36,8 +36,6 @@ export const newBrowser = async () => {
       executablePath: Env.get('CHROMIUM_EXECUTABLE'),
       headless: true,
       args: [
-        '--single-process',
-        '--no-zygote',
         '--no-sandbox',
         '--disable-setuid-sandbox',
         '--disable-dev-shm-usage',
