@@ -97,7 +97,7 @@ volumes:
 
 accessories:
   db:
-    image: postgres:15-alpine
+    image: postgres:15.19-alpine
     host: 5.78.66.101
     port: '127.0.0.1:5436:5432'
     env:

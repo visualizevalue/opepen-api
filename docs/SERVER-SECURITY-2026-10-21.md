@@ -6,8 +6,10 @@ host access, network exposure, container isolation and runtime versions, the two
 migrated databases, TLS, secret-file exposure and backup recovery. Application
 code and dependency vulnerabilities require separate application reviews.
 
-The host baseline has been hardened and live checks pass. Disruptive Docker,
-database and kernel maintenance is prepared but has not yet been applied.
+The host baseline has been hardened, approved Docker/database/kernel maintenance
+is complete, and all 34 production containers and 22 public-hostname baselines
+pass. Application dependency and isolation findings remain below; this is not a
+claim that every hosted application is free of vulnerabilities.
 
 ## Changes applied and verified
 
@@ -49,20 +51,22 @@ The original configuration backup is under
 `/root/server-security-20261021T195850Z/`. These archives do not include SSH host
 private keys.
 
-## Maintenance prepared; approval required for downtime
+## Maintenance completed with downtime approval
 
-| Component | Running | Prepared target |
+| Component | Before | Verified after |
 | --- | --- | --- |
-| Kernel | `6.8.0-106-generic`, 211 days uptime | Installed `6.8.0-147-generic`, requires reboot |
+| Kernel | `6.8.0-106-generic`, 211 days uptime | Booted `6.8.0-147-generic`; reboot-required flag cleared |
 | Docker Engine | `29.3.0` | `29.9.2` from the configured official Docker repository |
 | containerd | `2.2.1` | `2.4.2` from the same repository |
-| Opepen PostgreSQL | `15.17` | Tested `postgres:15.19-alpine` |
-| Punkism PostgreSQL | `17.9` | Tested `postgres:17.11-alpine` |
+| Opepen PostgreSQL | `15.17` | Running and pinned to `postgres:15.19-alpine` |
+| Punkism PostgreSQL | `17.9` | Running and pinned to `postgres:17.11-alpine` |
 
-The Docker update and reboot affect all 34 production containers, including
-Checks, vv.xyz, the self-checkout services and IPFS. Every running container has
-`unless-stopped` restart policy, Docker is enabled at boot, and Ubuntu's SSH
-socket is enabled. Existing stopped replacement containers must remain stopped.
+The user approved the interruption to all 34 production containers, including
+Checks, vv.xyz, the self-checkout services and IPFS. Both database accessories
+were rebooted through their locked Kamal wrappers, retaining their data paths.
+Docker/containerd packages were updated, then the host rebooted at approximately
+20:16 UTC. Every running container has `unless-stopped` restart policy, Docker is
+enabled at boot, and Ubuntu's SSH socket is enabled.
 
 Fresh Opepen and Punkism database dumps were copied off the server and their
 SHA-256 checksums verified. Both full dumps were restored successfully in isolated
@@ -70,30 +74,66 @@ containers using the proposed PostgreSQL images: 30 public tables on 15.19 and
 12 on 17.11. These test containers had no network access or published ports, and
 their containers and volumes were removed afterward.
 
-The proposed PostgreSQL updates retain their major versions and persistent data
+The PostgreSQL updates retain their major versions and persistent data
 paths. Only `plpgsql` and, for Opepen, `uuid-ossp` are installed; there are no
 logical replication slots or `btree_gist`/`ltree` indexes requiring the additional
 release-note steps. Database collation versions are unset on these Alpine
-clusters. Keep the prior images available until the updates pass live checks.
+clusters. Prior database images were retained.
 
-Before a reboot, preserve the running-container and proxy manifests. Afterward,
-verify the kernel, daemon versions, all previously running containers, database
-versions and counts, the 22 hostname baselines, representative data endpoints,
-Chromium rendering, cron progress, and firewall/SSH settings.
+Running-container and proxy manifests were saved before maintenance. The reboot
+exposed conflicting static Docker IP assignments from earlier container
+replacements: seven containers failed network setup with `Address already in
+use`. Their network attachments were repaired, preserving all proxy/DNS aliases.
+The seven remaining static assignments were removed as well. All 14 containers
+now use Docker address allocation. A subsequent Docker restart, with live restore
+disabled, recovered all 34 containers automatically. Their application image IDs
+are unchanged, and all 39 previously stopped containers remain stopped.
+
+Final verification at approximately 20:24 UTC passed:
+
+- All 22 proxy hostnames matched their saved HTTP status and passed certificate
+  validation, including expected redirects, the IPFS admin 401 and API root 404.
+- Eight migrated-app data/rendering endpoints passed, including Opepen stats,
+  sets, token metadata and token 151's OG PNG; Punkism collections, artworks,
+  artists and its Chromium screenshot containing actual gallery artwork.
+- Chrome loaded both public sites with live content; both generated PNGs were
+  visually inspected.
+- Opepen retained 30 public tables, 16,000 tokens and 122 migration records.
+  Punkism retained 12 public tables, 229 artworks, 49 artists and 458 attachments.
+- Opepen's scheduled synchronization and reveal jobs resumed after maintenance;
+  its private cron environment remains mode 0600. Host cron and IPFS are healthy.
+- Docker, containerd, SSH socket, UFW, Fail2ban and cron are active; no failed
+  systemd units or pending reboot flag remain. SSH password login stays disabled.
+- Repeated IPv4 and IPv6 targeted scans expose only TCP 22, 80, 443 and 4001;
+  database/cache, registry, Docker API and IPFS management ports stay filtered.
 
 ## Remaining application and recovery hardening
 
+- GitHub's live Dependabot API reports 200 open Opepen API alerts: 5 critical,
+  91 high, 81 medium and 23 low. Four critical alerts are marked runtime scope
+  (`@adonisjs/bodyparser`, `form-data`, `elliptic`, `jsonpath-plus`); `basic-ftp`
+  is marked development scope. All five packages were confirmed present in the
+  running API image: bodyparser 8.1.7, form-data 4.0.0, elliptic 6.5.4,
+  jsonpath-plus 7.2.0 and basic-ftp 5.0.3. These findings require prompt triage and
+  tested upgrades; exploitability has not been established. Host
+  firewall and runtime updates do not resolve them. See the repository's
+  [Dependabot alerts](https://github.com/visualizevalue/opepen-api/security/dependabot).
 - Five other existing PostgreSQL containers are also behind the current minor
   release: `checks-indexer-db`, `selfcheckout-server-db`, `checks-api-db` and
   `vv-api-db` run 17.9; `vv-api-2023-db` runs 15.17. Plan their same-major patches
   with their service configuration and backups. These are separate from the two
-  migrated database updates prepared above.
+  migrated database updates completed above.
 - Both migrated applications connect using the PostgreSQL initialization role,
   which is a database superuser. Introduce separate administration/backup and
   least-privileged application roles with tested migration permissions.
 - Most existing application containers, including Opepen, use root/default
   users. Punkism's API and frontend already use the unprivileged `node` user.
   Move the remaining apps to unprivileged users with explicit writable paths.
+- Punkism's existing screenshot handler launches Chromium with `--no-sandbox`
+  and `--ignore-certificate-errors`. Remove the certificate-verification bypass
+  and test a supported browser sandbox configuration in an application release.
+  The public HTTPS certificate checks above do not establish certificate
+  verification inside this screenshot process.
 - All applications share the `kamal` Docker network. Per-application private
   database networks would reduce lateral access after an application compromise.
 - The new nightly database backups have 14-day local retention. Current manual

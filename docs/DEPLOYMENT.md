@@ -5,7 +5,7 @@ The API serves `api.opepen.art` and `metadata.opepen.art`; the frontend is in
 `visualizevalue/opepen-app` and deploys independently.
 
 See the [shared-host security review](SERVER-SECURITY-2026-10-21.md) for ingress
-rules, SSH hardening, verified controls and pending maintenance.
+rules, SSH hardening, completed maintenance and remaining findings.
 
 ## Deploy
 
@@ -35,7 +35,7 @@ is readable only by root inside that container.
 
 ## Data and credentials
 
-- PostgreSQL 15: accessory `opepen-api-db`, database/user `opepen`, data under
+- PostgreSQL 15.19 (`postgres:15.19-alpine`): accessory `opepen-api-db`, database/user `opepen`, data under
   `/root/opepen-api-db/data`. Its host port is bound only to `127.0.0.1:5436`.
   App containers connect over the private Docker network to `opepen-api-db:5432`.
 - `/var/lib/opepen-api/tmp`: temporary uploads and rendering files.
