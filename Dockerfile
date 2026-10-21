@@ -22,7 +22,7 @@ COPY --from=build /app/build ./
 COPY --from=dependencies /app/node_modules ./node_modules
 COPY bin/ ./bin/
 COPY config/crontab /etc/cron.d/opepen
-RUN chmod 0755 /app/bin/cron && chmod 0644 /etc/cron.d/opepen \
+RUN chmod 0755 /app/bin/cron /app/bin/web && chmod 0644 /etc/cron.d/opepen \
     && mkdir -p tmp/uploads app/Services/Metadata/Reveal/data app/Services/Metadata/Reveal/results
 EXPOSE 3333
-CMD ["node", "server.js"]
+CMD ["/app/bin/web"]

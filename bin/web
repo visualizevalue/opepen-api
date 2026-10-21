@@ -1,0 +1,6 @@
+#!/bin/sh
+set -eu
+# This service has one web container. Use its freshly uploaded runtime environment
+# for migrations, and fail readiness if a migration cannot complete.
+node ace migration:run --force
+exec node server.js

@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+set -euo pipefail
+umask 077
+backup_dir=/var/backups/opepen-api
+install -d -m 0700 "$backup_dir"
+exec 9>"$backup_dir/.lock"
+flock -n 9 || exit 0
+backup_path="$backup_dir/opepen-$(date -u +%Y%m%dT%H%M%SZ).dump"
+trap 'rm -f "$backup_path.partial"' EXIT
+docker exec opepen-api-db pg_dump -U opepen -d opepen -Fc --no-owner --no-acl > "$backup_path.partial"
+docker exec -i opepen-api-db pg_restore --list < "$backup_path.partial" > /dev/null
+mv "$backup_path.partial" "$backup_path"
+find "$backup_dir" -maxdepth 1 -type f -name 'opepen-*.dump' -mtime +14 -delete
+printf '%s Backup complete: %s\n' "$(date -u +%FT%TZ)" "$(basename "$backup_path")"
