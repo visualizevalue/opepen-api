@@ -1,0 +1,109 @@
+service: opepen-api
+image: <%= ENV.fetch("DOCKER_REGISTRY_USERNAME") %>/opepen-api
+
+servers:
+  web:
+    hosts:
+      - 5.78.66.101
+  cron:
+    hosts:
+      - 5.78.66.101
+    cmd: /app/bin/cron
+    proxy: false
+
+proxy:
+  ssl: true
+  hosts:
+    - api.opepen.art
+    - metadata.opepen.art
+  app_port: 3333
+  response_timeout: 120
+  healthcheck:
+    path: /
+    interval: 5
+    timeout: 30
+
+deploy_timeout: 300
+
+registry:
+  username: <%= ENV.fetch("DOCKER_REGISTRY_USERNAME") %>
+  password:
+    - KAMAL_REGISTRY_PASSWORD
+
+builder:
+  arch: amd64
+
+env:
+  clear:
+    NODE_ENV: production
+    HOST: 0.0.0.0
+    PORT: 3333
+    CHROMIUM_EXECUTABLE: /usr/bin/chromium
+    TZ: UTC
+  secret:
+    - APP_URL
+    - FRONTEND_URL
+    - APP_KEY
+    - SESSION_DRIVER
+    - CDN_URL
+    - DB_CONNECTION
+    - PG_HOST
+    - PG_PORT
+    - PG_USER
+    - PG_PASSWORD
+    - PG_DB_NAME
+    - DRIVE_DISK
+    - S3_KEY
+    - S3_SECRET
+    - S3_BUCKET
+    - S3_REGION
+    - S3_ENDPOINT
+    - RPC_PROVIDER
+    - REPLICATE_API_TOKEN
+    - RESERVOIR_BASE
+    - RESERVOIR_KEY
+    - OPENSEA_KEY
+    - OPENSEA_BASE
+    - OPEPEN_ADDRESS
+    - OPEPEN_START_BLOCK
+    - BURNED_OPEPEN_ADDRESS
+    - BURNED_OPEPEN_START_BLOCK
+    - UPDATE_ENS
+    - IPFS_GATEWAY
+    - SMTP_PORT
+    - SMTP_HOST
+    - SMTP_USERNAME
+    - SMTP_PASSWORD
+    - MAILGUN_API_KEY
+    - MAILGUN_DOMAIN
+    - CACHE_VIEWS
+    - SIGNATURE_API_BASE
+    - TG_ADMIN_BOT_KEY
+    - TWITTER_CLIENT_ID
+    - TWITTER_CLIENT_SECRET
+    - TWITTER_BEARER
+    - TWITTER_BOT_ACCOUNT_ADDRESS
+    - SEND_NOTIFICATIONS
+    - APP_NAME
+
+ssh:
+  user: root
+
+volumes:
+  - /var/lib/opepen-api/tmp:/app/tmp
+  - /var/lib/opepen-api/reveal-data:/app/app/Services/Metadata/Reveal/data
+  - /var/lib/opepen-api/reveal-results:/app/app/Services/Metadata/Reveal/results
+
+accessories:
+  db:
+    image: postgres:15-alpine
+    host: 5.78.66.101
+    port: '127.0.0.1:5436:5432'
+    env:
+      clear:
+        POSTGRES_DB: opepen
+        POSTGRES_USER: opepen
+      secret:
+        - POSTGRES_PASSWORD
+    directories:
+      - data:/var/lib/postgresql/data

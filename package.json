@@ -20,7 +20,6 @@
     "csv-parse": "^5.4.0",
     "pino-pretty": "^10.0.0",
     "prettier": "^3.5.3",
-    "puppeteer": "^22.2.0",
     "typescript": "^5.8.2",
     "youch": "^3.2.3",
     "youch-terminal": "^2.2.0"
@@ -59,7 +58,8 @@
     "socket.io": "^4.7.2",
     "source-map-support": "^0.5.21",
     "twitter-api-v2": "^1.23.2",
-    "uuid": "^9.0.0"
+    "uuid": "^9.0.0",
+    "puppeteer": "^22.2.0"
   },
   "packageManager": "yarn@1.22.19+sha1.4ba7fc5c6e704fce2066ecbfb0b0d8976fe62447"
 }

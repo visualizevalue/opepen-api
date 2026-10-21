@@ -14,3 +14,8 @@ app/Services/Metadata/Reveal/data/*
 !app/Services/Metadata/Reveal/data/001.json
 app/Services/Metadata/Reveal/results/*
 !app/Services/Metadata/Reveal/results/001.json
+
+# Deployment credentials, certificates and migration backups
+.env.production
+.local/
+.bundle/

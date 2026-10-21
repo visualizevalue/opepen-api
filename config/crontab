@@ -1,0 +1,12 @@
+SHELL=/bin/sh
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+21 13 * * * flock -n /run/opepen-notify-daily_movements.lock sh -c "cd /app && /usr/local/bin/node bin/run-scheduled.cjs notify:daily_movements" >> /proc/1/fd/1 2>> /proc/1/fd/2
+* * * * * flock -n /run/opepen-opepen-sync.lock sh -c "cd /app && /usr/local/bin/node bin/run-scheduled.cjs opepen:sync" >> /proc/1/fd/1 2>> /proc/1/fd/2
+*/2 * * * * flock -n /run/opepen-set-stage.lock sh -c "cd /app && /usr/local/bin/node bin/run-scheduled.cjs set:stage" >> /proc/1/fd/1 2>> /proc/1/fd/2
+51 */2 * * * flock -n /run/opepen-notify-random_opepen_set.lock sh -c "cd /app && /usr/local/bin/node bin/run-scheduled.cjs notify:random_opepen_set" >> /proc/1/fd/1 2>> /proc/1/fd/2
+19 */2 * * * flock -n /run/opepen-import-opepen_listings.lock sh -c "cd /app && /usr/local/bin/node bin/run-scheduled.cjs import:opepen_listings" >> /proc/1/fd/1 2>> /proc/1/fd/2
+30 */4 * * * flock -n /run/opepen-import-opepen_bids.lock sh -c "cd /app && /usr/local/bin/node bin/run-scheduled.cjs import:opepen_bids" >> /proc/1/fd/1 2>> /proc/1/fd/2
+*/10 * * * * flock -n /run/opepen-notify-nodes.lock sh -c "sleep 15; cd /app && /usr/local/bin/node bin/run-scheduled.cjs notify:nodes" >> /proc/1/fd/1 2>> /proc/1/fd/2
+* * * * * flock -n /run/opepen-reveal-execute.lock sh -c "cd /app && /usr/local/bin/node bin/run-scheduled.cjs reveal:execute" >> /proc/1/fd/1 2>> /proc/1/fd/2
+* * * * * flock -n /run/opepen-reveal-schedule.lock sh -c "cd /app && /usr/local/bin/node bin/run-scheduled.cjs reveal:schedule" >> /proc/1/fd/1 2>> /proc/1/fd/2
