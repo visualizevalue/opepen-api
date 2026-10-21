@@ -4,6 +4,9 @@ Opepen runs on Hetzner server `122996717` (`5.78.66.101`) using Kamal 2.11.
 The API serves `api.opepen.art` and `metadata.opepen.art`; the frontend is in
 `visualizevalue/opepen-app` and deploys independently.
 
+See the [shared-host security review](SERVER-SECURITY-2026-10-21.md) for ingress
+rules, SSH hardening, verified controls and pending maintenance.
+
 ## Deploy
 
 Use the Ruby version in `.ruby-version`, Docker, SSH access as root, and the

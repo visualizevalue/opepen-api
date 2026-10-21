@@ -1,0 +1,72 @@
+#!/usr/bin/env bash
+set -euo pipefail
+umask 077
+
+if [[ ${1:-} != --apply || $EUID -ne 0 ]]; then
+  echo 'Run as root with --apply on the shared Kamal host.' >&2
+  exit 1
+fi
+ip -4 -o addr show dev eth0 | grep -q '5\.78\.66\.101/'
+command -v ufw >/dev/null
+command -v fail2ban-client >/dev/null
+
+run_dir="/root/server-security-$(date -u +%Y%m%dT%H%M%SZ)"
+install -d -m 700 "$run_dir" /etc/ssh/sshd_config.d /etc/fail2ban/jail.d
+tar -czf "$run_dir/before.tar.gz" -C / \
+  etc/ssh/sshd_config etc/ssh/sshd_config.d etc/ufw etc/default/ufw
+ufw status > "$run_dir/ufw-before.txt"
+
+cat > "$run_dir/rollback" <<EOF
+#!/usr/bin/env bash
+set -eu
+ufw --force disable
+rm -f /etc/ssh/sshd_config.d/00-kamal-hardening.conf
+tar -xzf '$run_dir/before.tar.gz' -C /
+if grep -q '^Status: active' '$run_dir/ufw-before.txt'; then
+  ufw --force enable
+fi
+sshd -t
+systemctl reload ssh
+EOF
+chmod 700 "$run_dir/rollback"
+rollback_unit="kamal-hardening-rollback-$(date -u +%Y%m%dT%H%M%SZ)"
+systemd-run --unit="$rollback_unit" --on-active=5m "$run_dir/rollback"
+printf '%s\n' "$rollback_unit" > /root/kamal-hardening-rollback-unit
+
+cat > /etc/ssh/sshd_config.d/00-kamal-hardening.conf <<'EOF'
+# Kamal deploys as root using existing public keys.
+PermitRootLogin prohibit-password
+PasswordAuthentication no
+KbdInteractiveAuthentication no
+PubkeyAuthentication yes
+X11Forwarding no
+EOF
+sshd -t
+systemctl reload ssh
+
+# Add before enabling. Docker-published ports are additionally filtered by the
+# provider firewall; UFW alone does not filter Docker's DNAT forwarding path.
+ufw default deny incoming
+ufw default allow outgoing
+for port in 22 80 443 4001; do
+  ufw allow "$port/tcp" comment 'Kamal public services'
+done
+ufw allow 4001/udp comment 'IPFS QUIC'
+ufw --force enable
+
+cat > /etc/fail2ban/jail.d/kamal-sshd.local <<'EOF'
+[sshd]
+enabled = true
+backend = systemd
+port = ssh
+findtime = 10m
+maxretry = 8
+bantime = 1h
+EOF
+fail2ban-client -t
+systemctl enable --now fail2ban
+systemctl restart fail2ban
+
+printf 'Verify a NEW SSH session and live services, then cancel rollback:\n'
+printf 'systemctl stop %s.timer\n' "$rollback_unit"
+printf 'Configuration backup: %s/before.tar.gz\n' "$run_dir"
