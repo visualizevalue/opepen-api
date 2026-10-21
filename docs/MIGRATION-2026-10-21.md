@@ -1,11 +1,12 @@
 # Cleavr to Kamal migration — 21 October 2026
 
-The production handover is complete. DNS is intentionally unchanged:
-`opepen.art`, `api.opepen.art`, and `metadata.opepen.art` still resolve to
-`5.161.113.81`; its Nginx forwards to Kamal on `5.78.66.101` using verified TLS.
-Change those three A records to `5.78.66.101` and retain the existing `www` CNAME.
-Keep the old server until DNS propagation and public checks are complete.
-No server has been deleted.
+The migration and retirement are complete. `opepen.art`, `api.opepen.art`, and
+`metadata.opepen.art` resolve directly to `5.78.66.101`; `www` remains a CNAME to
+the apex. Authoritative DNS, Cloudflare and Google resolvers agreed, with no AAAA
+records. Old Hetzner server `44713170` (`5.161.113.81`) and its primary IPv4/IPv6
+were permanently deleted after explicit user confirmation. The Cleavr Opepen
+server entry, both sites and both deployment workflows were removed; their
+inventories now contain only the unrelated Punkism resources.
 
 ## Releases
 
@@ -40,11 +41,32 @@ the `www` canonical redirect.
 - The first backup completed at `2026-10-21T17:44:29Z`. Nightly local backups run
   at 03:37 UTC with 14-day retention.
 
-The old API Nginx entry was a regular file in `sites-enabled`, so both its active
-and available configuration were updated. Forwarding disables the old frontend
-cache, verifies certificate chains to depth 3, and disables upstream TLS session
-reuse so the different hostnames have separate TLS sessions. Both applications
-forward to `https://5.78.66.101` with their original Host/SNI values.
+During propagation, the old API Nginx entry was a regular file in `sites-enabled`,
+so both its active and available configuration were updated. Forwarding disabled
+the old frontend cache, verified certificate chains to depth 3, and disabled
+upstream TLS session reuse so the different hostnames had separate TLS sessions. Both applications
+forwarded to `https://5.78.66.101` with their original Host/SNI values. This
+temporary bridge no longer exists.
+
+## Backups and retirement
+
+- The full production backup at `2026-10-21T18:17:02Z` includes `opepen.dump`,
+  global roles, archive contents, manifests and checksums. It was restored into a
+  disposable database: 30 public tables, 16,000 tokens and 122 migrations passed.
+  Copies remain at `/var/backups/opepen-api/manual-20261021T181702Z/` on Kamal and
+  `.local/backups/manual-20261021T181702Z/` locally, with private permissions.
+- Before shutdown, all three old databases (`opepen`, `opepen_staging`,
+  `testing_opepen`), their global roles, source/configuration, Nginx, PM2 and root
+  cron state were archived to
+  `/var/backups/opepen-api/retired-cleavr-20261021.tar.gz` on Kamal (445,461,707
+  bytes, mode 0600). Extracted files are retained alongside it. Every inner
+  checksum and PostgreSQL archive listing passed. Archive SHA-256:
+  `ed518700737e536059f4679dc46942a2aeadf0377a7555d67048072bc54219c7`.
+- The old machine was powered off first. Public frontend, API, submissions and
+  metadata still returned HTTP 200 directly from Kamal. Only then was it deleted.
+- Cleavr's provider delete failed because its VPS token was invalid. After the
+  provider deletion succeeded in Hetzner, Cleavr's Forget Server action removed
+  the server and associated sites/workflows without changing provider access.
 
 ## Verification
 
@@ -67,6 +89,13 @@ passed. Public WebSocket upgrades passed through the old server. Chrome rendered
 the collection and a full set detail view with artwork loading from Spaces.
 Checks API, Checks website and vv.xyz also returned HTTP 200 after deployment.
 
+After permanent deletion, seven public probes (root, collection, set detail,
+API root, stats, submissions and token metadata) all returned HTTP 200 from
+`5.78.66.101` with valid TLS. The exact deployed frontend, web, cron and database
+containers remained running. Checks and screenshots are retained privately in
+`.local/migration/`, including `post-deletion-checks.json`, `hetzner-retired.png`
+and `cleavr-retired.png`.
+
 No wallet message was signed, notification email sent, or real reveal triggered
 as a test. Real wallet authentication, submissions, notifications and reveals
 remain normal production operations rather than synthetic test actions.
@@ -77,4 +106,4 @@ application behavior predates this deployment and was not changed by the migrati
 
 See [DEPLOYMENT.md](DEPLOYMENT.md) for deployment, backups, data paths and rollback.
 Private snapshots, manifests, logs and original configurations remain under
-`.local/migration` locally and `/root/opepen-migration` on the servers.
+`.local/migration` locally and in the retained backup directories on Kamal.

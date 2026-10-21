@@ -50,35 +50,37 @@ log at `/var/log/opepen-db-backup.log`.
 
 ## 2026-10-21 migration and DNS cutover
 
-The source was Cleavr server `44713170`, IP `5.161.113.81`. Its API and frontend
+The source was Hetzner server `44713170`, IP `5.161.113.81`, managed by Cleavr. Its API and frontend
 were at the same application revisions as the local repositories. The production
 database and reveal files were copied to Kamal; a rehearsal restore was checked
 before the final transfer. The final cutover stopped the old jobs and processes,
-transferred a fresh database snapshot, and forwards old Nginx traffic to Kamal over
-verified HTTPS. This keeps one writable database during DNS propagation. See the
+transferred a fresh database snapshot, and forwarded old Nginx traffic to Kamal over
+verified HTTPS during DNS propagation. See the
 [migration receipt](MIGRATION-2026-10-21.md) for the completed handover and checks.
 
-Set the A records for `opepen.art`, `api.opepen.art` and `metadata.opepen.art` to
-`5.78.66.101`. Keep `www` as a CNAME to `opepen.art`. No AAAA records were present
-at migration time; do not leave any record pointing to the old server.
+The A records for `opepen.art`, `api.opepen.art` and `metadata.opepen.art` now point
+to `5.78.66.101`. `www` is a CNAME to `opepen.art`; no AAAA records are present.
 
 Kamal uses `ssl: true`. Existing unexpired certificates were securely seeded into
-the proxy's ACME cache, so HTTPS works before DNS changes; Kamal will renew them
-automatically once DNS points to this server. No static certificate configuration
-or manual TLS switch is required. Verify direct traffic before retiring Cleavr:
+the proxy's ACME cache. Kamal renews them automatically. No static certificate
+configuration or manual TLS switch is required. To verify direct traffic:
 
 ```sh
 curl --resolve api.opepen.art:443:5.78.66.101 https://api.opepen.art/
 curl --resolve metadata.opepen.art:443:5.78.66.101 https://metadata.opepen.art/1/metadata.json
 ```
 
-Private migration snapshots, original crontab/Nginx/PM2 state, and manifests are
-in `/root/opepen-migration` on the relevant servers and `.local/migration` locally.
-Keep the old server until DNS has propagated and public behavior is verified.
-It remains a forwarding bridge, not an independent writable deployment.
+The old Hetzner server and primary IPs were permanently deleted after DNS and
+public checks passed with it powered off. Its Cleavr server, sites and deployment
+workflows were removed too. There is no forwarding bridge or old host to restart.
 
-Do not start the old API or restore the old Nginx configuration after cutover:
-its database becomes stale as soon as the new deployment accepts writes. To
-return traffic to Cleavr, first pause new writes/jobs and transfer the current
-Kamal database and reveal files back, then restore the old processes/routing.
-Use Kamal image rollback for application-only problems.
+The restore-tested full production backup is retained at
+`/var/backups/opepen-api/manual-20261021T181702Z/` and locally at
+`.local/backups/manual-20261021T181702Z/`. The old machine's databases and
+source/configuration archive is `/var/backups/opepen-api/retired-cleavr-20261021.tar.gz`.
+These manual archives are outside the nightly retention pattern. See the receipt
+for validation and checksums. Private verification logs remain in `.local/migration`.
+
+Use Kamal image rollback for application-only problems. Infrastructure recovery
+requires provisioning a replacement host and restoring the current database and
+reveal files; the archived old database is a historical snapshot.
